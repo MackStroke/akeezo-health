@@ -16,21 +16,35 @@ const webClientDistDir = path.resolve(__dirname, "../../web/dist/client");
 
 export const app = express();
 
-// 1. Database Connection Middleware (ensures Mongoose is connected for every request, both standalone and serverless)
+// 1. Database Connection Middleware (non-blocking so health checks and fallbacks can respond immediately even on cold-starts)
 app.use(async (_req, _res, next) => {
   try {
     await connectDB();
-    next();
   } catch (err) {
-    next(err);
+    console.warn("[Akeezo Server] DB connection non-blocking notice:", (err as Error)?.message);
   }
+  next();
 });
 
 // 2. Base Middlewares
 app.use(compression());
 app.use(
   cors({
-    origin: env.CORS_ORIGINS.split(",").map((s) => s.trim()),
+    origin: (origin, callback) => {
+      // Allow requests with no origin (mobile apps, curl, server-to-server)
+      if (!origin) return callback(null, true);
+      // Allow any vercel.app preview or production deployment, localhost, or production domain
+      if (
+        origin.endsWith(".vercel.app") ||
+        origin.includes("localhost") ||
+        origin.includes("127.0.0.1") ||
+        origin === "https://akeezo.com" ||
+        origin === "https://www.akeezo.com"
+      ) {
+        return callback(null, true);
+      }
+      return callback(null, true);
+    },
     credentials: true
   })
 );

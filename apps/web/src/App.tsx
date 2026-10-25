@@ -2,29 +2,28 @@ import type { PublicRouteResponseDTO } from "@akeezo/contracts";
 import { HomeTemplate } from "./templates/HomeTemplate.js";
 import { LegalTemplate } from "./templates/LegalTemplate.js";
 import { NotFoundTemplate } from "./templates/NotFoundTemplate.js";
+import { getDefaultRouteData } from "./defaultData.js";
 
 export interface AppProps {
   data?: PublicRouteResponseDTO;
 }
 
 export function App({ data }: AppProps) {
-  if (!data) {
-    return (
-      <div style={{ display: "flex", alignItems: "center", justifyContent: "center", minHeight: "100vh" }}>
-        <p>Loading AKEEZO...</p>
-      </div>
+  const currentData =
+    data ||
+    getDefaultRouteData(
+      typeof window !== "undefined" ? window.location.pathname : "/"
     );
-  }
 
-  switch (data.pageKind) {
+  switch (currentData.pageKind) {
     case "home":
-      return <HomeTemplate data={data} />;
+      return <HomeTemplate data={currentData} />;
     case "legal":
-      return <LegalTemplate data={data} />;
+      return <LegalTemplate data={currentData} />;
     case "notFound":
-      return <NotFoundTemplate data={data} />;
+      return <NotFoundTemplate data={currentData} />;
     default:
-      return <NotFoundTemplate data={data} />;
+      return <NotFoundTemplate data={currentData} />;
   }
 }
 

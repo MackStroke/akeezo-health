@@ -3,7 +3,6 @@ import path from "node:path";
 import { fileURLToPath, pathToFileURL } from "node:url";
 import { PassThrough } from "node:stream";
 import type { Request, Response, NextFunction } from "express";
-import { createServer as createViteServer, type ViteDevServer } from "vite";
 import { RouteEntry, ContentRevision, SiteSettings } from "../db/models/index.js";
 import {
   type PublicRouteResponseDTO,
@@ -17,15 +16,16 @@ const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 const webRoot = path.resolve(__dirname, "../../../web");
 
-let viteDevServer: ViteDevServer | null = null;
+let viteDevServer: any = null;
 
-export async function getViteServer(): Promise<ViteDevServer | null> {
+export async function getViteServer(): Promise<any> {
   if (env.NODE_ENV === "production") {
     return null;
   }
   if (!viteDevServer) {
     try {
-      viteDevServer = await createViteServer({
+      const { createServer } = await import("vite");
+      viteDevServer = await createServer({
         root: webRoot,
         server: { middlewareMode: true },
         appType: "custom",

@@ -1,0 +1,25 @@
+{
+  "cleanUrls": true,
+  "rewrites": [
+    {
+      "source": "/case-management/assets/(.*)",
+      "destination": "/assets/$1"
+    },
+    {
+      "source": "/case-management/(.*)",
+      "destination": "/index.html"
+    },
+    {
+      "source": "/case-management",
+      "destination": "/index.html"
+    },
+    {
+      "source": "/assets/(.*)",
+      "destination": "/assets/$1"
+    },
+    {
+      "source": "/(.*)",
+      "destination": "/index.html"
+    }
+  ]
+}

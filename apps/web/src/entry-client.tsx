@@ -1,6 +1,7 @@
 import { hydrateRoot, createRoot } from "react-dom/client";
 import type { PublicRouteResponseDTO } from "@akeezo/contracts";
 import { App } from "./App.js";
+import { getDefaultRouteData } from "./defaultData.js";
 import "./index.css";
 
 declare global {
@@ -17,17 +18,22 @@ if (container) {
     hydrateRoot(container, <App data={initialData} />);
   } else {
     // When running as a standalone Vite service on Vercel without SSR injection,
-    // fetch initial route payload from the API service.
+    // render immediately with fallback route data so user never encounters a blank loader screen.
     const path = window.location.pathname || "/";
+    const defaultData = getDefaultRouteData(path);
+    const root = createRoot(container);
+    root.render(<App data={defaultData} />);
+
+    // In background, fetch the latest published CMS route payload from the API service.
     fetch(`/api/v1/route?path=${encodeURIComponent(path)}`)
       .then((res) => (res.ok ? res.json() : null))
       .then((json) => {
-        const data = json?.data;
-        createRoot(container).render(<App data={data} />);
+        if (json?.data) {
+          root.render(<App data={json.data} />);
+        }
       })
       .catch((err) => {
-        console.warn("[Akeezo Client] Standalone route fetch failed, mounting fallback:", err);
-        createRoot(container).render(<App />);
+        console.warn("[Akeezo Client] Standalone route background fetch notice:", err);
       });
   }
 }
