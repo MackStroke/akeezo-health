@@ -862,7 +862,10 @@ caseManagementRouter.post("/payments", async (req: Request, res: Response) => {
     const parsed = RecordPaymentSchema.parse(req.body);
 
     // Validate allocations sum <= payment amount
-    const allocatedSum = parsed.allocations.reduce((sum, a) => sum + a.amountMinor, 0);
+    const allocatedSum = (parsed.allocations || []).reduce(
+      (sum: number, a: { amountMinor: number }) => sum + a.amountMinor,
+      0
+    );
     if (allocatedSum > parsed.amountMinor) {
       return res.status(422).json({
         error: {

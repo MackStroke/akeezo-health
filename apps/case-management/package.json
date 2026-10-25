@@ -5,7 +5,8 @@
   "type": "module",
   "scripts": {
     "dev": "vite",
-    "build": "tsc && vite build",
+    "prebuild": "pnpm --filter @akeezo/contracts build && pnpm --filter @akeezo/ui build",
+    "build": "pnpm --filter @akeezo/contracts build && pnpm --filter @akeezo/ui build && tsc && vite build",
     "preview": "vite preview"
   },
   "dependencies": {

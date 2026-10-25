@@ -5,9 +5,10 @@
   "type": "module",
   "scripts": {
     "dev": "vite",
+    "prebuild": "pnpm --filter @akeezo/contracts build && pnpm --filter @akeezo/ui build",
     "build:client": "vite build --outDir dist/client",
     "build:server": "vite build --ssr src/entry-server.tsx --outDir dist/server",
-    "build": "tsc -b && pnpm build:client && pnpm build:server",
+    "build": "pnpm --filter @akeezo/contracts build && pnpm --filter @akeezo/ui build && tsc -b && pnpm build:client && pnpm build:server",
     "lint": "eslint .",
     "format": "prettier --write \"**/*.{ts,tsx}\"",
     "typecheck": "tsc --noEmit",
