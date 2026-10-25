@@ -208,7 +208,11 @@ export const LegalTemplate: React.FC<LegalTemplateProps> = ({ data }) => {
               <a href="mailto:care@akeezo.com" style={{ color: colors.actionTeal, fontWeight: 700 }}>
                 care@akeezo.com
               </a>{" "}
-              or call our 24/7 Desk at <strong>+91 82876 39443</strong>.
+              or call our 24/7 Desk at{" "}
+              <a href="tel:+918287639443" style={{ color: colors.actionTeal, fontWeight: 700 }}>
+                +91 82876 39443
+              </a>
+              .
             </p>
           </div>
         );
@@ -401,7 +405,9 @@ export const LegalTemplate: React.FC<LegalTemplateProps> = ({ data }) => {
                 </a>
 
                 <strong>Helpline / Desk:</strong>
-                <span>+91 82876 39443</span>
+                <a href="tel:+918287639443" style={{ color: colors.actionTeal, fontWeight: 700 }}>
+                  +91 82876 39443
+                </a>
 
                 <strong>Registered Office:</strong>
                 <span>Regus Elegance, Jasola District Centre, New Delhi, India 110025</span>

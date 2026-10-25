@@ -76,25 +76,9 @@ export const LegalLayout: React.FC<LegalLayoutProps> = ({
 
       {/* Main Body */}
       <div className="container" style={{ padding: "40px var(--page-gutter) 80px", flex: 1 }}>
-        <div
-          style={{
-            display: "grid",
-            gridTemplateColumns: "repeat(12, 1fr)",
-            gap: "32px",
-            alignItems: "start"
-          }}
-        >
+        <div className="flex flex-col lg:grid lg:grid-cols-12 gap-8 items-start w-full">
           {/* Left Sticky Sidebar */}
-          <aside
-            style={{
-              gridColumn: "span 4",
-              display: "flex",
-              flexDirection: "column",
-              gap: "24px",
-              position: "sticky",
-              top: "90px"
-            }}
-          >
+          <aside className="w-full lg:col-span-4 flex flex-col gap-6 lg:sticky lg:top-[90px]">
             {/* Legal Documents Nav */}
             <div
               style={{
@@ -197,17 +181,7 @@ export const LegalLayout: React.FC<LegalLayoutProps> = ({
           </aside>
 
           {/* Right Main Article */}
-          <article
-            style={{
-              gridColumn: "span 8",
-              backgroundColor: "#ffffff",
-              border: "1px solid var(--border)",
-              borderRadius: "var(--radius-card)",
-              padding: "40px",
-              boxShadow: "var(--shadow-card)",
-              lineHeight: 1.7
-            }}
-          >
+          <article className="w-full lg:col-span-8 bg-white border border-border rounded-[20px] p-6 sm:p-10 shadow-xs leading-relaxed overflow-x-hidden">
             {children}
           </article>
         </div>

@@ -40,3 +40,22 @@ describe("Website Audit Task 1: Route SEO Metadata Definitions", () => {
     assert.equal(serverError.seo.title, "500 - Server Error | AKEEZO Healthcare Platform");
   });
 });
+
+describe("Website Audit Task 2: Responsive LegalLayout & Mobile Optimization", () => {
+  it("Legal layout renders clickable DPO email and phone numbers without layout overflow", () => {
+    const privacyData = getDefaultRouteData("/privacy");
+    const privacyHtml = renderToString(React.createElement(LegalTemplate, { data: privacyData }));
+
+    assert.ok(privacyHtml.includes('href="mailto:dpo@akeezo.com"'), "DPO email must be clickable mailto");
+    assert.ok(!privacyHtml.includes("grid-template-columns"), "Legal layout must use responsive classes instead of inline grid-template-columns");
+
+    const grievanceData = getDefaultRouteData("/grievance-officer");
+    const grievanceHtml = renderToString(React.createElement(LegalTemplate, { data: grievanceData }));
+    assert.ok(grievanceHtml.includes('<a href="tel:+918287639443"'), "Grievance Officer designated contact must have clickable tel link");
+    assert.ok(grievanceHtml.includes('href="mailto:grievance@akeezo.com"'), "Grievance Officer email must be clickable mailto link");
+
+    const termsData = getDefaultRouteData("/terms");
+    const termsHtml = renderToString(React.createElement(LegalTemplate, { data: termsData }));
+    assert.ok(termsHtml.includes('<a href="tel:+918287639443"'), "Terms of Service contact section must have clickable tel link");
+  });
+});
