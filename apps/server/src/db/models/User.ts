@@ -4,12 +4,13 @@ import { ROLE_KEYS, RoleKey, DEFAULT_ROLE_PERMISSIONS } from "@akeezo/contracts"
 export interface IUser extends Document {
   name: string;
   email: string;
-  phone?: string;
+  phone: string;
   role: RoleKey;
   permissions: string[];
   passwordHash: string;
   status: "active" | "disabled";
-  totpEnabled: boolean;
+  phoneVerified: boolean;
+  totpEnabled?: boolean;
   lastLoginAt?: Date;
   createdAt: Date;
   updatedAt: Date;
@@ -19,11 +20,12 @@ const UserSchema = new Schema<IUser>(
   {
     name: { type: String, required: true, trim: true },
     email: { type: String, required: true, unique: true, lowercase: true, trim: true },
-    phone: { type: String, trim: true },
+    phone: { type: String, trim: true, default: "+91 82876 39443" },
     role: { type: String, required: true, enum: ROLE_KEYS, default: "coordinator" },
     permissions: [{ type: String }],
     passwordHash: { type: String, required: true },
     status: { type: String, enum: ["active", "disabled"], default: "active" },
+    phoneVerified: { type: Boolean, default: true },
     totpEnabled: { type: Boolean, default: false },
     lastLoginAt: { type: Date },
   },

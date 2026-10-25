@@ -8,50 +8,50 @@ export const RbacView: React.FC = () => {
       scope: "Overall System & Platform",
       permissions: "Overall responsible for website management, brand settings, user access, and super admin of managing Case Management System. Authoritative oversight.",
       badge: "Super Admin",
-      badgeColor: "bg-rose-100 text-rose-800",
+      badgeColor: "bg-[#061E1B] text-[#00C7BE] border border-[#00C7BE]/40",
     },
     {
       role: "Content Editor",
       scope: "Editorial & Content",
       permissions: "Draft page content, upload editorial media, preview draft templates, submit revisions for medical review.",
       badge: "CMS Editor",
-      badgeColor: "bg-blue-100 text-blue-800",
+      badgeColor: "bg-[#E6F8F6] text-[#007A6C] border border-[#00C7BE]/40",
     },
     {
       role: "Medical Reviewer",
       scope: "Clinical Accuracy",
       permissions: "Review medical treatment guides, clinical claims, and hospital evidence. Cannot alter billing or access patient files unlogged.",
       badge: "Clinical Gate",
-      badgeColor: "bg-purple-100 text-purple-800",
+      badgeColor: "bg-[#FFF4EC] text-[#FF6B00] border border-[#FF6B00]/40",
     },
     {
       role: "Publisher",
       scope: "Website Delivery",
       permissions: "Publish and unpublish approved revisions, commit atomic updates to live website, restore historical revisions, manage route redirects.",
       badge: "Release Authority",
-      badgeColor: "bg-emerald-100 text-emerald-800",
+      badgeColor: "bg-emerald-50 text-emerald-800 border border-emerald-300",
     },
     {
       role: "Case Coordinator",
       scope: "Case Operations ERP",
       permissions: "Intake and triage incoming leads, manage active cases through all 7 pipeline stages, request hospital quotes, coordinate travel visas.",
       badge: "Operations",
-      badgeColor: "bg-teal-100 text-teal-800",
+      badgeColor: "bg-[#E6F8F6] text-[#007A6C] border border-[#00C7BE]/40",
     },
     {
       role: "Partner Manager",
       scope: "Agencies & Facilitators",
       permissions: "Review partner agency onboarding applications, manage facilitator agreements, oversee commission payout tiers.",
       badge: "Partners",
-      badgeColor: "bg-amber-100 text-amber-800",
+      badgeColor: "bg-[#FFF4EC] text-[#FF6B00] border border-[#FF6B00]/40",
     },
   ];
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-6 font-sans">
       <div className="bg-white rounded-2xl border border-slate-200 p-6 shadow-xs space-y-2">
         <div className="flex items-center gap-2">
-          <ShieldAlert className="w-5 h-5 text-teal-800" />
+          <ShieldAlert className="w-5 h-5 text-[#007A6C]" />
           <h2 className="text-base font-bold text-slate-800">
             Platform Roles & Authorization Governance
           </h2>

@@ -96,6 +96,7 @@ export const UserSchema = z.object({
     role: z.enum(ROLE_KEYS),
     permissions: z.array(z.string()),
     status: z.enum(["active", "disabled"]).default("active"),
+    phoneVerified: z.boolean().default(true),
     totpEnabled: z.boolean().default(false),
     lastLoginAt: z.string().datetime().optional(),
     createdAt: z.string().datetime(),
@@ -105,13 +106,22 @@ export const LoginRequestSchema = z.object({
     email: z.string().email(),
     password: z.string().min(6),
 });
-export const Verify2FARequestSchema = z.object({
-    tempToken: z.string(),
-    code: z.string().length(6),
-});
-export const AuthResponseSchema = z.object({
-    requires2FA: z.boolean().default(false),
+export const VerifyPhoneOtpRequestSchema = z.object({
     tempToken: z.string().optional(),
+    email: z.string().email().optional(),
+    phone: z.string().optional(),
+    code: z.string().min(4).max(8),
+    firebaseIdToken: z.string().optional(),
+});
+// Alias for backwards compatibility
+export const Verify2FARequestSchema = VerifyPhoneOtpRequestSchema;
+export const AuthResponseSchema = z.object({
+    requiresPhoneOtp: z.boolean().default(false),
+    requires2FA: z.boolean().default(false), // Backwards compatibility
+    tempToken: z.string().optional(),
+    phone: z.string().optional(),
+    maskedPhone: z.string().optional(),
     token: z.string().optional(),
     user: UserSchema.optional(),
+    message: z.string().optional(),
 });

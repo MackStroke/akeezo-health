@@ -267,7 +267,7 @@ export const CaseDetailModal: React.FC<CaseDetailModalProps> = ({
 
   if (loading || !caseData) {
     return (
-      <div className="fixed inset-0 z-50 bg-slate-900/40 backdrop-blur-xs flex items-center justify-center p-4">
+      <div className="fixed inset-0 z-50 bg-[#061E1B]/50 backdrop-blur-xs flex items-center justify-center p-4">
         <div className="bg-white p-6 rounded-xl shadow-xl text-center text-sm font-medium text-slate-600">
           Loading case record...
         </div>
@@ -279,24 +279,24 @@ export const CaseDetailModal: React.FC<CaseDetailModalProps> = ({
   const nextStage = CASE_STAGES[currentStageIndex + 1] as CaseStage | undefined;
 
   return (
-    <div className="fixed inset-0 z-50 bg-slate-900/50 backdrop-blur-xs flex items-center justify-center p-4">
+    <div className="fixed inset-0 z-50 bg-[#061E1B]/60 backdrop-blur-xs flex items-center justify-center p-4 font-sans">
       <div className="bg-white rounded-2xl shadow-2xl w-full max-w-5xl h-[88vh] flex flex-col overflow-hidden border border-slate-200">
         {/* Header */}
-        <div className="px-6 py-4 bg-slate-900 text-white flex items-center justify-between shrink-0">
+        <div className="px-6 py-4 bg-[#061E1B] text-white flex items-center justify-between shrink-0 border-b border-teal-950">
           <div className="flex items-center gap-4">
             <div>
               <div className="flex items-center gap-2">
-                <span className="font-mono font-bold text-sm text-teal-300">
+                <span className="font-mono font-bold text-sm text-[#00C7BE]">
                   {caseData.caseCode}
                 </span>
-                <span className="text-[10px] bg-teal-800 text-teal-100 px-2 py-0.5 rounded font-bold uppercase tracking-wider">
+                <span className="text-[10px] bg-[#007A6C] text-white px-2 py-0.5 rounded font-bold uppercase tracking-wider">
                   {STAGE_CONFIG[caseData.stage as CaseStage]?.label || caseData.stage}
                 </span>
                 <span
                   className={`text-[10px] px-2 py-0.5 rounded font-bold uppercase ${
                     caseData.urgency === "critical"
                       ? "bg-red-500 text-white"
-                      : "bg-orange-500 text-white"
+                      : "bg-[#FF6B00] text-white"
                   }`}
                 >
                   {caseData.urgency}
@@ -315,7 +315,7 @@ export const CaseDetailModal: React.FC<CaseDetailModalProps> = ({
                   setBackwardTargetStage(CASE_STAGES[currentStageIndex - 1] as CaseStage);
                   setShowBackwardModal(true);
                 }}
-                className="bg-slate-700 hover:bg-slate-600 text-white text-xs font-semibold px-2.5 py-1.5 rounded-lg flex items-center gap-1 transition"
+                className="bg-slate-800 hover:bg-slate-700 text-slate-200 text-xs font-semibold px-2.5 py-1.5 rounded-lg flex items-center gap-1 transition border border-slate-700"
                 title="Move case backward with mandatory explanatory reason"
               >
                 <span>Move Back</span>
@@ -325,7 +325,7 @@ export const CaseDetailModal: React.FC<CaseDetailModalProps> = ({
             {caseData.stage !== "closed" && (
               <button
                 onClick={() => setShowCloseModal(true)}
-                className="bg-red-900/60 hover:bg-red-800 text-red-200 text-xs font-semibold px-2.5 py-1.5 rounded-lg flex items-center gap-1 transition"
+                className="bg-red-950/60 hover:bg-red-900 text-red-200 text-xs font-semibold px-2.5 py-1.5 rounded-lg flex items-center gap-1 transition border border-red-800/40"
                 title="Close or drop case"
               >
                 <span>Close Case</span>
@@ -335,7 +335,7 @@ export const CaseDetailModal: React.FC<CaseDetailModalProps> = ({
             {nextStage && caseData.stage !== "closed" && (
               <button
                 onClick={() => handleCheckReadiness(nextStage)}
-                className="bg-emerald-600 hover:bg-emerald-700 active:bg-emerald-800 text-white text-xs font-bold px-3.5 py-1.5 rounded-lg flex items-center gap-1.5 shadow-sm transition"
+                className="bg-[#FF6B00] hover:bg-[#FF6D1B] active:bg-[#E05E00] text-white text-xs font-bold px-3.5 py-1.5 rounded-lg flex items-center gap-1.5 shadow-sm transition"
               >
                 <span>Advance to {STAGE_CONFIG[nextStage]?.label}</span>
                 <CheckCircle2 className="w-4 h-4" />
@@ -362,9 +362,9 @@ export const CaseDetailModal: React.FC<CaseDetailModalProps> = ({
                 <div
                   className={`px-2 py-1 rounded flex items-center gap-1 ${
                     isCurrent
-                      ? "bg-teal-700 text-white shadow-xs"
+                      ? "bg-[#007A6C] text-white shadow-xs font-bold"
                       : isCompleted
-                      ? "bg-slate-200 text-slate-700"
+                      ? "bg-[#E6F8F6] text-[#007A6C] font-semibold"
                       : "text-slate-400"
                   }`}
                 >
@@ -442,7 +442,7 @@ export const CaseDetailModal: React.FC<CaseDetailModalProps> = ({
                 onClick={handleConfirmStageMove}
                 className={`text-xs px-4 py-1.5 rounded-lg font-bold text-white transition ${
                   readiness.isReady
-                    ? "bg-teal-700 hover:bg-teal-800 shadow-sm"
+                    ? "bg-[#FF6B00] hover:bg-[#FF6D1B] active:bg-[#E05E00] shadow-sm"
                     : "bg-slate-300 cursor-not-allowed"
                 }`}
               >
@@ -469,7 +469,7 @@ export const CaseDetailModal: React.FC<CaseDetailModalProps> = ({
                 onClick={() => setActiveTab(tab.id as any)}
                 className={`py-3 flex items-center gap-2 border-b-2 transition ${
                   isActive
-                    ? "border-teal-700 text-teal-800 font-black"
+                    ? "border-[#007A6C] text-[#007A6C] font-black"
                     : "border-transparent text-slate-500 hover:text-slate-800"
                 }`}
               >
@@ -962,7 +962,7 @@ export const CaseDetailModal: React.FC<CaseDetailModalProps> = ({
 
         {/* Billing Finalisation Modal Dialog */}
         {billingEpisodeId && (
-          <div className="fixed inset-0 z-60 bg-slate-900/40 backdrop-blur-xs flex items-center justify-center p-4">
+          <div className="fixed inset-0 z-60 bg-[#061E1B]/50 backdrop-blur-xs flex items-center justify-center p-4">
             <div className="bg-white p-6 rounded-xl shadow-xl w-full max-w-sm border border-slate-200 space-y-4">
               <h3 className="text-sm font-bold text-slate-800">
                 Finalise Episode Billing (INR)
@@ -975,7 +975,7 @@ export const CaseDetailModal: React.FC<CaseDetailModalProps> = ({
                   type="number"
                   value={billedAmount}
                   onChange={(e) => setBilledAmount(e.target.value)}
-                  className="w-full text-sm font-bold p-2.5 border rounded-lg focus:outline-teal-600"
+                  className="w-full text-sm font-bold p-2.5 border rounded-lg focus:outline-[#007A6C]"
                 />
               </div>
               <div className="flex justify-end gap-2 pt-2">
@@ -987,7 +987,7 @@ export const CaseDetailModal: React.FC<CaseDetailModalProps> = ({
                 </button>
                 <button
                   onClick={handleFinaliseBilling}
-                  className="text-xs px-4 py-2 bg-teal-700 hover:bg-teal-800 font-bold text-white rounded-lg"
+                  className="text-xs px-4 py-2 bg-[#FF6B00] hover:bg-[#FF6D1B] active:bg-[#E05E00] font-bold text-white rounded-lg shadow-xs transition"
                 >
                   Confirm & Calculate Commission
                 </button>
@@ -998,7 +998,7 @@ export const CaseDetailModal: React.FC<CaseDetailModalProps> = ({
 
         {/* Series Modal Dialog */}
         {showSeriesModal && (
-          <div className="fixed inset-0 z-60 bg-slate-900/40 backdrop-blur-xs flex items-center justify-center p-4">
+          <div className="fixed inset-0 z-60 bg-[#061E1B]/50 backdrop-blur-xs flex items-center justify-center p-4">
             <div className="bg-white p-6 rounded-xl shadow-xl w-full max-w-sm border border-slate-200 space-y-4">
               <h3 className="text-sm font-bold text-slate-800">
                 Create Chemo / Cycle Series
@@ -1013,7 +1013,7 @@ export const CaseDetailModal: React.FC<CaseDetailModalProps> = ({
                   max="20"
                   value={seriesCycles}
                   onChange={(e) => setSeriesCycles(parseInt(e.target.value, 10))}
-                  className="w-full text-sm font-bold p-2.5 border rounded-lg focus:outline-teal-600"
+                  className="w-full text-sm font-bold p-2.5 border rounded-lg focus:outline-[#007A6C]"
                 />
               </div>
               <div className="flex justify-end gap-2 pt-2">
@@ -1025,7 +1025,7 @@ export const CaseDetailModal: React.FC<CaseDetailModalProps> = ({
                 </button>
                 <button
                   onClick={handleCreateSeries}
-                  className="text-xs px-4 py-2 bg-teal-700 hover:bg-teal-800 font-bold text-white rounded-lg"
+                  className="text-xs px-4 py-2 bg-[#FF6B00] hover:bg-[#FF6D1B] active:bg-[#E05E00] font-bold text-white rounded-lg shadow-xs transition"
                 >
                   Generate {seriesCycles} Cycles
                 </button>
@@ -1036,7 +1036,7 @@ export const CaseDetailModal: React.FC<CaseDetailModalProps> = ({
 
         {/* Backward Stage Move Dialog */}
         {showBackwardModal && (
-          <div className="fixed inset-0 z-60 bg-slate-900/50 backdrop-blur-xs flex items-center justify-center p-4">
+          <div className="fixed inset-0 z-60 bg-[#061E1B]/50 backdrop-blur-xs flex items-center justify-center p-4">
             <div className="bg-white p-6 rounded-xl shadow-xl w-full max-w-md border border-slate-200 space-y-4">
               <div>
                 <h3 className="text-sm font-bold text-slate-900">
@@ -1054,7 +1054,7 @@ export const CaseDetailModal: React.FC<CaseDetailModalProps> = ({
                 <select
                   value={backwardTargetStage}
                   onChange={(e) => setBackwardTargetStage(e.target.value as CaseStage)}
-                  className="w-full text-xs p-2.5 border rounded-lg bg-slate-50 focus:bg-white focus:outline-teal-600 font-medium"
+                  className="w-full text-xs p-2.5 border rounded-lg bg-slate-50 focus:bg-white focus:outline-[#007A6C] font-medium"
                 >
                   <option value="">Select an earlier stage...</option>
                   {CASE_STAGES.filter((_, idx) => idx < currentStageIndex).map((s) => (
@@ -1075,7 +1075,7 @@ export const CaseDetailModal: React.FC<CaseDetailModalProps> = ({
                   value={backwardReason}
                   onChange={(e) => setBackwardReason(e.target.value)}
                   placeholder="e.g. Patient requested additional quotes from alternate hospital networks; consultation doctor unavailable..."
-                  className="w-full text-xs p-2.5 border rounded-lg focus:outline-teal-600"
+                  className="w-full text-xs p-2.5 border rounded-lg focus:outline-[#007A6C]"
                 />
               </div>
 
@@ -1100,7 +1100,7 @@ export const CaseDetailModal: React.FC<CaseDetailModalProps> = ({
 
         {/* Case Closure Dialog */}
         {showCloseModal && (
-          <div className="fixed inset-0 z-60 bg-slate-900/50 backdrop-blur-xs flex items-center justify-center p-4">
+          <div className="fixed inset-0 z-60 bg-[#061E1B]/50 backdrop-blur-xs flex items-center justify-center p-4">
             <div className="bg-white p-6 rounded-xl shadow-xl w-full max-w-md border border-slate-200 space-y-4">
               <div>
                 <h3 className="text-sm font-bold text-red-900">

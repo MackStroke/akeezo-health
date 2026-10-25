@@ -32,11 +32,11 @@ export const Sidebar: React.FC<SidebarProps> = ({
   ];
 
   return (
-    <aside className="w-60 bg-slate-900 text-slate-300 flex flex-col justify-between shrink-0 h-[calc(100vh-4rem)] sticky top-16 select-none border-r border-slate-800">
+    <aside className="w-60 bg-[#061E1B] text-slate-300 flex flex-col justify-between shrink-0 h-[calc(100vh-4rem)] sticky top-16 select-none border-r border-teal-950/80 font-sans">
       <div className="py-4 px-3 space-y-4 overflow-y-auto">
         {/* Section 1: Case ERP */}
         <div className="space-y-1">
-          <div className="px-3 pb-1 text-[10px] font-bold text-slate-400 uppercase tracking-wider">
+          <div className="px-3 pb-1 text-[10px] font-bold text-teal-400/80 uppercase tracking-wider">
             Case Operations (CMS)
           </div>
           {erpNavItems.map((item) => {
@@ -48,16 +48,22 @@ export const Sidebar: React.FC<SidebarProps> = ({
                 onClick={() => onSelectTab(item.id)}
                 className={`w-full flex items-center justify-between px-3 py-2.5 rounded-lg text-xs font-medium transition-all ${
                   isActive
-                    ? "bg-teal-700/80 text-white shadow-sm font-semibold"
-                    : "text-slate-400 hover:bg-slate-800 hover:text-slate-200"
+                    ? "bg-[#007A6C] text-white shadow-sm font-semibold"
+                    : "text-slate-400 hover:bg-white/5 hover:text-white"
                 }`}
               >
                 <div className="flex items-center gap-2.5">
-                  <Icon className={`w-4 h-4 ${isActive ? "text-teal-300" : "text-slate-400"}`} />
+                  <Icon className={`w-4 h-4 ${isActive ? "text-[#00C7BE]" : "text-slate-400"}`} />
                   <span>{item.label}</span>
                 </div>
                 {item.badge !== undefined && (
-                  <span className="text-[10px] bg-slate-800 px-1.5 py-0.5 rounded text-slate-400 font-bold">
+                  <span
+                    className={`text-[10px] px-2 py-0.5 rounded-full font-bold ${
+                      isActive
+                        ? "bg-[#FF6B00] text-white"
+                        : "bg-teal-950/60 text-[#00C7BE] border border-teal-800/30"
+                    }`}
+                  >
                     {item.badge}
                   </span>
                 )}
@@ -67,16 +73,16 @@ export const Sidebar: React.FC<SidebarProps> = ({
         </div>
 
         {/* Section 2: Quick Jump to Website Super Admin */}
-        <div className="pt-3 border-t border-slate-800/80">
+        <div className="pt-3 border-t border-teal-950/80">
           <div className="px-3 pb-1.5 text-[10px] font-bold text-slate-500 uppercase tracking-wider">
             Cross-System Management
           </div>
           <a
             href="/admin/"
-            className="flex items-center justify-between px-3 py-2.5 rounded-lg text-xs font-medium text-teal-300 hover:text-white bg-teal-950/40 hover:bg-teal-900/50 border border-teal-800/40 transition group"
+            className="flex items-center justify-between px-3 py-2.5 rounded-lg text-xs font-medium text-[#00C7BE] hover:text-white bg-teal-950/40 hover:bg-[#007A6C]/30 border border-teal-800/40 transition group"
           >
             <div className="flex items-center gap-2">
-              <ShieldAlert className="w-4 h-4 text-teal-400" />
+              <ShieldAlert className="w-4 h-4 text-[#00C7BE]" />
               <span>Website Super Admin</span>
             </div>
             <ExternalLink className="w-3.5 h-3.5 opacity-60 group-hover:opacity-100 transition" />
@@ -84,12 +90,12 @@ export const Sidebar: React.FC<SidebarProps> = ({
         </div>
       </div>
 
-      <div className="p-3 border-t border-slate-800 text-[11px] text-slate-400 space-y-2">
-        <div className="flex items-center gap-2 px-2 text-slate-400">
-          <FileCheck2 className="w-4 h-4 text-emerald-400" />
+      <div className="p-3 border-t border-teal-950/80 text-[11px] text-slate-400 space-y-2">
+        <div className="flex items-center gap-2 px-2 text-teal-300/80">
+          <FileCheck2 className="w-4 h-4 text-[#00C7BE]" />
           <span>DPDP 2023 Compliant</span>
         </div>
-        <div className="px-2 text-[10px] text-slate-500">
+        <div className="px-2 text-[10px] text-teal-500/70">
           Akeezo Case Management System
         </div>
       </div>

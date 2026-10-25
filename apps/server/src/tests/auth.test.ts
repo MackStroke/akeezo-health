@@ -46,12 +46,17 @@ describe("Authentication & RBAC Security Verification", () => {
     assert.equal(verified, null); // Signature mismatch must reject!
   });
 
-  it("2FA temporary tokens are marked distinctly", () => {
-    const tempToken = signToken({ userId: "user-admin", isTemp2FA: true }, true);
+  it("Phone OTP temporary tokens contain isTempOtp and phone claims", () => {
+    const tempToken = signToken(
+      { userId: "user-admin", phone: "+91 82876 39443", isTempOtp: true, isTemp2FA: true },
+      true
+    );
     const verified = verifyToken(tempToken);
 
     assert.ok(verified);
     assert.equal(verified?.userId, "user-admin");
+    assert.equal(verified?.phone, "+91 82876 39443");
+    assert.equal(verified?.isTempOtp, true);
     assert.equal(verified?.isTemp2FA, true);
   });
 });

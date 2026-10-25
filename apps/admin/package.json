@@ -13,6 +13,7 @@
     "@akeezo/contracts": "workspace:*",
     "@akeezo/ui": "workspace:*",
     "clsx": "^2.1.1",
+    "firebase": "^11.4.0",
     "lucide-react": "^1.61.0",
     "react": "^19.3.1",
     "react-dom": "^19.3.1",

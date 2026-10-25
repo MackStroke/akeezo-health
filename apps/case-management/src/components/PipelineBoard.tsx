@@ -20,33 +20,33 @@ export const STAGE_CONFIG: Record<
   },
   quotes_requested: {
     label: "Quotes Requested",
-    bg: "bg-blue-50/50",
-    border: "border-blue-200",
-    badge: "bg-blue-100 text-blue-800",
+    bg: "bg-sky-50/50",
+    border: "border-sky-200",
+    badge: "bg-sky-100 text-sky-800",
   },
   quotes_shared: {
     label: "Quotes Shared",
-    bg: "bg-indigo-50/50",
-    border: "border-indigo-200",
-    badge: "bg-indigo-100 text-indigo-800",
+    bg: "bg-[#E6F8F6]/70",
+    border: "border-[#00C7BE]/40",
+    badge: "bg-[#E6F8F6] text-[#007A6C] font-semibold",
   },
   partner_decision: {
     label: "Partner Decision",
-    bg: "bg-purple-50/50",
-    border: "border-purple-200",
-    badge: "bg-purple-100 text-purple-800",
+    bg: "bg-[#FFF4EC]/70",
+    border: "border-[#FF6B00]/40",
+    badge: "bg-[#FFF4EC] text-[#FF6B00] font-semibold",
   },
   visa_travel: {
     label: "Visa & Travel",
-    bg: "bg-cyan-50/50",
-    border: "border-cyan-200",
-    badge: "bg-cyan-100 text-cyan-800",
+    bg: "bg-[#E6F8F6]/50",
+    border: "border-teal-200",
+    badge: "bg-teal-50 text-teal-800",
   },
   arrival: {
     label: "Arrival in India",
-    bg: "bg-teal-50/50",
-    border: "border-teal-200",
-    badge: "bg-teal-100 text-teal-800",
+    bg: "bg-[#E6F8F6]/80",
+    border: "border-[#00C7BE]/50",
+    badge: "bg-[#E6F8F6] text-[#007A6C] font-bold",
   },
   consultation: {
     label: "Consultation",
@@ -56,9 +56,9 @@ export const STAGE_CONFIG: Record<
   },
   final_quotation: {
     label: "Final Quotation",
-    bg: "bg-yellow-50/50",
-    border: "border-yellow-200",
-    badge: "bg-yellow-100 text-yellow-800",
+    bg: "bg-amber-50/50",
+    border: "border-amber-200",
+    badge: "bg-amber-100 text-amber-800",
   },
   mapped: {
     label: "Mapped to Hospital",
@@ -80,9 +80,9 @@ export const STAGE_CONFIG: Record<
   },
   settlement: {
     label: "Settlement",
-    bg: "bg-orange-50/50",
-    border: "border-orange-200",
-    badge: "bg-orange-100 text-orange-800",
+    bg: "bg-[#FFF4EC]/80",
+    border: "border-[#FF6B00]/40",
+    badge: "bg-[#FF6B00] text-white font-bold",
   },
   closed: {
     label: "Closed",
@@ -169,10 +169,10 @@ export const PipelineBoard: React.FC<PipelineBoardProps> = ({
                         <div
                           key={c._id}
                           onClick={() => onSelectCase(c._id)}
-                          className="bg-white p-3 rounded-lg border border-slate-200 shadow-xs hover:shadow-md hover:border-teal-500 transition-all cursor-pointer group"
+                          className="bg-white p-3 rounded-lg border border-slate-200 shadow-xs hover:shadow-md hover:border-[#00C7BE] transition-all cursor-pointer group"
                         >
                           <div className="flex items-center justify-between pb-1.5">
-                            <span className="text-[11px] font-mono font-bold text-teal-800">
+                            <span className="text-[11px] font-mono font-bold text-[#007A6C]">
                               {c.caseCode}
                             </span>
                             <span

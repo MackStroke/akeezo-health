@@ -39,10 +39,12 @@ async function seedCaseManagement() {
     {
       name: "Priti",
       email: "priti@akeezo.com",
+      phone: "+91 98765 43210",
       role: "admin",
       passwordHash: defaultPw,
       status: "active",
-      totpEnabled: true,
+      phoneVerified: true,
+      totpEnabled: false,
     },
     { upsert: true, new: true }
   );
@@ -52,10 +54,12 @@ async function seedCaseManagement() {
     {
       name: "Adesh",
       email: "adesh@akeezo.com",
+      phone: "+91 98765 43214",
       role: "hospital_liaison",
       passwordHash: defaultPw,
       status: "active",
-      totpEnabled: true,
+      phoneVerified: true,
+      totpEnabled: false,
     },
     { upsert: true, new: true }
   );
@@ -65,10 +69,12 @@ async function seedCaseManagement() {
     {
       name: "Yogesh",
       email: "yogesh@akeezo.com",
+      phone: "+91 82876 39443",
       role: "admin",
       passwordHash: defaultPw,
       status: "active",
-      totpEnabled: true,
+      phoneVerified: true,
+      totpEnabled: false,
     },
     { upsert: true, new: true }
   );
@@ -78,9 +84,12 @@ async function seedCaseManagement() {
     {
       name: "Priya Sharma",
       email: "priya@akeezo.com",
+      phone: "+91 98765 43211",
       role: "coordinator",
       passwordHash: defaultPw,
       status: "active",
+      phoneVerified: true,
+      totpEnabled: false,
     },
     { upsert: true, new: true }
   );
@@ -90,10 +99,12 @@ async function seedCaseManagement() {
     {
       name: "Rajesh Kumar",
       email: "rajesh@akeezo.com",
+      phone: "+91 98765 43213",
       role: "finance",
       passwordHash: defaultPw,
       status: "active",
-      totpEnabled: true,
+      phoneVerified: true,
+      totpEnabled: false,
     },
     { upsert: true, new: true }
   );

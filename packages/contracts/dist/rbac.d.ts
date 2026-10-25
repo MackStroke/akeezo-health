@@ -12,6 +12,7 @@ export declare const UserSchema: z.ZodObject<{
     role: z.ZodEnum<["admin", "coordinator", "hospital_liaison", "finance", "viewer"]>;
     permissions: z.ZodArray<z.ZodString, "many">;
     status: z.ZodDefault<z.ZodEnum<["active", "disabled"]>>;
+    phoneVerified: z.ZodDefault<z.ZodBoolean>;
     totpEnabled: z.ZodDefault<z.ZodBoolean>;
     lastLoginAt: z.ZodOptional<z.ZodString>;
     createdAt: z.ZodString;
@@ -25,6 +26,7 @@ export declare const UserSchema: z.ZodObject<{
     updatedAt: string;
     role: "admin" | "coordinator" | "hospital_liaison" | "finance" | "viewer";
     permissions: string[];
+    phoneVerified: boolean;
     totpEnabled: boolean;
     phone?: string | undefined;
     lastLoginAt?: string | undefined;
@@ -38,6 +40,7 @@ export declare const UserSchema: z.ZodObject<{
     permissions: string[];
     status?: "active" | "disabled" | undefined;
     phone?: string | undefined;
+    phoneVerified?: boolean | undefined;
     totpEnabled?: boolean | undefined;
     lastLoginAt?: string | undefined;
 }>;
@@ -53,20 +56,52 @@ export declare const LoginRequestSchema: z.ZodObject<{
     password: string;
 }>;
 export type LoginRequestDTO = z.infer<typeof LoginRequestSchema>;
-export declare const Verify2FARequestSchema: z.ZodObject<{
-    tempToken: z.ZodString;
+export declare const VerifyPhoneOtpRequestSchema: z.ZodObject<{
+    tempToken: z.ZodOptional<z.ZodString>;
+    email: z.ZodOptional<z.ZodString>;
+    phone: z.ZodOptional<z.ZodString>;
     code: z.ZodString;
+    firebaseIdToken: z.ZodOptional<z.ZodString>;
 }, "strip", z.ZodTypeAny, {
     code: string;
-    tempToken: string;
+    phone?: string | undefined;
+    email?: string | undefined;
+    tempToken?: string | undefined;
+    firebaseIdToken?: string | undefined;
 }, {
     code: string;
-    tempToken: string;
+    phone?: string | undefined;
+    email?: string | undefined;
+    tempToken?: string | undefined;
+    firebaseIdToken?: string | undefined;
 }>;
-export type Verify2FARequestDTO = z.infer<typeof Verify2FARequestSchema>;
+export type VerifyPhoneOtpRequestDTO = z.infer<typeof VerifyPhoneOtpRequestSchema>;
+export declare const Verify2FARequestSchema: z.ZodObject<{
+    tempToken: z.ZodOptional<z.ZodString>;
+    email: z.ZodOptional<z.ZodString>;
+    phone: z.ZodOptional<z.ZodString>;
+    code: z.ZodString;
+    firebaseIdToken: z.ZodOptional<z.ZodString>;
+}, "strip", z.ZodTypeAny, {
+    code: string;
+    phone?: string | undefined;
+    email?: string | undefined;
+    tempToken?: string | undefined;
+    firebaseIdToken?: string | undefined;
+}, {
+    code: string;
+    phone?: string | undefined;
+    email?: string | undefined;
+    tempToken?: string | undefined;
+    firebaseIdToken?: string | undefined;
+}>;
+export type Verify2FARequestDTO = VerifyPhoneOtpRequestDTO;
 export declare const AuthResponseSchema: z.ZodObject<{
+    requiresPhoneOtp: z.ZodDefault<z.ZodBoolean>;
     requires2FA: z.ZodDefault<z.ZodBoolean>;
     tempToken: z.ZodOptional<z.ZodString>;
+    phone: z.ZodOptional<z.ZodString>;
+    maskedPhone: z.ZodOptional<z.ZodString>;
     token: z.ZodOptional<z.ZodString>;
     user: z.ZodOptional<z.ZodObject<{
         id: z.ZodString;
@@ -76,6 +111,7 @@ export declare const AuthResponseSchema: z.ZodObject<{
         role: z.ZodEnum<["admin", "coordinator", "hospital_liaison", "finance", "viewer"]>;
         permissions: z.ZodArray<z.ZodString, "many">;
         status: z.ZodDefault<z.ZodEnum<["active", "disabled"]>>;
+        phoneVerified: z.ZodDefault<z.ZodBoolean>;
         totpEnabled: z.ZodDefault<z.ZodBoolean>;
         lastLoginAt: z.ZodOptional<z.ZodString>;
         createdAt: z.ZodString;
@@ -89,6 +125,7 @@ export declare const AuthResponseSchema: z.ZodObject<{
         updatedAt: string;
         role: "admin" | "coordinator" | "hospital_liaison" | "finance" | "viewer";
         permissions: string[];
+        phoneVerified: boolean;
         totpEnabled: boolean;
         phone?: string | undefined;
         lastLoginAt?: string | undefined;
@@ -102,12 +139,18 @@ export declare const AuthResponseSchema: z.ZodObject<{
         permissions: string[];
         status?: "active" | "disabled" | undefined;
         phone?: string | undefined;
+        phoneVerified?: boolean | undefined;
         totpEnabled?: boolean | undefined;
         lastLoginAt?: string | undefined;
     }>>;
+    message: z.ZodOptional<z.ZodString>;
 }, "strip", z.ZodTypeAny, {
+    requiresPhoneOtp: boolean;
     requires2FA: boolean;
+    message?: string | undefined;
+    phone?: string | undefined;
     tempToken?: string | undefined;
+    maskedPhone?: string | undefined;
     token?: string | undefined;
     user?: {
         name: string;
@@ -118,13 +161,18 @@ export declare const AuthResponseSchema: z.ZodObject<{
         updatedAt: string;
         role: "admin" | "coordinator" | "hospital_liaison" | "finance" | "viewer";
         permissions: string[];
+        phoneVerified: boolean;
         totpEnabled: boolean;
         phone?: string | undefined;
         lastLoginAt?: string | undefined;
     } | undefined;
 }, {
+    message?: string | undefined;
+    phone?: string | undefined;
     tempToken?: string | undefined;
+    requiresPhoneOtp?: boolean | undefined;
     requires2FA?: boolean | undefined;
+    maskedPhone?: string | undefined;
     token?: string | undefined;
     user?: {
         name: string;
@@ -136,6 +184,7 @@ export declare const AuthResponseSchema: z.ZodObject<{
         permissions: string[];
         status?: "active" | "disabled" | undefined;
         phone?: string | undefined;
+        phoneVerified?: boolean | undefined;
         totpEnabled?: boolean | undefined;
         lastLoginAt?: string | undefined;
     } | undefined;

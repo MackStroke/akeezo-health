@@ -48,7 +48,7 @@ const CaseManagementDashboard: React.FC = () => {
 
   if (isLoading) {
     return (
-      <div className="min-h-screen bg-slate-900 flex items-center justify-center text-white text-xs font-semibold">
+      <div className="min-h-screen bg-[#061E1B] flex items-center justify-center text-[#00C7BE] text-xs font-bold tracking-wider uppercase font-sans">
         Verifying security session...
       </div>
     );
@@ -120,7 +120,7 @@ const CaseManagementDashboard: React.FC = () => {
                         onClick={() => setSelectedCaseId(c._id)}
                         className="hover:bg-slate-50 cursor-pointer"
                       >
-                        <td className="p-3 font-mono font-bold text-teal-800">{c.caseCode}</td>
+                        <td className="p-3 font-mono font-bold text-[#007A6C]">{c.caseCode}</td>
                         <td className="p-3 font-semibold text-slate-900">{c.patientId?.fullName}</td>
                         <td className="p-3 text-slate-600">{c.partnerId?.name || "Direct"}</td>
                         <td className="p-3 capitalize">{c.specialty?.replace(/_/g, " ")}</td>
@@ -131,7 +131,7 @@ const CaseManagementDashboard: React.FC = () => {
                           </span>
                         </td>
                         <td className="p-3">
-                          <button className="text-teal-700 font-bold flex items-center gap-1 text-[11px]">
+                          <button className="text-[#007A6C] hover:text-[#005F54] font-bold flex items-center gap-1 text-[11px]">
                             <span>Open</span>
                             <ArrowRight className="w-3 h-3" />
                           </button>
@@ -151,7 +151,7 @@ const CaseManagementDashboard: React.FC = () => {
                 {partners.map((p) => (
                   <div key={p._id} className="p-4 bg-white rounded-xl border border-slate-200 shadow-xs space-y-2">
                     <div className="flex items-center justify-between">
-                      <span className="font-mono text-xs font-bold text-teal-800">{p.partnerCode}</span>
+                      <span className="font-mono text-xs font-bold text-[#007A6C]">{p.partnerCode}</span>
                       <span className="text-[10px] bg-slate-100 px-2 py-0.5 rounded uppercase font-bold text-slate-600">
                         {p.type}
                       </span>
@@ -160,7 +160,7 @@ const CaseManagementDashboard: React.FC = () => {
                     <div className="text-xs text-slate-500">
                       Location: {p.city || ""}, {p.country}
                     </div>
-                    <div className="text-[11px] text-teal-700 font-semibold border-t pt-2">
+                    <div className="text-[11px] text-[#007A6C] font-semibold border-t pt-2">
                       Agreement: 35-40% of Akeezo Commission (on hospital receipt)
                     </div>
                   </div>
@@ -176,7 +176,7 @@ const CaseManagementDashboard: React.FC = () => {
                 {hospitals.map((h) => (
                   <div key={h._id} className="p-4 bg-white rounded-xl border border-slate-200 shadow-xs space-y-2">
                     <div className="flex items-center justify-between">
-                      <span className="font-mono text-xs font-bold text-teal-800">{h.hospitalCode}</span>
+                      <span className="font-mono text-xs font-bold text-[#007A6C]">{h.hospitalCode}</span>
                       <div className="flex gap-1">
                         {h.accreditations?.map((acc: string) => (
                           <span key={acc} className="text-[9px] bg-emerald-100 text-emerald-800 px-1.5 py-0.2 rounded font-bold">

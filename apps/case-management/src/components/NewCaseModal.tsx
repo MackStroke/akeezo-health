@@ -126,20 +126,20 @@ export const NewCaseModal: React.FC<NewCaseModalProps> = ({
   };
 
   return (
-    <div className="fixed inset-0 z-50 bg-slate-900/50 backdrop-blur-xs flex items-center justify-center p-4">
+    <div className="fixed inset-0 z-50 bg-[#061E1B]/60 backdrop-blur-xs flex items-center justify-center p-4 font-sans">
       <div className="bg-white rounded-2xl shadow-2xl w-full max-w-2xl max-h-[90vh] flex flex-col overflow-hidden border border-slate-200">
-        <div className="px-6 py-4 bg-slate-900 text-white flex items-center justify-between shrink-0">
+        <div className="px-6 py-4 bg-[#061E1B] text-white flex items-center justify-between shrink-0 border-b border-teal-950">
           <div>
             <h2 className="text-base font-black tracking-tight text-white">
               New Patient Referral Intake
             </h2>
-            <p className="text-[11px] text-slate-400">
+            <p className="text-[11px] text-teal-300/80">
               Captures patient, partner, clinical diagnosis, and consent evidence.
             </p>
           </div>
           <button
             onClick={onClose}
-            className="p-1 text-slate-400 hover:text-white rounded-lg hover:bg-slate-800"
+            className="p-1 text-slate-400 hover:text-white rounded-lg hover:bg-white/10"
           >
             <X className="w-5 h-5" />
           </button>
@@ -357,7 +357,7 @@ export const NewCaseModal: React.FC<NewCaseModalProps> = ({
             <button
               type="submit"
               disabled={submitting}
-              className="text-xs px-5 py-2 bg-teal-800 hover:bg-teal-900 text-white font-bold rounded-lg shadow-sm"
+              className="text-xs px-5 py-2 bg-[#FF6B00] hover:bg-[#FF6D1B] active:bg-[#E05E00] text-white font-bold rounded-lg shadow-sm transition"
             >
               {submitting ? "Creating..." : "Create Case & Enter Pipeline"}
             </button>

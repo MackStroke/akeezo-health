@@ -117,7 +117,7 @@ export const FinanceWorkspace: React.FC<FinanceWorkspaceProps> = () => {
         </div>
         <button
           onClick={() => setShowPaymentModal(true)}
-          className="bg-teal-800 hover:bg-teal-900 active:bg-teal-950 text-white text-xs font-bold px-3.5 py-2 rounded-lg flex items-center gap-1.5 shadow-sm transition"
+          className="bg-[#FF6B00] hover:bg-[#FF6D1B] active:bg-[#E05E00] text-white text-xs font-bold px-3.5 py-2 rounded-lg flex items-center gap-1.5 shadow-sm transition"
         >
           <Plus className="w-4 h-4" />
           <span>Record Payment Receipt / Payout</span>
@@ -125,13 +125,13 @@ export const FinanceWorkspace: React.FC<FinanceWorkspaceProps> = () => {
       </div>
 
       {/* Summary KPI Cards */}
-      <div className="grid grid-cols-4 gap-4 pb-6">
+      <div className="grid grid-cols-4 gap-4 pb-6 font-sans">
         <div className="bg-white p-4 rounded-xl border border-slate-200 shadow-xs">
           <div className="flex items-center justify-between pb-1">
             <span className="text-[10px] font-bold text-slate-400 uppercase">
               Total Akeezo Commission
             </span>
-            <DollarSign className="w-4 h-4 text-teal-600" />
+            <DollarSign className="w-4 h-4 text-[#007A6C]" />
           </div>
           <div className="text-lg font-black text-slate-900">
             ₹{(totalGrossCommissionMinor / 100).toLocaleString("en-IN")}
@@ -159,7 +159,7 @@ export const FinanceWorkspace: React.FC<FinanceWorkspaceProps> = () => {
             <span className="text-[10px] font-bold text-slate-400 uppercase">
               Partner Share Earned
             </span>
-            <ArrowUpRight className="w-4 h-4 text-indigo-600" />
+            <ArrowUpRight className="w-4 h-4 text-[#007A6C]" />
           </div>
           <div className="text-lg font-black text-slate-900">
             ₹{(totalPartnerShareMinor / 100).toLocaleString("en-IN")}
@@ -172,9 +172,9 @@ export const FinanceWorkspace: React.FC<FinanceWorkspaceProps> = () => {
             <span className="text-[10px] font-bold text-slate-400 uppercase">
               Partner Payable Due
             </span>
-            <AlertCircle className="w-4 h-4 text-orange-600" />
+            <AlertCircle className="w-4 h-4 text-[#FF6B00]" />
           </div>
-          <div className="text-lg font-black text-orange-700">
+          <div className="text-lg font-black text-[#FF6B00]">
             ₹{(totalPartnerPayableMinor / 100).toLocaleString("en-IN")}
           </div>
           <span className="text-[10px] text-slate-400">
@@ -215,7 +215,7 @@ export const FinanceWorkspace: React.FC<FinanceWorkspaceProps> = () => {
               ) : (
                 commissions.map((cr) => (
                   <tr key={cr._id} className="hover:bg-slate-50/70">
-                    <td className="p-3 font-mono font-bold text-teal-800">
+                    <td className="p-3 font-mono font-bold text-[#007A6C]">
                       {cr.caseId?.caseCode || "AKZ"}
                     </td>
                     <td className="p-3 font-semibold text-slate-900">
@@ -224,7 +224,7 @@ export const FinanceWorkspace: React.FC<FinanceWorkspaceProps> = () => {
                     <td className="p-3 font-bold text-slate-800">
                       ₹{(cr.akeezoCommissionMinor / 100).toLocaleString("en-IN")}
                     </td>
-                    <td className="p-3 font-bold text-teal-700">
+                    <td className="p-3 font-bold text-[#007A6C]">
                       ₹{(cr.partnerShareMinor / 100).toLocaleString("en-IN")}
                     </td>
                     <td className="p-3 text-emerald-700 font-semibold">
@@ -259,7 +259,7 @@ export const FinanceWorkspace: React.FC<FinanceWorkspaceProps> = () => {
 
       {/* Record Payment Dialog */}
       {showPaymentModal && (
-        <div className="fixed inset-0 z-50 bg-slate-900/40 backdrop-blur-xs flex items-center justify-center p-4">
+        <div className="fixed inset-0 z-50 bg-[#061E1B]/50 backdrop-blur-xs flex items-center justify-center p-4">
           <div className="bg-white p-6 rounded-xl shadow-xl w-full max-w-md border border-slate-200 space-y-4">
             <h3 className="text-sm font-bold text-slate-800">
               Record Payment Receipt / Partner Payout
@@ -335,7 +335,7 @@ export const FinanceWorkspace: React.FC<FinanceWorkspaceProps> = () => {
                 </button>
                 <button
                   type="submit"
-                  className="text-xs px-4 py-2 bg-teal-800 hover:bg-teal-900 text-white font-bold rounded-lg"
+                  className="text-xs px-4 py-2 bg-[#FF6B00] hover:bg-[#FF6D1B] active:bg-[#E05E00] text-white font-bold rounded-lg shadow-xs transition"
                 >
                   Record & Allocate
                 </button>

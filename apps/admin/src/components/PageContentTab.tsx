@@ -216,7 +216,7 @@ export const PageContentTab: React.FC = () => {
             href={currentPath}
             target="_blank"
             rel="noreferrer"
-            className="flex items-center gap-1.5 text-xs text-teal-700 hover:text-teal-900 font-bold border border-teal-600 hover:bg-teal-50 px-3 py-1.5 rounded-lg transition"
+            className="flex items-center gap-1.5 text-xs text-[#007A6C] hover:text-[#005F54] font-bold border border-[#007A6C]/40 hover:bg-[#E6F8F6] px-3 py-1.5 rounded-lg transition"
           >
             <Eye className="w-3.5 h-3.5" />
             <span>View Live Route ({currentPath})</span>
@@ -226,7 +226,7 @@ export const PageContentTab: React.FC = () => {
           <button
             onClick={handleSave}
             disabled={saving}
-            className="flex items-center gap-1.5 bg-teal-800 hover:bg-teal-900 active:bg-teal-950 text-white text-xs font-bold px-4 py-2 rounded-lg shadow-sm transition"
+            className="flex items-center gap-1.5 bg-[#FF6B00] hover:bg-[#FF6D1B] active:bg-[#E05E00] text-white text-xs font-bold px-4 py-2 rounded-lg shadow-sm transition"
           >
             {saveSuccess ? (
               <>
@@ -264,7 +264,7 @@ export const PageContentTab: React.FC = () => {
             onClick={() => setSelectedSlug(tab.slug)}
             className={`px-3 py-2 text-xs font-bold rounded-t-lg transition flex items-center gap-1.5 border-b-2 ${
               selectedSlug === tab.slug
-                ? "border-teal-700 text-teal-900 bg-teal-50/60"
+                ? "border-[#007A6C] text-[#007A6C] bg-[#E6F8F6]"
                 : "border-transparent text-slate-500 hover:text-slate-800 hover:bg-slate-50"
             }`}
           >

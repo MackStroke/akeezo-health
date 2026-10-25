@@ -69,7 +69,7 @@ export const SiteSettingsTab: React.FC = () => {
             href="/"
             target="_blank"
             rel="noreferrer"
-            className="flex items-center gap-1.5 text-xs text-teal-700 hover:text-teal-900 font-bold border border-teal-600 hover:bg-teal-50 px-3 py-1.5 rounded-lg transition"
+            className="flex items-center gap-1.5 text-xs text-[#007A6C] hover:text-[#005F54] font-bold border border-[#007A6C]/40 hover:bg-[#E6F8F6] px-3 py-1.5 rounded-lg transition"
           >
             <span>View Live Site</span>
             <ExternalLink className="w-3.5 h-3.5" />
@@ -78,7 +78,7 @@ export const SiteSettingsTab: React.FC = () => {
           <button
             type="submit"
             disabled={saving}
-            className="flex items-center gap-1.5 bg-teal-800 hover:bg-teal-900 active:bg-teal-950 text-white text-xs font-bold px-4 py-2 rounded-lg shadow-sm transition"
+            className="flex items-center gap-1.5 bg-[#FF6B00] hover:bg-[#FF6D1B] active:bg-[#E05E00] text-white text-xs font-bold px-4 py-2 rounded-lg shadow-sm transition"
           >
             {saveSuccess ? (
               <>
@@ -105,7 +105,7 @@ export const SiteSettingsTab: React.FC = () => {
       {/* Grid Section 1: Brand & Colors */}
       <div className="bg-white p-5 rounded-xl border border-slate-200 shadow-xs space-y-4">
         <div className="flex items-center gap-2 text-xs font-bold text-slate-800 uppercase tracking-wider">
-          <Palette className="w-4 h-4 text-teal-700" />
+          <Palette className="w-4 h-4 text-[#007A6C]" />
           <span>Brand Identity & Tokens</span>
         </div>
 

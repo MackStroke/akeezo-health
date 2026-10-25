@@ -12,41 +12,52 @@ async function seedCaseManagement() {
     const priti = await UserModel.findOneAndUpdate({ email: "priti@akeezo.com" }, {
         name: "Priti",
         email: "priti@akeezo.com",
+        phone: "+91 98765 43210",
         role: "admin",
         passwordHash: defaultPw,
         status: "active",
-        totpEnabled: true,
+        phoneVerified: true,
+        totpEnabled: false,
     }, { upsert: true, new: true });
     const adesh = await UserModel.findOneAndUpdate({ email: "adesh@akeezo.com" }, {
         name: "Adesh",
         email: "adesh@akeezo.com",
+        phone: "+91 98765 43214",
         role: "hospital_liaison",
         passwordHash: defaultPw,
         status: "active",
-        totpEnabled: true,
+        phoneVerified: true,
+        totpEnabled: false,
     }, { upsert: true, new: true });
     const yogesh = await UserModel.findOneAndUpdate({ email: "yogesh@akeezo.com" }, {
         name: "Yogesh",
         email: "yogesh@akeezo.com",
+        phone: "+91 82876 39443",
         role: "admin",
         passwordHash: defaultPw,
         status: "active",
-        totpEnabled: true,
+        phoneVerified: true,
+        totpEnabled: false,
     }, { upsert: true, new: true });
     const priya = await UserModel.findOneAndUpdate({ email: "priya@akeezo.com" }, {
         name: "Priya Sharma",
         email: "priya@akeezo.com",
+        phone: "+91 98765 43211",
         role: "coordinator",
         passwordHash: defaultPw,
         status: "active",
+        phoneVerified: true,
+        totpEnabled: false,
     }, { upsert: true, new: true });
     const rajesh = await UserModel.findOneAndUpdate({ email: "rajesh@akeezo.com" }, {
         name: "Rajesh Kumar",
         email: "rajesh@akeezo.com",
+        phone: "+91 98765 43213",
         role: "finance",
         passwordHash: defaultPw,
         status: "active",
-        totpEnabled: true,
+        phoneVerified: true,
+        totpEnabled: false,
     }, { upsert: true, new: true });
     // 2. Seed Partners
     console.log("Creating partners...");

@@ -2,19 +2,15 @@ import React, { useState, useEffect } from "react";
 import {
   Inbox,
   Search,
-  Filter,
-  CheckCircle2,
-  Clock,
-  ArrowRight,
-  PhoneCall,
-  Mail,
-  User,
-  ExternalLink,
-  MessageSquare,
-  AlertCircle,
-  Briefcase,
-  Sparkles,
   Check,
+  ArrowRight,
+  ExternalLink,
+  Briefcase,
+  User,
+  Mail,
+  Phone,
+  Globe,
+  CheckCircle2,
 } from "lucide-react";
 
 interface EnquiryItem {
@@ -138,17 +134,41 @@ export const LeadCollectorView: React.FC = () => {
   const getStatusBadge = (status: string) => {
     switch (status) {
       case "received":
-        return <span className="px-2 py-0.5 rounded-full text-[11px] font-bold bg-amber-100 text-amber-800">Received (New)</span>;
+        return (
+          <span className="px-2.5 py-0.5 rounded-full text-[11px] font-bold bg-[#FFF4EC] text-[#B54700] border border-[#FFD8BF]">
+            Received (New)
+          </span>
+        );
       case "triage":
-        return <span className="px-2 py-0.5 rounded-full text-[11px] font-bold bg-blue-100 text-blue-800">In Triage</span>;
+        return (
+          <span className="px-2.5 py-0.5 rounded-full text-[11px] font-bold bg-[#E6F8F6] text-[#007A6C] border border-[#B2EBE4]">
+            In Triage
+          </span>
+        );
       case "contacted":
-        return <span className="px-2 py-0.5 rounded-full text-[11px] font-bold bg-purple-100 text-purple-800">Contacted</span>;
+        return (
+          <span className="px-2.5 py-0.5 rounded-full text-[11px] font-bold bg-teal-50 text-teal-800 border border-teal-200">
+            Contacted
+          </span>
+        );
       case "converted":
-        return <span className="px-2 py-0.5 rounded-full text-[11px] font-bold bg-emerald-100 text-emerald-800 flex items-center gap-1"><Check className="w-3 h-3" /> Converted to Case</span>;
+        return (
+          <span className="px-2.5 py-0.5 rounded-full text-[11px] font-bold bg-[#E6F8F6] text-[#007A6C] border border-[#B2EBE4] flex items-center gap-1">
+            <Check className="w-3 h-3 text-[#007A6C]" /> Converted to Case
+          </span>
+        );
       case "closed":
-        return <span className="px-2 py-0.5 rounded-full text-[11px] font-bold bg-slate-100 text-slate-600">Closed</span>;
+        return (
+          <span className="px-2.5 py-0.5 rounded-full text-[11px] font-bold bg-slate-100 text-slate-600 border border-slate-200">
+            Closed
+          </span>
+        );
       default:
-        return <span className="px-2 py-0.5 rounded-full text-[11px] font-bold bg-slate-100 text-slate-700">{status}</span>;
+        return (
+          <span className="px-2.5 py-0.5 rounded-full text-[11px] font-bold bg-slate-100 text-slate-700">
+            {status}
+          </span>
+        );
     }
   };
 
@@ -158,51 +178,51 @@ export const LeadCollectorView: React.FC = () => {
   const convertedCount = enquiries.filter((e) => e.status === "converted").length;
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-6 font-sans">
       {/* Header Banner */}
-      <div className="bg-gradient-to-r from-teal-900 via-teal-800 to-slate-900 rounded-2xl p-6 text-white shadow-md flex flex-col md:flex-row md:items-center justify-between gap-4">
-        <div className="space-y-1">
-          <div className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-[11px] font-bold bg-teal-700/60 text-teal-200 border border-teal-500/30">
-            <Inbox className="w-3.5 h-3.5 text-teal-300" />
+      <div className="bg-gradient-to-r from-[#061E1B] via-teal-950 to-[#061E1B] rounded-2xl p-6 text-white shadow-md flex flex-col md:flex-row md:items-center justify-between gap-4 border border-[#00C7BE]/30 relative overflow-hidden">
+        <div className="space-y-1 relative z-10">
+          <div className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-[11px] font-bold bg-[#007A6C]/50 text-[#00C7BE] border border-[#00C7BE]/30">
+            <Inbox className="w-3.5 h-3.5 text-[#00C7BE]" />
             <span>Central Lead Collector & Intake Engine</span>
           </div>
           <h1 className="text-xl font-black tracking-tight">Public Website Lead Collector</h1>
           <p className="text-xs text-teal-100/80 max-w-2xl leading-relaxed">
-            Overall responsible for capturing, triaging, and processing all incoming leads from public web forms, cost calculators, emergency hotlines, and routing them directly into the Case Management System.
+            Capturing, triaging, and processing all incoming leads from public web forms, cost calculators, and emergency hotlines, with 1-click routing into the Case Management System.
           </p>
         </div>
 
-        <div className="flex items-center gap-3">
+        <div className="flex items-center gap-3 relative z-10">
           <a
             href="/case-management/"
-            className="inline-flex items-center gap-2 bg-teal-700 hover:bg-teal-600 active:bg-teal-800 text-white text-xs font-bold px-4 py-2.5 rounded-xl shadow-xs transition"
+            className="inline-flex items-center gap-2 bg-[#007A6C] hover:bg-[#005F54] active:scale-98 text-white text-xs font-bold px-4 py-2.5 rounded-xl shadow-xs transition border border-[#00C7BE]/30"
           >
-            <Briefcase className="w-4 h-4" />
+            <Briefcase className="w-4 h-4 text-[#00C7BE]" />
             <span>Open Case Operations CMS</span>
-            <ExternalLink className="w-3.5 h-3.5 opacity-70" />
+            <ExternalLink className="w-3.5 h-3.5 opacity-80" />
           </a>
         </div>
       </div>
 
       {/* Conversion Success Notification */}
       {conversionSuccess && (
-        <div className="p-4 bg-emerald-50 border border-emerald-300 rounded-2xl flex items-center justify-between shadow-xs">
+        <div className="p-4 bg-[#E6F8F6] border border-[#B2EBE4] rounded-2xl flex items-center justify-between shadow-xs">
           <div className="flex items-center gap-3">
-            <div className="w-8 h-8 rounded-xl bg-emerald-600 text-white flex items-center justify-center font-bold">
+            <div className="w-8 h-8 rounded-xl bg-[#007A6C] text-white flex items-center justify-center font-bold">
               ✓
             </div>
             <div>
-              <h4 className="text-xs font-bold text-emerald-950">
+              <h4 className="text-xs font-bold text-[#061E1B]">
                 Lead {conversionSuccess.receiptId} successfully converted into Case {conversionSuccess.caseCode}!
               </h4>
-              <p className="text-[11px] text-emerald-800">
-                Patient record created and case initialized in stage "intake".
+              <p className="text-[11px] text-[#007A6C]">
+                Patient record created and clinical case initialized in stage "new_referral".
               </p>
             </div>
           </div>
           <a
             href="/case-management/"
-            className="text-xs font-bold text-emerald-800 hover:text-emerald-950 border border-emerald-400 hover:bg-emerald-100 px-3 py-1.5 rounded-xl transition flex items-center gap-1.5"
+            className="text-xs font-bold text-white bg-[#FF6B00] hover:bg-[#FF6D1B] active:scale-98 px-3.5 py-1.5 rounded-xl transition flex items-center gap-1.5 shadow-xs"
           >
             <span>Open in Case Management System</span>
             <ArrowRight className="w-3.5 h-3.5" />
@@ -213,20 +233,20 @@ export const LeadCollectorView: React.FC = () => {
       {/* KPI Cards */}
       <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
         <div className="bg-white p-4 rounded-xl border border-slate-200 shadow-xs">
-          <p className="text-[11px] font-semibold text-slate-500">Total Leads Collected</p>
+          <p className="text-[11px] font-bold text-slate-400 uppercase tracking-wider">Total Leads Collected</p>
           <p className="text-2xl font-black text-slate-900 mt-1">{totalCount}</p>
         </div>
-        <div className="bg-amber-50/60 p-4 rounded-xl border border-amber-200 shadow-xs">
-          <p className="text-[11px] font-semibold text-amber-800">Pending Triage (New)</p>
-          <p className="text-2xl font-black text-amber-900 mt-1">{newCount}</p>
+        <div className="bg-[#FFF4EC] p-4 rounded-xl border border-[#FFD8BF] shadow-xs">
+          <p className="text-[11px] font-bold text-[#B54700] uppercase tracking-wider">Pending Triage (New)</p>
+          <p className="text-2xl font-black text-[#B54700] mt-1">{newCount}</p>
         </div>
-        <div className="bg-blue-50/60 p-4 rounded-xl border border-blue-200 shadow-xs">
-          <p className="text-[11px] font-semibold text-blue-800">In Active Triage</p>
-          <p className="text-2xl font-black text-blue-900 mt-1">{triageCount}</p>
+        <div className="bg-[#E6F8F6] p-4 rounded-xl border border-[#B2EBE4] shadow-xs">
+          <p className="text-[11px] font-bold text-[#007A6C] uppercase tracking-wider">In Active Triage</p>
+          <p className="text-2xl font-black text-[#007A6C] mt-1">{triageCount}</p>
         </div>
-        <div className="bg-emerald-50/60 p-4 rounded-xl border border-emerald-200 shadow-xs">
-          <p className="text-[11px] font-semibold text-emerald-800">Converted to Cases</p>
-          <p className="text-2xl font-black text-emerald-900 mt-1">{convertedCount}</p>
+        <div className="bg-[#E6F8F6] p-4 rounded-xl border border-[#B2EBE4] shadow-xs">
+          <p className="text-[11px] font-bold text-[#007A6C] uppercase tracking-wider">Converted to Cases</p>
+          <p className="text-2xl font-black text-[#007A6C] mt-1">{convertedCount}</p>
         </div>
       </div>
 
@@ -239,7 +259,7 @@ export const LeadCollectorView: React.FC = () => {
             value={search}
             onChange={(e) => setSearch(e.target.value)}
             placeholder="Search by receipt ID, name, email, or phone..."
-            className="w-full pl-9 pr-3 py-1.5 text-xs rounded-lg border border-slate-200 focus:border-teal-700 focus:outline-none transition"
+            className="w-full pl-9 pr-3 py-1.5 text-xs rounded-lg border border-slate-200 focus:border-[#007A6C] focus:ring-1 focus:ring-[#00C7BE] focus:outline-none transition"
           />
         </div>
 
@@ -251,9 +271,9 @@ export const LeadCollectorView: React.FC = () => {
             <button
               key={st}
               onClick={() => setStatusFilter(st)}
-              className={`px-2.5 py-1 rounded-lg text-xs font-bold capitalize transition shrink-0 ${
+              className={`px-3 py-1 rounded-lg text-xs font-bold capitalize transition shrink-0 ${
                 statusFilter === st
-                  ? "bg-teal-800 text-white shadow-2xs"
+                  ? "bg-[#007A6C] text-white shadow-xs"
                   : "bg-slate-100 text-slate-600 hover:bg-slate-200"
               }`}
             >
@@ -276,7 +296,7 @@ export const LeadCollectorView: React.FC = () => {
       ) : (
         <div className="bg-white rounded-xl border border-slate-200 shadow-xs overflow-hidden">
           <table className="w-full text-left text-xs">
-            <thead className="bg-slate-50 border-b border-slate-200 text-slate-600 font-bold uppercase tracking-wider text-[10px]">
+            <thead className="bg-[#F4F6F9] border-b border-slate-200 text-slate-700 font-bold uppercase tracking-wider text-[10px]">
               <tr>
                 <th className="py-3 px-4">Receipt ID</th>
                 <th className="py-3 px-4">Lead / Requester</th>
@@ -289,8 +309,8 @@ export const LeadCollectorView: React.FC = () => {
             </thead>
             <tbody className="divide-y divide-slate-100">
               {filtered.map((item) => (
-                <tr key={item._id} className="hover:bg-slate-50/80 transition">
-                  <td className="py-3 px-4 font-mono font-bold text-teal-800">
+                <tr key={item._id} className="hover:bg-[#E6F8F6]/40 transition">
+                  <td className="py-3 px-4 font-mono font-bold text-[#007A6C]">
                     {item.receiptId}
                   </td>
                   <td className="py-3 px-4">
@@ -312,7 +332,7 @@ export const LeadCollectorView: React.FC = () => {
                     <select
                       value={item.status}
                       onChange={(e) => handleStatusChange(item._id, e.target.value)}
-                      className="bg-slate-100 border border-slate-200 text-[11px] font-bold rounded-md px-2 py-1 text-slate-700 focus:outline-none focus:border-teal-700 cursor-pointer"
+                      className="bg-slate-100 border border-slate-200 text-[11px] font-bold rounded-md px-2 py-1 text-slate-700 focus:outline-none focus:border-[#007A6C] cursor-pointer"
                     >
                       <option value="received">Received (New)</option>
                       <option value="triage">In Triage</option>
@@ -330,7 +350,7 @@ export const LeadCollectorView: React.FC = () => {
                       minute: "2-digit",
                     })}
                   </td>
-                  <td className="py-3 px-4 text-right space-x-1.5">
+                  <td className="py-3 px-4 text-right space-x-2">
                     <button
                       onClick={() => setSelectedEnquiry(item)}
                       className="text-xs font-bold text-slate-700 hover:text-slate-900 border border-slate-200 hover:bg-slate-100 px-2.5 py-1 rounded-lg transition"
@@ -341,14 +361,14 @@ export const LeadCollectorView: React.FC = () => {
                       <button
                         onClick={() => handleConvertToCase(item)}
                         disabled={convertingId === item._id}
-                        className="text-xs font-bold text-white bg-teal-800 hover:bg-teal-900 active:bg-teal-950 px-2.5 py-1 rounded-lg shadow-2xs transition"
+                        className="text-xs font-bold text-white bg-[#FF6B00] hover:bg-[#FF6D1B] active:scale-98 px-3 py-1 rounded-lg shadow-xs transition"
                       >
                         {convertingId === item._id ? "Converting..." : "Convert to Case"}
                       </button>
                     ) : (
                       <a
                         href="/case-management/"
-                        className="inline-flex items-center gap-1 text-[11px] font-bold text-teal-800 hover:text-teal-950 bg-teal-50 border border-teal-200 px-2 py-0.5 rounded-md"
+                        className="inline-flex items-center gap-1 text-[11px] font-bold text-[#007A6C] hover:text-[#005F54] bg-[#E6F8F6] border border-[#B2EBE4] px-2 py-0.5 rounded-md"
                       >
                         <span>Case CMS</span>
                         <ExternalLink className="w-3 h-3" />
@@ -364,11 +384,11 @@ export const LeadCollectorView: React.FC = () => {
 
       {/* Lead Detail & Dispatch Modal */}
       {selectedEnquiry && (
-        <div className="fixed inset-0 z-50 bg-slate-900/50 backdrop-blur-xs flex items-center justify-center p-4">
+        <div className="fixed inset-0 z-50 bg-[#061E1B]/60 backdrop-blur-xs flex items-center justify-center p-4">
           <div className="bg-white rounded-2xl max-w-xl w-full p-6 shadow-2xl border border-slate-200 space-y-4">
             <div className="flex items-center justify-between pb-3 border-b border-slate-100">
               <div>
-                <span className="text-[10px] font-mono font-bold text-teal-800 bg-teal-50 px-2 py-0.5 rounded">
+                <span className="text-[10px] font-mono font-bold text-[#007A6C] bg-[#E6F8F6] px-2 py-0.5 rounded border border-[#B2EBE4]">
                   {selectedEnquiry.receiptId}
                 </span>
                 <h3 className="text-base font-bold text-slate-800 mt-1">
@@ -389,7 +409,7 @@ export const LeadCollectorView: React.FC = () => {
                   <span className="text-slate-400 font-semibold block text-[10px] uppercase">
                     Email Address
                   </span>
-                  <a href={`mailto:${selectedEnquiry.email}`} className="font-semibold text-teal-800 hover:underline">
+                  <a href={`mailto:${selectedEnquiry.email}`} className="font-semibold text-[#007A6C] hover:underline">
                     {selectedEnquiry.email || "Not provided"}
                   </a>
                 </div>
@@ -401,7 +421,7 @@ export const LeadCollectorView: React.FC = () => {
                     href={`https://wa.me/${(selectedEnquiry.phone || "").replace(/[^0-9]/g, "")}`}
                     target="_blank"
                     rel="noreferrer"
-                    className="font-semibold text-teal-800 hover:underline"
+                    className="font-semibold text-[#007A6C] hover:underline"
                   >
                     {selectedEnquiry.phone || "Not provided"}
                   </a>
@@ -447,7 +467,7 @@ export const LeadCollectorView: React.FC = () => {
                   <span className="text-slate-400 font-semibold block text-[10px] uppercase">
                     Operational Notes & Case History
                   </span>
-                  <div className="bg-amber-50/60 p-2.5 rounded-lg border border-amber-200 text-amber-900 text-[11px] mt-1">
+                  <div className="bg-[#FFF4EC] p-2.5 rounded-lg border border-[#FFD8BF] text-[#B54700] text-[11px] mt-1">
                     {selectedEnquiry.notes}
                   </div>
                 </div>
@@ -465,7 +485,7 @@ export const LeadCollectorView: React.FC = () => {
               <button
                 type="button"
                 onClick={() => setSelectedEnquiry(null)}
-                className="px-4 py-2 text-xs font-semibold text-slate-600 hover:bg-slate-100 rounded-lg transition"
+                className="px-4 py-2 text-xs font-semibold text-slate-600 hover:bg-slate-100 rounded-xl transition"
               >
                 Close
               </button>
@@ -475,7 +495,7 @@ export const LeadCollectorView: React.FC = () => {
                     type="button"
                     onClick={() => handleConvertToCase(selectedEnquiry)}
                     disabled={convertingId === selectedEnquiry._id}
-                    className="px-4 py-2 text-xs font-bold text-white bg-teal-800 hover:bg-teal-900 rounded-lg shadow-sm transition flex items-center gap-1.5"
+                    className="px-4 py-2 text-xs font-bold text-white bg-[#FF6B00] hover:bg-[#FF6D1B] active:scale-98 rounded-xl shadow-xs transition flex items-center gap-1.5"
                   >
                     <Briefcase className="w-3.5 h-3.5" />
                     <span>
@@ -487,7 +507,7 @@ export const LeadCollectorView: React.FC = () => {
                 ) : (
                   <a
                     href="/case-management/"
-                    className="px-4 py-2 text-xs font-bold text-white bg-teal-800 hover:bg-teal-900 rounded-lg shadow-sm transition flex items-center gap-1.5"
+                    className="px-4 py-2 text-xs font-bold text-white bg-[#007A6C] hover:bg-[#005F54] rounded-xl shadow-sm transition flex items-center gap-1.5"
                   >
                     <span>Open Case Operations CMS</span>
                     <ExternalLink className="w-3.5 h-3.5" />
