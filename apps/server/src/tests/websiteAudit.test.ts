@@ -59,3 +59,28 @@ describe("Website Audit Task 2: Responsive LegalLayout & Mobile Optimization", (
     assert.ok(termsHtml.includes('<a href="tel:+918287639443"'), "Terms of Service contact section must have clickable tel link");
   });
 });
+
+describe("Website Audit Task 3: HomeTemplate Section IDs & Form Validation", () => {
+  it("HomeTemplate contains valid section IDs matching navbar and footer anchor links", () => {
+    const homeData = getDefaultRouteData("/");
+    const homeHtml = renderToString(React.createElement(HomeTemplate, { data: homeData }));
+
+    assert.ok(homeHtml.includes('id="hospitals"'), "Must provide id=hospitals anchor");
+    assert.ok(homeHtml.includes('id="doctors"'), "Must provide id=doctors anchor");
+    assert.ok(homeHtml.includes('id="destinations"'), "Must provide id=destinations anchor");
+    assert.ok(homeHtml.includes('id="calculator"'), "Must provide id=calculator anchor");
+    assert.ok(homeHtml.includes('id="opinion"'), "Must provide id=opinion anchor");
+    assert.ok(homeHtml.includes('id="visa"'), "Must provide id=visa anchor");
+    assert.ok(homeHtml.includes('id="concierge"'), "Must provide id=concierge anchor");
+
+    // Hero logo must be clickable
+    assert.ok(
+      homeHtml.includes('href="/"') && homeHtml.includes('aria-label="Akeezo Healthcare Platform Home"'),
+      "Hero brand logo must be wrapped in a clickable link pointing to home"
+    );
+
+    // Search bar error validation accessibility
+    assert.ok(homeHtml.includes('aria-describedby="hero-search-error"'), "Search bar must link to accessible error alert");
+    assert.ok(homeHtml.includes('overflow-x-hidden'), "Outer page container must have overflow-x-hidden to prevent mobile overflow");
+  });
+});

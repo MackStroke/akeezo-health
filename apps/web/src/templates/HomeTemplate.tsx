@@ -5,18 +5,10 @@ import {
   Award,
   Globe2,
   CheckCircle2,
-  Phone,
-  PhoneCall,
   BadgeCheck,
   ChevronRight,
   Calculator,
-  Compass,
-  Building2,
-  User2,
-  ChevronDown,
-  Check,
-  X,
-  Menu
+  Compass
 } from "lucide-react";
 import {
   COUNTRIES,
@@ -26,6 +18,8 @@ import {
   formatEstimate,
   type CountryOption
 } from "../components/navigationData.js";
+import { SiteHeader } from "../components/SiteHeader.js";
+import { SiteFooter } from "../components/SiteFooter.js";
 
 export { COUNTRIES, LANGUAGES, SPECIALTIES, DIRECTORY_TABS, formatEstimate };
 export type { CountryOption };
@@ -37,33 +31,24 @@ export interface HomeTemplateProps {
 export const HomeTemplate: React.FC<HomeTemplateProps> = ({ data }) => {
   const { siteSettings } = data;
   const [searchQuery, setSearchQuery] = useState("");
+  const [searchError, setSearchError] = useState("");
   const [selectedSpecialty, setSelectedSpecialty] = useState("Cardiac Surgery");
   const [isCalculatorOpen, setIsCalculatorOpen] = useState(false);
   const [isExploreOpen, setIsExploreOpen] = useState(false);
-  const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
-  const [isCountryLangOpen, setIsCountryLangOpen] = useState(false);
-  const [isPartnerModalOpen, setIsPartnerModalOpen] = useState(false);
-  const [isPatientModalOpen, setIsPatientModalOpen] = useState(false);
-  const [partnerType, setPartnerType] = useState<"hospital" | "agent">("hospital");
-  const [selectedCountry, setSelectedCountry] = useState<CountryOption>(COUNTRIES[0]);
-  const [selectedLanguage, setSelectedLanguage] = useState(LANGUAGES[0]);
 
   const phone = siteSettings.phone || siteSettings.emergencyHelpline || "+91 82876 39443";
   const phoneClean = phone.replace(/[^0-9]/g, "");
-  const emergencyPhone = siteSettings.emergencyHelpline || siteSettings.phone || "+91 82876 39443";
-  const emergencyPhoneClean = emergencyPhone.startsWith("+")
-    ? emergencyPhone.replace(/[^0-9+]/g, "")
-    : `+${emergencyPhone.replace(/[^0-9]/g, "")}`;
-  const whatsappPhone = siteSettings.whatsappHelpline || siteSettings.phone || "+91 82876 39443";
-  const whatsappPhoneClean = whatsappPhone.replace(/[^0-9]/g, "");
 
   const handleSearchSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    if (searchQuery.trim()) {
-      window.location.href = `https://wa.me/${phoneClean}?text=${encodeURIComponent(
-        `Hello Akeezo Care Team, I would like to inquire about: ${searchQuery}`
-      )}`;
+    if (!searchQuery.trim()) {
+      setSearchError("Please enter a medical condition, procedure, or hospital name to search.");
+      return;
     }
+    setSearchError("");
+    window.location.href = `https://wa.me/${phoneClean}?text=${encodeURIComponent(
+      `Hello Akeezo Care Team, I would like to inquire about: ${searchQuery}`
+    )}`;
   };
 
   const suggestionChips = [
@@ -75,7 +60,7 @@ export const HomeTemplate: React.FC<HomeTemplateProps> = ({ data }) => {
   ];
 
   return (
-    <div className="min-h-screen bg-white font-sans text-ink antialiased selection:bg-surface-teal selection:text-action">
+    <div className="min-h-screen bg-white font-sans text-ink antialiased selection:bg-surface-teal selection:text-action overflow-x-hidden">
       <SiteHeader
         siteSettings={siteSettings}
         activePath={data.path}
@@ -97,15 +82,21 @@ export const HomeTemplate: React.FC<HomeTemplateProps> = ({ data }) => {
           <div className="mx-auto max-w-[1280px] px-4 sm:px-8">
             {/* Official Akeezo Logo Centerpiece per design.md geometry with explicit dimensions to eliminate CLS */}
             <div className="mx-auto mb-6 flex justify-center items-center h-[72px] sm:h-[96px]">
-              <img
-                src="/logo/logo with tagline-dark.svg"
-                alt="Akeezo - Heal In India, Heal By Akeezo"
-                width={480}
-                height={96}
-                loading="eager"
-                decoding="sync"
-                className="h-[72px] sm:h-[96px] w-auto max-w-[340px] sm:max-w-[480px] object-contain"
-              />
+              <a
+                href="/"
+                aria-label="Akeezo Healthcare Platform Home"
+                className="inline-block transition-opacity hover:opacity-90 cursor-pointer"
+              >
+                <img
+                  src="/logo/logo with tagline-dark.svg"
+                  alt="Akeezo - Heal In India, Heal By Akeezo"
+                  width={480}
+                  height={96}
+                  loading="eager"
+                  decoding="sync"
+                  className="h-[72px] sm:h-[96px] w-auto max-w-[340px] sm:max-w-[480px] object-contain"
+                />
+              </a>
             </div>
 
             {/* Supporting line (18px, muted, centered) */}
@@ -129,7 +120,12 @@ export const HomeTemplate: React.FC<HomeTemplateProps> = ({ data }) => {
                   name="query"
                   type="text"
                   value={searchQuery}
-                  onChange={(e) => setSearchQuery(e.target.value)}
+                  onChange={(e) => {
+                    setSearchQuery(e.target.value);
+                    if (searchError) setSearchError("");
+                  }}
+                  aria-invalid={!!searchError}
+                  aria-describedby="hero-search-error"
                   placeholder='Search for "cardiac bypass", "apollo hospital", "dr. naresh trehan"...'
                   className="w-full bg-transparent px-3 text-sm text-ink placeholder:text-ink-muted/80 focus:outline-none"
                 />
@@ -140,6 +136,18 @@ export const HomeTemplate: React.FC<HomeTemplateProps> = ({ data }) => {
                   Search
                 </button>
               </form>
+
+              {/* Accessible error message */}
+              {searchError && (
+                <div
+                  id="hero-search-error"
+                  role="alert"
+                  className="mt-2.5 rounded-lg bg-red-50 border border-red-200 px-4 py-2 text-xs font-bold text-red-700 text-left flex items-center gap-2"
+                >
+                  <span>⚠️</span>
+                  <span>{searchError}</span>
+                </div>
+              )}
 
               {/* Suggestion Chips: swipeable on mobile, centered on desktop per design.md */}
               <div className="mt-4 flex items-center justify-start sm:justify-center gap-2 overflow-x-auto pb-2 sm:pb-0 sm:flex-wrap no-scrollbar px-1">
@@ -171,7 +179,7 @@ export const HomeTemplate: React.FC<HomeTemplateProps> = ({ data }) => {
           <div className="mx-auto max-w-[1280px] px-4 sm:px-8">
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
               {/* Feature Card 1: Get Your Personalized Price */}
-              <div className="group relative flex flex-col justify-between overflow-hidden rounded-[20px] border border-border bg-gradient-to-br from-white via-white to-surface-orange/40 p-7 shadow-[0_4px_20px_rgb(15_23_42/8%)] transition-transform duration-200 hover:-translate-y-1 min-h-[297px]">
+              <div id="calculator" className="group relative flex flex-col justify-between overflow-hidden rounded-[20px] border border-border bg-gradient-to-br from-white via-white to-surface-orange/40 p-7 shadow-[0_4px_20px_rgb(15_23_42/8%)] transition-transform duration-200 hover:-translate-y-1 min-h-[297px]">
                 <div className="max-w-[360px] relative z-10">
                   <div className="inline-flex size-11 items-center justify-center rounded-full bg-surface-orange text-action-accent mb-4 border border-[#ffd8bf]">
                     <Calculator className="size-5" />
@@ -206,7 +214,7 @@ export const HomeTemplate: React.FC<HomeTemplateProps> = ({ data }) => {
               </div>
 
               {/* Feature Card 2: Explore Options */}
-              <div className="group relative flex flex-col justify-between overflow-hidden rounded-[20px] border border-border bg-gradient-to-br from-white via-white to-surface-teal/50 p-7 shadow-[0_4px_20px_rgb(15_23_42/8%)] transition-transform duration-200 hover:-translate-y-1 min-h-[297px]">
+              <div id="destinations" className="group relative flex flex-col justify-between overflow-hidden rounded-[20px] border border-border bg-gradient-to-br from-white via-white to-surface-teal/50 p-7 shadow-[0_4px_20px_rgb(15_23_42/8%)] transition-transform duration-200 hover:-translate-y-1 min-h-[297px]">
                 <div className="max-w-[360px] relative z-10">
                   <div className="inline-flex size-11 items-center justify-center rounded-full bg-surface-teal text-action mb-4 border border-[#b2ebe4]">
                     <Compass className="size-5" />
@@ -244,7 +252,7 @@ export const HomeTemplate: React.FC<HomeTemplateProps> = ({ data }) => {
         </section>
 
       {/* 4. Trust Strip (CureMeAbroad: Horizontal centered strip with vertical dividers) */}
-      <section className="py-8" aria-label="Clinical Quality & Trust Accreditations">
+      <section id="hospitals" className="py-8" aria-label="Clinical Quality & Trust Accreditations">
         <h2 className="sr-only">Clinical Quality & Healthcare Network Accreditations</h2>
         <div className="mx-auto max-w-[1280px] px-4 sm:px-8">
           <div className="rounded-[20px] border border-border bg-surface-muted py-6 px-4 sm:px-8 shadow-xs">
@@ -257,7 +265,7 @@ export const HomeTemplate: React.FC<HomeTemplateProps> = ({ data }) => {
                 <div className="text-xs text-ink-muted font-bold">NABH & JCI Hospitals</div>
               </div>
 
-              <div className="flex flex-col items-center pt-4 md:pt-0">
+              <div id="doctors" className="flex flex-col items-center pt-4 md:pt-0">
                 <div className="flex items-center gap-1.5 text-action-accent mb-1">
                   <Award className="size-5" />
                   <span className="text-2xl sm:text-3xl font-black text-ink">1,200+</span>
@@ -291,7 +299,7 @@ export const HomeTemplate: React.FC<HomeTemplateProps> = ({ data }) => {
         <div className="mx-auto max-w-[1280px] px-4 sm:px-8">
           <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
             {/* Promo Card 1: Free Hotel & Logistics */}
-            <div className="rounded-[20px] border border-[#ffd8bf] bg-surface-orange p-6 sm:p-7 shadow-xs flex flex-col justify-between">
+            <div id="concierge" className="rounded-[20px] border border-[#ffd8bf] bg-surface-orange p-6 sm:p-7 shadow-xs flex flex-col justify-between">
               <div>
                 <span className="inline-block rounded-md bg-[#fff4ec] px-2.5 py-1 text-[11px] font-bold text-[#943a00] uppercase tracking-wider mb-3 border border-[#ffd8bf]">
                   Logistics Support
@@ -318,7 +326,7 @@ export const HomeTemplate: React.FC<HomeTemplateProps> = ({ data }) => {
             </div>
 
             {/* Promo Card 2: Free Second Opinion */}
-            <div className="rounded-[20px] border border-[#b2ebe4] bg-surface-teal p-6 sm:p-7 shadow-xs flex flex-col justify-between">
+            <div id="opinion" className="rounded-[20px] border border-[#b2ebe4] bg-surface-teal p-6 sm:p-7 shadow-xs flex flex-col justify-between">
               <div>
                 <span className="inline-block rounded-md bg-[#e6f8f6] px-2.5 py-1 text-[11px] font-bold text-[#005f54] uppercase tracking-wider mb-3 border border-[#b2ebe4]">
                   Clinical Care
@@ -374,7 +382,7 @@ export const HomeTemplate: React.FC<HomeTemplateProps> = ({ data }) => {
       </section>
 
       {/* 6. Global Planning Banner (CureMeAbroad: Large teal rounded banner with 30px corners) */}
-      <section className="py-10" aria-label="Treatment Planning Coordination">
+      <section id="visa" className="py-10" aria-label="Treatment Planning Coordination">
         <div className="mx-auto max-w-[1280px] px-4 sm:px-8">
           <div className="relative overflow-hidden rounded-[30px] bg-gradient-to-r from-action via-[#009180] to-brand-teal p-8 sm:p-14 text-white shadow-lg">
             <div className="relative z-10 flex flex-col lg:flex-row items-center justify-between gap-8">
