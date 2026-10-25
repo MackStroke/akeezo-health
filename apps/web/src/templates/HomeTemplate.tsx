@@ -79,7 +79,19 @@ export const HomeTemplate: React.FC<HomeTemplateProps> = ({ data }) => {
 
         {/* 2. Hero Centerpiece (CureMeAbroad: Centered brand centerpiece with generous whitespace) */}
         <section className="relative overflow-hidden pt-12 pb-14 sm:pt-16 sm:pb-20 text-center" aria-label="Akeezo Platform Hero">
+          {/* Subtle dual-brand ambient glow (Brand Teal & Brand Orange) */}
+          <div
+            className="absolute -top-24 left-1/2 -translate-x-1/2 w-[720px] max-w-full h-[320px] bg-gradient-to-r from-brand-teal/15 via-surface-teal/30 to-brand-orange/12 rounded-full blur-3xl pointer-events-none -z-10"
+            aria-hidden="true"
+          />
+
           <div className="mx-auto max-w-[1280px] px-4 sm:px-8">
+            {/* Accreditation Badge Pill */}
+            <div className="inline-flex items-center gap-2 rounded-full bg-surface-teal border border-border-teal px-4 py-1.5 text-xs font-bold text-action mb-5 shadow-2xs">
+              <span className="size-2 rounded-full bg-brand-teal animate-pulse" />
+              <span>Heal in India · Accredited Hospital & Specialist Network</span>
+            </div>
+
             {/* Official Akeezo Logo Centerpiece per design.md geometry with explicit dimensions to eliminate CLS */}
             <div className="mx-auto mb-6 flex justify-center items-center h-[72px] sm:h-[96px]">
               <a
@@ -131,7 +143,7 @@ export const HomeTemplate: React.FC<HomeTemplateProps> = ({ data }) => {
                 />
                 <button
                   type="submit"
-                  className="shrink-0 h-10 px-5 sm:px-6 rounded-full bg-action-accent hover:bg-[#943a00] text-white text-xs font-bold transition-all shadow-xs cursor-pointer min-h-[40px]"
+                  className="shrink-0 h-10 px-5 sm:px-6 rounded-full bg-brand-orange hover:bg-brand-orange-alt text-white text-xs font-bold transition-all shadow-md shadow-brand-orange/20 cursor-pointer min-h-[40px]"
                 >
                   Search
                 </button>
@@ -160,10 +172,10 @@ export const HomeTemplate: React.FC<HomeTemplateProps> = ({ data }) => {
                       setSelectedSpecialty(chip);
                       setSearchQuery(chip);
                     }}
-                    className={`shrink-0 h-[38px] rounded-full px-4 text-xs font-bold transition-all duration-200 cursor-pointer ${
+                    className={`shrink-0 h-[38px] rounded-full px-4 text-xs font-bold transition-all duration-200 cursor-pointer border ${
                       selectedSpecialty === chip
-                        ? "bg-action text-white shadow-sm"
-                        : "bg-surface-muted text-ink-muted hover:bg-surface-teal hover:text-action"
+                        ? "bg-action text-white border-action shadow-xs"
+                        : "bg-surface-muted text-ink-muted border-transparent hover:bg-surface-teal hover:text-action hover:border-border-teal"
                     }`}
                   >
                     {chip}
@@ -179,9 +191,9 @@ export const HomeTemplate: React.FC<HomeTemplateProps> = ({ data }) => {
           <div className="mx-auto max-w-[1280px] px-4 sm:px-8">
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
               {/* Feature Card 1: Get Your Personalized Price */}
-              <div id="calculator" className="group relative flex flex-col justify-between overflow-hidden rounded-[20px] border border-border bg-gradient-to-br from-white via-white to-surface-orange/40 p-7 shadow-[0_4px_20px_rgb(15_23_42/8%)] transition-transform duration-200 hover:-translate-y-1 min-h-[297px]">
+              <div id="calculator" className="group relative flex flex-col justify-between overflow-hidden rounded-[20px] border border-border-orange bg-gradient-to-br from-white via-white to-surface-orange/60 p-7 shadow-[0_4px_20px_rgb(15_23_42/8%)] transition-transform duration-200 hover:-translate-y-1 min-h-[297px]">
                 <div className="max-w-[360px] relative z-10">
-                  <div className="inline-flex size-11 items-center justify-center rounded-full bg-surface-orange text-action-accent mb-4 border border-[#ffd8bf]">
+                  <div className="inline-flex size-11 items-center justify-center rounded-full bg-surface-orange text-brand-orange mb-4 border border-border-orange">
                     <Calculator className="size-5" />
                   </div>
                   <h2 className="text-[22px] sm:text-[24px] font-bold text-ink mb-2 leading-[30px] font-heading">
@@ -194,8 +206,8 @@ export const HomeTemplate: React.FC<HomeTemplateProps> = ({ data }) => {
 
                 {/* Decorative Subtle Right Graphic per design.md */}
                 <div className="absolute right-4 top-1/2 -translate-y-1/2 opacity-10 group-hover:opacity-15 transition-opacity pointer-events-none hidden sm:block">
-                  <div className="size-36 rounded-full border-8 border-action-accent flex items-center justify-center">
-                    <Calculator className="size-18 text-action-accent" />
+                  <div className="size-36 rounded-full border-8 border-brand-orange flex items-center justify-center">
+                    <Calculator className="size-18 text-brand-orange" />
                   </div>
                 </div>
 
@@ -203,20 +215,20 @@ export const HomeTemplate: React.FC<HomeTemplateProps> = ({ data }) => {
                   <button
                     type="button"
                     onClick={() => setIsCalculatorOpen(true)}
-                    className="inline-flex h-11 min-h-[44px] items-center justify-center rounded-full bg-action-accent hover:bg-[#943a00] px-5 text-xs font-bold text-white shadow-sm transition-all cursor-pointer"
+                    className="inline-flex h-11 min-h-[44px] items-center justify-center rounded-full bg-brand-orange hover:bg-brand-orange-alt px-5 text-xs font-bold text-white shadow-md shadow-brand-orange/20 transition-all cursor-pointer"
                   >
                     Get Your Estimate in 1 Minute
                   </button>
-                  <span className="text-xs font-bold text-brand-orange">
+                  <span className="inline-flex items-center px-3 py-1 rounded-full text-xs font-bold text-action-accent bg-surface-orange border border-border-orange">
                     Save Up To 70%
                   </span>
                 </div>
               </div>
 
               {/* Feature Card 2: Explore Options */}
-              <div id="destinations" className="group relative flex flex-col justify-between overflow-hidden rounded-[20px] border border-border bg-gradient-to-br from-white via-white to-surface-teal/50 p-7 shadow-[0_4px_20px_rgb(15_23_42/8%)] transition-transform duration-200 hover:-translate-y-1 min-h-[297px]">
+              <div id="destinations" className="group relative flex flex-col justify-between overflow-hidden rounded-[20px] border border-border-teal bg-gradient-to-br from-white via-white to-surface-teal/60 p-7 shadow-[0_4px_20px_rgb(15_23_42/8%)] transition-transform duration-200 hover:-translate-y-1 min-h-[297px]">
                 <div className="max-w-[360px] relative z-10">
-                  <div className="inline-flex size-11 items-center justify-center rounded-full bg-surface-teal text-action mb-4 border border-[#b2ebe4]">
+                  <div className="inline-flex size-11 items-center justify-center rounded-full bg-surface-teal text-action mb-4 border border-border-teal">
                     <Compass className="size-5" />
                   </div>
                   <h2 className="text-[22px] sm:text-[24px] font-bold text-ink mb-2 leading-[30px] font-heading">
@@ -238,11 +250,11 @@ export const HomeTemplate: React.FC<HomeTemplateProps> = ({ data }) => {
                   <button
                     type="button"
                     onClick={() => setIsExploreOpen(true)}
-                    className="inline-flex h-11 min-h-[44px] items-center justify-center rounded-full bg-action px-5 text-xs font-bold text-white shadow-sm transition-all hover:bg-action-hover cursor-pointer"
+                    className="inline-flex h-11 min-h-[44px] items-center justify-center rounded-full bg-action px-5 text-xs font-bold text-white shadow-md shadow-action/20 transition-all hover:bg-action-hover cursor-pointer"
                   >
                     Explore All Specialities
                   </button>
-                  <span className="text-xs font-bold text-action">
+                  <span className="inline-flex items-center px-3 py-1 rounded-full text-xs font-bold text-action bg-surface-teal border border-border-teal">
                     150+ Verified Hubs
                   </span>
                 </div>
@@ -299,9 +311,9 @@ export const HomeTemplate: React.FC<HomeTemplateProps> = ({ data }) => {
         <div className="mx-auto max-w-[1280px] px-4 sm:px-8">
           <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
             {/* Promo Card 1: Free Hotel & Logistics */}
-            <div id="concierge" className="rounded-[20px] border border-[#ffd8bf] bg-surface-orange p-6 sm:p-7 shadow-xs flex flex-col justify-between">
+            <div id="concierge" className="rounded-[20px] border border-border-orange bg-gradient-to-b from-surface-orange via-surface-orange/60 to-white p-6 sm:p-7 shadow-xs flex flex-col justify-between">
               <div>
-                <span className="inline-block rounded-md bg-[#fff4ec] px-2.5 py-1 text-[11px] font-bold text-[#943a00] uppercase tracking-wider mb-3 border border-[#ffd8bf]">
+                <span className="inline-block rounded-md bg-white px-2.5 py-1 text-[11px] font-bold text-action-accent uppercase tracking-wider mb-3 border border-border-orange">
                   Logistics Support
                 </span>
                 <h3 className="text-xl font-bold text-ink mb-2">
@@ -311,13 +323,13 @@ export const HomeTemplate: React.FC<HomeTemplateProps> = ({ data }) => {
                   Complimentary airport VIP reception, local 5G SIM card, and companion lodging for qualified surgical procedures.
                 </p>
               </div>
-              <div className="mt-6 pt-4 border-t border-[#ffd8bf]/60 flex items-center justify-between">
+              <div className="mt-6 pt-4 border-t border-border-orange/60 flex items-center justify-between">
                 <span className="text-xs font-bold text-action-accent">Terms Apply</span>
                 <a
                   href={`https://wa.me/${phoneClean}?text=Hello%20Akeezo,%20tell%20me%20about%20Free%20Hotel%20and%20Flights%20benefit`}
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="inline-flex items-center gap-1 text-xs font-bold text-action-accent hover:underline min-h-[38px] px-1"
+                  className="inline-flex items-center gap-1 text-xs font-bold text-brand-orange hover:text-brand-orange-alt hover:underline min-h-[38px] px-1"
                 >
                   <span>Claim Now</span>
                   <ChevronRight className="size-3.5" />
@@ -326,9 +338,9 @@ export const HomeTemplate: React.FC<HomeTemplateProps> = ({ data }) => {
             </div>
 
             {/* Promo Card 2: Free Second Opinion */}
-            <div id="opinion" className="rounded-[20px] border border-[#b2ebe4] bg-surface-teal p-6 sm:p-7 shadow-xs flex flex-col justify-between">
+            <div id="opinion" className="rounded-[20px] border border-border-teal bg-gradient-to-b from-surface-teal via-surface-teal/60 to-white p-6 sm:p-7 shadow-xs flex flex-col justify-between">
               <div>
-                <span className="inline-block rounded-md bg-[#e6f8f6] px-2.5 py-1 text-[11px] font-bold text-[#005f54] uppercase tracking-wider mb-3 border border-[#b2ebe4]">
+                <span className="inline-block rounded-md bg-white px-2.5 py-1 text-[11px] font-bold text-action uppercase tracking-wider mb-3 border border-border-teal">
                   Clinical Care
                 </span>
                 <h3 className="text-xl font-bold text-ink mb-2">
@@ -338,13 +350,13 @@ export const HomeTemplate: React.FC<HomeTemplateProps> = ({ data }) => {
                   Upload your MRI/CT scans. Receive comprehensive clinical reviews and treatment plans from senior department chairs at zero cost.
                 </p>
               </div>
-              <div className="mt-6 pt-4 border-t border-[#b2ebe4]/60 flex items-center justify-between">
+              <div className="mt-6 pt-4 border-t border-border-teal/60 flex items-center justify-between">
                 <span className="text-xs font-bold text-action">Zero Obligation</span>
                 <a
                   href={`https://wa.me/${phoneClean}?text=Hello%20Akeezo,%20I%20want%20a%20Free%20Second%20Opinion`}
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="inline-flex items-center gap-1 text-xs font-bold text-action hover:underline min-h-[38px] px-1"
+                  className="inline-flex items-center gap-1 text-xs font-bold text-action hover:text-action-hover hover:underline min-h-[38px] px-1"
                 >
                   <span>Upload Reports</span>
                   <ChevronRight className="size-3.5" />
@@ -353,7 +365,7 @@ export const HomeTemplate: React.FC<HomeTemplateProps> = ({ data }) => {
             </div>
 
             {/* Promo Card 3: Best Price Guarantee */}
-            <div className="rounded-[20px] border border-border bg-surface-muted p-6 sm:p-7 shadow-xs flex flex-col justify-between">
+            <div className="rounded-[20px] border border-border bg-gradient-to-b from-surface-muted via-surface-muted/60 to-white p-6 sm:p-7 shadow-xs flex flex-col justify-between">
               <div>
                 <span className="inline-block rounded-md bg-white px-2.5 py-1 text-[11px] font-bold text-ink-muted uppercase tracking-wider mb-3 border border-border">
                   Price Transparency
@@ -370,7 +382,7 @@ export const HomeTemplate: React.FC<HomeTemplateProps> = ({ data }) => {
                 <button
                   type="button"
                   onClick={() => setIsCalculatorOpen(true)}
-                  className="inline-flex items-center gap-1 text-xs font-bold text-action hover:underline cursor-pointer min-h-[38px] px-1"
+                  className="inline-flex items-center gap-1 text-xs font-bold text-action hover:text-action-hover hover:underline cursor-pointer min-h-[38px] px-1"
                 >
                   <span>Check Pricing</span>
                   <ChevronRight className="size-3.5" />
@@ -384,7 +396,9 @@ export const HomeTemplate: React.FC<HomeTemplateProps> = ({ data }) => {
       {/* 6. Global Planning Banner (CureMeAbroad: Large teal rounded banner with 30px corners) */}
       <section id="visa" className="py-10" aria-label="Treatment Planning Coordination">
         <div className="mx-auto max-w-[1280px] px-4 sm:px-8">
-          <div className="relative overflow-hidden rounded-[30px] bg-gradient-to-r from-action via-[#009180] to-brand-teal p-8 sm:p-14 text-white shadow-lg">
+          <div className="relative overflow-hidden rounded-[30px] bg-gradient-to-r from-navy via-action to-[#009180] p-8 sm:p-14 text-white shadow-xl">
+            {/* Subtle decorative glow circle in corner */}
+            <div className="absolute -right-20 -top-20 size-80 rounded-full bg-brand-teal/20 blur-3xl pointer-events-none" aria-hidden="true" />
             <div className="relative z-10 flex flex-col lg:flex-row items-center justify-between gap-8">
               <div className="max-w-xl text-center lg:text-left">
                 <h2 className="text-3xl sm:text-4xl lg:text-[46px] font-bold leading-tight tracking-tight font-heading">
@@ -396,15 +410,15 @@ export const HomeTemplate: React.FC<HomeTemplateProps> = ({ data }) => {
                 </p>
                 <div className="mt-6 flex flex-wrap items-center justify-center lg:justify-start gap-4 text-xs font-bold text-white/95">
                   <span className="flex items-center gap-1.5">
-                    <CheckCircle2 className="size-4 text-white" />
+                    <CheckCircle2 className="size-4 text-brand-teal" />
                     <span>Free Clinical Triage</span>
                   </span>
                   <span className="flex items-center gap-1.5">
-                    <CheckCircle2 className="size-4 text-white" />
+                    <CheckCircle2 className="size-4 text-brand-teal" />
                     <span>Medical Visa Support</span>
                   </span>
                   <span className="flex items-center gap-1.5">
-                    <CheckCircle2 className="size-4 text-white" />
+                    <CheckCircle2 className="size-4 text-brand-teal" />
                     <span>Bedside Concierge</span>
                   </span>
                 </div>
@@ -422,7 +436,7 @@ export const HomeTemplate: React.FC<HomeTemplateProps> = ({ data }) => {
                 <button
                   type="button"
                   onClick={() => setIsCalculatorOpen(true)}
-                  className="inline-flex h-12 min-h-[48px] items-center justify-center rounded-full bg-action-accent hover:bg-[#943a00] px-7 text-sm font-bold text-white shadow-md transition-all cursor-pointer"
+                  className="inline-flex h-12 min-h-[48px] items-center justify-center rounded-full bg-brand-orange hover:bg-brand-orange-alt px-7 text-sm font-bold text-white shadow-lg shadow-brand-orange/30 transition-all cursor-pointer"
                 >
                   Calculate Procedure Cost
                 </button>

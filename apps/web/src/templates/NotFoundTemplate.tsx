@@ -54,7 +54,7 @@ export const NotFoundTemplate: React.FC<NotFoundTemplateProps> = ({ data }) => {
       <main className="flex-1 flex items-center justify-center py-12 px-4 sm:px-6 lg:px-8">
         <div className="w-full max-w-3xl bg-white rounded-3xl border border-border p-6 sm:p-10 md:p-12 shadow-sm text-center">
           {/* Status Badge */}
-          <div className="inline-flex items-center gap-2 rounded-full bg-surface-teal px-3.5 py-1 text-xs font-bold text-action mb-6">
+          <div className="inline-flex items-center gap-2 rounded-full bg-surface-teal border border-border-teal px-3.5 py-1 text-xs font-bold text-action mb-6">
             <span className="size-2 rounded-full bg-action animate-pulse" />
             <span>HTTP Status: 404 · Page Not Found</span>
           </div>
@@ -88,7 +88,7 @@ export const NotFoundTemplate: React.FC<NotFoundTemplateProps> = ({ data }) => {
               />
               <button
                 type="submit"
-                className="absolute right-1.5 rounded-full bg-action px-4 py-2 text-xs font-bold text-white hover:bg-action-hover transition-colors cursor-pointer"
+                className="absolute right-1.5 rounded-full bg-brand-orange hover:bg-brand-orange-alt px-4 py-2 text-xs font-bold text-white shadow-md shadow-brand-orange/20 transition-colors cursor-pointer"
               >
                 Inquire Desk
               </button>
@@ -128,7 +128,7 @@ export const NotFoundTemplate: React.FC<NotFoundTemplateProps> = ({ data }) => {
           <div className="flex flex-wrap items-center justify-center gap-3 mb-10">
             <a
               href="/"
-              className="inline-flex items-center justify-center gap-2 rounded-full bg-action px-6 py-3 text-xs sm:text-sm font-bold text-white shadow-sm hover:bg-action-hover transition-colors"
+              className="inline-flex items-center justify-center gap-2 rounded-full bg-action px-6 py-3 text-xs sm:text-sm font-bold text-white shadow-md shadow-action/20 hover:bg-action-hover transition-colors"
             >
               <Home className="size-4" />
               <span>Return to Homepage</span>
@@ -138,9 +138,9 @@ export const NotFoundTemplate: React.FC<NotFoundTemplateProps> = ({ data }) => {
               href={`https://wa.me/${phoneClean}?text=Hello%20Akeezo%20Care%20Desk,%20I%20need%20help%20finding%20treatment%20information`}
               target="_blank"
               rel="noopener noreferrer"
-              className="inline-flex items-center justify-center gap-2 rounded-full border border-border bg-white px-6 py-3 text-xs sm:text-sm font-bold text-ink hover:border-action hover:bg-surface-teal/30 hover:text-action transition-colors"
+              className="inline-flex items-center justify-center gap-2 rounded-full border border-border-orange bg-surface-orange px-6 py-3 text-xs sm:text-sm font-bold text-action-accent hover:bg-[#ffe8d9] transition-colors"
             >
-              <PhoneCall className="size-4 text-action" />
+              <PhoneCall className="size-4 text-action-accent" />
               <span>Chat with 24/7 Desk</span>
             </a>
 
@@ -154,7 +154,7 @@ export const NotFoundTemplate: React.FC<NotFoundTemplateProps> = ({ data }) => {
           </div>
 
           {/* Reassuring Care Coordinator Help Card */}
-          <div className="rounded-2xl border border-[#b2ebe4] bg-surface-teal/60 p-5 text-left flex flex-col sm:flex-row items-center justify-between gap-4">
+          <div className="rounded-2xl border border-border-teal bg-surface-teal/60 p-5 text-left flex flex-col sm:flex-row items-center justify-between gap-4">
             <div className="flex items-center gap-3.5">
               <div className="size-10 rounded-full bg-action/10 flex items-center justify-center shrink-0">
                 <Stethoscope className="size-5 text-action" />
@@ -177,7 +177,7 @@ export const NotFoundTemplate: React.FC<NotFoundTemplateProps> = ({ data }) => {
               href={`https://wa.me/${phoneClean}?text=Hello%20Akeezo%20Coordinator`}
               target="_blank"
               rel="noopener noreferrer"
-              className="shrink-0 rounded-full bg-action px-4 py-2 text-xs font-bold text-white hover:bg-action-hover transition-colors"
+              className="shrink-0 rounded-full bg-brand-orange hover:bg-brand-orange-alt px-5 py-2.5 text-xs font-bold text-white shadow-md shadow-brand-orange/20 transition-colors"
             >
               Get Free Help
             </a>

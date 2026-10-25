@@ -138,3 +138,24 @@ describe("Website Audit Task 6: Server SSR Renderer Head Injection, Favicon, & I
     assert.ok(fallbackHtml.includes(`© ${currentYear}`), `Fallback 500 must include dynamic current year ${currentYear}`);
   });
 });
+
+describe("Website Audit Task 7: Brand Color Theme Consistency", () => {
+  it("HomeTemplate and SiteHeader reflect verified brand color tokens and dual-brand visual identity", () => {
+    const data = getDefaultRouteData("/");
+    const homeHtml = renderToString(React.createElement(HomeTemplate, { data }));
+    const headerHtml = renderToString(React.createElement(SiteHeader, { siteSettings: data.siteSettings }));
+
+    // Dual-brand ambient glow
+    assert.ok(homeHtml.includes("from-brand-teal/15"), "HomeTemplate must include brand teal in hero glow");
+    assert.ok(homeHtml.includes("to-brand-orange/12"), "HomeTemplate must include brand orange in hero glow");
+
+    // Brand conversion CTAs
+    assert.ok(homeHtml.includes("bg-brand-orange"), "HomeTemplate must render brand orange conversion buttons");
+    assert.ok(headerHtml.includes("bg-brand-orange"), "SiteHeader must render brand orange for Get Free Quote CTA");
+    assert.ok(headerHtml.includes("text-brand-orange"), "SiteHeader must highlight Calculate Price with brand orange");
+
+    // Dual-theme feature cards
+    assert.ok(homeHtml.includes("border-border-orange"), "HomeTemplate must render brand orange border on price card");
+    assert.ok(homeHtml.includes("border-border-teal"), "HomeTemplate must render brand teal border on explore card");
+  });
+});

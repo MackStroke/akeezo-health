@@ -30,6 +30,8 @@
   --color-ink: #262626;
   --color-ink-muted: #595959;
   --color-border: #e2e8f0;
+  --color-border-teal: #b2ebe4;
+  --color-border-orange: #ffd8bf;
   --color-emergency: #d92d20;
   --color-emergency-strong: #a32118;
   --color-emergency-surface: #fdf2f1;
@@ -89,6 +91,8 @@
   --ink: #262626;
   --ink-muted: #595959;
   --border: #e2e8f0;
+  --border-teal: #b2ebe4;
+  --border-orange: #ffd8bf;
   --emergency: #d92d20;
   --emergency-strong: #a32118;
   --emergency-surface: #fdf2f1;

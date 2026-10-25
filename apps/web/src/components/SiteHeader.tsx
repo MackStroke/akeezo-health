@@ -309,7 +309,7 @@ export const SiteHeader: React.FC<SiteHeaderProps> = ({
             <button
               type="button"
               onClick={() => setIsCalculatorOpen(true)}
-              className="inline-flex h-9 sm:h-10 items-center justify-center rounded-full bg-action px-3.5 sm:px-5 text-xs sm:text-[13px] font-bold text-white shadow-sm transition-all hover:bg-action-hover focus-visible:outline-2 focus-visible:outline-action cursor-pointer shrink-0"
+              className="inline-flex h-9 sm:h-10 items-center justify-center rounded-full bg-brand-orange hover:bg-brand-orange-alt px-3.5 sm:px-5 text-xs sm:text-[13px] font-bold text-white shadow-md shadow-brand-orange/20 transition-all focus-visible:outline-2 focus-visible:outline-brand-orange cursor-pointer shrink-0"
             >
               <Calculator className="size-3.5 sm:size-4 mr-1.5 hidden sm:inline-block" />
               <span>Get Free Quote</span>
@@ -407,7 +407,7 @@ export const SiteHeader: React.FC<SiteHeaderProps> = ({
                     setIsCalculatorOpen(true);
                     setIsMobileMenuOpen(false);
                   }}
-                  className="w-full inline-flex h-11 items-center justify-center rounded-full bg-surface-orange text-xs font-bold text-action-accent border border-[#ffd8bf] cursor-pointer"
+                  className="w-full inline-flex h-11 items-center justify-center rounded-full bg-brand-orange hover:bg-brand-orange-alt text-xs font-bold text-white shadow-md shadow-brand-orange/20 transition-all cursor-pointer"
                 >
                   <Calculator className="size-4 mr-2" />
                   Calculate Treatment Price
@@ -613,7 +613,7 @@ export const SiteHeader: React.FC<SiteHeaderProps> = ({
                   )}`}
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="flex-1 inline-flex h-11 items-center justify-center rounded-full bg-action px-6 text-xs font-bold text-white shadow-sm hover:bg-action-hover cursor-pointer"
+                  className="flex-1 inline-flex h-11 items-center justify-center rounded-full bg-brand-orange hover:bg-brand-orange-alt px-6 text-xs font-bold text-white shadow-md shadow-brand-orange/20 cursor-pointer"
                 >
                   Request Itemized Quote on WhatsApp
                 </a>
@@ -671,7 +671,7 @@ export const SiteHeader: React.FC<SiteHeaderProps> = ({
                 ) : (
                   <button
                     type="submit"
-                    className="w-full inline-flex h-10 items-center justify-center rounded-full bg-action-accent hover:bg-[#943a00] text-xs font-bold text-white shadow-sm cursor-pointer"
+                    className="w-full inline-flex h-10 items-center justify-center rounded-full bg-brand-orange hover:bg-brand-orange-alt text-xs font-bold text-white shadow-md shadow-brand-orange/20 cursor-pointer"
                   >
                     Submit Direct Free Quote Request
                   </button>

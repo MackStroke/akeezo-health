@@ -57,8 +57,8 @@ export const SiteFooter: React.FC<SiteFooterProps> = ({ siteSettings = {} }) => 
                 onClick={() => setActiveTab("treatments")}
                 className={`px-3 py-1.5 rounded-full text-xs font-bold transition-colors cursor-pointer ${
                   activeTab === "treatments"
-                    ? "bg-action text-white"
-                    : "bg-surface-muted text-ink-muted hover:text-ink"
+                    ? "bg-action text-white shadow-xs"
+                    : "bg-surface-muted text-ink-muted hover:text-ink hover:bg-surface-teal/50 hover:text-action"
                 }`}
               >
                 Treatments
@@ -68,8 +68,8 @@ export const SiteFooter: React.FC<SiteFooterProps> = ({ siteSettings = {} }) => 
                 onClick={() => setActiveTab("hospitals")}
                 className={`px-3 py-1.5 rounded-full text-xs font-bold transition-colors cursor-pointer ${
                   activeTab === "hospitals"
-                    ? "bg-action text-white"
-                    : "bg-surface-muted text-ink-muted hover:text-ink"
+                    ? "bg-action text-white shadow-xs"
+                    : "bg-surface-muted text-ink-muted hover:text-ink hover:bg-surface-teal/50 hover:text-action"
                 }`}
               >
                 Hospitals
@@ -79,8 +79,8 @@ export const SiteFooter: React.FC<SiteFooterProps> = ({ siteSettings = {} }) => 
                 onClick={() => setActiveTab("doctors")}
                 className={`px-3 py-1.5 rounded-full text-xs font-bold transition-colors cursor-pointer ${
                   activeTab === "doctors"
-                    ? "bg-action text-white"
-                    : "bg-surface-muted text-ink-muted hover:text-ink"
+                    ? "bg-action text-white shadow-xs"
+                    : "bg-surface-muted text-ink-muted hover:text-ink hover:bg-surface-teal/50 hover:text-action"
                 }`}
               >
                 Specialists
@@ -90,8 +90,8 @@ export const SiteFooter: React.FC<SiteFooterProps> = ({ siteSettings = {} }) => 
                 onClick={() => setActiveTab("destinations")}
                 className={`px-3 py-1.5 rounded-full text-xs font-bold transition-colors cursor-pointer ${
                   activeTab === "destinations"
-                    ? "bg-action text-white"
-                    : "bg-surface-muted text-ink-muted hover:text-ink"
+                    ? "bg-action text-white shadow-xs"
+                    : "bg-surface-muted text-ink-muted hover:text-ink hover:bg-surface-teal/50 hover:text-action"
                 }`}
               >
                 Destinations
@@ -238,7 +238,7 @@ export const SiteFooter: React.FC<SiteFooterProps> = ({ siteSettings = {} }) => 
                   href={`https://wa.me/${phoneClean}?text=Hello%20Akeezo%20Care%20Desk`}
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="inline-flex items-center gap-1.5 rounded-full bg-surface-teal px-3 py-1 font-bold text-action text-[11px] hover:bg-surface-teal/70 transition-colors"
+                  className="inline-flex items-center gap-1.5 rounded-full bg-surface-teal border border-border-teal px-3 py-1 font-bold text-action text-[11px] hover:bg-surface-teal/70 transition-colors"
                 >
                   <span>💬 WhatsApp 24/7 Desk</span>
                 </a>

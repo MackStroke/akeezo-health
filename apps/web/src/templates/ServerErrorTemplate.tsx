@@ -77,7 +77,7 @@ export const ServerErrorTemplate: React.FC<ServerErrorTemplateProps> = ({ data, 
             <button
               type="button"
               onClick={handleReload}
-              className="inline-flex items-center justify-center gap-2 rounded-full bg-action px-6 py-3 text-xs sm:text-sm font-bold text-white shadow-sm hover:bg-action-hover transition-colors cursor-pointer"
+              className="inline-flex items-center justify-center gap-2 rounded-full bg-action px-6 py-3 text-xs sm:text-sm font-bold text-white shadow-md shadow-action/20 hover:bg-action-hover transition-colors cursor-pointer"
             >
               <RotateCcw className="size-4" />
               <span>Try Again / Reload</span>
@@ -95,7 +95,7 @@ export const ServerErrorTemplate: React.FC<ServerErrorTemplateProps> = ({ data, 
               href={`https://wa.me/${phoneClean}?text=Hello%20Akeezo%20Care%20Desk,%20I%20experienced%20a%20technical%20issue%20and%20need%20assistance`}
               target="_blank"
               rel="noopener noreferrer"
-              className="inline-flex items-center justify-center gap-2 rounded-full bg-surface-orange border border-[#ffd8bf] px-6 py-3 text-xs sm:text-sm font-bold text-action-accent hover:bg-surface-orange/80 transition-colors"
+              className="inline-flex items-center justify-center gap-2 rounded-full bg-surface-orange border border-border-orange px-6 py-3 text-xs sm:text-sm font-bold text-action-accent hover:bg-[#ffe8d9] transition-colors"
             >
               <PhoneCall className="size-4" />
               <span>WhatsApp 24/7 Desk</span>
@@ -103,7 +103,7 @@ export const ServerErrorTemplate: React.FC<ServerErrorTemplateProps> = ({ data, 
           </div>
 
           {/* Emergency Patient Care Coordination Box */}
-          <div className="rounded-2xl border border-border bg-slate-50/80 p-5 text-left flex flex-col sm:flex-row items-center justify-between gap-4">
+          <div className="rounded-2xl border border-border-teal bg-surface-teal/40 p-5 text-left flex flex-col sm:flex-row items-center justify-between gap-4">
             <div className="space-y-1">
               <div className="text-xs font-bold uppercase tracking-wider text-action">
                 24/7 Patient Emergency & Inquiries

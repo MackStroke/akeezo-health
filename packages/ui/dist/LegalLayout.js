@@ -21,19 +21,7 @@ export const LegalLayout = ({ title, subtitle, category, lastUpdated = "Septembe
                                         fontWeight: 700,
                                         padding: "4px 10px",
                                         borderRadius: "var(--radius-pill)"
-                                    }, children: category }), _jsxs("span", { style: { fontSize: "0.8125rem", color: "rgba(255, 255, 255, 0.7)" }, children: ["Last Updated: ", _jsx("strong", { children: lastUpdated })] })] }), _jsx("h1", { style: { fontSize: "2.25rem", fontWeight: 900, color: "#ffffff", lineHeight: 1.2 }, children: title }), _jsx("p", { style: { fontSize: "1rem", color: "rgba(255, 255, 255, 0.8)", maxWidth: "800px", lineHeight: 1.6 }, children: subtitle })] }) }), _jsx("div", { className: "container", style: { padding: "40px var(--page-gutter) 80px", flex: 1 }, children: _jsxs("div", { style: {
-                        display: "grid",
-                        gridTemplateColumns: "repeat(12, 1fr)",
-                        gap: "32px",
-                        alignItems: "start"
-                    }, children: [_jsxs("aside", { style: {
-                                gridColumn: "span 4",
-                                display: "flex",
-                                flexDirection: "column",
-                                gap: "24px",
-                                position: "sticky",
-                                top: "90px"
-                            }, children: [_jsxs("div", { style: {
+                                    }, children: category }), _jsxs("span", { style: { fontSize: "0.8125rem", color: "rgba(255, 255, 255, 0.7)" }, children: ["Last Updated: ", _jsx("strong", { children: lastUpdated })] })] }), _jsx("h1", { style: { fontSize: "2.25rem", fontWeight: 900, color: "#ffffff", lineHeight: 1.2 }, children: title }), _jsx("p", { style: { fontSize: "1rem", color: "rgba(255, 255, 255, 0.8)", maxWidth: "800px", lineHeight: 1.6 }, children: subtitle })] }) }), _jsx("div", { className: "container", style: { padding: "40px var(--page-gutter) 80px", flex: 1 }, children: _jsxs("div", { className: "flex flex-col lg:grid lg:grid-cols-12 gap-8 items-start w-full", children: [_jsxs("aside", { className: "w-full lg:col-span-4 flex flex-col gap-6 lg:sticky lg:top-[90px]", children: [_jsxs("div", { style: {
                                         backgroundColor: "#ffffff",
                                         border: "1px solid var(--border)",
                                         borderRadius: "var(--radius-card)",
@@ -89,13 +77,5 @@ export const LegalLayout = ({ title, subtitle, category, lastUpdated = "Septembe
                                                 color: "var(--action)",
                                                 textAlign: "center",
                                                 textDecoration: "none"
-                                            }, children: "Contact DPO" })] })] }), _jsx("article", { style: {
-                                gridColumn: "span 8",
-                                backgroundColor: "#ffffff",
-                                border: "1px solid var(--border)",
-                                borderRadius: "var(--radius-card)",
-                                padding: "40px",
-                                boxShadow: "var(--shadow-card)",
-                                lineHeight: 1.7
-                            }, children: children })] }) })] }));
+                                            }, children: "Contact DPO" })] })] }), _jsx("article", { className: "w-full lg:col-span-8 bg-white border border-border rounded-[20px] p-6 sm:p-10 shadow-xs leading-relaxed overflow-x-hidden", children: children })] }) })] }));
 };

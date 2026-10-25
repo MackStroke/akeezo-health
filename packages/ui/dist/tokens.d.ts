@@ -15,6 +15,8 @@ export declare const tokens: {
         readonly ink: "#262626";
         readonly inkMuted: "#595959";
         readonly border: "#E2E8F0";
+        readonly borderTeal: "#B2EBE4";
+        readonly borderOrange: "#FFD8BF";
         readonly emergency: "#D92D20";
         readonly navy: "#061E1B";
         readonly teal: "#00C7BE";
@@ -56,6 +58,8 @@ export declare const colors: {
     readonly ink: "#262626";
     readonly inkMuted: "#595959";
     readonly border: "#E2E8F0";
+    readonly borderTeal: "#B2EBE4";
+    readonly borderOrange: "#FFD8BF";
     readonly emergency: "#D92D20";
     readonly navy: "#061E1B";
     readonly teal: "#00C7BE";

@@ -19,6 +19,8 @@ export const tokens = {
         ink: "#262626",
         inkMuted: "#595959",
         border: "#E2E8F0",
+        borderTeal: "#B2EBE4",
+        borderOrange: "#FFD8BF",
         emergency: "#D92D20",
         navy: "#061E1B",
         // Aliases & Conveniences
