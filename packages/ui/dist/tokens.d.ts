@@ -1,0 +1,74 @@
+export declare const tokens: {
+    readonly colors: {
+        readonly brandTeal: "#00C7BE";
+        readonly brandOrange: "#FF6B00";
+        readonly brandOrangeAlt: "#FF6D1B";
+        readonly action: "#007A6C";
+        readonly actionHover: "#005F54";
+        readonly actionAccent: "#B54700";
+        readonly actionOrange: "#FF6B00";
+        readonly actionOrangeAlt: "#FF6D1B";
+        readonly surface: "#FFFFFF";
+        readonly surfaceMuted: "#F4F6F9";
+        readonly surfaceTeal: "#E6F8F6";
+        readonly surfaceOrange: "#FFF4EC";
+        readonly ink: "#262626";
+        readonly inkMuted: "#595959";
+        readonly border: "#E2E8F0";
+        readonly emergency: "#D92D20";
+        readonly navy: "#061E1B";
+        readonly teal: "#00C7BE";
+        readonly orange: "#FF6B00";
+        readonly orangeAlt: "#FF6D1B";
+        readonly primaryTeal: "#00C7BE";
+        readonly actionTeal: "#007A6C";
+        readonly warningOrange: "#FF6B00";
+        readonly darkNavy: "#061E1B";
+        readonly lightGray: "#F4F6F9";
+        readonly borderGray: "#E2E8F0";
+        readonly textDark: "#262626";
+        readonly textMuted: "#595959";
+        readonly textSecondary: "#595959";
+    };
+    readonly typography: {
+        readonly fontFamily: "'Lato', system-ui, sans-serif";
+    };
+    readonly layout: {
+        readonly pageMax: "1280px";
+        readonly radiusCard: "20px";
+        readonly radiusHero: "30px";
+        readonly radiusPill: "999px";
+    };
+};
+export declare const colors: {
+    readonly brandTeal: "#00C7BE";
+    readonly brandOrange: "#FF6B00";
+    readonly brandOrangeAlt: "#FF6D1B";
+    readonly action: "#007A6C";
+    readonly actionHover: "#005F54";
+    readonly actionAccent: "#B54700";
+    readonly actionOrange: "#FF6B00";
+    readonly actionOrangeAlt: "#FF6D1B";
+    readonly surface: "#FFFFFF";
+    readonly surfaceMuted: "#F4F6F9";
+    readonly surfaceTeal: "#E6F8F6";
+    readonly surfaceOrange: "#FFF4EC";
+    readonly ink: "#262626";
+    readonly inkMuted: "#595959";
+    readonly border: "#E2E8F0";
+    readonly emergency: "#D92D20";
+    readonly navy: "#061E1B";
+    readonly teal: "#00C7BE";
+    readonly orange: "#FF6B00";
+    readonly orangeAlt: "#FF6D1B";
+    readonly primaryTeal: "#00C7BE";
+    readonly actionTeal: "#007A6C";
+    readonly warningOrange: "#FF6B00";
+    readonly darkNavy: "#061E1B";
+    readonly lightGray: "#F4F6F9";
+    readonly borderGray: "#E2E8F0";
+    readonly textDark: "#262626";
+    readonly textMuted: "#595959";
+    readonly textSecondary: "#595959";
+};
+//# sourceMappingURL=tokens.d.ts.map

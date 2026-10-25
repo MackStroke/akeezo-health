@@ -22,6 +22,8 @@ export const DEFAULT_SITE_SETTINGS: SiteSettings = {
   telegramChannel: "https://t.me/akeezohealth",
   supportedLocales: ["en"],
   primaryColor: "#00C7BE",
+  secondaryColor: "#FF6B00",
+  accentColor: "#FF6D1B",
   actionColor: "#007A6C",
   logoVariants: {
     light: "/logo/logo with tagline-light.svg",

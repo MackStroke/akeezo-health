@@ -1,0 +1,304 @@
+import { z } from "zod";
+import { type SiteSettings } from "./settings.js";
+export type SiteSettingsDTO = SiteSettings;
+export declare const PublicRouteResponseSchema: z.ZodObject<{
+    pageKind: z.ZodEnum<["home", "treatmentDirectory", "treatmentDetail", "procedureDetail", "hospitalDirectory", "hospitalDetail", "doctorDirectory", "doctorDetail", "destinationDirectory", "destinationDetail", "cityDetail", "calculatorLanding", "calculatorWizard", "calculatorResult", "journeyPlanner", "blogDirectory", "article", "contributorProfile", "about", "missionVision", "partnerLanding", "partnerComparison", "partnerApplication", "contact", "faq", "helpCentre", "legal", "specializedGuide", "serviceDetail", "medicineEnquiry", "notFound", "serverError"]>;
+    path: z.ZodString;
+    locale: z.ZodDefault<z.ZodString>;
+    seo: z.ZodObject<{
+        title: z.ZodString;
+        description: z.ZodString;
+        canonicalPath: z.ZodString;
+        ogMediaId: z.ZodOptional<z.ZodNullable<z.ZodString>>;
+        robots: z.ZodDefault<z.ZodString>;
+        schemaKind: z.ZodDefault<z.ZodString>;
+    }, "strip", z.ZodTypeAny, {
+        title: string;
+        description: string;
+        canonicalPath: string;
+        robots: string;
+        schemaKind: string;
+        ogMediaId?: string | null | undefined;
+    }, {
+        title: string;
+        description: string;
+        canonicalPath: string;
+        ogMediaId?: string | null | undefined;
+        robots?: string | undefined;
+        schemaKind?: string | undefined;
+    }>;
+    payload: z.ZodRecord<z.ZodString, z.ZodUnknown>;
+    revisionId: z.ZodOptional<z.ZodString>;
+    siteSettings: z.ZodObject<{
+        brandName: z.ZodDefault<z.ZodString>;
+        tagline: z.ZodDefault<z.ZodString>;
+        legalEntityName: z.ZodDefault<z.ZodString>;
+        officeAddress: z.ZodDefault<z.ZodString>;
+        headquartersAddress: z.ZodOptional<z.ZodString>;
+        phone: z.ZodDefault<z.ZodString>;
+        careEmail: z.ZodDefault<z.ZodString>;
+        medicalEmail: z.ZodDefault<z.ZodString>;
+        partnershipEmail: z.ZodDefault<z.ZodString>;
+        grievanceEmail: z.ZodDefault<z.ZodString>;
+        dpoEmail: z.ZodDefault<z.ZodString>;
+        consentEmail: z.ZodDefault<z.ZodString>;
+        supportEmail: z.ZodDefault<z.ZodString>;
+        contactEmail: z.ZodOptional<z.ZodString>;
+        emergencyHelpline: z.ZodOptional<z.ZodString>;
+        whatsappHelpline: z.ZodOptional<z.ZodString>;
+        showTopUtilityBar: z.ZodDefault<z.ZodBoolean>;
+        emergencyNotice: z.ZodDefault<z.ZodString>;
+        telegramChannel: z.ZodDefault<z.ZodString>;
+        supportedLocales: z.ZodDefault<z.ZodArray<z.ZodString, "many">>;
+        primaryColor: z.ZodDefault<z.ZodString>;
+        secondaryColor: z.ZodDefault<z.ZodString>;
+        accentColor: z.ZodDefault<z.ZodString>;
+        actionColor: z.ZodDefault<z.ZodString>;
+        logoVariants: z.ZodOptional<z.ZodObject<{
+            light: z.ZodOptional<z.ZodString>;
+            dark: z.ZodOptional<z.ZodString>;
+            mark: z.ZodOptional<z.ZodString>;
+        }, "strip", z.ZodTypeAny, {
+            light?: string | undefined;
+            dark?: string | undefined;
+            mark?: string | undefined;
+        }, {
+            light?: string | undefined;
+            dark?: string | undefined;
+            mark?: string | undefined;
+        }>>;
+        grievanceOfficer: z.ZodOptional<z.ZodObject<{
+            name: z.ZodOptional<z.ZodString>;
+            designation: z.ZodOptional<z.ZodString>;
+            email: z.ZodOptional<z.ZodString>;
+            helpline: z.ZodOptional<z.ZodString>;
+            address: z.ZodOptional<z.ZodString>;
+        }, "strip", z.ZodTypeAny, {
+            name?: string | undefined;
+            email?: string | undefined;
+            designation?: string | undefined;
+            helpline?: string | undefined;
+            address?: string | undefined;
+        }, {
+            name?: string | undefined;
+            email?: string | undefined;
+            designation?: string | undefined;
+            helpline?: string | undefined;
+            address?: string | undefined;
+        }>>;
+        dpoContact: z.ZodOptional<z.ZodObject<{
+            email: z.ZodOptional<z.ZodString>;
+            address: z.ZodOptional<z.ZodString>;
+        }, "strip", z.ZodTypeAny, {
+            email?: string | undefined;
+            address?: string | undefined;
+        }, {
+            email?: string | undefined;
+            address?: string | undefined;
+        }>>;
+        socialLinks: z.ZodOptional<z.ZodRecord<z.ZodString, z.ZodString>>;
+    }, "strip", z.ZodTypeAny, {
+        phone: string;
+        brandName: string;
+        tagline: string;
+        legalEntityName: string;
+        officeAddress: string;
+        careEmail: string;
+        medicalEmail: string;
+        partnershipEmail: string;
+        grievanceEmail: string;
+        dpoEmail: string;
+        consentEmail: string;
+        supportEmail: string;
+        showTopUtilityBar: boolean;
+        emergencyNotice: string;
+        telegramChannel: string;
+        supportedLocales: string[];
+        primaryColor: string;
+        secondaryColor: string;
+        accentColor: string;
+        actionColor: string;
+        headquartersAddress?: string | undefined;
+        contactEmail?: string | undefined;
+        emergencyHelpline?: string | undefined;
+        whatsappHelpline?: string | undefined;
+        logoVariants?: {
+            light?: string | undefined;
+            dark?: string | undefined;
+            mark?: string | undefined;
+        } | undefined;
+        grievanceOfficer?: {
+            name?: string | undefined;
+            email?: string | undefined;
+            designation?: string | undefined;
+            helpline?: string | undefined;
+            address?: string | undefined;
+        } | undefined;
+        dpoContact?: {
+            email?: string | undefined;
+            address?: string | undefined;
+        } | undefined;
+        socialLinks?: Record<string, string> | undefined;
+    }, {
+        phone?: string | undefined;
+        brandName?: string | undefined;
+        tagline?: string | undefined;
+        legalEntityName?: string | undefined;
+        officeAddress?: string | undefined;
+        headquartersAddress?: string | undefined;
+        careEmail?: string | undefined;
+        medicalEmail?: string | undefined;
+        partnershipEmail?: string | undefined;
+        grievanceEmail?: string | undefined;
+        dpoEmail?: string | undefined;
+        consentEmail?: string | undefined;
+        supportEmail?: string | undefined;
+        contactEmail?: string | undefined;
+        emergencyHelpline?: string | undefined;
+        whatsappHelpline?: string | undefined;
+        showTopUtilityBar?: boolean | undefined;
+        emergencyNotice?: string | undefined;
+        telegramChannel?: string | undefined;
+        supportedLocales?: string[] | undefined;
+        primaryColor?: string | undefined;
+        secondaryColor?: string | undefined;
+        accentColor?: string | undefined;
+        actionColor?: string | undefined;
+        logoVariants?: {
+            light?: string | undefined;
+            dark?: string | undefined;
+            mark?: string | undefined;
+        } | undefined;
+        grievanceOfficer?: {
+            name?: string | undefined;
+            email?: string | undefined;
+            designation?: string | undefined;
+            helpline?: string | undefined;
+            address?: string | undefined;
+        } | undefined;
+        dpoContact?: {
+            email?: string | undefined;
+            address?: string | undefined;
+        } | undefined;
+        socialLinks?: Record<string, string> | undefined;
+    }>;
+    statusCode: z.ZodDefault<z.ZodNumber>;
+}, "strip", z.ZodTypeAny, {
+    path: string;
+    locale: string;
+    payload: Record<string, unknown>;
+    seo: {
+        title: string;
+        description: string;
+        canonicalPath: string;
+        robots: string;
+        schemaKind: string;
+        ogMediaId?: string | null | undefined;
+    };
+    pageKind: "home" | "treatmentDirectory" | "treatmentDetail" | "procedureDetail" | "hospitalDirectory" | "hospitalDetail" | "doctorDirectory" | "doctorDetail" | "destinationDirectory" | "destinationDetail" | "cityDetail" | "calculatorLanding" | "calculatorWizard" | "calculatorResult" | "journeyPlanner" | "blogDirectory" | "article" | "contributorProfile" | "about" | "missionVision" | "partnerLanding" | "partnerComparison" | "partnerApplication" | "contact" | "faq" | "helpCentre" | "legal" | "specializedGuide" | "serviceDetail" | "medicineEnquiry" | "notFound" | "serverError";
+    statusCode: number;
+    siteSettings: {
+        phone: string;
+        brandName: string;
+        tagline: string;
+        legalEntityName: string;
+        officeAddress: string;
+        careEmail: string;
+        medicalEmail: string;
+        partnershipEmail: string;
+        grievanceEmail: string;
+        dpoEmail: string;
+        consentEmail: string;
+        supportEmail: string;
+        showTopUtilityBar: boolean;
+        emergencyNotice: string;
+        telegramChannel: string;
+        supportedLocales: string[];
+        primaryColor: string;
+        secondaryColor: string;
+        accentColor: string;
+        actionColor: string;
+        headquartersAddress?: string | undefined;
+        contactEmail?: string | undefined;
+        emergencyHelpline?: string | undefined;
+        whatsappHelpline?: string | undefined;
+        logoVariants?: {
+            light?: string | undefined;
+            dark?: string | undefined;
+            mark?: string | undefined;
+        } | undefined;
+        grievanceOfficer?: {
+            name?: string | undefined;
+            email?: string | undefined;
+            designation?: string | undefined;
+            helpline?: string | undefined;
+            address?: string | undefined;
+        } | undefined;
+        dpoContact?: {
+            email?: string | undefined;
+            address?: string | undefined;
+        } | undefined;
+        socialLinks?: Record<string, string> | undefined;
+    };
+    revisionId?: string | undefined;
+}, {
+    path: string;
+    payload: Record<string, unknown>;
+    seo: {
+        title: string;
+        description: string;
+        canonicalPath: string;
+        ogMediaId?: string | null | undefined;
+        robots?: string | undefined;
+        schemaKind?: string | undefined;
+    };
+    pageKind: "home" | "treatmentDirectory" | "treatmentDetail" | "procedureDetail" | "hospitalDirectory" | "hospitalDetail" | "doctorDirectory" | "doctorDetail" | "destinationDirectory" | "destinationDetail" | "cityDetail" | "calculatorLanding" | "calculatorWizard" | "calculatorResult" | "journeyPlanner" | "blogDirectory" | "article" | "contributorProfile" | "about" | "missionVision" | "partnerLanding" | "partnerComparison" | "partnerApplication" | "contact" | "faq" | "helpCentre" | "legal" | "specializedGuide" | "serviceDetail" | "medicineEnquiry" | "notFound" | "serverError";
+    siteSettings: {
+        phone?: string | undefined;
+        brandName?: string | undefined;
+        tagline?: string | undefined;
+        legalEntityName?: string | undefined;
+        officeAddress?: string | undefined;
+        headquartersAddress?: string | undefined;
+        careEmail?: string | undefined;
+        medicalEmail?: string | undefined;
+        partnershipEmail?: string | undefined;
+        grievanceEmail?: string | undefined;
+        dpoEmail?: string | undefined;
+        consentEmail?: string | undefined;
+        supportEmail?: string | undefined;
+        contactEmail?: string | undefined;
+        emergencyHelpline?: string | undefined;
+        whatsappHelpline?: string | undefined;
+        showTopUtilityBar?: boolean | undefined;
+        emergencyNotice?: string | undefined;
+        telegramChannel?: string | undefined;
+        supportedLocales?: string[] | undefined;
+        primaryColor?: string | undefined;
+        secondaryColor?: string | undefined;
+        accentColor?: string | undefined;
+        actionColor?: string | undefined;
+        logoVariants?: {
+            light?: string | undefined;
+            dark?: string | undefined;
+            mark?: string | undefined;
+        } | undefined;
+        grievanceOfficer?: {
+            name?: string | undefined;
+            email?: string | undefined;
+            designation?: string | undefined;
+            helpline?: string | undefined;
+            address?: string | undefined;
+        } | undefined;
+        dpoContact?: {
+            email?: string | undefined;
+            address?: string | undefined;
+        } | undefined;
+        socialLinks?: Record<string, string> | undefined;
+    };
+    locale?: string | undefined;
+    statusCode?: number | undefined;
+    revisionId?: string | undefined;
+}>;
+export type PublicRouteResponseDTO = z.infer<typeof PublicRouteResponseSchema>;
+//# sourceMappingURL=dto.d.ts.map

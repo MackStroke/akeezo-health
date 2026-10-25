@@ -9,6 +9,8 @@ const SiteSettingsSchema = new Schema({
         mark: { type: String, default: "/logo/favicon.svg" }
     },
     primaryColor: { type: String, default: "#00C7BE" },
+    secondaryColor: { type: String, default: "#FF6B00" },
+    accentColor: { type: String, default: "#FF6D1B" },
     actionColor: { type: String, default: "#007A6C" },
     contactEmail: { type: String, default: "care@akeezo.com" },
     careEmail: { type: String, default: "care@akeezo.com" },

@@ -95,6 +95,8 @@ export async function seedDev() {
                 mark: "/logo/favicon.svg"
             },
             primaryColor: "#00C7BE",
+            secondaryColor: "#FF6B00",
+            accentColor: "#FF6D1B",
             actionColor: "#007A6C",
             contactEmail: "care@akeezo.com",
             careEmail: "care@akeezo.com",

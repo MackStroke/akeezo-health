@@ -53,6 +53,8 @@ export function toSafeSiteSettings(doc) {
         telegramChannel: doc?.telegramChannel || "https://t.me/akeezohealth",
         supportedLocales: doc?.supportedLocales || ["en"],
         primaryColor: doc?.primaryColor || "#00C7BE",
+        secondaryColor: doc?.secondaryColor || "#FF6B00",
+        accentColor: doc?.accentColor || "#FF6D1B",
         actionColor: doc?.actionColor || "#007A6C",
         logoVariants: doc?.logoVariants || {
             light: "/logo/logo with tagline-light.svg",

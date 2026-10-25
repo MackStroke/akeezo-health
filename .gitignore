@@ -6,6 +6,10 @@ node_modules/
 dist/
 !apps/server/dist/
 !apps/server/dist/**
+!packages/contracts/dist/
+!packages/contracts/dist/**
+!packages/ui/dist/
+!packages/ui/dist/**
 build/
 .vite/
 *.tsbuildinfo

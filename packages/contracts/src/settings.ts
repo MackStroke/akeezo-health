@@ -22,6 +22,8 @@ export const SiteSettingsSchema = z.object({
   telegramChannel: z.string().default("https://t.me/akeezohealth"),
   supportedLocales: z.array(z.string()).default(["en"]),
   primaryColor: z.string().optional(),
+  secondaryColor: z.string().optional(),
+  accentColor: z.string().optional(),
   actionColor: z.string().optional(),
   logoVariants: z
     .object({
