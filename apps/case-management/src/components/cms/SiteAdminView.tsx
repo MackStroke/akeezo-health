@@ -24,7 +24,7 @@ export const SiteAdminView: React.FC = () => {
 
         <div className="flex items-center gap-3">
           <a
-            href="http://localhost:4000/"
+            href="/"
             target="_blank"
             rel="noreferrer"
             className="inline-flex items-center gap-2 bg-white/10 hover:bg-white/20 active:bg-white/30 text-white text-xs font-bold px-4 py-2.5 rounded-xl border border-white/20 shadow-xs transition"

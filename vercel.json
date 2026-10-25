@@ -1,0 +1,82 @@
+{
+  "$schema": "https://openapi.vercel.sh/vercel.json",
+  "services": {
+    "server": {
+      "root": "apps/server",
+      "framework": "express",
+      "entrypoint": "src/index.ts",
+      "bindings": [
+        {
+          "type": "service",
+          "service": "web",
+          "format": "url",
+          "env": "WEB_URL"
+        }
+      ]
+    },
+    "case-management": {
+      "root": "apps/case-management",
+      "framework": "vite",
+      "outputDirectory": "dist",
+      "bindings": [
+        {
+          "type": "service",
+          "service": "server",
+          "format": "url",
+          "env": "SERVER_URL"
+        }
+      ]
+    },
+    "web": {
+      "root": "apps/web",
+      "framework": "vite",
+      "outputDirectory": "dist/client",
+      "bindings": [
+        {
+          "type": "service",
+          "service": "server",
+          "format": "url",
+          "env": "SERVER_URL"
+        }
+      ]
+    }
+  },
+  "rewrites": [
+    {
+      "source": "/api/(.*)",
+      "destination": {
+        "service": "server"
+      }
+    },
+    {
+      "source": "/case-management/(.*)",
+      "destination": {
+        "service": "case-management"
+      }
+    },
+    {
+      "source": "/case-management",
+      "destination": {
+        "service": "case-management"
+      }
+    },
+    {
+      "source": "/admin",
+      "destination": {
+        "service": "case-management"
+      }
+    },
+    {
+      "source": "/admin/(.*)",
+      "destination": {
+        "service": "case-management"
+      }
+    },
+    {
+      "source": "/(.*)",
+      "destination": {
+        "service": "web"
+      }
+    }
+  ]
+}

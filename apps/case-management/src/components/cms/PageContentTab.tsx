@@ -213,7 +213,7 @@ export const PageContentTab: React.FC = () => {
 
         <div className="flex items-center gap-3">
           <a
-            href={`http://localhost:4000${currentPath}`}
+            href={currentPath}
             target="_blank"
             rel="noreferrer"
             className="flex items-center gap-1.5 text-xs text-teal-700 hover:text-teal-900 font-bold border border-teal-600 hover:bg-teal-50 px-3 py-1.5 rounded-lg transition"

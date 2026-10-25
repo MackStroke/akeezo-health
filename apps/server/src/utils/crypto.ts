@@ -1,10 +1,17 @@
 import crypto from "crypto";
 
-// 32-byte encryption key (derived from env or fallback for local dev)
+// 32-byte encryption key (supports 64-char hex string or 32+ char UTF-8 string)
 const ALGORITHM = "aes-256-gcm";
-const SECRET_KEY = Buffer.from(
-  (process.env.ENCRYPTION_KEY || "akeezo_secure_master_key_2026_dev_32b!").padEnd(32, "0").slice(0, 32)
-);
+
+function resolveSecretKey(): Buffer {
+  const key = process.env.ENCRYPTION_KEY || "akeezo_secure_master_key_2026_dev_32b!";
+  if (key.length === 64 && /^[0-9a-fA-F]{64}$/.test(key)) {
+    return Buffer.from(key, "hex");
+  }
+  return Buffer.from(key.padEnd(32, "0").slice(0, 32), "utf8");
+}
+
+const SECRET_KEY = resolveSecretKey();
 
 export function encryptSensitiveField(text: string): string {
   if (!text) return text;
