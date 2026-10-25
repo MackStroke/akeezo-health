@@ -1,0 +1,20 @@
+{
+  "name": "akeezo-health-monorepo",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "dev": "pnpm --filter @akeezo/server dev",
+    "build": "pnpm --filter @akeezo/contracts build && pnpm --filter @akeezo/ui build && pnpm --filter @akeezo/web build && pnpm --filter @akeezo/case-management build && pnpm --filter @akeezo/server build",
+    "start": "pnpm --filter @akeezo/server start",
+    "test": "pnpm --filter @akeezo/server test",
+    "dev:cases": "pnpm --filter @akeezo/case-management dev",
+    "typecheck": "pnpm -r exec tsc --noEmit",
+    "db:seed": "pnpm --filter @akeezo/server seed",
+    "db:seed:cases": "pnpm --filter @akeezo/server seed:cases"
+  },
+  "devDependencies": {
+    "@types/node": "^22.10.2",
+    "typescript": "^5.7.2"
+  }
+}

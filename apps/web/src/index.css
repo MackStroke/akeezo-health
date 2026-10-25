@@ -1,0 +1,156 @@
+@import "tailwindcss";
+@import "tw-animate-css";
+@import "shadcn/tailwind.css";
+
+/* Akeezo Typography - Lato */
+@import "@fontsource/lato/300.css";
+@import "@fontsource/lato/400.css";
+@import "@fontsource/lato/700.css";
+@import "@fontsource/lato/900.css";
+
+@custom-variant dark (&:is(.dark *));
+
+@theme inline {
+  --font-heading: 'Lato', system-ui, -apple-system, sans-serif;
+  --font-sans: 'Lato', system-ui, -apple-system, sans-serif;
+
+  /* Akeezo Brand Palette */
+  --color-brand-teal: #00c7be;
+  --color-brand-orange: #ff6b00;
+  --color-action: #007a6c;
+  --color-action-hover: #005f54;
+  --color-action-accent: #b54700;
+  --color-surface: #ffffff;
+  --color-surface-muted: #f4f6f9;
+  --color-surface-teal: #e6f8f6;
+  --color-surface-orange: #fff4ec;
+  --color-ink: #262626;
+  --color-ink-muted: #595959;
+  --color-border: #e2e8f0;
+  --color-emergency: #d92d20;
+  --color-navy: #061e1b;
+
+  /* Shadcn Semantic Mapping */
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --color-card: var(--card);
+  --color-card-foreground: var(--card-foreground);
+  --color-popover: var(--popover);
+  --color-popover-foreground: var(--popover-foreground);
+  --color-primary: var(--primary);
+  --color-primary-foreground: var(--primary-foreground);
+  --color-secondary: var(--secondary);
+  --color-secondary-foreground: var(--secondary-foreground);
+  --color-muted: var(--muted);
+  --color-muted-foreground: var(--muted-foreground);
+  --color-accent: var(--accent);
+  --color-accent-foreground: var(--accent-foreground);
+  --color-destructive: var(--destructive);
+  --color-destructive-foreground: var(--destructive-foreground);
+  --color-input: var(--input);
+  --color-ring: var(--ring);
+
+  /* Akeezo Component Dimensions & Radii */
+  --radius-card: 20px;
+  --radius-hero: 30px;
+  --radius-pill: 999px;
+  --radius-sm: 8px;
+  --radius-md: 12px;
+  --radius-lg: 16px;
+  --radius-xl: 20px;
+  --radius-2xl: 24px;
+  --radius-3xl: 30px;
+  --radius-full: 999px;
+
+  /* Akeezo Shadows */
+  --shadow-card: 0 4px 20px rgb(15 23 42 / 9%);
+}
+
+:root {
+  /* Akeezo Core Brand Tokens */
+  --brand-teal: #00c7be;
+  --brand-orange: #ff6b00;
+  --action: #007a6c;
+  --action-hover: #005f54;
+  --action-accent: #b54700;
+  --surface: #ffffff;
+  --surface-muted: #f4f6f9;
+  --surface-teal: #e6f8f6;
+  --surface-orange: #fff4ec;
+  --ink: #262626;
+  --ink-muted: #595959;
+  --border: #e2e8f0;
+  --emergency: #d92d20;
+  --navy: #061e1b;
+  --font-ui: 'Lato', system-ui, -apple-system, sans-serif;
+  --page-max: 1280px;
+  --page-gutter: clamp(16px, 4vw, 56px);
+  --radius-card: 20px;
+  --radius-hero: 30px;
+  --radius-pill: 999px;
+  --shadow-card: 0 4px 20px rgb(15 23 42 / 9%);
+
+  /* Shadcn Variables Mapped to Akeezo Brand */
+  --background: #ffffff;
+  --foreground: #262626;
+  --card: #ffffff;
+  --card-foreground: #262626;
+  --popover: #ffffff;
+  --popover-foreground: #262626;
+  --primary: #007a6c;
+  --primary-foreground: #ffffff;
+  --secondary: #e6f8f6;
+  --secondary-foreground: #007a6c;
+  --muted: #f4f6f9;
+  --muted-foreground: #595959;
+  --accent: #fff4ec;
+  --accent-foreground: #b54700;
+  --destructive: #d92d20;
+  --destructive-foreground: #ffffff;
+  --border: #e2e8f0;
+  --input: #e2e8f0;
+  --ring: #007a6c;
+  --radius: 1.25rem; /* 20px card radius */
+}
+
+.dark {
+  --background: #061e1b;
+  --foreground: #f4f6f9;
+  --card: #0b2b27;
+  --card-foreground: #f4f6f9;
+  --popover: #0b2b27;
+  --popover-foreground: #f4f6f9;
+  --primary: #00c7be;
+  --primary-foreground: #061e1b;
+  --secondary: #0f3d37;
+  --secondary-foreground: #00c7be;
+  --muted: #0f3d37;
+  --muted-foreground: #94a3b8;
+  --accent: #1e3a35;
+  --accent-foreground: #ff6b00;
+  --destructive: #ef4444;
+  --destructive-foreground: #ffffff;
+  --border: rgb(255 255 255 / 15%);
+  --input: rgb(255 255 255 / 15%);
+  --ring: #00c7be;
+}
+
+@layer base {
+  * {
+    @apply border-border;
+  }
+  body {
+    @apply bg-background text-foreground;
+    font-family: var(--font-ui);
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+  }
+  html {
+    font-family: var(--font-ui);
+  }
+  /* Focus rings: 2px dark teal with 2px offset per design.md */
+  :focus-visible {
+    outline: 2px solid var(--action);
+    outline-offset: 2px;
+  }
+}

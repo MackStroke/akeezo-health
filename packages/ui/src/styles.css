@@ -1,0 +1,55 @@
+:root {
+  --brand-teal: #00c7be;
+  --brand-orange: #ff6b00;
+  --action: #007a6c;
+  --action-hover: #005f54;
+  --action-accent: #b54700;
+  --surface: #ffffff;
+  --surface-muted: #f4f6f9;
+  --surface-teal: #e6f8f6;
+  --surface-orange: #fff4ec;
+  --ink: #262626;
+  --ink-muted: #595959;
+  --border: #e2e8f0;
+  --emergency: #d92d20;
+  --navy: #061e1b;
+  --font-ui: 'Lato', system-ui, -apple-system, sans-serif;
+  --page-max: 1280px;
+  --page-gutter: clamp(16px, 4vw, 56px);
+  --radius-card: 20px;
+  --radius-hero: 30px;
+  --radius-pill: 999px;
+  --shadow-card: 0 4px 20px rgb(15 23 42 / 9%);
+}
+
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+body {
+  font-family: var(--font-ui);
+  color: var(--ink);
+  background-color: var(--surface);
+  line-height: 1.5;
+  -webkit-font-smoothing: antialiased;
+}
+
+a {
+  color: inherit;
+  text-decoration: none;
+}
+
+button {
+  font-family: inherit;
+  cursor: pointer;
+}
+
+.container {
+  max-width: var(--page-max);
+  margin-left: auto;
+  margin-right: auto;
+  padding-left: var(--page-gutter);
+  padding-right: var(--page-gutter);
+}
