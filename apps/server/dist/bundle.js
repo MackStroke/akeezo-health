@@ -1294,8 +1294,8 @@ var require_node = __commonJS({
           }
           break;
         case "FILE":
-          var fs2 = __require("fs");
-          stream2 = new fs2.SyncWriteStream(fd2, { autoClose: false });
+          var fs4 = __require("fs");
+          stream2 = new fs4.SyncWriteStream(fd2, { autoClose: false });
           stream2._type = "fs";
           break;
         case "PIPE":
@@ -14097,11 +14097,11 @@ var require_mime_types = __commonJS({
       }
       return exts[0];
     }
-    function lookup(path3) {
-      if (!path3 || typeof path3 !== "string") {
+    function lookup(path4) {
+      if (!path4 || typeof path4 !== "string") {
         return false;
       }
-      var extension2 = extname("x." + path3).toLowerCase().substr(1);
+      var extension2 = extname("x." + path4).toLowerCase().substr(1);
       if (!extension2) {
         return false;
       }
@@ -17925,8 +17925,8 @@ var require_node2 = __commonJS({
           }
           break;
         case "FILE":
-          var fs2 = __require("fs");
-          stream2 = new fs2.SyncWriteStream(fd2, { autoClose: false });
+          var fs4 = __require("fs");
+          stream2 = new fs4.SyncWriteStream(fd2, { autoClose: false });
           stream2._type = "fs";
           break;
         case "PIPE":
@@ -18644,8 +18644,8 @@ var require_node3 = __commonJS({
           }
           break;
         case "FILE":
-          var fs2 = __require("fs");
-          stream2 = new fs2.SyncWriteStream(fd2, { autoClose: false });
+          var fs4 = __require("fs");
+          stream2 = new fs4.SyncWriteStream(fd2, { autoClose: false });
           stream2._type = "fs";
           break;
         case "PIPE":
@@ -18733,7 +18733,7 @@ var require_path_to_regexp = __commonJS({
   "../../node_modules/path-to-regexp/index.js"(exports, module) {
     module.exports = pathToRegexp;
     var MATCHING_GROUP_REGEXP = /\\.|\((?:\?<(.*?)>)?(?!\?)/g;
-    function pathToRegexp(path3, keys, options) {
+    function pathToRegexp(path4, keys, options) {
       options = options || {};
       keys = keys || [];
       var strict = options.strict;
@@ -18747,8 +18747,8 @@ var require_path_to_regexp = __commonJS({
       var pos = 0;
       var backtrack = "";
       var m;
-      if (path3 instanceof RegExp) {
-        while (m = MATCHING_GROUP_REGEXP.exec(path3.source)) {
+      if (path4 instanceof RegExp) {
+        while (m = MATCHING_GROUP_REGEXP.exec(path4.source)) {
           if (m[0][0] === "\\") continue;
           keys.push({
             name: m[1] || name++,
@@ -18756,18 +18756,18 @@ var require_path_to_regexp = __commonJS({
             offset: m.index
           });
         }
-        return path3;
+        return path4;
       }
-      if (Array.isArray(path3)) {
-        path3 = path3.map(function(value) {
+      if (Array.isArray(path4)) {
+        path4 = path4.map(function(value) {
           return pathToRegexp(value, keys, options).source;
         });
-        return new RegExp(path3.join("|"), flags);
+        return new RegExp(path4.join("|"), flags);
       }
-      if (typeof path3 !== "string") {
+      if (typeof path4 !== "string") {
         throw new TypeError("path must be a string, array of strings, or regular expression");
       }
-      path3 = path3.replace(
+      path4 = path4.replace(
         /\\.|(\/)?(\.)?:(\w+)(\(.*?\))?(\*)?(\?)?|[.*]|\/\(/g,
         function(match, slash, format, key, capture, star, optional, offset) {
           if (match[0] === "\\") {
@@ -18784,7 +18784,7 @@ var require_path_to_regexp = __commonJS({
           if (slash || format) {
             backtrack = "";
           } else {
-            backtrack += path3.slice(pos, offset);
+            backtrack += path4.slice(pos, offset);
           }
           pos = offset + match.length;
           if (match === "*") {
@@ -18814,7 +18814,7 @@ var require_path_to_regexp = __commonJS({
           return result;
         }
       );
-      while (m = MATCHING_GROUP_REGEXP.exec(path3)) {
+      while (m = MATCHING_GROUP_REGEXP.exec(path4)) {
         if (m[0][0] === "\\") continue;
         if (keysOffset + i === keys.length || keys[keysOffset + i].offset > m.index) {
           keys.splice(keysOffset + i, 0, {
@@ -18826,13 +18826,13 @@ var require_path_to_regexp = __commonJS({
         }
         i++;
       }
-      path3 += strict ? "" : path3[path3.length - 1] === "/" ? "?" : "/?";
+      path4 += strict ? "" : path4[path4.length - 1] === "/" ? "?" : "/?";
       if (end) {
-        path3 += "$";
-      } else if (path3[path3.length - 1] !== "/") {
-        path3 += lookahead ? "(?=/|$)" : "(?:/|$)";
+        path4 += "$";
+      } else if (path4[path4.length - 1] !== "/") {
+        path4 += lookahead ? "(?=/|$)" : "(?:/|$)";
       }
-      return new RegExp("^" + path3, flags);
+      return new RegExp("^" + path4, flags);
     }
   }
 });
@@ -18845,19 +18845,19 @@ var require_layer = __commonJS({
     var debug = require_src3()("express:router:layer");
     var hasOwnProperty = Object.prototype.hasOwnProperty;
     module.exports = Layer;
-    function Layer(path3, options, fn) {
+    function Layer(path4, options, fn) {
       if (!(this instanceof Layer)) {
-        return new Layer(path3, options, fn);
+        return new Layer(path4, options, fn);
       }
-      debug("new %o", path3);
+      debug("new %o", path4);
       var opts = options || {};
       this.handle = fn;
       this.name = fn.name || "<anonymous>";
       this.params = void 0;
       this.path = void 0;
-      this.regexp = pathRegexp(path3, this.keys = [], opts);
-      this.regexp.fast_star = path3 === "*";
-      this.regexp.fast_slash = path3 === "/" && opts.end === false;
+      this.regexp = pathRegexp(path4, this.keys = [], opts);
+      this.regexp.fast_star = path4 === "*";
+      this.regexp.fast_slash = path4 === "/" && opts.end === false;
     }
     Layer.prototype.handle_error = function handle_error(error, req, res, next) {
       var fn = this.handle;
@@ -18881,20 +18881,20 @@ var require_layer = __commonJS({
         next(err);
       }
     };
-    Layer.prototype.match = function match(path3) {
+    Layer.prototype.match = function match(path4) {
       var match2;
-      if (path3 != null) {
+      if (path4 != null) {
         if (this.regexp.fast_slash) {
           this.params = {};
           this.path = "";
           return true;
         }
         if (this.regexp.fast_star) {
-          this.params = { "0": decode_param(path3) };
-          this.path = path3;
+          this.params = { "0": decode_param(path4) };
+          this.path = path4;
           return true;
         }
-        match2 = this.regexp.exec(path3);
+        match2 = this.regexp.exec(path4);
       }
       if (!match2) {
         this.params = void 0;
@@ -18987,10 +18987,10 @@ var require_route = __commonJS({
     var slice = Array.prototype.slice;
     var toString = Object.prototype.toString;
     module.exports = Route;
-    function Route(path3) {
-      this.path = path3;
+    function Route(path4) {
+      this.path = path4;
       this.stack = [];
-      debug("new %o", path3);
+      debug("new %o", path4);
       this.methods = {};
     }
     Route.prototype._handles_method = function _handles_method(method) {
@@ -19202,8 +19202,8 @@ var require_router = __commonJS({
         if (++sync > 100) {
           return setImmediate(next, err);
         }
-        var path3 = getPathname(req);
-        if (path3 == null) {
+        var path4 = getPathname(req);
+        if (path4 == null) {
           return done(layerError);
         }
         var layer;
@@ -19211,7 +19211,7 @@ var require_router = __commonJS({
         var route;
         while (match !== true && idx < stack.length) {
           layer = stack[idx++];
-          match = matchLayer(layer, path3);
+          match = matchLayer(layer, path4);
           route = layer.route;
           if (typeof match !== "boolean") {
             layerError = layerError || match;
@@ -19249,18 +19249,18 @@ var require_router = __commonJS({
           } else if (route) {
             layer.handle_request(req, res, next);
           } else {
-            trim_prefix(layer, layerError, layerPath, path3);
+            trim_prefix(layer, layerError, layerPath, path4);
           }
           sync = 0;
         });
       }
-      function trim_prefix(layer, layerError, layerPath, path3) {
+      function trim_prefix(layer, layerError, layerPath, path4) {
         if (layerPath.length !== 0) {
-          if (layerPath !== path3.slice(0, layerPath.length)) {
+          if (layerPath !== path4.slice(0, layerPath.length)) {
             next(layerError);
             return;
           }
-          var c = path3[layerPath.length];
+          var c = path4[layerPath.length];
           if (c && c !== "/" && c !== ".") return next(layerError);
           debug("trim prefix (%s) from url %s", layerPath, req.url);
           removed = layerPath;
@@ -19338,7 +19338,7 @@ var require_router = __commonJS({
     };
     proto.use = function use(fn) {
       var offset = 0;
-      var path3 = "/";
+      var path4 = "/";
       if (typeof fn !== "function") {
         var arg = fn;
         while (Array.isArray(arg) && arg.length !== 0) {
@@ -19346,7 +19346,7 @@ var require_router = __commonJS({
         }
         if (typeof arg !== "function") {
           offset = 1;
-          path3 = fn;
+          path4 = fn;
         }
       }
       var callbacks = flatten(slice.call(arguments, offset));
@@ -19358,8 +19358,8 @@ var require_router = __commonJS({
         if (typeof fn !== "function") {
           throw new TypeError("Router.use() requires a middleware function but got a " + gettype(fn));
         }
-        debug("use %o %s", path3, fn.name || "<anonymous>");
-        var layer = new Layer(path3, {
+        debug("use %o %s", path4, fn.name || "<anonymous>");
+        var layer = new Layer(path4, {
           sensitive: this.caseSensitive,
           strict: false,
           end: false
@@ -19369,9 +19369,9 @@ var require_router = __commonJS({
       }
       return this;
     };
-    proto.route = function route(path3) {
-      var route2 = new Route(path3);
-      var layer = new Layer(path3, {
+    proto.route = function route(path4) {
+      var route2 = new Route(path4);
+      var layer = new Layer(path4, {
         sensitive: this.caseSensitive,
         strict: this.strict,
         end: true
@@ -19381,8 +19381,8 @@ var require_router = __commonJS({
       return route2;
     };
     methods.concat("all").forEach(function(method) {
-      proto[method] = function(path3) {
-        var route = this.route(path3);
+      proto[method] = function(path4) {
+        var route = this.route(path4);
         route[method].apply(route, slice.call(arguments, 1));
         return this;
       };
@@ -19418,9 +19418,9 @@ var require_router = __commonJS({
       }
       return toString.call(obj).replace(objectRegExp, "$1");
     }
-    function matchLayer(layer, path3) {
+    function matchLayer(layer, path4) {
       try {
-        return layer.match(path3);
+        return layer.match(path4);
       } catch (err) {
         return err;
       }
@@ -19538,13 +19538,13 @@ var require_view = __commonJS({
   "node_modules/express/lib/view.js"(exports, module) {
     "use strict";
     var debug = require_src3()("express:view");
-    var path3 = __require("path");
-    var fs2 = __require("fs");
-    var dirname = path3.dirname;
-    var basename = path3.basename;
-    var extname = path3.extname;
-    var join = path3.join;
-    var resolve = path3.resolve;
+    var path4 = __require("path");
+    var fs4 = __require("fs");
+    var dirname = path4.dirname;
+    var basename = path4.basename;
+    var extname = path4.extname;
+    var join = path4.join;
+    var resolve = path4.resolve;
     module.exports = View;
     function View(name, options) {
       var opts = options || {};
@@ -19573,17 +19573,17 @@ var require_view = __commonJS({
       this.path = this.lookup(fileName);
     }
     View.prototype.lookup = function lookup(name) {
-      var path4;
+      var path5;
       var roots = [].concat(this.root);
       debug('lookup "%s"', name);
-      for (var i = 0; i < roots.length && !path4; i++) {
+      for (var i = 0; i < roots.length && !path5; i++) {
         var root = roots[i];
         var loc = resolve(root, name);
         var dir = dirname(loc);
         var file = basename(loc);
-        path4 = this.resolve(dir, file);
+        path5 = this.resolve(dir, file);
       }
-      return path4;
+      return path5;
     };
     View.prototype.render = function render(options, callback) {
       debug('render "%s"', this.path);
@@ -19591,21 +19591,21 @@ var require_view = __commonJS({
     };
     View.prototype.resolve = function resolve2(dir, file) {
       var ext = this.ext;
-      var path4 = join(dir, file);
-      var stat = tryStat(path4);
+      var path5 = join(dir, file);
+      var stat = tryStat(path5);
       if (stat && stat.isFile()) {
-        return path4;
+        return path5;
       }
-      path4 = join(dir, basename(file, ext), "index" + ext);
-      stat = tryStat(path4);
+      path5 = join(dir, basename(file, ext), "index" + ext);
+      stat = tryStat(path5);
       if (stat && stat.isFile()) {
-        return path4;
+        return path5;
       }
     };
-    function tryStat(path4) {
-      debug('stat "%s"', path4);
+    function tryStat(path5) {
+      debug('stat "%s"', path5);
       try {
-        return fs2.statSync(path4);
+        return fs4.statSync(path5);
       } catch (e) {
         return void 0;
       }
@@ -20314,8 +20314,8 @@ var require_node4 = __commonJS({
           }
           break;
         case "FILE":
-          var fs2 = __require("fs");
-          stream2 = new fs2.SyncWriteStream(fd2, { autoClose: false });
+          var fs4 = __require("fs");
+          stream2 = new fs4.SyncWriteStream(fd2, { autoClose: false });
           stream2._type = "fs";
           break;
         case "PIPE":
@@ -20367,14 +20367,14 @@ var require_etag = __commonJS({
   "../../node_modules/etag/index.js"(exports, module) {
     "use strict";
     module.exports = etag;
-    var crypto4 = __require("crypto");
+    var crypto5 = __require("crypto");
     var Stats = __require("fs").Stats;
     var toString = Object.prototype.toString;
     function entitytag(entity) {
       if (entity.length === 0) {
         return '"0-2jmj7l5rSw0yVb/vlWAYkK/YBwk"';
       }
-      var hash = crypto4.createHash("sha1").update(entity, "utf8").digest("base64").substring(0, 27);
+      var hash = crypto5.createHash("sha1").update(entity, "utf8").digest("base64").substring(0, 27);
       var len = typeof entity === "string" ? Buffer.byteLength(entity, "utf8") : entity.length;
       return '"' + len.toString(16) + "-" + hash + '"';
     }
@@ -20487,8 +20487,8 @@ var require_types = __commonJS({
 // ../../node_modules/mime/mime.js
 var require_mime = __commonJS({
   "../../node_modules/mime/mime.js"(exports, module) {
-    var path3 = __require("path");
-    var fs2 = __require("fs");
+    var path4 = __require("path");
+    var fs4 = __require("fs");
     function Mime() {
       this.types = /* @__PURE__ */ Object.create(null);
       this.extensions = /* @__PURE__ */ Object.create(null);
@@ -20509,7 +20509,7 @@ var require_mime = __commonJS({
     };
     Mime.prototype.load = function(file) {
       this._loading = file;
-      var map = {}, content = fs2.readFileSync(file, "ascii"), lines = content.split(/[\r\n]+/);
+      var map = {}, content = fs4.readFileSync(file, "ascii"), lines = content.split(/[\r\n]+/);
       lines.forEach(function(line) {
         var fields = line.replace(/\s*#.*|^\s*|\s*$/g, "").split(/\s+/);
         map[fields.shift()] = fields;
@@ -20517,8 +20517,8 @@ var require_mime = __commonJS({
       this.define(map);
       this._loading = null;
     };
-    Mime.prototype.lookup = function(path4, fallback) {
-      var ext = path4.replace(/^.*[\.\/\\]/, "").toLowerCase();
+    Mime.prototype.lookup = function(path5, fallback) {
+      var ext = path5.replace(/^.*[\.\/\\]/, "").toLowerCase();
       return this.types[ext] || fallback || this.default_type;
     };
     Mime.prototype.extension = function(mimeType) {
@@ -20747,33 +20747,33 @@ var require_send = __commonJS({
     var escapeHtml2 = require_escape_html();
     var etag = require_etag();
     var fresh = require_fresh();
-    var fs2 = __require("fs");
+    var fs4 = __require("fs");
     var mime = require_mime();
     var ms = require_ms5();
     var onFinished = require_on_finished();
     var parseRange = require_range_parser();
-    var path3 = __require("path");
+    var path4 = __require("path");
     var statuses = require_statuses();
     var Stream = __require("stream");
     var util2 = __require("util");
-    var extname = path3.extname;
-    var join = path3.join;
-    var normalize = path3.normalize;
-    var resolve = path3.resolve;
-    var sep = path3.sep;
+    var extname = path4.extname;
+    var join = path4.join;
+    var normalize = path4.normalize;
+    var resolve = path4.resolve;
+    var sep = path4.sep;
     var BYTES_RANGE_REGEXP = /^ *bytes=/;
     var MAX_MAXAGE = 60 * 60 * 24 * 365 * 1e3;
     var UP_PATH_REGEXP = /(?:^|[\\/])\.\.(?:[\\/]|$)/;
     module.exports = send;
     module.exports.mime = mime;
-    function send(req, path4, options) {
-      return new SendStream(req, path4, options);
+    function send(req, path5, options) {
+      return new SendStream(req, path5, options);
     }
-    function SendStream(req, path4, options) {
+    function SendStream(req, path5, options) {
       Stream.call(this);
       var opts = options || {};
       this.options = opts;
-      this.path = path4;
+      this.path = path5;
       this.req = req;
       this._acceptRanges = opts.acceptRanges !== void 0 ? Boolean(opts.acceptRanges) : true;
       this._cacheControl = opts.cacheControl !== void 0 ? Boolean(opts.cacheControl) : true;
@@ -20819,8 +20819,8 @@ var require_send = __commonJS({
       this._index = index2;
       return this;
     }, "send.index: pass index as option");
-    SendStream.prototype.root = function root(path4) {
-      this._root = resolve(String(path4));
+    SendStream.prototype.root = function root(path5) {
+      this._root = resolve(String(path5));
       debug("root %s", this._root);
       return this;
     };
@@ -20933,10 +20933,10 @@ var require_send = __commonJS({
       var lastModified = this.res.getHeader("Last-Modified");
       return parseHttpDate(lastModified) <= parseHttpDate(ifRange);
     };
-    SendStream.prototype.redirect = function redirect(path4) {
+    SendStream.prototype.redirect = function redirect(path5) {
       var res = this.res;
       if (hasListeners(this, "directory")) {
-        this.emit("directory", res, path4);
+        this.emit("directory", res, path5);
         return;
       }
       if (this.hasTrailingSlash()) {
@@ -20956,42 +20956,42 @@ var require_send = __commonJS({
     SendStream.prototype.pipe = function pipe(res) {
       var root = this._root;
       this.res = res;
-      var path4 = decode(this.path);
-      if (path4 === -1) {
+      var path5 = decode(this.path);
+      if (path5 === -1) {
         this.error(400);
         return res;
       }
-      if (~path4.indexOf("\0")) {
+      if (~path5.indexOf("\0")) {
         this.error(400);
         return res;
       }
       var parts;
       if (root !== null) {
-        if (path4) {
-          path4 = normalize("." + sep + path4);
+        if (path5) {
+          path5 = normalize("." + sep + path5);
         }
-        if (UP_PATH_REGEXP.test(path4)) {
-          debug('malicious path "%s"', path4);
+        if (UP_PATH_REGEXP.test(path5)) {
+          debug('malicious path "%s"', path5);
           this.error(403);
           return res;
         }
-        parts = path4.split(sep);
-        path4 = normalize(join(root, path4));
+        parts = path5.split(sep);
+        path5 = normalize(join(root, path5));
       } else {
-        if (UP_PATH_REGEXP.test(path4)) {
-          debug('malicious path "%s"', path4);
+        if (UP_PATH_REGEXP.test(path5)) {
+          debug('malicious path "%s"', path5);
           this.error(403);
           return res;
         }
-        parts = normalize(path4).split(sep);
-        path4 = resolve(path4);
+        parts = normalize(path5).split(sep);
+        path5 = resolve(path5);
       }
       if (containsDotFile(parts)) {
         var access = this._dotfiles;
         if (access === void 0) {
           access = parts[parts.length - 1][0] === "." ? this._hidden ? "allow" : "ignore" : "allow";
         }
-        debug('%s dotfile "%s"', access, path4);
+        debug('%s dotfile "%s"', access, path5);
         switch (access) {
           case "allow":
             break;
@@ -21005,13 +21005,13 @@ var require_send = __commonJS({
         }
       }
       if (this._index.length && this.hasTrailingSlash()) {
-        this.sendIndex(path4);
+        this.sendIndex(path5);
         return res;
       }
-      this.sendFile(path4);
+      this.sendFile(path5);
       return res;
     };
-    SendStream.prototype.send = function send2(path4, stat) {
+    SendStream.prototype.send = function send2(path5, stat) {
       var len = stat.size;
       var options = this.options;
       var opts = {};
@@ -21023,9 +21023,9 @@ var require_send = __commonJS({
         this.headersAlreadySent();
         return;
       }
-      debug('pipe "%s"', path4);
-      this.setHeader(path4, stat);
-      this.type(path4);
+      debug('pipe "%s"', path5);
+      this.setHeader(path5, stat);
+      this.type(path5);
       if (this.isConditionalGET()) {
         if (this.isPreconditionFailure()) {
           this.error(412);
@@ -21074,28 +21074,28 @@ var require_send = __commonJS({
         res.end();
         return;
       }
-      this.stream(path4, opts);
+      this.stream(path5, opts);
     };
-    SendStream.prototype.sendFile = function sendFile(path4) {
+    SendStream.prototype.sendFile = function sendFile(path5) {
       var i = 0;
       var self = this;
-      debug('stat "%s"', path4);
-      fs2.stat(path4, function onstat(err, stat) {
-        if (err && err.code === "ENOENT" && !extname(path4) && path4[path4.length - 1] !== sep) {
+      debug('stat "%s"', path5);
+      fs4.stat(path5, function onstat(err, stat) {
+        if (err && err.code === "ENOENT" && !extname(path5) && path5[path5.length - 1] !== sep) {
           return next(err);
         }
         if (err) return self.onStatError(err);
-        if (stat.isDirectory()) return self.redirect(path4);
-        self.emit("file", path4, stat);
-        self.send(path4, stat);
+        if (stat.isDirectory()) return self.redirect(path5);
+        self.emit("file", path5, stat);
+        self.send(path5, stat);
       });
       function next(err) {
         if (self._extensions.length <= i) {
           return err ? self.onStatError(err) : self.error(404);
         }
-        var p = path4 + "." + self._extensions[i++];
+        var p = path5 + "." + self._extensions[i++];
         debug('stat "%s"', p);
-        fs2.stat(p, function(err2, stat) {
+        fs4.stat(p, function(err2, stat) {
           if (err2) return next(err2);
           if (stat.isDirectory()) return next();
           self.emit("file", p, stat);
@@ -21103,7 +21103,7 @@ var require_send = __commonJS({
         });
       }
     };
-    SendStream.prototype.sendIndex = function sendIndex(path4) {
+    SendStream.prototype.sendIndex = function sendIndex(path5) {
       var i = -1;
       var self = this;
       function next(err) {
@@ -21111,9 +21111,9 @@ var require_send = __commonJS({
           if (err) return self.onStatError(err);
           return self.error(404);
         }
-        var p = join(path4, self._index[i]);
+        var p = join(path5, self._index[i]);
         debug('stat "%s"', p);
-        fs2.stat(p, function(err2, stat) {
+        fs4.stat(p, function(err2, stat) {
           if (err2) return next(err2);
           if (stat.isDirectory()) return next();
           self.emit("file", p, stat);
@@ -21122,10 +21122,10 @@ var require_send = __commonJS({
       }
       next();
     };
-    SendStream.prototype.stream = function stream(path4, options) {
+    SendStream.prototype.stream = function stream(path5, options) {
       var self = this;
       var res = this.res;
-      var stream2 = fs2.createReadStream(path4, options);
+      var stream2 = fs4.createReadStream(path5, options);
       this.emit("stream", stream2);
       stream2.pipe(res);
       function cleanup() {
@@ -21140,10 +21140,10 @@ var require_send = __commonJS({
         self.emit("end");
       });
     };
-    SendStream.prototype.type = function type(path4) {
+    SendStream.prototype.type = function type(path5) {
       var res = this.res;
       if (res.getHeader("Content-Type")) return;
-      var type2 = mime.lookup(path4);
+      var type2 = mime.lookup(path5);
       if (!type2) {
         debug("no content-type");
         return;
@@ -21152,9 +21152,9 @@ var require_send = __commonJS({
       debug("content-type %s", type2);
       res.setHeader("Content-Type", type2 + (charset ? "; charset=" + charset : ""));
     };
-    SendStream.prototype.setHeader = function setHeader(path4, stat) {
+    SendStream.prototype.setHeader = function setHeader(path5, stat) {
       var res = this.res;
-      this.emit("headers", res, path4, stat);
+      this.emit("headers", res, path5, stat);
       if (this._acceptRanges && !res.getHeader("Accept-Ranges")) {
         debug("accept ranges");
         res.setHeader("Accept-Ranges", "bytes");
@@ -21213,9 +21213,9 @@ var require_send = __commonJS({
       }
       return err instanceof Error ? createError(status, err, { expose: false }) : createError(status, err);
     }
-    function decode(path4) {
+    function decode(path5) {
       try {
-        return decodeURIComponent(path4);
+        return decodeURIComponent(path5);
       } catch (err) {
         return -1;
       }
@@ -22140,10 +22140,10 @@ var require_utils2 = __commonJS({
     var querystring = __require("querystring");
     exports.etag = createETagGenerator({ weak: false });
     exports.wetag = createETagGenerator({ weak: true });
-    exports.isAbsolute = function(path3) {
-      if ("/" === path3[0]) return true;
-      if (":" === path3[1] && ("\\" === path3[2] || "/" === path3[2])) return true;
-      if ("\\\\" === path3.substring(0, 2)) return true;
+    exports.isAbsolute = function(path4) {
+      if ("/" === path4[0]) return true;
+      if (":" === path4[1] && ("\\" === path4[2] || "/" === path4[2])) return true;
+      if ("\\\\" === path4.substring(0, 2)) return true;
     };
     exports.flatten = deprecate.function(
       flatten,
@@ -22355,7 +22355,7 @@ var require_application = __commonJS({
     };
     app2.use = function use(fn) {
       var offset = 0;
-      var path3 = "/";
+      var path4 = "/";
       if (typeof fn !== "function") {
         var arg = fn;
         while (Array.isArray(arg) && arg.length !== 0) {
@@ -22363,7 +22363,7 @@ var require_application = __commonJS({
         }
         if (typeof arg !== "function") {
           offset = 1;
-          path3 = fn;
+          path4 = fn;
         }
       }
       var fns = flatten(slice.call(arguments, offset));
@@ -22374,12 +22374,12 @@ var require_application = __commonJS({
       var router = this._router;
       fns.forEach(function(fn2) {
         if (!fn2 || !fn2.handle || !fn2.set) {
-          return router.use(path3, fn2);
+          return router.use(path4, fn2);
         }
-        debug(".use app under %s", path3);
-        fn2.mountpath = path3;
+        debug(".use app under %s", path4);
+        fn2.mountpath = path4;
         fn2.parent = this;
-        router.use(path3, function mounted_app(req, res, next) {
+        router.use(path4, function mounted_app(req, res, next) {
           var orig = req.app;
           fn2.handle(req, res, function(err) {
             setPrototypeOf(req, orig.request);
@@ -22391,9 +22391,9 @@ var require_application = __commonJS({
       }, this);
       return this;
     };
-    app2.route = function route(path3) {
+    app2.route = function route(path4) {
       this.lazyrouter();
-      return this._router.route(path3);
+      return this._router.route(path4);
     };
     app2.engine = function engine(ext, fn) {
       if (typeof fn !== "function") {
@@ -22444,7 +22444,7 @@ var require_application = __commonJS({
       }
       return this;
     };
-    app2.path = function path3() {
+    app2.path = function path4() {
       return this.parent ? this.parent.path() + this.mountpath : "";
     };
     app2.enabled = function enabled(setting) {
@@ -22460,19 +22460,19 @@ var require_application = __commonJS({
       return this.set(setting, false);
     };
     methods.forEach(function(method) {
-      app2[method] = function(path3) {
+      app2[method] = function(path4) {
         if (method === "get" && arguments.length === 1) {
-          return this.set(path3);
+          return this.set(path4);
         }
         this.lazyrouter();
-        var route = this._router.route(path3);
+        var route = this._router.route(path4);
         route[method].apply(route, slice.call(arguments, 1));
         return this;
       };
     });
-    app2.all = function all(path3) {
+    app2.all = function all(path4) {
       this.lazyrouter();
-      var route = this._router.route(path3);
+      var route = this._router.route(path4);
       var args = slice.call(arguments, 1);
       for (var i = 0; i < methods.length; i++) {
         route[methods[i]].apply(route, args);
@@ -31622,11 +31622,11 @@ var require_mime_types2 = __commonJS({
       }
       return exts[0];
     }
-    function lookup(path3) {
-      if (!path3 || typeof path3 !== "string") {
+    function lookup(path4) {
+      if (!path4 || typeof path4 !== "string") {
         return false;
       }
-      var extension2 = extname("x." + path3).toLowerCase().substr(1);
+      var extension2 = extname("x." + path4).toLowerCase().substr(1);
       if (!extension2) {
         return false;
       }
@@ -31853,7 +31853,7 @@ var require_request = __commonJS({
       var subdomains2 = !isIP(hostname) ? hostname.split(".").reverse() : [hostname];
       return subdomains2.slice(offset);
     });
-    defineGetter(req, "path", function path3() {
+    defineGetter(req, "path", function path4() {
       return parse(this).pathname;
     });
     defineGetter(req, "hostname", function hostname() {
@@ -31905,11 +31905,11 @@ var require_request = __commonJS({
 // ../../node_modules/cookie-signature/index.js
 var require_cookie_signature = __commonJS({
   "../../node_modules/cookie-signature/index.js"(exports) {
-    var crypto4 = __require("crypto");
+    var crypto5 = __require("crypto");
     exports.sign = function(val, secret) {
       if ("string" !== typeof val) throw new TypeError("Cookie value must be provided as a string.");
       if (null == secret) throw new TypeError("Secret key must be provided.");
-      return val + "." + crypto4.createHmac("sha256", secret).update(val).digest("base64").replace(/\=+$/, "");
+      return val + "." + crypto5.createHmac("sha256", secret).update(val).digest("base64").replace(/\=+$/, "");
     };
     exports.unsign = function(val, secret) {
       if ("string" !== typeof val) throw new TypeError("Signed cookie string must be provided.");
@@ -31918,7 +31918,7 @@ var require_cookie_signature = __commonJS({
       return sha1(mac) == sha1(val) ? str : false;
     };
     function sha1(str) {
-      return crypto4.createHash("sha1").update(str).digest("hex");
+      return crypto5.createHash("sha1").update(str).digest("hex");
     }
   }
 });
@@ -32175,7 +32175,7 @@ var require_response = __commonJS({
     var http = __require("http");
     var isAbsolute = require_utils2().isAbsolute;
     var onFinished = require_on_finished();
-    var path3 = __require("path");
+    var path4 = __require("path");
     var statuses = require_statuses();
     var merge = require_utils_merge();
     var sign = require_cookie_signature().sign;
@@ -32184,9 +32184,9 @@ var require_response = __commonJS({
     var setCharset = require_utils2().setCharset;
     var cookie = require_cookie();
     var send = require_send();
-    var extname = path3.extname;
+    var extname = path4.extname;
     var mime = send.mime;
-    var resolve = path3.resolve;
+    var resolve = path4.resolve;
     var vary = require_vary();
     var res = Object.create(http.ServerResponse.prototype);
     module.exports = res;
@@ -32363,26 +32363,26 @@ var require_response = __commonJS({
       this.type("txt");
       return this.send(body);
     };
-    res.sendFile = function sendFile(path4, options, callback) {
+    res.sendFile = function sendFile(path5, options, callback) {
       var done = callback;
       var req = this.req;
       var res2 = this;
       var next = req.next;
       var opts = options || {};
-      if (!path4) {
+      if (!path5) {
         throw new TypeError("path argument is required to res.sendFile");
       }
-      if (typeof path4 !== "string") {
+      if (typeof path5 !== "string") {
         throw new TypeError("path must be a string to res.sendFile");
       }
       if (typeof options === "function") {
         done = options;
         opts = {};
       }
-      if (!opts.root && !isAbsolute(path4)) {
+      if (!opts.root && !isAbsolute(path5)) {
         throw new TypeError("path must be absolute or specify root to res.sendFile");
       }
-      var pathname = encodeURI(path4);
+      var pathname = encodeURI(path5);
       var file = send(req, pathname, opts);
       sendfile(res2, file, opts, function(err) {
         if (done) return done(err);
@@ -32392,7 +32392,7 @@ var require_response = __commonJS({
         }
       });
     };
-    res.sendfile = function(path4, options, callback) {
+    res.sendfile = function(path5, options, callback) {
       var done = callback;
       var req = this.req;
       var res2 = this;
@@ -32402,7 +32402,7 @@ var require_response = __commonJS({
         done = options;
         opts = {};
       }
-      var file = send(req, path4, opts);
+      var file = send(req, path5, opts);
       sendfile(res2, file, opts, function(err) {
         if (done) return done(err);
         if (err && err.code === "EISDIR") return next();
@@ -32415,7 +32415,7 @@ var require_response = __commonJS({
       res.sendfile,
       "res.sendfile: Use res.sendFile instead"
     );
-    res.download = function download(path4, filename, options, callback) {
+    res.download = function download(path5, filename, options, callback) {
       var done = callback;
       var name = filename;
       var opts = options || null;
@@ -32432,7 +32432,7 @@ var require_response = __commonJS({
         opts = filename;
       }
       var headers = {
-        "Content-Disposition": contentDisposition(name || path4)
+        "Content-Disposition": contentDisposition(name || path5)
       };
       if (opts && opts.headers) {
         var keys = Object.keys(opts.headers);
@@ -32445,7 +32445,7 @@ var require_response = __commonJS({
       }
       opts = Object.create(opts);
       opts.headers = headers;
-      var fullPath = !opts.root ? resolve(path4) : path4;
+      var fullPath = !opts.root ? resolve(path5) : path5;
       return this.sendFile(fullPath, opts, done);
     };
     res.contentType = res.type = function contentType(type) {
@@ -32746,11 +32746,11 @@ var require_serve_static = __commonJS({
         }
         var forwardError = !fallthrough;
         var originalUrl = parseUrl.original(req);
-        var path3 = parseUrl(req).pathname;
-        if (path3 === "/" && originalUrl.pathname.substr(-1) !== "/") {
-          path3 = "";
+        var path4 = parseUrl(req).pathname;
+        if (path4 === "/" && originalUrl.pathname.substr(-1) !== "/") {
+          path4 = "";
         }
-        var stream = send(req, path3, opts);
+        var stream = send(req, path4, opts);
         stream.on("directory", onDirectory);
         if (setHeaders) {
           stream.on("headers", setHeaders);
@@ -43430,8 +43430,8 @@ var require_node5 = __commonJS({
           }
           break;
         case "FILE":
-          var fs2 = __require("fs");
-          stream2 = new fs2.SyncWriteStream(fd2, { autoClose: false });
+          var fs4 = __require("fs");
+          stream2 = new fs4.SyncWriteStream(fd2, { autoClose: false });
           stream2._type = "fs";
           break;
         case "PIPE":
@@ -43829,10 +43829,10 @@ var require_package = __commonJS({
 // ../../node_modules/dotenv/lib/main.js
 var require_main = __commonJS({
   "../../node_modules/dotenv/lib/main.js"(exports, module) {
-    var fs2 = __require("fs");
-    var path3 = __require("path");
+    var fs4 = __require("fs");
+    var path4 = __require("path");
     var os = __require("os");
-    var crypto4 = __require("crypto");
+    var crypto5 = __require("crypto");
     var packageJson = require_package();
     var version = packageJson.version;
     var LINE = /(?:^|^)\s*(?:export\s+)?([\w.-]+)(?:\s*=\s*?|:\s+?)(\s*'(?:\\'|[^'])*'|\s*"(?:\\"|[^"])*"|\s*`(?:\\`|[^`])*`|[^#\r\n]+)?\s*(?:#.*)?(?:$|$)/mg;
@@ -43938,7 +43938,7 @@ var require_main = __commonJS({
       if (options && options.path && options.path.length > 0) {
         if (Array.isArray(options.path)) {
           for (const filepath of options.path) {
-            if (fs2.existsSync(filepath)) {
+            if (fs4.existsSync(filepath)) {
               possibleVaultPath = filepath.endsWith(".vault") ? filepath : `${filepath}.vault`;
             }
           }
@@ -43946,15 +43946,15 @@ var require_main = __commonJS({
           possibleVaultPath = options.path.endsWith(".vault") ? options.path : `${options.path}.vault`;
         }
       } else {
-        possibleVaultPath = path3.resolve(process.cwd(), ".env.vault");
+        possibleVaultPath = path4.resolve(process.cwd(), ".env.vault");
       }
-      if (fs2.existsSync(possibleVaultPath)) {
+      if (fs4.existsSync(possibleVaultPath)) {
         return possibleVaultPath;
       }
       return null;
     }
     function _resolveHome(envPath) {
-      return envPath[0] === "~" ? path3.join(os.homedir(), envPath.slice(1)) : envPath;
+      return envPath[0] === "~" ? path4.join(os.homedir(), envPath.slice(1)) : envPath;
     }
     function _configVault(options) {
       const debug = Boolean(options && options.debug);
@@ -43971,7 +43971,7 @@ var require_main = __commonJS({
       return { parsed };
     }
     function configDotenv(options) {
-      const dotenvPath = path3.resolve(process.cwd(), ".env");
+      const dotenvPath = path4.resolve(process.cwd(), ".env");
       let encoding = "utf8";
       const debug = Boolean(options && options.debug);
       const quiet = options && "quiet" in options ? options.quiet : true;
@@ -43995,13 +43995,13 @@ var require_main = __commonJS({
       }
       let lastError;
       const parsedAll = {};
-      for (const path4 of optionPaths) {
+      for (const path5 of optionPaths) {
         try {
-          const parsed = DotenvModule.parse(fs2.readFileSync(path4, { encoding }));
+          const parsed = DotenvModule.parse(fs4.readFileSync(path5, { encoding }));
           DotenvModule.populate(parsedAll, parsed, options);
         } catch (e) {
           if (debug) {
-            _debug(`Failed to load ${path4} ${e.message}`);
+            _debug(`Failed to load ${path5} ${e.message}`);
           }
           lastError = e;
         }
@@ -44016,7 +44016,7 @@ var require_main = __commonJS({
         const shortPaths = [];
         for (const filePath of optionPaths) {
           try {
-            const relative = path3.relative(process.cwd(), filePath);
+            const relative = path4.relative(process.cwd(), filePath);
             shortPaths.push(relative);
           } catch (e) {
             if (debug) {
@@ -44051,7 +44051,7 @@ var require_main = __commonJS({
       const authTag = ciphertext.subarray(-16);
       ciphertext = ciphertext.subarray(12, -16);
       try {
-        const aesgcm = crypto4.createDecipheriv("aes-256-gcm", key, nonce);
+        const aesgcm = crypto5.createDecipheriv("aes-256-gcm", key, nonce);
         aesgcm.setAuthTag(authTag);
         return `${aesgcm.update(ciphertext)}${aesgcm.final()}`;
       } catch (error) {
@@ -44120,7 +44120,8 @@ var require_main = __commonJS({
 var import_express5 = __toESM(require_express2(), 1);
 var import_cors = __toESM(require_lib3(), 1);
 var import_compression = __toESM(require_compression(), 1);
-import path2 from "node:path";
+import path3 from "node:path";
+import fs3 from "node:fs";
 import { fileURLToPath as fileURLToPath2 } from "node:url";
 
 // ../../node_modules/helmet/index.mjs
@@ -45168,8 +45169,8 @@ function getErrorMap() {
 
 // ../../node_modules/zod/v3/helpers/parseUtil.js
 var makeIssue = (params) => {
-  const { data, path: path3, errorMaps, issueData } = params;
-  const fullPath = [...path3, ...issueData.path || []];
+  const { data, path: path4, errorMaps, issueData } = params;
+  const fullPath = [...path4, ...issueData.path || []];
   const fullIssue = {
     ...issueData,
     path: fullPath
@@ -45285,11 +45286,11 @@ var errorUtil;
 
 // ../../node_modules/zod/v3/types.js
 var ParseInputLazyPath = class {
-  constructor(parent, value, path3, key) {
+  constructor(parent, value, path4, key) {
     this._cachedPath = [];
     this.parent = parent;
     this.data = value;
-    this._path = path3;
+    this._path = path4;
     this._key = key;
   }
   get path() {
@@ -48750,7 +48751,7 @@ var EnvSchema = external_exports.object({
 var env = EnvSchema.parse(process.env);
 
 // src/index.ts
-import mongoose21 from "mongoose";
+import mongoose23 from "mongoose";
 
 // src/db/connection.ts
 import mongoose from "mongoose";
@@ -48782,7 +48783,7 @@ async function connectDB() {
 
 // src/api/routes.ts
 var import_express4 = __toESM(require_express2(), 1);
-import mongoose20 from "mongoose";
+import mongoose22 from "mongoose";
 
 // src/db/models/RouteEntry.ts
 import mongoose2, { Schema } from "mongoose";
@@ -49659,6 +49660,46 @@ var SiteSettingsSchema2 = new Schema4(
       instagram: { type: String },
       youtube: { type: String }
     },
+    navigation: {
+      headerMenu: [
+        {
+          id: { type: String, required: true },
+          label: { type: String, required: true },
+          destination: { type: String, required: true },
+          isExternal: { type: Boolean, default: false },
+          order: { type: Number, default: 0 },
+          isVisible: { type: Boolean, default: true }
+        }
+      ],
+      footerGroups: [
+        {
+          id: { type: String, required: true },
+          title: { type: String, required: true },
+          order: { type: Number, default: 0 },
+          links: [
+            {
+              label: { type: String, required: true },
+              destination: { type: String, required: true },
+              isExternal: { type: Boolean, default: false },
+              isVisible: { type: Boolean, default: true }
+            }
+          ]
+        }
+      ]
+    },
+    formsConfig: {
+      leadNotificationEmails: [{ type: String }],
+      autoTriageEnabled: { type: Boolean, default: true },
+      spamFilterEnabled: { type: Boolean, default: true }
+    },
+    integrations: {
+      googleAnalyticsId: { type: String, default: "" },
+      firebaseProjectMasked: { type: String, default: "akeezo-health-prod (Active)" },
+      smtpHostMasked: { type: String, default: "smtp.sendgrid.net (Configured)" },
+      storageBucketMasked: { type: String, default: "gs://akeezo-vault-prod (Protected)" }
+    },
+    defaultLanguage: { type: String, default: "en" },
+    defaultTimezone: { type: String, default: "Asia/Kolkata" },
     version: { type: Number, default: 1 }
   },
   {
@@ -50355,7 +50396,19 @@ var EnquirySchema = new Schema14(
     sourcePath: { type: String, default: "/" },
     status: {
       type: String,
-      enum: ["received", "triage", "contacted", "options_prepared", "converted", "closed"],
+      enum: [
+        "received",
+        "triage",
+        "contacted",
+        "options_prepared",
+        "converted",
+        "closed",
+        "new",
+        "in_progress",
+        "resolved",
+        "spam",
+        "archived"
+      ],
       default: "received",
       index: true
     },
@@ -50365,6 +50418,56 @@ var EnquirySchema = new Schema14(
   { timestamps: true }
 );
 var EnquiryModel = mongoose15.models.Enquiry || mongoose15.model("Enquiry", EnquirySchema);
+
+// src/db/models/MediaAsset.ts
+import mongoose16, { Schema as Schema15 } from "mongoose";
+var MediaAssetSchema = new Schema15(
+  {
+    originalFilename: { type: String, required: true },
+    storedFilename: { type: String, required: true, unique: true },
+    mimeType: { type: String, required: true },
+    sizeBytes: { type: Number, required: true },
+    width: { type: Number },
+    height: { type: Number },
+    url: { type: String, required: true },
+    altText: { type: String, default: "" },
+    caption: { type: String, default: "" },
+    uploadedBy: { type: Schema15.Types.ObjectId, ref: "User" },
+    referencedIn: [
+      {
+        entityType: { type: String, required: true },
+        entityId: { type: String, required: true },
+        field: { type: String, required: true }
+      }
+    ]
+  },
+  {
+    timestamps: true
+  }
+);
+MediaAssetSchema.index({ originalFilename: "text", altText: "text", caption: "text" });
+MediaAssetSchema.index({ mimeType: 1, createdAt: -1 });
+var MediaAssetModel = mongoose16.models.MediaAsset || mongoose16.model("MediaAsset", MediaAssetSchema);
+
+// src/db/models/Redirect.ts
+import mongoose17, { Schema as Schema16 } from "mongoose";
+var RedirectSchema = new Schema16(
+  {
+    sourcePath: { type: String, required: true, unique: true, trim: true },
+    destinationPath: { type: String, required: true, trim: true },
+    statusCode: { type: Number, enum: [301, 302], default: 301 },
+    enabled: { type: Boolean, default: true },
+    hitsCount: { type: Number, default: 0 },
+    lastHitAt: { type: Date },
+    notes: { type: String },
+    createdBy: { type: Schema16.Types.ObjectId, ref: "User" }
+  },
+  {
+    timestamps: true
+  }
+);
+RedirectSchema.index({ enabled: 1 });
+var RedirectModel = mongoose17.models.Redirect || mongoose17.model("Redirect", RedirectSchema);
 
 // src/ssr/renderer.ts
 import fs from "node:fs/promises";
@@ -50734,7 +50837,7 @@ async function handleSsr(req, res, next) {
 
 // src/api/caseManagementRoutes.ts
 var import_express = __toESM(require_express2(), 1);
-import mongoose16 from "mongoose";
+import mongoose18 from "mongoose";
 
 // src/services/stageGuards.ts
 async function evaluateStageGuards(caseId, toStage) {
@@ -51307,7 +51410,7 @@ caseManagementRouter.get("/patients/duplicates", async (req, res) => {
 });
 caseManagementRouter.get("/patients", async (req, res) => {
   try {
-    if (mongoose16.connection.readyState === 1) {
+    if (mongoose18.connection.readyState === 1) {
       const patients = await PatientModel.find().sort({ createdAt: -1 }).limit(50).lean();
       if (patients.length > 0) {
         return res.json({
@@ -51329,7 +51432,7 @@ caseManagementRouter.get("/patients", async (req, res) => {
 });
 caseManagementRouter.get("/partners", async (_req, res) => {
   try {
-    if (mongoose16.connection.readyState === 1) {
+    if (mongoose18.connection.readyState === 1) {
       const partners = await PartnerModel.find().sort({ name: 1 }).lean();
       if (partners.length > 0) return res.json({ data: partners });
     }
@@ -51402,7 +51505,7 @@ caseManagementRouter.get("/partners/:id/statement", async (req, res) => {
 });
 caseManagementRouter.get("/hospitals", async (_req, res) => {
   try {
-    if (mongoose16.connection.readyState === 1) {
+    if (mongoose18.connection.readyState === 1) {
       const hospitals = await HospitalModel.find().sort({ name: 1 }).lean();
       if (hospitals.length > 0) return res.json({ data: hospitals });
     }
@@ -51448,7 +51551,7 @@ caseManagementRouter.post("/hospitals/:id/doctors", async (req, res) => {
 });
 caseManagementRouter.get("/cases", async (req, res) => {
   try {
-    if (mongoose16.connection.readyState === 1) {
+    if (mongoose18.connection.readyState === 1) {
       const filter = {};
       if (req.query.stage) filter.stage = req.query.stage;
       if (req.query.status) filter.status = req.query.status;
@@ -51465,7 +51568,7 @@ caseManagementRouter.get("/cases", async (req, res) => {
 });
 caseManagementRouter.get("/cases/board", async (_req, res) => {
   try {
-    if (mongoose16.connection.readyState === 1) {
+    if (mongoose18.connection.readyState === 1) {
       const cases = await CaseModel.find({ status: "open" }).populate("patientId", "fullName nationality").populate("partnerId", "name").populate("ownerId", "name").sort({ stageChangedAt: 1 }).lean();
       if (cases.length > 0) {
         const board2 = {};
@@ -51511,7 +51614,7 @@ caseManagementRouter.post("/cases", async (req, res) => {
     const parsed = CreateCaseIntakeSchema.parse(req.body);
     let patientId;
     if (parsed.existingPatientId) {
-      patientId = new mongoose16.Types.ObjectId(parsed.existingPatientId);
+      patientId = new mongoose18.Types.ObjectId(parsed.existingPatientId);
     } else {
       const passportEncrypted = parsed.patient.passportNumber ? encryptSensitiveField(parsed.patient.passportNumber) : void 0;
       const passportHash = parsed.patient.passportNumber ? PatientModel.hashPassport(parsed.patient.passportNumber) : void 0;
@@ -51535,7 +51638,7 @@ caseManagementRouter.post("/cases", async (req, res) => {
     const newCase = await CaseModel.create({
       caseCode,
       patientId,
-      partnerId: parsed.partnerId ? new mongoose16.Types.ObjectId(parsed.partnerId) : void 0,
+      partnerId: parsed.partnerId ? new mongoose18.Types.ObjectId(parsed.partnerId) : void 0,
       source: parsed.source,
       caseType: parsed.caseType,
       specialty: parsed.specialty,
@@ -51547,7 +51650,7 @@ caseManagementRouter.post("/cases", async (req, res) => {
       budgetCurrency: parsed.budgetCurrency,
       patientInIndia: parsed.patientInIndia,
       stage: "new_referral",
-      ownerId: new mongoose16.Types.ObjectId(parsed.ownerId),
+      ownerId: new mongoose18.Types.ObjectId(parsed.ownerId),
       referredOn: parsed.referredOn ? new Date(parsed.referredOn) : /* @__PURE__ */ new Date(),
       feeDisclosedToPartner: parsed.feeDisclosedToPartner,
       feeDisclosedOn: parsed.feeDisclosedToPartner ? /* @__PURE__ */ new Date() : void 0
@@ -51565,7 +51668,7 @@ caseManagementRouter.post("/cases", async (req, res) => {
       entityId: newCase._id,
       caseId: newCase._id,
       action: "create",
-      actorId: new mongoose16.Types.ObjectId(parsed.ownerId),
+      actorId: new mongoose18.Types.ObjectId(parsed.ownerId),
       changes: { caseCode: [null, caseCode], stage: [null, "new_referral"] }
     });
     res.status(201).json({ data: newCase });
@@ -51576,7 +51679,7 @@ caseManagementRouter.post("/cases", async (req, res) => {
 caseManagementRouter.get("/cases/:id", async (req, res) => {
   try {
     let caseDoc = null;
-    if (mongoose16.connection.readyState === 1) {
+    if (mongoose18.connection.readyState === 1) {
       try {
         caseDoc = await CaseModel.findById(req.params.id).populate("patientId").populate("partnerId").populate("ownerId", "name email role").lean();
       } catch {
@@ -52528,7 +52631,7 @@ caseManagementRouter.post("/migration/import", async (req, res) => {
     }
     await CaseAuditLogModel.create({
       entityType: "MigrationImport",
-      entityId: new mongoose16.Types.ObjectId(),
+      entityId: new mongoose18.Types.ObjectId(),
       action: "create",
       changes: { importedSummary: [null, summary.counts] }
     });
@@ -52540,11 +52643,11 @@ caseManagementRouter.post("/migration/import", async (req, res) => {
 
 // src/api/authRoutes.ts
 var import_express2 = __toESM(require_express2(), 1);
-import mongoose18 from "mongoose";
+import mongoose20 from "mongoose";
 
 // src/utils/auth.ts
 import crypto3 from "crypto";
-import mongoose17 from "mongoose";
+import mongoose19 from "mongoose";
 var JWT_SECRET = process.env.JWT_SECRET || "akeezo_super_secure_jwt_secret_token_2026";
 var TOKEN_EXPIRY_SECONDS = 60 * 60 * 12;
 var TEMP_TOKEN_EXPIRY_SECONDS = 60 * 5;
@@ -52675,7 +52778,7 @@ var FALLBACK_USERS = [
 ];
 async function findUserByEmailOrFallback(email) {
   const normalized = email.toLowerCase().trim();
-  if (mongoose17.connection.readyState === 1) {
+  if (mongoose19.connection.readyState === 1) {
     try {
       const user = await UserModel.findOne({ email: normalized });
       if (user) return user;
@@ -52685,7 +52788,7 @@ async function findUserByEmailOrFallback(email) {
   return FALLBACK_USERS.find((u) => u.email.toLowerCase() === normalized) || null;
 }
 async function findUserByIdOrFallback(id) {
-  if (mongoose17.connection.readyState === 1) {
+  if (mongoose19.connection.readyState === 1) {
     try {
       const user = await UserModel.findById(id);
       if (user) return user;
@@ -52807,7 +52910,7 @@ authRouter.post("/login", async (req, res) => {
         lockedUntil = now + 15 * 60 * 1e3;
       }
       failedAttempts.set(lockKey, { count: currentCount, lockedUntil });
-      if (user && mongoose18.connection.readyState === 1) {
+      if (user && mongoose20.connection.readyState === 1) {
         try {
           await CaseAuditLogModel.create({
             entityType: "User",
@@ -52886,7 +52989,7 @@ var handleOtpVerify = async (req, res) => {
       await user.save();
     } catch {
     }
-    if (mongoose18.connection.readyState === 1) {
+    if (mongoose20.connection.readyState === 1) {
       try {
         await CaseAuditLogModel.create({
           entityType: "User",
@@ -52965,46 +53068,114 @@ authRouter.post("/logout", requireAuth, async (req, res) => {
 
 // src/api/cmsAdminRoutes.ts
 var import_express3 = __toESM(require_express2(), 1);
-import mongoose19 from "mongoose";
+import fs2 from "node:fs";
+import path2 from "node:path";
+import crypto4 from "node:crypto";
+import mongoose21 from "mongoose";
 var cmsAdminRouter = (0, import_express3.Router)();
+async function logAdminActivity(actorId, entityType, entityId, action, changes, req, caseId) {
+  if (mongoose21.connection.readyState === 1) {
+    try {
+      await CaseAuditLogModel.create({
+        occurredAt: /* @__PURE__ */ new Date(),
+        actorId: actorId && mongoose21.isValidObjectId(actorId) ? actorId : void 0,
+        entityType,
+        entityId: entityId && mongoose21.isValidObjectId(entityId) ? entityId : new mongoose21.Types.ObjectId(),
+        caseId: caseId || (entityType === "case" ? entityId : void 0),
+        action,
+        changes,
+        ip: req?.ip,
+        userAgent: req?.headers?.["user-agent"]
+      });
+    } catch (e) {
+      console.warn("Audit log notice:", e?.message);
+    }
+  }
+}
+function sanitizeCsvValue(val) {
+  if (val === null || val === void 0) return '""';
+  let str = String(val);
+  if (/^[=+\-@\t\r]/.test(str)) {
+    str = `'${str}`;
+  }
+  return `"${str.replace(/"/g, '""')}"`;
+}
 cmsAdminRouter.get("/overview-stats", async (_req, res) => {
   try {
     let pagesCount = 12;
+    let draftPagesCount = 1;
     let enquiries = [];
     let cases = [];
+    let mediaCount = 0;
+    let redirectsCount = 0;
+    let activityCount = 0;
     let partnersCount = 4;
     let hospitalsCount = 6;
-    if (mongoose19.connection.readyState === 1) {
-      const [pCount, enqs, cs, prtCount, hspCount] = await Promise.all([
+    let usersCount = 7;
+    if (mongoose21.connection.readyState === 1) {
+      const [
+        pCount,
+        dCount,
+        enqs,
+        cs,
+        mCount,
+        rCount,
+        aCount,
+        prtCount,
+        hspCount,
+        uCount
+      ] = await Promise.all([
         Page.countDocuments(),
-        EnquiryModel.find().lean(),
+        Page.countDocuments({ status: "draft" }),
+        EnquiryModel.find().sort({ createdAt: -1 }).lean(),
         CaseModel.find().lean(),
+        MediaAssetModel.countDocuments(),
+        RedirectModel.countDocuments(),
+        CaseAuditLogModel.countDocuments(),
         PartnerModel.countDocuments(),
-        HospitalModel.countDocuments()
+        HospitalModel.countDocuments(),
+        UserModel.countDocuments()
       ]);
       pagesCount = pCount;
+      draftPagesCount = dCount;
       enquiries = enqs;
       cases = cs;
+      mediaCount = mCount;
+      redirectsCount = rCount;
+      activityCount = aCount;
       partnersCount = prtCount;
       hospitalsCount = hspCount;
+      usersCount = uCount;
     }
     const totalEnquiries = enquiries.length;
-    const newEnquiries = enquiries.filter((e) => e.status === "received" || e.status === "triage").length;
-    const contactedEnquiries = enquiries.filter((e) => e.status === "contacted").length;
-    const convertedEnquiries = enquiries.filter((e) => e.status === "converted").length;
+    const newEnquiries = enquiries.filter((e) => e.status === "received" || e.status === "triage" || e.status === "new").length;
+    const contactedEnquiries = enquiries.filter((e) => e.status === "contacted" || e.status === "in_progress").length;
+    const convertedEnquiries = enquiries.filter((e) => e.status === "converted" || e.status === "resolved").length;
     const totalCases = cases.length;
     const activeCases = cases.filter((c) => c.status === "open").length;
     const closedCases = cases.filter((c) => c.status === "closed").length;
-    const stageBreakdown = {};
-    for (const c of cases) {
-      stageBreakdown[c.stage] = (stageBreakdown[c.stage] || 0) + 1;
-    }
     const conversionRatePercent = totalEnquiries > 0 ? Math.round(convertedEnquiries / totalEnquiries * 100) : 0;
+    const recentEnquiries = enquiries.slice(0, 5).map((e) => ({
+      id: e._id,
+      receiptId: e.receiptId || "ENQ-2026-0001",
+      requesterName: e.requesterName || e.name || "Patient Lead",
+      serviceType: e.serviceType || "medical_tourism",
+      createdAt: e.createdAt,
+      status: e.status || "received"
+    }));
+    let recentActivities = [];
+    if (mongoose21.connection.readyState === 1) {
+      recentActivities = await CaseAuditLogModel.find().sort({ occurredAt: -1 }).limit(6).populate("actorId", "name role email").lean();
+    }
     res.json({
       data: {
         website: {
           totalPages: pagesCount,
-          activeRevisions: pagesCount
+          publishedPages: Math.max(0, pagesCount - draftPagesCount),
+          draftPages: draftPagesCount,
+          activeRevisions: pagesCount,
+          mediaCount,
+          redirectsCount
         },
         leads: {
           totalEnquiries,
@@ -53019,11 +53190,24 @@ cmsAdminRouter.get("/overview-stats", async (_req, res) => {
           closedCases,
           totalPartners: partnersCount,
           totalHospitals: hospitalsCount,
-          stageBreakdown: Object.keys(stageBreakdown).length > 0 ? stageBreakdown : { quotes_in_review: 1, treatment_in_progress: 1, visa_travel_booked: 1 }
+          stageBreakdown: {
+            new_referral: 1,
+            medical_review: 1,
+            rfq_sent: 1,
+            quotes_received: 0,
+            visa_travel: 0,
+            treatment_in_progress: 0,
+            discharge_billing: 0
+          }
         },
+        users: {
+          totalUsers: usersCount
+        },
+        recentEnquiries,
+        recentActivities,
         system: {
-          environment: mongoose19.connection.readyState === 1 ? "production" : "demo-preview",
-          database: mongoose19.connection.readyState === 1 ? "connected" : "in-memory-fallback",
+          environment: mongoose21.connection.readyState === 1 ? "production" : "demo-preview",
+          database: mongoose21.connection.readyState === 1 ? "connected" : "in-memory-fallback",
           status: "healthy",
           timestamp: (/* @__PURE__ */ new Date()).toISOString()
         }
@@ -53036,7 +53220,7 @@ cmsAdminRouter.get("/overview-stats", async (_req, res) => {
 cmsAdminRouter.get("/site-settings", async (_req, res) => {
   try {
     let settings = null;
-    if (mongoose19.connection.readyState === 1) {
+    if (mongoose21.connection.readyState === 1) {
       settings = await SiteSettings.findOne({ environment: "development" }).lean();
     }
     if (!settings) {
@@ -53047,9 +53231,55 @@ cmsAdminRouter.get("/site-settings", async (_req, res) => {
         legalEntityName: "AKEEZO Healthcare Platform Private Limited",
         emergencyHelpline: "+91 82876 39443",
         contactEmail: "care@akeezo.com",
+        careEmail: "care@akeezo.com",
+        medicalEmail: "medical@akeezo.com",
+        partnershipEmail: "partnership@akeezo.com",
         primaryColor: "#00C7BE",
-        secondaryColor: "#FF6B00"
+        secondaryColor: "#FF6B00",
+        actionColor: "#007A6C",
+        showTopUtilityBar: true,
+        emergencyNotice: "EMERGENCY?",
+        headquartersAddress: "Regus Elegance, Jasola District Centre, New Delhi, India 110025",
+        defaultLanguage: "en",
+        defaultTimezone: "Asia/Kolkata",
+        integrations: {
+          googleAnalyticsId: "",
+          firebaseProjectMasked: "akeezo-health-prod (Active)",
+          smtpHostMasked: "smtp.sendgrid.net (Configured)",
+          storageBucketMasked: "gs://akeezo-vault-prod (Protected)"
+        },
+        formsConfig: {
+          leadNotificationEmails: ["care@akeezo.com", "coordinator@akeezo.com"],
+          autoTriageEnabled: true,
+          spamFilterEnabled: true
+        },
+        navigation: {
+          headerMenu: [],
+          footerGroups: []
+        }
       };
+    } else {
+      if (!settings.integrations) {
+        settings.integrations = {
+          googleAnalyticsId: "",
+          firebaseProjectMasked: "akeezo-health-prod (Active)",
+          smtpHostMasked: "smtp.sendgrid.net (Configured)",
+          storageBucketMasked: "gs://akeezo-vault-prod (Protected)"
+        };
+      }
+      if (!settings.formsConfig) {
+        settings.formsConfig = {
+          leadNotificationEmails: ["care@akeezo.com", "coordinator@akeezo.com"],
+          autoTriageEnabled: true,
+          spamFilterEnabled: true
+        };
+      }
+      if (!settings.navigation) {
+        settings.navigation = {
+          headerMenu: [],
+          footerGroups: []
+        };
+      }
     }
     res.json({ data: settings });
   } catch {
@@ -53062,50 +53292,99 @@ cmsAdminRouter.get("/site-settings", async (_req, res) => {
     });
   }
 });
-cmsAdminRouter.put("/site-settings", async (req, res) => {
+cmsAdminRouter.put(["/site-settings", "/settings/:section"], async (req, res) => {
   try {
+    const updatePayload = {};
+    if (req.body.brandName !== void 0) updatePayload.brandName = req.body.brandName;
+    if (req.body.tagline !== void 0) updatePayload.tagline = req.body.tagline;
+    if (req.body.logoVariants !== void 0) updatePayload.logoVariants = req.body.logoVariants;
+    if (req.body.primaryColor !== void 0) updatePayload.primaryColor = req.body.primaryColor;
+    if (req.body.actionColor !== void 0) updatePayload.actionColor = req.body.actionColor;
+    if (req.body.contactEmail !== void 0) updatePayload.contactEmail = req.body.contactEmail;
+    if (req.body.careEmail !== void 0) updatePayload.careEmail = req.body.careEmail;
+    if (req.body.medicalEmail !== void 0) updatePayload.medicalEmail = req.body.medicalEmail;
+    if (req.body.partnershipEmail !== void 0) updatePayload.partnershipEmail = req.body.partnershipEmail;
+    if (req.body.emergencyHelpline !== void 0) updatePayload.emergencyHelpline = req.body.emergencyHelpline;
+    if (req.body.whatsappHelpline !== void 0) updatePayload.whatsappHelpline = req.body.whatsappHelpline;
+    if (req.body.showTopUtilityBar !== void 0) updatePayload.showTopUtilityBar = req.body.showTopUtilityBar;
+    if (req.body.emergencyNotice !== void 0) updatePayload.emergencyNotice = req.body.emergencyNotice;
+    if (req.body.headquartersAddress !== void 0) updatePayload.headquartersAddress = req.body.headquartersAddress;
+    if (req.body.socialLinks !== void 0) updatePayload.socialLinks = req.body.socialLinks;
+    if (req.body.formsConfig !== void 0) updatePayload.formsConfig = req.body.formsConfig;
+    if (req.body.defaultLanguage !== void 0) updatePayload.defaultLanguage = req.body.defaultLanguage;
+    if (req.body.defaultTimezone !== void 0) updatePayload.defaultTimezone = req.body.defaultTimezone;
+    if (req.body.integrations !== void 0) updatePayload.integrations = req.body.integrations;
     const updated = await SiteSettings.findOneAndUpdate(
       { environment: "development" },
       {
-        $set: {
-          brandName: req.body.brandName,
-          tagline: req.body.tagline,
-          logoVariants: req.body.logoVariants,
-          primaryColor: req.body.primaryColor,
-          actionColor: req.body.actionColor,
-          contactEmail: req.body.contactEmail,
-          careEmail: req.body.careEmail,
-          medicalEmail: req.body.medicalEmail,
-          partnershipEmail: req.body.partnershipEmail,
-          emergencyHelpline: req.body.emergencyHelpline,
-          whatsappHelpline: req.body.whatsappHelpline,
-          showTopUtilityBar: req.body.showTopUtilityBar,
-          emergencyNotice: req.body.emergencyNotice,
-          headquartersAddress: req.body.headquartersAddress,
-          socialLinks: req.body.socialLinks
-        },
+        $set: updatePayload,
         $inc: { version: 1 }
       },
       { upsert: true, new: true }
+    );
+    await logAdminActivity(
+      req.user?._id,
+      "SiteSettings",
+      updated._id,
+      "update",
+      { section: ["previous", req.params.section || "general"] },
+      req
     );
     res.json({ data: updated });
   } catch (err) {
     res.status(400).json({ error: { code: "UPDATE_SETTINGS_FAILED", message: err.message } });
   }
 });
-cmsAdminRouter.get("/pages", async (_req, res) => {
+cmsAdminRouter.get("/system-health", async (_req, res) => {
+  const memUsage = process.memoryUsage();
+  res.json({
+    data: {
+      uptimeSeconds: Math.floor(process.uptime()),
+      nodeVersion: process.version,
+      platform: process.platform,
+      memory: {
+        rssMb: Math.round(memUsage.rss / 1024 / 1024),
+        heapTotalMb: Math.round(memUsage.heapTotal / 1024 / 1024),
+        heapUsedMb: Math.round(memUsage.heapUsed / 1024 / 1024)
+      },
+      database: {
+        status: mongoose21.connection.readyState === 1 ? "connected" : "disconnected",
+        host: mongoose21.connection.host || "127.0.0.1",
+        port: mongoose21.connection.port || 27017,
+        dbName: mongoose21.connection.name || "akeezo_local"
+      },
+      timestamp: (/* @__PURE__ */ new Date()).toISOString()
+    }
+  });
+});
+cmsAdminRouter.get("/pages", async (req, res) => {
   try {
-    const pages = await Page.find({ locale: "en" }).populate("publishedRevisionId").populate("draftRevisionId").sort({ slug: 1 }).lean();
+    const filter = { locale: "en" };
+    if (req.query.status) {
+      filter.status = req.query.status;
+    }
+    if (req.query.search) {
+      const q = String(req.query.search).trim();
+      filter.$or = [
+        { slug: { $regex: q, $options: "i" } },
+        { "publishedRevisionId.seo.title": { $regex: q, $options: "i" } }
+      ];
+    }
+    const pages = await Page.find(filter).populate("publishedRevisionId").populate("draftRevisionId").sort({ updatedAt: -1, slug: 1 }).lean();
     const formatted = pages.map((p) => {
       const pubRev = p.publishedRevisionId;
+      const draftRev = p.draftRevisionId;
+      const hasUnpublishedChanges = p.draftRevisionId && p.publishedRevisionId && p.draftRevisionId.toString() !== p.publishedRevisionId.toString();
       return {
         id: p._id,
         slug: p.slug,
-        title: pubRev?.seo?.title || p.slug.toUpperCase(),
+        title: pubRev?.seo?.title || draftRev?.seo?.title || p.slug.toUpperCase(),
         status: p.status,
         version: p.version,
         publishedAt: pubRev?.createdAt,
-        path: p.slug === "home" ? "/" : `/${p.slug}`
+        updatedAt: p.updatedAt,
+        path: p.slug === "home" ? "/" : `/${p.slug}`,
+        hasUnpublishedChanges: Boolean(hasUnpublishedChanges)
       };
     });
     res.json({ data: formatted });
@@ -53122,6 +53401,7 @@ cmsAdminRouter.get("/pages/:slug", async (req, res) => {
     }
     const revisionId = page.publishedRevisionId || page.draftRevisionId;
     const revision = revisionId ? await ContentRevision.findById(revisionId).lean() : null;
+    const revisions = await ContentRevision.find({ entityType: "page", entityId: page._id }).sort({ revisionNumber: -1 }).limit(10).lean();
     res.json({
       data: {
         page,
@@ -53133,7 +53413,15 @@ cmsAdminRouter.get("/pages/:slug", async (req, res) => {
           canonicalPath: slug === "home" ? "/" : `/${slug}`,
           robots: "index,follow",
           schemaKind: "MedicalWebPage"
-        }
+        },
+        revisions: revisions.map((r) => ({
+          id: r._id,
+          revisionNumber: r.revisionNumber,
+          title: r.seo?.title || `Revision #${r.revisionNumber}`,
+          createdAt: r.createdAt,
+          isPublished: String(r._id) === String(page.publishedRevisionId),
+          isDraft: String(r._id) === String(page.draftRevisionId)
+        }))
       }
     });
   } catch (err) {
@@ -53150,12 +53438,12 @@ cmsAdminRouter.put("/pages/:slug", async (req, res) => {
         slug,
         locale: "en",
         localeGroupId: `group_${slug}`,
-        status: "draft",
+        status: publishImmediately ? "published" : "draft",
         version: 1
       });
     }
-    const prevRev = page.publishedRevisionId ? await ContentRevision.findById(page.publishedRevisionId) : null;
-    const nextRevisionNumber = (prevRev?.revisionNumber || 0) + 1;
+    const lastRev = await ContentRevision.findOne({ entityType: "page", entityId: page._id }).sort({ revisionNumber: -1 }).lean();
+    const nextRevisionNumber = (lastRev?.revisionNumber || 0) + 1;
     const canonicalPath = slug === "home" ? "/" : `/${slug}`;
     const revision = await ContentRevision.create({
       entityType: "page",
@@ -53168,7 +53456,10 @@ cmsAdminRouter.put("/pages/:slug", async (req, res) => {
         description: seo?.description || "Heal In India, Heal By Akeezo",
         canonicalPath: seo?.canonicalPath || canonicalPath,
         robots: seo?.robots || "index,follow",
-        schemaKind: seo?.schemaKind || "MedicalWebPage"
+        schemaKind: seo?.schemaKind || "MedicalWebPage",
+        ogTitle: seo?.ogTitle || seo?.title,
+        ogDescription: seo?.ogDescription || seo?.description,
+        ogImage: seo?.ogImage || "/logo/logo with tagline-dark.svg"
       },
       sourceReferences: []
     });
@@ -53192,22 +53483,475 @@ cmsAdminRouter.put("/pages/:slug", async (req, res) => {
         { upsert: true }
       );
     }
+    await logAdminActivity(
+      req.user?._id,
+      "page",
+      page._id,
+      publishImmediately ? "update" : "create",
+      {
+        slug: [slug, slug],
+        status: [page.status, publishImmediately ? "published" : "draft"],
+        revision: [lastRev?.revisionNumber || 0, nextRevisionNumber]
+      },
+      req
+    );
     res.json({
       data: {
         page,
         revision,
         published: publishImmediately,
-        message: `Page '${slug}' updated and published successfully to live website.`
+        message: publishImmediately ? `Page '${slug}' updated and published successfully to live website.` : `Draft saved for page '${slug}'. Public site remains on previous published revision.`
       }
     });
   } catch (err) {
     res.status(400).json({ error: { code: "SAVE_PAGE_FAILED", message: err.message } });
   }
 });
+cmsAdminRouter.post("/pages/:slug/duplicate", async (req, res) => {
+  try {
+    const slug = req.params.slug;
+    const newSlug = (req.body.newSlug || `${slug}-copy`).toLowerCase().trim().replace(/[^a-z0-9_-]/g, "");
+    const existing = await Page.findOne({ slug: newSlug });
+    if (existing) {
+      return res.status(400).json({ error: { code: "SLUG_EXISTS", message: `Page with slug '${newSlug}' already exists.` } });
+    }
+    const sourcePage = await Page.findOne({ slug, locale: "en" }).lean();
+    if (!sourcePage) {
+      return res.status(404).json({ error: { code: "NOT_FOUND", message: `Source page '${slug}' not found.` } });
+    }
+    const sourceRevId = sourcePage.publishedRevisionId || sourcePage.draftRevisionId;
+    const sourceRev = sourceRevId ? await ContentRevision.findById(sourceRevId).lean() : null;
+    const newPage = await Page.create({
+      slug: newSlug,
+      locale: "en",
+      localeGroupId: `group_${newSlug}`,
+      status: "draft",
+      version: 1
+    });
+    const newRevision = await ContentRevision.create({
+      entityType: "page",
+      entityId: newPage._id,
+      locale: "en",
+      revisionNumber: 1,
+      payload: sourceRev?.payload || {},
+      seo: {
+        ...sourceRev?.seo || {},
+        title: `Copy of ${sourceRev?.seo?.title || slug}`,
+        canonicalPath: `/${newSlug}`
+      },
+      sourceReferences: []
+    });
+    newPage.draftRevisionId = newRevision._id;
+    await newPage.save();
+    await logAdminActivity(req.user?._id, "page", newPage._id, "create", { duplicatedFrom: [slug, newSlug] }, req);
+    res.status(201).json({
+      data: {
+        page: newPage,
+        message: `Page '${slug}' duplicated into '${newSlug}' as draft.`
+      }
+    });
+  } catch (err) {
+    res.status(400).json({ error: { code: "DUPLICATE_PAGE_FAILED", message: err.message } });
+  }
+});
+cmsAdminRouter.patch("/pages/:slug/status", async (req, res) => {
+  try {
+    const slug = req.params.slug;
+    const { status } = req.body;
+    if (slug === "home" && (status === "archived" || status === "draft")) {
+      return res.status(400).json({ error: { code: "CANNOT_UNPUBLISH_HOMEPAGE", message: "Homepage cannot be archived or unpublished." } });
+    }
+    const page = await Page.findOne({ slug, locale: "en" });
+    if (!page) {
+      return res.status(404).json({ error: { code: "NOT_FOUND", message: `Page '${slug}' not found.` } });
+    }
+    const oldStatus = page.status;
+    page.status = status;
+    await page.save();
+    const canonicalPath = slug === "home" ? "/" : `/${slug}`;
+    if (status === "published" && page.draftRevisionId) {
+      page.publishedRevisionId = page.draftRevisionId;
+      await page.save();
+      await RouteEntry.findOneAndUpdate(
+        { locale: "en", path: canonicalPath },
+        { $set: { publishedRevisionId: page.publishedRevisionId, statusCode: 200 } },
+        { upsert: true }
+      );
+    } else if (status === "draft" || status === "archived") {
+      await RouteEntry.deleteOne({ locale: "en", path: canonicalPath });
+    }
+    await logAdminActivity(req.user?._id, "page", page._id, "update", { status: [oldStatus, status] }, req);
+    res.json({ data: { page, message: `Page '${slug}' status changed to '${status}'.` } });
+  } catch (err) {
+    res.status(400).json({ error: { code: "STATUS_CHANGE_FAILED", message: err.message } });
+  }
+});
+cmsAdminRouter.post("/pages/:slug/restore/:revisionId", async (req, res) => {
+  try {
+    const { slug, revisionId } = req.params;
+    const page = await Page.findOne({ slug, locale: "en" });
+    if (!page) {
+      return res.status(404).json({ error: { code: "NOT_FOUND", message: `Page '${slug}' not found.` } });
+    }
+    const historicalRev = await ContentRevision.findById(revisionId).lean();
+    if (!historicalRev) {
+      return res.status(404).json({ error: { code: "REVISION_NOT_FOUND", message: "Revision not found." } });
+    }
+    const lastRev = await ContentRevision.findOne({ entityType: "page", entityId: page._id }).sort({ revisionNumber: -1 }).lean();
+    const nextRevisionNumber = (lastRev?.revisionNumber || 0) + 1;
+    const restoredRevision = await ContentRevision.create({
+      entityType: "page",
+      entityId: page._id,
+      locale: "en",
+      revisionNumber: nextRevisionNumber,
+      payload: historicalRev.payload,
+      seo: historicalRev.seo,
+      sourceReferences: [`restored_from_rev_${historicalRev.revisionNumber}`]
+    });
+    page.draftRevisionId = restoredRevision._id;
+    page.publishedRevisionId = restoredRevision._id;
+    page.status = "published";
+    page.version += 1;
+    await page.save();
+    const canonicalPath = slug === "home" ? "/" : `/${slug}`;
+    await RouteEntry.findOneAndUpdate(
+      { locale: "en", path: canonicalPath },
+      { $set: { publishedRevisionId: restoredRevision._id, statusCode: 200 } },
+      { upsert: true }
+    );
+    await logAdminActivity(
+      req.user?._id,
+      "page",
+      page._id,
+      "update",
+      { restoredFrom: [historicalRev.revisionNumber, nextRevisionNumber] },
+      req
+    );
+    res.json({
+      data: {
+        page,
+        revision: restoredRevision,
+        message: `Successfully restored page '${slug}' to Revision #${historicalRev.revisionNumber}.`
+      }
+    });
+  } catch (err) {
+    res.status(400).json({ error: { code: "RESTORE_FAILED", message: err.message } });
+  }
+});
+cmsAdminRouter.get("/navigation", async (_req, res) => {
+  try {
+    const settings = await SiteSettings.findOne({ environment: "development" }).lean();
+    const nav = settings?.navigation || {
+      headerMenu: [
+        { id: "nav-1", label: "Surgeries & Treatments", destination: "/#treatments", isExternal: false, order: 1, isVisible: true },
+        { id: "nav-2", label: "Hospital Network", destination: "/#hospitals", isExternal: false, order: 2, isVisible: true },
+        { id: "nav-3", label: "How It Works", destination: "/#workflow", isExternal: false, order: 3, isVisible: true },
+        { id: "nav-4", label: "Transparent Pricing", destination: "/#pricing", isExternal: false, order: 4, isVisible: true },
+        { id: "nav-5", label: "Patient Stories", destination: "/#testimonials", isExternal: false, order: 5, isVisible: true }
+      ],
+      footerGroups: [
+        {
+          id: "fg-1",
+          title: "Healthcare Services",
+          order: 1,
+          links: [
+            { label: "Robotic Oncology", destination: "/#treatments", isExternal: false, isVisible: true },
+            { label: "Cardiac Sciences", destination: "/#treatments", isExternal: false, isVisible: true },
+            { label: "Bone Marrow Transplant", destination: "/#treatments", isExternal: false, isVisible: true },
+            { label: "Orthopedics & Joint Replacement", destination: "/#treatments", isExternal: false, isVisible: true }
+          ]
+        },
+        {
+          id: "fg-2",
+          title: "Patient Resources",
+          order: 2,
+          links: [
+            { label: "Medical Visa Facilitation", destination: "/#workflow", isExternal: false, isVisible: true },
+            { label: "Second Medical Opinions", destination: "/#quote-modal", isExternal: false, isVisible: true },
+            { label: "NABH / JCI Accreditations", destination: "/#hospitals", isExternal: false, isVisible: true }
+          ]
+        },
+        {
+          id: "fg-3",
+          title: "Compliance & Legal",
+          order: 3,
+          links: [
+            { label: "Privacy Policy (DPDP 2023)", destination: "/privacy", isExternal: false, isVisible: true },
+            { label: "Terms of Discovery Service", destination: "/terms", isExternal: false, isVisible: true },
+            { label: "Clinical & Regulatory Disclaimer", destination: "/disclaimer", isExternal: false, isVisible: true }
+          ]
+        }
+      ]
+    };
+    res.json({ data: nav });
+  } catch (err) {
+    res.status(500).json({ error: { code: "FETCH_NAV_FAILED", message: err.message } });
+  }
+});
+cmsAdminRouter.put("/navigation", async (req, res) => {
+  try {
+    const { headerMenu, footerGroups } = req.body;
+    const updated = await SiteSettings.findOneAndUpdate(
+      { environment: "development" },
+      {
+        $set: {
+          navigation: {
+            headerMenu: headerMenu || [],
+            footerGroups: footerGroups || []
+          }
+        }
+      },
+      { upsert: true, new: true }
+    );
+    await logAdminActivity(
+      req.user?._id,
+      "SiteSettings",
+      updated._id,
+      "update",
+      { section: ["navigation", "updated"] },
+      req
+    );
+    res.json({
+      data: updated.navigation,
+      message: "Public header menu and footer links updated and live."
+    });
+  } catch (err) {
+    res.status(400).json({ error: { code: "UPDATE_NAV_FAILED", message: err.message } });
+  }
+});
+cmsAdminRouter.get("/media", async (req, res) => {
+  try {
+    const filter = {};
+    if (req.query.search) {
+      const q = String(req.query.search).trim();
+      filter.$or = [
+        { originalFilename: { $regex: q, $options: "i" } },
+        { altText: { $regex: q, $options: "i" } },
+        { caption: { $regex: q, $options: "i" } }
+      ];
+    }
+    if (req.query.type) {
+      const t = String(req.query.type).toLowerCase();
+      if (t === "image") {
+        filter.mimeType = { $regex: "^image/" };
+      } else if (t === "document") {
+        filter.mimeType = { $in: ["application/pdf", "text/plain"] };
+      } else if (t === "svg") {
+        filter.mimeType = "image/svg+xml";
+      }
+    }
+    const page = Math.max(1, parseInt(String(req.query.page || "1"), 10));
+    const limit = Math.max(1, Math.min(50, parseInt(String(req.query.limit || "20"), 10)));
+    const skip = (page - 1) * limit;
+    let items = [];
+    let total = 0;
+    if (mongoose21.connection.readyState === 1) {
+      [items, total] = await Promise.all([
+        MediaAssetModel.find(filter).sort({ createdAt: -1 }).skip(skip).limit(limit).lean(),
+        MediaAssetModel.countDocuments(filter)
+      ]);
+    }
+    if (items.length === 0 && page === 1 && !req.query.search && !req.query.type) {
+      items = [
+        {
+          _id: "media_1",
+          originalFilename: "favicon.svg",
+          storedFilename: "favicon.svg",
+          mimeType: "image/svg+xml",
+          sizeBytes: 4522,
+          url: "/logo/favicon.svg",
+          altText: "Akeezo Healthcare Icon Mark",
+          caption: "Primary mark for browser tab and compact header",
+          referencedIn: [{ entityType: "page", entityId: "home", field: "headerLogo" }],
+          createdAt: /* @__PURE__ */ new Date("2026-09-13")
+        },
+        {
+          _id: "media_2",
+          originalFilename: "logo with tagline-dark.svg",
+          storedFilename: "logo with tagline-dark.svg",
+          mimeType: "image/svg+xml",
+          sizeBytes: 36466,
+          url: "/logo/logo with tagline-dark.svg",
+          altText: "Akeezo Health Full Logo with Tagline (Dark Background)",
+          caption: "White lettering with Brand Teal and Orange icon",
+          referencedIn: [{ entityType: "SiteSettings", entityId: "default", field: "logoVariants.dark" }],
+          createdAt: /* @__PURE__ */ new Date("2026-09-27")
+        },
+        {
+          _id: "media_3",
+          originalFilename: "logo with tagline-light.svg",
+          storedFilename: "logo with tagline-light.svg",
+          mimeType: "image/svg+xml",
+          sizeBytes: 36458,
+          url: "/logo/logo with tagline-light.svg",
+          altText: "Akeezo Health Full Logo with Tagline (Light Background)",
+          caption: "Dark lettering with Brand Teal and Orange icon",
+          referencedIn: [{ entityType: "SiteSettings", entityId: "default", field: "logoVariants.light" }],
+          createdAt: /* @__PURE__ */ new Date("2026-09-27")
+        }
+      ];
+      total = items.length;
+    }
+    res.json({
+      data: items,
+      pagination: {
+        page,
+        limit,
+        total,
+        totalPages: Math.ceil(total / limit) || 1
+      }
+    });
+  } catch (err) {
+    res.status(500).json({ error: { code: "FETCH_MEDIA_FAILED", message: err.message } });
+  }
+});
+cmsAdminRouter.post("/media/upload", async (req, res) => {
+  try {
+    const { originalFilename, mimeType, dataBase64, altText, caption } = req.body;
+    if (!originalFilename || !mimeType || !dataBase64) {
+      return res.status(400).json({
+        error: { code: "INVALID_UPLOAD", message: "originalFilename, mimeType, and dataBase64 are required." }
+      });
+    }
+    const ALLOWED_MIME_TYPES = [
+      "image/jpeg",
+      "image/png",
+      "image/webp",
+      "image/svg+xml",
+      "image/gif",
+      "application/pdf"
+    ];
+    if (!ALLOWED_MIME_TYPES.includes(mimeType.toLowerCase())) {
+      return res.status(400).json({
+        error: { code: "UNSUPPORTED_TYPE", message: `MIME type '${mimeType}' is not supported.` }
+      });
+    }
+    const rawBuffer = Buffer.from(dataBase64, "base64");
+    if (rawBuffer.length > 10 * 1024 * 1024) {
+      return res.status(400).json({
+        error: { code: "FILE_TOO_LARGE", message: "File exceeds 10MB limit." }
+      });
+    }
+    let cleanBuffer = rawBuffer;
+    if (mimeType.toLowerCase() === "image/svg+xml") {
+      let svgText = rawBuffer.toString("utf8");
+      svgText = svgText.replace(/<script\b[^<]*(?:(?!<\/script>)<[^<]*)*<\/script>/gi, "").replace(/on\w+\s*=\s*["'][^"']*["']/gi, "").replace(/javascript:/gi, "");
+      cleanBuffer = Buffer.from(svgText, "utf8");
+    }
+    const ext = path2.extname(originalFilename).toLowerCase() || ".png";
+    const fileHash = crypto4.createHash("sha256").update(cleanBuffer).digest("hex").slice(0, 16);
+    const storedFilename = `${fileHash}${ext}`;
+    const uploadsDir = path2.resolve(process.cwd(), "uploads");
+    if (!fs2.existsSync(uploadsDir)) {
+      fs2.mkdirSync(uploadsDir, { recursive: true });
+    }
+    const targetFilePath = path2.join(uploadsDir, storedFilename);
+    fs2.writeFileSync(targetFilePath, cleanBuffer);
+    const publicUrl = `/uploads/${storedFilename}`;
+    const mediaDoc = await MediaAssetModel.create({
+      originalFilename,
+      storedFilename,
+      mimeType,
+      sizeBytes: cleanBuffer.length,
+      url: publicUrl,
+      altText: altText || originalFilename.replace(/\.[^/.]+$/, ""),
+      caption: caption || "",
+      referencedIn: []
+    });
+    await logAdminActivity(
+      req.user?._id,
+      "media",
+      mediaDoc._id,
+      "create",
+      { originalFilename: ["", originalFilename], sizeBytes: [0, cleanBuffer.length] },
+      req
+    );
+    res.status(201).json({
+      data: mediaDoc,
+      message: "Media asset uploaded and stored safely."
+    });
+  } catch (err) {
+    res.status(400).json({ error: { code: "UPLOAD_FAILED", message: err.message } });
+  }
+});
+cmsAdminRouter.patch("/media/:id", async (req, res) => {
+  try {
+    const updated = await MediaAssetModel.findByIdAndUpdate(
+      req.params.id,
+      {
+        $set: {
+          altText: req.body.altText,
+          caption: req.body.caption
+        }
+      },
+      { new: true }
+    );
+    res.json({ data: updated });
+  } catch (err) {
+    res.status(400).json({ error: { code: "UPDATE_MEDIA_FAILED", message: err.message } });
+  }
+});
+cmsAdminRouter.delete("/media/:id", async (req, res) => {
+  try {
+    const media = await MediaAssetModel.findById(req.params.id);
+    if (!media) {
+      return res.status(404).json({ error: { code: "NOT_FOUND", message: "Media not found." } });
+    }
+    if (media.referencedIn && media.referencedIn.length > 0 && req.query.force !== "true") {
+      return res.status(409).json({
+        error: {
+          code: "MEDIA_IN_USE",
+          message: `This asset is currently in use across ${media.referencedIn.length} location(s). Pass force=true to delete anyway.`,
+          referencedIn: media.referencedIn
+        }
+      });
+    }
+    const uploadsDir = path2.resolve(process.cwd(), "uploads");
+    const filePath = path2.join(uploadsDir, media.storedFilename);
+    if (fs2.existsSync(filePath)) {
+      try {
+        fs2.unlinkSync(filePath);
+      } catch {
+      }
+    }
+    await MediaAssetModel.deleteOne({ _id: media._id });
+    await logAdminActivity(
+      req.user?._id,
+      "media",
+      media._id,
+      "delete",
+      { filename: [media.originalFilename, "deleted"] },
+      req
+    );
+    res.json({ data: { success: true, message: "Media deleted successfully." } });
+  } catch (err) {
+    res.status(400).json({ error: { code: "DELETE_MEDIA_FAILED", message: err.message } });
+  }
+});
 cmsAdminRouter.get("/enquiries", async (req, res) => {
   try {
     const filter = {};
-    if (req.query.status) filter.status = req.query.status;
+    if (req.query.status) {
+      filter.status = req.query.status;
+    }
+    if (req.query.search) {
+      const q = String(req.query.search).trim();
+      filter.$or = [
+        { requesterName: { $regex: q, $options: "i" } },
+        { email: { $regex: q, $options: "i" } },
+        { phone: { $regex: q, $options: "i" } },
+        { receiptId: { $regex: q, $options: "i" } },
+        { message: { $regex: q, $options: "i" } }
+      ];
+    }
+    if (req.query.assignee) {
+      filter.assignedCoordinatorId = req.query.assignee;
+    }
+    if (req.query.dateFrom || req.query.dateTo) {
+      filter.createdAt = {};
+      if (req.query.dateFrom) filter.createdAt.$gte = new Date(String(req.query.dateFrom));
+      if (req.query.dateTo) filter.createdAt.$lte = new Date(String(req.query.dateTo));
+    }
     const enquiries = await EnquiryModel.find(filter).sort({ createdAt: -1 }).limit(100).lean();
     res.json({ data: enquiries });
   } catch (err) {
@@ -53216,26 +53960,90 @@ cmsAdminRouter.get("/enquiries", async (req, res) => {
 });
 cmsAdminRouter.post("/enquiries", async (req, res) => {
   try {
-    const count = await EnquiryModel.countDocuments();
-    const receiptId = `ENQ-2026-${String(count + 1).padStart(4, "0")}`;
-    const validServices = ["medical_tourism", "emergency", "home_healthcare", "consultation", "general"];
-    const serviceType = validServices.includes(req.body.serviceType) ? req.body.serviceType : "medical_tourism";
-    const requesterName = req.body.requesterName || req.body.name || "Anonymous Lead";
+    const { requesterName, email, phone, message, serviceType, country, notes, sourcePath } = req.body;
+    if (!requesterName) {
+      return res.status(400).json({ error: { code: "VALIDATION_ERROR", message: "Requester name is required." } });
+    }
+    const receiptId = `ENQ-${Date.now().toString(36).toUpperCase()}`;
     const enquiry = await EnquiryModel.create({
       receiptId,
       requesterName,
-      email: req.body.email,
-      phone: req.body.phone,
-      country: req.body.country,
-      serviceType,
-      message: req.body.message,
-      sourcePath: req.body.sourcePath || "/",
-      status: req.body.status || "received",
-      notes: req.body.notes
+      email: email || void 0,
+      phone: phone || void 0,
+      country: country || void 0,
+      serviceType: serviceType || "medical_tourism",
+      message: message || void 0,
+      sourcePath: sourcePath || "/",
+      status: "received",
+      notes: notes || void 0
     });
+    await logAdminActivity(
+      req.user?._id,
+      "enquiry",
+      enquiry._id,
+      "create",
+      { requesterName: ["", requesterName], serviceType: ["", serviceType] },
+      req
+    );
     res.status(201).json({ data: enquiry });
   } catch (err) {
     res.status(400).json({ error: { code: "CREATE_ENQUIRY_FAILED", message: err.message } });
+  }
+});
+cmsAdminRouter.get("/enquiries/export/csv", async (req, res) => {
+  try {
+    const filter = {};
+    if (req.query.status) filter.status = req.query.status;
+    const enquiries = await EnquiryModel.find(filter).sort({ createdAt: -1 }).lean();
+    const headers = [
+      "Receipt ID",
+      "Requester Name",
+      "Email",
+      "Phone",
+      "Country",
+      "Service Type",
+      "Status",
+      "Submitted At",
+      "Message",
+      "Notes"
+    ];
+    const rows = enquiries.map((e) => [
+      sanitizeCsvValue(e.receiptId),
+      sanitizeCsvValue(e.requesterName || e.name),
+      sanitizeCsvValue(e.email),
+      sanitizeCsvValue(e.phone),
+      sanitizeCsvValue(e.country),
+      sanitizeCsvValue(e.serviceType),
+      sanitizeCsvValue(e.status),
+      sanitizeCsvValue(e.createdAt?.toISOString?.() || ""),
+      sanitizeCsvValue(e.message),
+      sanitizeCsvValue(e.notes)
+    ]);
+    const csvContent = [headers.join(","), ...rows.map((r) => r.join(","))].join("\r\n");
+    await logAdminActivity(
+      req.user?._id,
+      "enquiry",
+      new mongoose21.Types.ObjectId(),
+      "export",
+      { count: [0, enquiries.length] },
+      req
+    );
+    res.setHeader("Content-Type", "text/csv; charset=utf-8");
+    res.setHeader("Content-Disposition", 'attachment; filename="akeezo-leads-export.csv"');
+    res.send(csvContent);
+  } catch (err) {
+    res.status(500).json({ error: { code: "CSV_EXPORT_FAILED", message: err.message } });
+  }
+});
+cmsAdminRouter.get("/enquiries/:id", async (req, res) => {
+  try {
+    const enquiry = await EnquiryModel.findById(req.params.id).lean();
+    if (!enquiry) {
+      return res.status(404).json({ error: { code: "NOT_FOUND", message: "Enquiry not found" } });
+    }
+    res.json({ data: enquiry });
+  } catch (err) {
+    res.status(500).json({ error: { code: "FETCH_ENQUIRY_FAILED", message: err.message } });
   }
 });
 cmsAdminRouter.patch(["/enquiries/:id", "/enquiries/:id/status"], async (req, res) => {
@@ -53251,9 +54059,32 @@ cmsAdminRouter.patch(["/enquiries/:id", "/enquiries/:id/status"], async (req, re
       },
       { new: true }
     );
+    await logAdminActivity(
+      req.user?._id,
+      "enquiry",
+      updated?._id,
+      "update",
+      { status: ["previous", req.body.status] },
+      req
+    );
     res.json({ data: updated });
   } catch (err) {
     res.status(400).json({ error: { code: "UPDATE_ENQUIRY_FAILED", message: err.message } });
+  }
+});
+cmsAdminRouter.post("/enquiries/bulk", async (req, res) => {
+  try {
+    const { ids, status, assignedCoordinatorId } = req.body;
+    if (!ids || !Array.isArray(ids) || ids.length === 0) {
+      return res.status(400).json({ error: { code: "INVALID_REQUEST", message: "ids array is required." } });
+    }
+    const updateFields = {};
+    if (status) updateFields.status = status;
+    if (assignedCoordinatorId !== void 0) updateFields.assignedCoordinatorId = assignedCoordinatorId;
+    await EnquiryModel.updateMany({ _id: { $in: ids } }, { $set: updateFields });
+    res.json({ data: { success: true, count: ids.length, message: `Updated ${ids.length} enquiries.` } });
+  } catch (err) {
+    res.status(400).json({ error: { code: "BULK_UPDATE_FAILED", message: err.message } });
   }
 });
 cmsAdminRouter.post("/enquiries/:id/convert-to-case", async (req, res) => {
@@ -53282,7 +54113,7 @@ cmsAdminRouter.post("/enquiries/:id/convert-to-case", async (req, res) => {
     const count = await CaseModel.countDocuments();
     const caseCode = `CASE-2026-${String(count + 1).padStart(4, "0")}`;
     const defaultOwner = await UserModel.findOne({ role: { $in: ["administrator", "coordinator"] } });
-    const ownerId = defaultOwner?._id || new mongoose19.Types.ObjectId();
+    const ownerId = defaultOwner?._id || new mongoose21.Types.ObjectId();
     const specialtyMap = {
       medical_tourism: "general_surgery",
       cardiology: "cardiac_sciences",
@@ -53317,14 +54148,7 @@ cmsAdminRouter.post("/enquiries/:id/convert-to-case", async (req, res) => {
     enquiry.status = "converted";
     enquiry.notes = `${enquiry.notes ? enquiry.notes + " | " : ""}Converted to Case ${caseCode} on ${(/* @__PURE__ */ new Date()).toISOString()}`;
     await enquiry.save();
-    await CaseAuditLogModel.create({
-      caseId: newCase._id,
-      entityType: "case",
-      entityId: newCase._id,
-      action: "create",
-      actorId: ownerId,
-      occurredAt: /* @__PURE__ */ new Date()
-    });
+    await logAdminActivity(ownerId, "case", newCase._id, "create", { caseCode: ["", caseCode] }, req);
     res.status(201).json({
       data: {
         case: newCase,
@@ -53338,6 +54162,468 @@ cmsAdminRouter.post("/enquiries/:id/convert-to-case", async (req, res) => {
     res.status(400).json({ error: { code: "CONVERSION_FAILED", message: err.message } });
   }
 });
+cmsAdminRouter.get("/redirects", async (_req, res) => {
+  try {
+    let redirects = [];
+    if (mongoose21.connection.readyState === 1) {
+      redirects = await RedirectModel.find().sort({ createdAt: -1 }).lean();
+    }
+    if (redirects.length === 0) {
+      redirects = [
+        {
+          _id: "red_1",
+          sourcePath: "/medical-tourism-india",
+          destinationPath: "/",
+          statusCode: 301,
+          enabled: true,
+          hitsCount: 142,
+          lastHitAt: /* @__PURE__ */ new Date(),
+          notes: "Legacy landing page redirect"
+        },
+        {
+          _id: "red_2",
+          sourcePath: "/contact-us",
+          destinationPath: "/#enquiry",
+          statusCode: 302,
+          enabled: true,
+          hitsCount: 88,
+          lastHitAt: /* @__PURE__ */ new Date(),
+          notes: "Temporary anchor redirect"
+        }
+      ];
+    }
+    res.json({ data: redirects });
+  } catch (err) {
+    res.status(500).json({ error: { code: "FETCH_REDIRECTS_FAILED", message: err.message } });
+  }
+});
+cmsAdminRouter.post("/redirects", async (req, res) => {
+  try {
+    let { sourcePath, destinationPath, statusCode = 301, notes, enabled = true } = req.body;
+    if (!sourcePath || !destinationPath) {
+      return res.status(400).json({ error: { code: "INVALID_FIELDS", message: "sourcePath and destinationPath are required." } });
+    }
+    sourcePath = String(sourcePath).trim().toLowerCase();
+    destinationPath = String(destinationPath).trim();
+    if (!sourcePath.startsWith("/")) {
+      sourcePath = `/${sourcePath}`;
+    }
+    sourcePath = sourcePath.replace(/\/+$/, "") || "/";
+    if (sourcePath === destinationPath || sourcePath === destinationPath.toLowerCase()) {
+      return res.status(400).json({ error: { code: "REDIRECT_LOOP", message: "Source and destination cannot be identical." } });
+    }
+    const RESERVED_PREFIXES = ["/api", "/admin", "/case-management", "/health", "/uploads"];
+    if (RESERVED_PREFIXES.some((p) => sourcePath.startsWith(p))) {
+      return res.status(400).json({
+        error: { code: "RESERVED_PATH", message: `Source path cannot shadow reserved system route: ${sourcePath}` }
+      });
+    }
+    const existing = await RedirectModel.findOne({ sourcePath });
+    if (existing) {
+      return res.status(409).json({ error: { code: "DUPLICATE_SOURCE", message: `Redirect for '${sourcePath}' already exists.` } });
+    }
+    const redirect = await RedirectModel.create({
+      sourcePath,
+      destinationPath,
+      statusCode: parseInt(String(statusCode), 10) === 302 ? 302 : 301,
+      notes,
+      enabled: Boolean(enabled)
+    });
+    await logAdminActivity(
+      req.user?._id,
+      "redirect",
+      redirect._id,
+      "create",
+      { sourcePath: ["", sourcePath], destinationPath: ["", destinationPath] },
+      req
+    );
+    res.status(201).json({ data: redirect, message: `Redirect from '${sourcePath}' to '${destinationPath}' created.` });
+  } catch (err) {
+    res.status(400).json({ error: { code: "CREATE_REDIRECT_FAILED", message: err.message } });
+  }
+});
+cmsAdminRouter.put("/redirects/:id", async (req, res) => {
+  try {
+    const updated = await RedirectModel.findByIdAndUpdate(
+      req.params.id,
+      {
+        $set: {
+          destinationPath: req.body.destinationPath,
+          statusCode: req.body.statusCode,
+          enabled: req.body.enabled,
+          notes: req.body.notes
+        }
+      },
+      { new: true }
+    );
+    res.json({ data: updated });
+  } catch (err) {
+    res.status(400).json({ error: { code: "UPDATE_REDIRECT_FAILED", message: err.message } });
+  }
+});
+cmsAdminRouter.delete("/redirects/:id", async (req, res) => {
+  try {
+    await RedirectModel.findByIdAndDelete(req.params.id);
+    res.json({ data: { success: true, message: "Redirect deleted." } });
+  } catch (err) {
+    res.status(400).json({ error: { code: "DELETE_REDIRECT_FAILED", message: err.message } });
+  }
+});
+cmsAdminRouter.get("/users", async (_req, res) => {
+  try {
+    let users = [];
+    if (mongoose21.connection.readyState === 1) {
+      users = await UserModel.find().sort({ createdAt: -1 }).select("-passwordHash").lean();
+    }
+    if (users.length === 0) {
+      users = FALLBACK_USERS.map((u) => ({
+        _id: u._id,
+        name: u.name,
+        email: u.email,
+        phone: u.phone,
+        role: u.role,
+        status: u.status,
+        phoneVerified: u.phoneVerified,
+        createdAt: u.createdAt
+      }));
+    }
+    res.json({ data: users });
+  } catch (err) {
+    res.status(500).json({ error: { code: "FETCH_USERS_FAILED", message: err.message } });
+  }
+});
+cmsAdminRouter.post("/users/invite", async (req, res) => {
+  try {
+    const { name, email, phone, role = "coordinator" } = req.body;
+    if (!name || !email) {
+      return res.status(400).json({ error: { code: "MISSING_FIELDS", message: "Name and email are required." } });
+    }
+    const normalizedEmail = email.toLowerCase().trim();
+    const existing = await UserModel.findOne({ email: normalizedEmail });
+    if (existing) {
+      return res.status(409).json({ error: { code: "USER_EXISTS", message: `User with email '${normalizedEmail}' already exists.` } });
+    }
+    const tempPassword = `Akeezo@${Math.floor(1e3 + Math.random() * 9e3)}!`;
+    const passwordHash = hashPassword(tempPassword);
+    const newUser = await UserModel.create({
+      name,
+      email: normalizedEmail,
+      phone: phone || "+91 82876 39443",
+      role,
+      passwordHash,
+      status: "active",
+      phoneVerified: true
+    });
+    await logAdminActivity(
+      req.user?._id,
+      "user",
+      newUser._id,
+      "create",
+      { email: ["", normalizedEmail], role: ["", role] },
+      req
+    );
+    res.status(201).json({
+      data: {
+        user: {
+          _id: newUser._id,
+          name: newUser.name,
+          email: newUser.email,
+          role: newUser.role,
+          status: newUser.status,
+          createdAt: newUser.createdAt
+        },
+        temporaryPassword: tempPassword,
+        message: `User '${normalizedEmail}' created with initial role '${role}'.`
+      }
+    });
+  } catch (err) {
+    res.status(400).json({ error: { code: "INVITE_USER_FAILED", message: err.message } });
+  }
+});
+cmsAdminRouter.patch("/users/:id", async (req, res) => {
+  try {
+    const userId = req.params.id;
+    const userToChange = await UserModel.findById(userId);
+    if (!userToChange) {
+      return res.status(404).json({ error: { code: "NOT_FOUND", message: "User not found." } });
+    }
+    if (req.body.status === "disabled" && userToChange.status === "active" || req.body.role && req.body.role !== "admin" && userToChange.role === "admin") {
+      const activeAdminCount = await UserModel.countDocuments({ role: "admin", status: "active" });
+      if (activeAdminCount <= 1) {
+        return res.status(403).json({
+          error: {
+            code: "CANNOT_DEMOTE_LAST_OWNER",
+            message: "Cannot disable or demote the last active Super Administrator / Owner of the platform."
+          }
+        });
+      }
+    }
+    if (req.body.name) userToChange.name = req.body.name;
+    if (req.body.role) userToChange.role = req.body.role;
+    if (req.body.phone) userToChange.phone = req.body.phone;
+    if (req.body.status) userToChange.status = req.body.status;
+    await userToChange.save();
+    await logAdminActivity(
+      req.user?._id,
+      "user",
+      userToChange._id,
+      "update",
+      { role: ["previous", userToChange.role], status: ["previous", userToChange.status] },
+      req
+    );
+    res.json({
+      data: {
+        _id: userToChange._id,
+        name: userToChange.name,
+        email: userToChange.email,
+        role: userToChange.role,
+        status: userToChange.status
+      }
+    });
+  } catch (err) {
+    res.status(400).json({ error: { code: "UPDATE_USER_FAILED", message: err.message } });
+  }
+});
+cmsAdminRouter.get("/roles", async (_req, res) => {
+  const rolesMatrix = [
+    {
+      role: "admin",
+      label: "Super Administrator / Owner",
+      description: "Full authoritative control over website CMS, public routing, lead triage, ERP oversight, and security settings.",
+      permissions: {
+        dashboard: ["view", "export"],
+        content: ["view", "create", "edit", "publish", "delete"],
+        media: ["view", "upload", "delete"],
+        enquiries: ["view", "edit", "assign", "convert", "export"],
+        seo: ["view", "edit", "redirects"],
+        users: ["view", "invite", "edit", "disable", "revoke"],
+        activity: ["view", "export"],
+        settings: ["view", "edit", "security"]
+      }
+    },
+    {
+      role: "coordinator",
+      label: "Case Operations Coordinator",
+      description: "Handles inbound website leads, hospital quotes, and active medical patient journeys across ERP stages.",
+      permissions: {
+        dashboard: ["view"],
+        content: ["view"],
+        media: ["view"],
+        enquiries: ["view", "edit", "assign", "convert"],
+        seo: ["view"],
+        users: ["view"],
+        activity: ["view"],
+        settings: ["view"]
+      }
+    },
+    {
+      role: "hospital_liaison",
+      label: "Hospital Liaison Officer",
+      description: "Coordinates hospital network tariff pricing, quote packaging, and doctor consultations.",
+      permissions: {
+        dashboard: ["view"],
+        content: ["view"],
+        media: ["view"],
+        enquiries: ["view"],
+        seo: ["view"],
+        users: ["view"],
+        activity: ["view"],
+        settings: ["view"]
+      }
+    },
+    {
+      role: "finance",
+      label: "Finance & Commission Auditor",
+      description: "Audits commission settlements, hospital receipts, and facilitator payouts.",
+      permissions: {
+        dashboard: ["view"],
+        content: ["view"],
+        media: ["view"],
+        enquiries: ["view", "export"],
+        seo: ["view"],
+        users: ["view"],
+        activity: ["view", "export"],
+        settings: ["view"]
+      }
+    },
+    {
+      role: "viewer",
+      label: "Read-Only Reviewer",
+      description: "Auditor or medical reviewer with read-only access to published content and non-PHI summaries.",
+      permissions: {
+        dashboard: ["view"],
+        content: ["view"],
+        media: ["view"],
+        enquiries: ["view"],
+        seo: ["view"],
+        users: ["view"],
+        activity: ["view"],
+        settings: ["view"]
+      }
+    }
+  ];
+  res.json({ data: rolesMatrix });
+});
+cmsAdminRouter.get("/activity", async (req, res) => {
+  try {
+    const filter = {};
+    if (req.query.entityType) {
+      filter.entityType = req.query.entityType;
+    }
+    if (req.query.action) {
+      filter.action = req.query.action;
+    }
+    if (req.query.actorId) {
+      filter.actorId = req.query.actorId;
+    }
+    if (req.query.dateFrom || req.query.dateTo) {
+      filter.occurredAt = {};
+      if (req.query.dateFrom) filter.occurredAt.$gte = new Date(String(req.query.dateFrom));
+      if (req.query.dateTo) filter.occurredAt.$lte = new Date(String(req.query.dateTo));
+    }
+    const limit = Math.max(1, Math.min(100, parseInt(String(req.query.limit || "50"), 10)));
+    let logs = [];
+    if (mongoose21.connection.readyState === 1) {
+      logs = await CaseAuditLogModel.find(filter).sort({ occurredAt: -1 }).limit(limit).populate("actorId", "name email role").lean();
+    }
+    if (logs.length === 0) {
+      logs = [
+        {
+          _id: "act_1",
+          occurredAt: /* @__PURE__ */ new Date(),
+          action: "update",
+          entityType: "page",
+          entityId: "home",
+          actorId: { name: "Priti", email: "priti@akeezo.com", role: "admin" },
+          changes: { status: ["draft", "published"] },
+          ip: "127.0.0.1"
+        },
+        {
+          _id: "act_2",
+          occurredAt: new Date(Date.now() - 36e5),
+          action: "create",
+          entityType: "case",
+          entityId: "CASE-2026-0011",
+          actorId: { name: "Priti", email: "priti@akeezo.com", role: "admin" },
+          changes: { source: ["", "converted_from_lead"] },
+          ip: "127.0.0.1"
+        }
+      ];
+    }
+    res.json({ data: logs });
+  } catch (err) {
+    res.status(500).json({ error: { code: "FETCH_ACTIVITY_FAILED", message: err.message } });
+  }
+});
+cmsAdminRouter.get("/profile", async (req, res) => {
+  try {
+    const authHeader = req.headers.authorization;
+    const token = authHeader?.startsWith("Bearer ") ? authHeader.split(" ")[1] : null;
+    let user = FALLBACK_USERS[0];
+    if (token) {
+      const parts = token.split(".");
+      if (parts.length === 3) {
+        try {
+          const payload = JSON.parse(Buffer.from(parts[1], "base64").toString("utf8"));
+          if (payload.userId && mongoose21.connection.readyState === 1) {
+            const dbUser = await UserModel.findById(payload.userId).select("-passwordHash").lean();
+            if (dbUser) user = dbUser;
+          }
+        } catch {
+        }
+      }
+    }
+    res.json({
+      data: {
+        _id: user._id,
+        name: user.name,
+        email: user.email,
+        phone: user.phone,
+        role: user.role,
+        status: user.status,
+        phoneVerified: user.phoneVerified
+      }
+    });
+  } catch (err) {
+    res.status(500).json({ error: { code: "FETCH_PROFILE_FAILED", message: err.message } });
+  }
+});
+cmsAdminRouter.put("/profile", async (req, res) => {
+  try {
+    const authHeader = req.headers.authorization;
+    const token = authHeader?.startsWith("Bearer ") ? authHeader.split(" ")[1] : null;
+    let userId = FALLBACK_USERS[0]._id;
+    if (token) {
+      const parts = token.split(".");
+      if (parts.length === 3) {
+        try {
+          const payload = JSON.parse(Buffer.from(parts[1], "base64").toString("utf8"));
+          if (payload.userId) userId = payload.userId;
+        } catch {
+        }
+      }
+    }
+    if (mongoose21.connection.readyState === 1) {
+      const user = await UserModel.findById(userId);
+      if (user) {
+        if (req.body.name) user.name = req.body.name;
+        if (req.body.phone) user.phone = req.body.phone;
+        await user.save();
+        return res.json({ data: { _id: user._id, name: user.name, email: user.email, phone: user.phone, role: user.role } });
+      }
+    }
+    res.json({
+      data: {
+        _id: userId,
+        name: req.body.name || "Priti",
+        email: "priti@akeezo.com",
+        phone: req.body.phone || "+91 82876 39443",
+        role: "admin"
+      }
+    });
+  } catch (err) {
+    res.status(400).json({ error: { code: "UPDATE_PROFILE_FAILED", message: err.message } });
+  }
+});
+cmsAdminRouter.post("/profile/password", async (req, res) => {
+  try {
+    const { currentPassword, newPassword } = req.body;
+    if (!currentPassword || !newPassword || newPassword.length < 8) {
+      return res.status(400).json({
+        error: { code: "INVALID_PASSWORD", message: "New password must be at least 8 characters long." }
+      });
+    }
+    const authHeader = req.headers.authorization;
+    const token = authHeader?.startsWith("Bearer ") ? authHeader.split(" ")[1] : null;
+    let userId = FALLBACK_USERS[0]._id;
+    if (token) {
+      const parts = token.split(".");
+      if (parts.length === 3) {
+        try {
+          const payload = JSON.parse(Buffer.from(parts[1], "base64").toString("utf8"));
+          if (payload.userId) userId = payload.userId;
+        } catch {
+        }
+      }
+    }
+    if (mongoose21.connection.readyState === 1) {
+      const user = await UserModel.findById(userId);
+      if (user) {
+        const isMatch = verifyPassword(currentPassword, user.passwordHash);
+        if (!isMatch) {
+          return res.status(401).json({ error: { code: "WRONG_PASSWORD", message: "Current password does not match." } });
+        }
+        user.passwordHash = hashPassword(newPassword);
+        await user.save();
+        await logAdminActivity(user._id, "user", user._id, "update", { password: ["***", "***"] }, req);
+        return res.json({ data: { success: true, message: "Password updated successfully." } });
+      }
+    }
+    res.json({ data: { success: true, message: "Password updated successfully." } });
+  } catch (err) {
+    res.status(400).json({ error: { code: "CHANGE_PASSWORD_FAILED", message: err.message } });
+  }
+});
 
 // src/api/routes.ts
 var apiRouter = (0, import_express4.Router)();
@@ -53345,7 +54631,7 @@ apiRouter.use("/auth", authRouter);
 apiRouter.use("/admin", cmsAdminRouter);
 apiRouter.use(caseManagementRouter);
 apiRouter.get("/health", (_req, res) => {
-  const isDbConnected = mongoose20.connection.readyState === 1;
+  const isDbConnected = mongoose22.connection.readyState === 1;
   res.status(200).json({
     data: {
       status: isDbConnected ? "healthy" : "degraded",
@@ -53357,7 +54643,7 @@ apiRouter.get("/health", (_req, res) => {
 });
 apiRouter.get("/site", async (_req, res) => {
   try {
-    const settingsDoc = mongoose20.connection.readyState === 1 ? await SiteSettings.findOne({ environment: "development" }).lean() || await SiteSettings.findOne().lean() : null;
+    const settingsDoc = mongoose22.connection.readyState === 1 ? await SiteSettings.findOne({ environment: "development" }).lean() || await SiteSettings.findOne().lean() : null;
     const siteSettings = toSafeSiteSettings(settingsDoc);
     res.json({ data: siteSettings });
   } catch (err) {
@@ -53371,7 +54657,7 @@ apiRouter.get("/route", async (req, res) => {
     const normalizedPath = rawPath.length > 1 && rawPath.endsWith("/") ? rawPath.slice(0, -1) : rawPath;
     let settingsDoc = null;
     let routeEntry = null;
-    if (mongoose20.connection.readyState === 1) {
+    if (mongoose22.connection.readyState === 1) {
       settingsDoc = await SiteSettings.findOne({ environment: "development" }).lean() || await SiteSettings.findOne().lean();
       routeEntry = await RouteEntry.findOne({ locale, path: normalizedPath }).lean();
     }
@@ -53517,15 +54803,15 @@ apiRouter.get("/route", async (req, res) => {
 
 // src/index.ts
 var __filename2 = fileURLToPath2(import.meta.url);
-var __dirname2 = path2.dirname(__filename2);
-var webPublicDir = path2.resolve(__dirname2, "../../web/public");
-var webClientDistDir = path2.resolve(__dirname2, "../../web/dist/client");
+var __dirname2 = path3.dirname(__filename2);
+var webPublicDir = path3.resolve(__dirname2, "../../web/public");
+var webClientDistDir = path3.resolve(__dirname2, "../../web/dist/client");
 var app = (0, import_express5.default)();
 connectDB().catch((err) => {
   console.warn("[Akeezo Server] Non-blocking initial DB connection notice:", err?.message);
 });
 app.use((_req, _res, next) => {
-  if (mongoose21.connection.readyState === 0) {
+  if (mongoose23.connection.readyState === 0) {
     connectDB().catch(() => {
     });
   }
@@ -53573,15 +54859,40 @@ if (!process.env.VERCEL) {
     }).catch(() => {
     });
   }
-  const caseManagementDistDir = path2.resolve(__dirname2, "../../case-management/dist");
+  const caseManagementDistDir = path3.resolve(__dirname2, "../../case-management/dist");
   app.use("/case-management", import_express5.default.static(caseManagementDistDir));
   app.get(["/case-management", "/case-management/*"], (_req, res) => {
-    res.sendFile(path2.join(caseManagementDistDir, "index.html"));
+    res.sendFile(path3.join(caseManagementDistDir, "index.html"));
   });
-  const adminDistDir = path2.resolve(__dirname2, "../../admin/dist");
+  const adminDistDir = path3.resolve(__dirname2, "../../admin/dist");
   app.use("/admin", import_express5.default.static(adminDistDir));
   app.get(["/admin", "/admin/*"], (_req, res) => {
-    res.sendFile(path2.join(adminDistDir, "index.html"));
+    res.sendFile(path3.join(adminDistDir, "index.html"));
+  });
+  const uploadsDir = path3.resolve(process.cwd(), "uploads");
+  if (!fs3.existsSync(uploadsDir)) {
+    fs3.mkdirSync(uploadsDir, { recursive: true });
+  }
+  app.use("/uploads", import_express5.default.static(uploadsDir));
+  app.use(async (req, res, next) => {
+    if (req.method !== "GET" && req.method !== "HEAD") return next();
+    if (req.path.startsWith("/api") || req.path.startsWith("/v1") || req.path.startsWith("/admin") || req.path.startsWith("/case-management") || req.path.startsWith("/uploads")) {
+      return next();
+    }
+    if (mongoose23.connection.readyState !== 1) return next();
+    try {
+      const rawPath = req.path.toLowerCase().replace(/\/+$/, "") || "/";
+      const redirect = await RedirectModel.findOne({ sourcePath: rawPath, enabled: true }).lean();
+      if (redirect) {
+        RedirectModel.updateOne(
+          { _id: redirect._id },
+          { $inc: { hitsCount: 1 }, $set: { lastHitAt: /* @__PURE__ */ new Date() } }
+        ).exec();
+        return res.redirect(redirect.statusCode || 301, redirect.destinationPath);
+      }
+    } catch {
+    }
+    next();
   });
   app.use(handleSsr);
 } else {

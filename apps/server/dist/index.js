@@ -1,4 +1,5 @@
 import path from "node:path";
+import fs from "node:fs";
 import { fileURLToPath } from "node:url";
 import express from "express";
 import cors from "cors";
@@ -8,6 +9,7 @@ import { env } from "./config/env.js";
 import mongoose from "mongoose";
 import { connectDB } from "./db/connection.js";
 import { apiRouter } from "./api/routes.js";
+import { RedirectModel } from "./db/models/Redirect.js";
 import { handleSsr, getViteServer, renderFallback500Html, toSafeSiteSettings } from "./ssr/renderer.js";
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -89,6 +91,38 @@ if (!process.env.VERCEL) {
     app.use("/admin", express.static(adminDistDir));
     app.get(["/admin", "/admin/*"], (_req, res) => {
         res.sendFile(path.join(adminDistDir, "index.html"));
+    });
+    // 3. Public Uploads Directory (safe static storage for media library assets)
+    const uploadsDir = path.resolve(process.cwd(), "uploads");
+    if (!fs.existsSync(uploadsDir)) {
+        fs.mkdirSync(uploadsDir, { recursive: true });
+    }
+    app.use("/uploads", express.static(uploadsDir));
+    // 4. Dynamic SEO 301/302 Redirect Execution Middleware (before SSR)
+    app.use(async (req, res, next) => {
+        if (req.method !== "GET" && req.method !== "HEAD")
+            return next();
+        if (req.path.startsWith("/api") ||
+            req.path.startsWith("/v1") ||
+            req.path.startsWith("/admin") ||
+            req.path.startsWith("/case-management") ||
+            req.path.startsWith("/uploads")) {
+            return next();
+        }
+        if (mongoose.connection.readyState !== 1)
+            return next();
+        try {
+            const rawPath = req.path.toLowerCase().replace(/\/+$/, "") || "/";
+            const redirect = await RedirectModel.findOne({ sourcePath: rawPath, enabled: true }).lean();
+            if (redirect) {
+                RedirectModel.updateOne({ _id: redirect._id }, { $inc: { hitsCount: 1 }, $set: { lastHitAt: new Date() } }).exec();
+                return res.redirect(redirect.statusCode || 301, redirect.destinationPath);
+            }
+        }
+        catch {
+            // fallback
+        }
+        next();
     });
     // Standalone SSR Catch-all Handler
     app.use(handleSsr);

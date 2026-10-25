@@ -9,7 +9,7 @@ export interface IEnquiry extends Document {
   serviceType: "medical_tourism" | "emergency" | "home_healthcare" | "consultation" | "general";
   message?: string;
   sourcePath?: string;
-  status: "received" | "triage" | "contacted" | "options_prepared" | "converted" | "closed";
+  status: "received" | "triage" | "contacted" | "options_prepared" | "converted" | "closed" | "new" | "in_progress" | "resolved" | "spam" | "archived";
   notes?: string;
   assignedCoordinatorId?: mongoose.Types.ObjectId;
   createdAt: Date;
@@ -32,7 +32,19 @@ const EnquirySchema = new Schema<IEnquiry>(
     sourcePath: { type: String, default: "/" },
     status: {
       type: String,
-      enum: ["received", "triage", "contacted", "options_prepared", "converted", "closed"],
+      enum: [
+        "received",
+        "triage",
+        "contacted",
+        "options_prepared",
+        "converted",
+        "closed",
+        "new",
+        "in_progress",
+        "resolved",
+        "spam",
+        "archived",
+      ],
       default: "received",
       index: true,
     },

@@ -40,6 +40,40 @@ export interface ISiteSettings extends Document {
     instagram?: string;
     youtube?: string;
   };
+  navigation?: {
+    headerMenu: Array<{
+      id: string;
+      label: string;
+      destination: string;
+      isExternal: boolean;
+      order: number;
+      isVisible: boolean;
+    }>;
+    footerGroups: Array<{
+      id: string;
+      title: string;
+      order: number;
+      links: Array<{
+        label: string;
+        destination: string;
+        isExternal: boolean;
+        isVisible: boolean;
+      }>;
+    }>;
+  };
+  formsConfig?: {
+    leadNotificationEmails?: string[];
+    autoTriageEnabled?: boolean;
+    spamFilterEnabled?: boolean;
+  };
+  integrations?: {
+    googleAnalyticsId?: string;
+    firebaseProjectMasked?: string;
+    smtpHostMasked?: string;
+    storageBucketMasked?: string;
+  };
+  defaultLanguage?: string;
+  defaultTimezone?: string;
   version: number;
   createdAt: Date;
   updatedAt: Date;
@@ -95,6 +129,46 @@ const SiteSettingsSchema = new Schema<ISiteSettings>(
       instagram: { type: String },
       youtube: { type: String }
     },
+    navigation: {
+      headerMenu: [
+        {
+          id: { type: String, required: true },
+          label: { type: String, required: true },
+          destination: { type: String, required: true },
+          isExternal: { type: Boolean, default: false },
+          order: { type: Number, default: 0 },
+          isVisible: { type: Boolean, default: true }
+        }
+      ],
+      footerGroups: [
+        {
+          id: { type: String, required: true },
+          title: { type: String, required: true },
+          order: { type: Number, default: 0 },
+          links: [
+            {
+              label: { type: String, required: true },
+              destination: { type: String, required: true },
+              isExternal: { type: Boolean, default: false },
+              isVisible: { type: Boolean, default: true }
+            }
+          ]
+        }
+      ]
+    },
+    formsConfig: {
+      leadNotificationEmails: [{ type: String }],
+      autoTriageEnabled: { type: Boolean, default: true },
+      spamFilterEnabled: { type: Boolean, default: true }
+    },
+    integrations: {
+      googleAnalyticsId: { type: String, default: "" },
+      firebaseProjectMasked: { type: String, default: "akeezo-health-prod (Active)" },
+      smtpHostMasked: { type: String, default: "smtp.sendgrid.net (Configured)" },
+      storageBucketMasked: { type: String, default: "gs://akeezo-vault-prod (Protected)" }
+    },
+    defaultLanguage: { type: String, default: "en" },
+    defaultTimezone: { type: String, default: "Asia/Kolkata" },
     version: { type: Number, default: 1 }
   },
   {
