@@ -4,15 +4,7 @@
     "server": {
       "root": "apps/server",
       "framework": "express",
-      "entrypoint": "src/index.ts",
-      "bindings": [
-        {
-          "type": "service",
-          "service": "web",
-          "format": "url",
-          "env": "WEB_URL"
-        }
-      ]
+      "entrypoint": "src/index.ts"
     },
     "case-management": {
       "root": "apps/case-management",
