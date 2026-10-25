@@ -38,3 +38,7 @@ coverage/
 # Cache
 .turbo/
 .cache/
+
+# Markdown documentation files
+*.md
+**/*.md
