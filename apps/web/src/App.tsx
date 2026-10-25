@@ -49,6 +49,23 @@ export function App({ data }: AppProps) {
       typeof window !== "undefined" ? window.location.pathname : "/"
     );
 
+  React.useEffect(() => {
+    if (typeof document !== "undefined") {
+      if (currentData.seo?.title) {
+        document.title = currentData.seo.title;
+      }
+      if (currentData.seo?.description) {
+        let metaDesc = document.querySelector('meta[name="description"]');
+        if (!metaDesc) {
+          metaDesc = document.createElement("meta");
+          metaDesc.setAttribute("name", "description");
+          document.head.appendChild(metaDesc);
+        }
+        metaDesc.setAttribute("content", currentData.seo.description);
+      }
+    }
+  }, [currentData]);
+
   const renderContent = () => {
     switch (currentData.pageKind) {
       case "home":

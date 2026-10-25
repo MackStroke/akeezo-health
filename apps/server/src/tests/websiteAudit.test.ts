@@ -109,3 +109,20 @@ describe("Website Audit Task 4: SiteHeader & SiteFooter Audit & Feedback Message
     assert.ok(headerHtml.includes('aria-label="Close menu"'), "Mobile menu must contain accessible close button");
   });
 });
+
+describe("Website Audit Task 5: Error Templates Polish & Client Document Title Sync", () => {
+  it("404 and 500 error templates render clickable phone, clickable email, and accessible search validation", () => {
+    const notFoundData = getDefaultRouteData("/unknown-treatment-path");
+    const html404 = renderToString(React.createElement(NotFoundTemplate, { data: notFoundData }));
+
+    assert.ok(html404.includes('href="tel:'), "404 page must render clickable phone link");
+    assert.ok(html404.includes('href="mailto:'), "404 page must render clickable email link");
+    assert.ok(html404.includes('aria-describedby="notfound-search-error"'), "404 search input must link to accessible error container");
+
+    const errorData = getDefaultRouteData("/500");
+    const html500 = renderToString(React.createElement(ServerErrorTemplate, { data: errorData }));
+
+    assert.ok(html500.includes('href="tel:'), "500 page must render clickable phone link");
+    assert.ok(html500.includes('href="mailto:'), "500 page must render clickable email link");
+  });
+});

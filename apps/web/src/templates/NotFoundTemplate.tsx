@@ -18,17 +18,22 @@ export const NotFoundTemplate: React.FC<NotFoundTemplateProps> = ({ data }) => {
   const { siteSettings } = data;
   const [searchQuery, setSearchQuery] = useState("");
 
+  const [searchError, setSearchError] = useState("");
+
   const phone = siteSettings.phone || siteSettings.emergencyHelpline || "+91 82876 39443";
   const phoneClean = phone.replace(/[^0-9]/g, "");
   const careEmail = siteSettings.careEmail || siteSettings.contactEmail || "care@akeezo.com";
 
   const handleSearchSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    if (searchQuery.trim()) {
-      window.location.href = `https://wa.me/${phoneClean}?text=${encodeURIComponent(
-        `Hello Akeezo Care Desk, I am looking for information on: ${searchQuery}`
-      )}`;
+    if (!searchQuery.trim()) {
+      setSearchError("Please enter a procedure, doctor or hospital name to inquire.");
+      return;
     }
+    setSearchError("");
+    window.location.href = `https://wa.me/${phoneClean}?text=${encodeURIComponent(
+      `Hello Akeezo Care Desk, I am looking for information on: ${searchQuery}`
+    )}`;
   };
 
   const quickLinks = [
@@ -72,7 +77,12 @@ export const NotFoundTemplate: React.FC<NotFoundTemplateProps> = ({ data }) => {
               <input
                 type="search"
                 value={searchQuery}
-                onChange={(e) => setSearchQuery(e.target.value)}
+                onChange={(e) => {
+                  setSearchQuery(e.target.value);
+                  if (searchError) setSearchError("");
+                }}
+                aria-invalid={!!searchError}
+                aria-describedby="notfound-search-error"
                 placeholder="Search procedure, doctor or hospital name..."
                 className="w-full rounded-full border border-border bg-surface-muted py-3 pl-11 pr-28 text-sm text-ink placeholder:text-ink-muted/70 focus:border-action focus:bg-white focus:outline-none transition-colors"
               />
@@ -83,6 +93,16 @@ export const NotFoundTemplate: React.FC<NotFoundTemplateProps> = ({ data }) => {
                 Inquire Desk
               </button>
             </div>
+            {searchError && (
+              <div
+                id="notfound-search-error"
+                role="alert"
+                className="mt-2.5 rounded-lg bg-red-50 border border-red-200 px-4 py-2 text-xs font-bold text-red-700 text-left flex items-center gap-2"
+              >
+                <span>⚠️</span>
+                <span>{searchError}</span>
+              </div>
+            )}
 
             {/* Specialty Suggestions */}
             <div className="mt-3 flex flex-wrap items-center justify-center gap-1.5 text-xs">
