@@ -1,6 +1,12 @@
 import React, { useState } from "react";
 import type { SiteSettings } from "@akeezo/contracts";
-import { DIRECTORY_TABS } from "./navigationData.js";
+import { ChevronDown, Search, Check, X, Globe2 } from "lucide-react";
+import {
+  COUNTRIES,
+  LANGUAGES,
+  DIRECTORY_TABS,
+  type CountryOption
+} from "./navigationData.js";
 
 export interface SiteFooterProps {
   siteSettings?: Partial<SiteSettings>;
@@ -8,6 +14,26 @@ export interface SiteFooterProps {
 
 export const SiteFooter: React.FC<SiteFooterProps> = ({ siteSettings = {} }) => {
   const [activeTab, setActiveTab] = useState<"treatments" | "hospitals" | "doctors" | "destinations">("treatments");
+
+  // Regional Currency & Language Switcher State
+  const [selectedCountry, setSelectedCountry] = useState<CountryOption>(COUNTRIES[0]);
+  const [selectedLanguage, setSelectedLanguage] = useState(LANGUAGES[0]);
+  const [isCountryLangOpen, setIsCountryLangOpen] = useState(false);
+  const [switcherTab, setSwitcherTab] = useState<"currency" | "language">("currency");
+  const [switcherSearch, setSwitcherSearch] = useState("");
+
+  const filteredCountries = COUNTRIES.filter(
+    (c) =>
+      c.countryName.toLowerCase().includes(switcherSearch.toLowerCase()) ||
+      c.currencyCode.toLowerCase().includes(switcherSearch.toLowerCase()) ||
+      c.currencyName.toLowerCase().includes(switcherSearch.toLowerCase())
+  );
+
+  const filteredLanguages = LANGUAGES.filter(
+    (l) =>
+      l.name.toLowerCase().includes(switcherSearch.toLowerCase()) ||
+      l.local.toLowerCase().includes(switcherSearch.toLowerCase())
+  );
 
   const phone = siteSettings.phone || siteSettings.emergencyHelpline || "+91 82876 39443";
   const phoneClean = phone.replace(/[^0-9]/g, "");
@@ -194,8 +220,18 @@ export const SiteFooter: React.FC<SiteFooterProps> = ({ siteSettings = {} }) => 
           <div>
             <h3 className="font-bold text-ink text-sm mb-3">Care Coordination</h3>
             <div className="space-y-2">
-              <div><span className="font-bold text-ink">Helpline:</span> {phone}</div>
-              <div><span className="font-bold text-ink">Care:</span> {careEmail}</div>
+              <div>
+                <span className="font-bold text-ink">Helpline:</span>{" "}
+                <a href={`tel:${phoneClean}`} className="hover:text-action hover:underline font-semibold">
+                  {phone}
+                </a>
+              </div>
+              <div>
+                <span className="font-bold text-ink">Care:</span>{" "}
+                <a href={`mailto:${careEmail}`} className="hover:text-action hover:underline">
+                  {careEmail}
+                </a>
+              </div>
               <div><span className="font-bold text-ink">Office:</span> {officeAddress}</div>
               <div className="pt-2">
                 <a
@@ -213,18 +249,224 @@ export const SiteFooter: React.FC<SiteFooterProps> = ({ siteSettings = {} }) => 
 
         <hr className="border-border my-6" />
 
-        {/* Bottom Bar: Copyright & Grievance */}
+        {/* Bottom Bar: Copyright, Country/Language Switcher & Grievance */}
         <div className="flex flex-col sm:flex-row items-center justify-between gap-4 text-xs text-ink-muted">
-          <div className="flex items-center gap-2">
+          <a
+            href="/"
+            aria-label="Akeezo Healthcare Platform Home"
+            className="flex items-center gap-2 hover:opacity-80 transition-opacity cursor-pointer"
+          >
             <img src="/logo/favicon.svg" alt="Akeezo" className="size-5" />
-            <span>© 2026 {legalEntity}. All rights reserved.</span>
-          </div>
-          <div className="flex items-center gap-6">
+            <span>{`© ${new Date().getFullYear()} ${legalEntity}. All rights reserved.`}</span>
+          </a>
+
+          <div className="flex items-center gap-4 flex-wrap">
+            {/* Regional Country / Currency / Language Switcher Button (Moved to Footer) */}
+            <button
+              type="button"
+              data-cy="footer-country-lang-switcher"
+              data-testid="footer-country-lang-switcher"
+              onClick={() => setIsCountryLangOpen(true)}
+              className="flex items-center gap-1.5 rounded-sm bg-surface-muted px-2.5 py-1 text-[0.75rem] font-bold text-ink border border-border transition-colors hover:bg-surface-teal/50 hover:text-action hover:border-action focus-visible:outline-2 focus-visible:outline-action cursor-pointer shadow-2xs"
+              aria-haspopup="dialog"
+              aria-expanded={isCountryLangOpen}
+            >
+              <span data-countrycode={selectedCountry.countryCode} className="inline-flex items-center shrink-0">
+                <img
+                  alt=""
+                  aria-hidden="true"
+                  className="h-3 w-4.5 rounded-[1px] object-cover shadow-xs"
+                  srcSet={`https://flagcdn.com/w80/${selectedCountry.countryCode.toLowerCase()}.png 2x`}
+                  src={selectedCountry.flagUrl}
+                />
+              </span>
+              <span className="font-extrabold uppercase tracking-tight">{selectedCountry.currencyCode}</span>
+              <span className="text-ink-muted/60">|</span>
+              <span className="font-medium text-ink-muted">{selectedLanguage.name}</span>
+              <ChevronDown
+                className={`size-3 text-ink-muted/80 transition-transform duration-200 ${isCountryLangOpen ? "rotate-180" : ""}`}
+                aria-hidden="true"
+              />
+            </button>
+
             <span>Regulated under Indian Clinical Establishments Acts</span>
             <a href="/grievance-officer" className="hover:text-action font-bold">Grievance Desk</a>
           </div>
         </div>
       </div>
+
+      {/* Regional Currency & Language Selection Modal */}
+      {isCountryLangOpen && (
+        <div
+          role="dialog"
+          aria-modal="true"
+          aria-labelledby="footer-country-lang-modal-title"
+          className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4 backdrop-blur-xs font-sans text-ink"
+          onClick={() => setIsCountryLangOpen(false)}
+        >
+          <div
+            className="relative max-h-[85vh] w-full max-w-md overflow-hidden rounded-[20px] bg-white p-6 sm:p-7 shadow-2xl flex flex-col"
+            onClick={(e) => e.stopPropagation()}
+          >
+            {/* Header */}
+            <div className="flex items-center justify-between border-b border-border pb-3.5">
+              <div className="flex items-center gap-2.5">
+                <div className="inline-flex size-9 items-center justify-center rounded-full bg-surface-teal text-action border border-[#b2ebe4]">
+                  <Globe2 className="size-4" />
+                </div>
+                <div>
+                  <h3 id="footer-country-lang-modal-title" className="text-base font-bold text-ink">
+                    Select Currency & Language
+                  </h3>
+                  <p className="text-[11px] text-ink-muted">Tailor healthcare pricing and language to your region</p>
+                </div>
+              </div>
+              <button
+                type="button"
+                onClick={() => setIsCountryLangOpen(false)}
+                className="rounded-full p-2 text-ink-muted hover:bg-surface-muted hover:text-ink cursor-pointer"
+                aria-label="Close region and language dialog"
+              >
+                <X className="size-5" />
+              </button>
+            </div>
+
+            {/* Tabs */}
+            <div className="flex border-b border-border mt-3">
+              <button
+                type="button"
+                onClick={() => {
+                  setSwitcherTab("currency");
+                  setSwitcherSearch("");
+                }}
+                className={`flex-1 py-2.5 text-center text-xs font-bold transition-colors border-b-2 cursor-pointer ${
+                  switcherTab === "currency"
+                    ? "border-action text-action"
+                    : "border-transparent text-ink-muted hover:text-ink"
+                }`}
+              >
+                Currency ({selectedCountry.currencyCode})
+              </button>
+              <button
+                type="button"
+                onClick={() => {
+                  setSwitcherTab("language");
+                  setSwitcherSearch("");
+                }}
+                className={`flex-1 py-2.5 text-center text-xs font-bold transition-colors border-b-2 cursor-pointer ${
+                  switcherTab === "language"
+                    ? "border-action text-action"
+                    : "border-transparent text-ink-muted hover:text-ink"
+                }`}
+              >
+                Language ({selectedLanguage.name})
+              </button>
+            </div>
+
+            {/* Search Bar */}
+            <div className="my-3">
+              <div className="relative">
+                <Search className="absolute left-3 top-1/2 -translate-y-1/2 size-4 text-ink-muted" />
+                <input
+                  type="search"
+                  value={switcherSearch}
+                  onChange={(e) => setSwitcherSearch(e.target.value)}
+                  placeholder={
+                    switcherTab === "currency"
+                      ? "Search currency by code, country, or name..."
+                      : "Search language..."
+                  }
+                  className="w-full rounded-xl border border-border bg-surface-muted py-2 pl-9 pr-4 text-xs text-ink placeholder:text-ink-muted/70 focus:border-action focus:outline-none focus:bg-white"
+                />
+              </div>
+            </div>
+
+            {/* List */}
+            <div className="overflow-y-auto max-h-[300px] divide-y divide-border/60 pr-1">
+              {switcherTab === "currency" ? (
+                filteredCountries.length > 0 ? (
+                  filteredCountries.map((c) => {
+                    const isSelected = selectedCountry.countryCode === c.countryCode;
+                    return (
+                      <button
+                        key={c.countryCode}
+                        type="button"
+                        onClick={() => {
+                          setSelectedCountry(c);
+                          setIsCountryLangOpen(false);
+                        }}
+                        className={`w-full flex items-center justify-between px-3 py-2.5 text-left rounded-lg transition-colors cursor-pointer hover:bg-surface-teal/30 ${
+                          isSelected ? "bg-surface-teal/50 font-bold" : ""
+                        }`}
+                      >
+                        <div className="flex items-center gap-3">
+                          <img
+                            alt={c.countryName}
+                            className="h-4 w-6 rounded-[2px] object-cover shadow-2xs border border-black/10"
+                            src={c.flagUrl}
+                          />
+                          <div>
+                            <div className="text-xs text-ink">
+                              <span className="font-extrabold">{c.currencyCode}</span>
+                              <span className="mx-1 text-ink-muted">·</span>
+                              <span>{c.currencyName}</span>
+                            </div>
+                            <div className="text-[11px] text-ink-muted">
+                              {c.countryName} ({c.currencySymbol})
+                            </div>
+                          </div>
+                        </div>
+                        {isSelected && <Check className="size-4 text-action shrink-0" />}
+                      </button>
+                    );
+                  })
+                ) : (
+                  <div className="py-6 text-center text-xs text-ink-muted">No currencies match your search</div>
+                )
+              ) : filteredLanguages.length > 0 ? (
+                filteredLanguages.map((l) => {
+                  const isSelected = selectedLanguage.code === l.code;
+                  return (
+                    <button
+                      key={l.code}
+                      type="button"
+                      onClick={() => {
+                        setSelectedLanguage(l);
+                        setIsCountryLangOpen(false);
+                      }}
+                      className={`w-full flex items-center justify-between px-3 py-2.5 text-left rounded-lg transition-colors cursor-pointer hover:bg-surface-teal/30 ${
+                        isSelected ? "bg-surface-teal/50 font-bold" : ""
+                      }`}
+                    >
+                      <div>
+                        <span className="text-xs text-ink font-bold">{l.name}</span>
+                        <span className="ml-2 text-xs text-ink-muted">({l.local})</span>
+                      </div>
+                      {isSelected && <Check className="size-4 text-action shrink-0" />}
+                    </button>
+                  );
+                })
+              ) : (
+                <div className="py-6 text-center text-xs text-ink-muted">No languages match your search</div>
+              )}
+            </div>
+
+            {/* Modal Footer */}
+            <div className="mt-4 pt-3 border-t border-border flex items-center justify-between">
+              <span className="text-[11px] text-ink-muted">
+                Active: <strong className="text-ink">{selectedCountry.currencyCode} ({selectedCountry.currencySymbol})</strong> · {selectedLanguage.name}
+              </span>
+              <button
+                type="button"
+                onClick={() => setIsCountryLangOpen(false)}
+                className="rounded-full bg-action px-5 py-1.5 text-xs font-bold text-white hover:bg-action-hover cursor-pointer"
+              >
+                Done
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </footer>
   );
 };

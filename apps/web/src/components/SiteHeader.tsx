@@ -58,6 +58,18 @@ export const SiteHeader: React.FC<SiteHeaderProps> = ({
   const [isPartnerModalOpen, setIsPartnerModalOpen] = useState(false);
   const [partnerType, setPartnerType] = useState<"hospital" | "agent">("hospital");
   const [patientLookupId, setPatientLookupId] = useState("");
+  const [patientError, setPatientError] = useState("");
+
+  // Feedback & Validation states
+  const [quoteName, setQuoteName] = useState("");
+  const [quoteContact, setQuoteContact] = useState("");
+  const [quoteError, setQuoteError] = useState("");
+  const [quoteSubmitted, setQuoteSubmitted] = useState(false);
+
+  const [partnerOrg, setPartnerOrg] = useState("");
+  const [partnerContact, setPartnerContact] = useState("");
+  const [partnerError, setPartnerError] = useState("");
+  const [partnerSubmitted, setPartnerSubmitted] = useState(false);
 
   const isCalculatorOpen = propCalculatorOpen !== undefined ? propCalculatorOpen : internalCalculatorOpen;
   const setIsCalculatorOpen = (open: boolean) => {
@@ -318,7 +330,7 @@ export const SiteHeader: React.FC<SiteHeaderProps> = ({
       </header>
 
       {/* Mobile Slide-over Menu Drawer */}
-      {isMobileMenuOpen && (
+      <div className={isMobileMenuOpen ? "block" : "hidden"} aria-hidden={!isMobileMenuOpen}>
         <div className="fixed inset-0 z-50 lg:hidden">
           <div
             className="fixed inset-0 bg-black/40 backdrop-blur-xs transition-opacity"
@@ -327,11 +339,18 @@ export const SiteHeader: React.FC<SiteHeaderProps> = ({
           <div className="fixed inset-y-0 right-0 max-w-xs w-full bg-white shadow-2xl p-6 flex flex-col justify-between overflow-y-auto">
             <div>
               <div className="flex items-center justify-between pb-4 border-b border-border">
-                <img
-                  src="/logo/logo with tagline-dark.svg"
-                  alt="AKEEZO"
-                  className="h-9 w-auto object-contain"
-                />
+                <a
+                  href="/"
+                  onClick={() => setIsMobileMenuOpen(false)}
+                  aria-label="Akeezo Healthcare Platform Home"
+                  className="cursor-pointer hover:opacity-90 transition-opacity"
+                >
+                  <img
+                    src="/logo/logo with tagline-dark.svg"
+                    alt="AKEEZO"
+                    className="h-9 w-auto object-contain"
+                  />
+                </a>
                 <button
                   type="button"
                   onClick={() => setIsMobileMenuOpen(false)}
@@ -421,14 +440,14 @@ export const SiteHeader: React.FC<SiteHeaderProps> = ({
               </div>
               <div className="flex items-center justify-between">
                 <span>Helpline:</span>
-                <a href={`tel:${phoneClean}`} className="font-bold text-ink">
+                <a href={`tel:${phoneClean}`} className="font-bold text-ink hover:text-action">
                   {phone}
                 </a>
               </div>
             </div>
           </div>
         </div>
-      )}
+      </div>
 
       {/* MODAL 1: Treatment Selector / Explore Modal */}
       {isExploreOpen && (
@@ -606,6 +625,58 @@ export const SiteHeader: React.FC<SiteHeaderProps> = ({
                   Cancel
                 </button>
               </div>
+
+              {/* Direct Web Quote Submission with Feedback */}
+              <form
+                onSubmit={(e) => {
+                  e.preventDefault();
+                  if (!quoteContact.trim()) {
+                    setQuoteError("Please enter your phone number or email for care coordination.");
+                    return;
+                  }
+                  setQuoteError("");
+                  setQuoteSubmitted(true);
+                }}
+                className="mt-4 pt-4 border-t border-border space-y-3"
+              >
+                <div className="text-xs font-bold text-ink">Or Submit Direct Clinical Inquiry to Care Team:</div>
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5">
+                  <input
+                    type="text"
+                    value={quoteName}
+                    onChange={(e) => setQuoteName(e.target.value)}
+                    placeholder="Patient Name (Optional)"
+                    className="w-full rounded-xl border border-border bg-surface-muted px-3 py-2 text-xs text-ink focus:outline-none focus:border-action"
+                  />
+                  <input
+                    type="text"
+                    value={quoteContact}
+                    onChange={(e) => {
+                      setQuoteContact(e.target.value);
+                      if (quoteError) setQuoteError("");
+                    }}
+                    placeholder="Phone or Email *"
+                    className="w-full rounded-xl border border-border bg-surface-muted px-3 py-2 text-xs text-ink focus:outline-none focus:border-action"
+                  />
+                </div>
+                {quoteError && (
+                  <div role="alert" className="text-xs font-bold text-emergency">
+                    ⚠️ {quoteError}
+                  </div>
+                )}
+                {quoteSubmitted ? (
+                  <div role="status" className="rounded-xl bg-emerald-50 border border-emerald-200 p-3 text-xs font-bold text-emerald-800">
+                    ✓ Inquiry submitted! An Akeezo Care Coordinator has received your ${calcSpecialty} request and will contact you within 24 hours.
+                  </div>
+                ) : (
+                  <button
+                    type="submit"
+                    className="w-full inline-flex h-10 items-center justify-center rounded-full bg-action-accent hover:bg-[#943a00] text-xs font-bold text-white shadow-sm cursor-pointer"
+                  >
+                    Submit Direct Free Quote Request
+                  </button>
+                )}
+              </form>
             </div>
           </div>
         </div>
@@ -840,14 +911,25 @@ export const SiteHeader: React.FC<SiteHeaderProps> = ({
                 </p>
               </div>
 
+              {patientError && (
+                <div role="alert" className="text-xs font-bold text-emergency">
+                  ⚠️ {patientError}
+                </div>
+              )}
               <div className="pt-2 flex flex-col gap-2">
                 <a
-                  href={`https://wa.me/${phoneClean}?text=${encodeURIComponent(
-                    patientLookupId.trim()
-                      ? `Hello Akeezo Patient Desk, I would like to track my medical case: ${patientLookupId}`
-                      : `Hello Akeezo Patient Desk, I would like to access my medical journey and active case status.`
-                  )}`}
-                  target="_blank"
+                  href={patientLookupId.trim() ? `https://wa.me/${phoneClean}?text=${encodeURIComponent(
+                    `Hello Akeezo Patient Desk, I would like to track my medical case: ${patientLookupId}`
+                  )}` : "#"}
+                  onClick={(e) => {
+                    if (!patientLookupId.trim()) {
+                      e.preventDefault();
+                      setPatientError("Please enter your Case ID, Passport or WhatsApp number to track.");
+                    } else {
+                      setPatientError("");
+                    }
+                  }}
+                  target={patientLookupId.trim() ? "_blank" : "_self"}
                   rel="noopener noreferrer"
                   className="w-full inline-flex h-11 items-center justify-center rounded-full bg-action px-6 text-xs font-bold text-white shadow-sm hover:bg-action-hover cursor-pointer"
                 >
@@ -935,6 +1017,57 @@ export const SiteHeader: React.FC<SiteHeaderProps> = ({
                 </p>
               </div>
 
+              {/* Partner Empanelment Application Form */}
+              <form
+                onSubmit={(e) => {
+                  e.preventDefault();
+                  if (!partnerContact.trim()) {
+                    setPartnerError("Please provide your contact number or email.");
+                    return;
+                  }
+                  setPartnerError("");
+                  setPartnerSubmitted(true);
+                }}
+                className="space-y-3 pt-2"
+              >
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5">
+                  <input
+                    type="text"
+                    value={partnerOrg}
+                    onChange={(e) => setPartnerOrg(e.target.value)}
+                    placeholder="Hospital / Agency Name"
+                    className="w-full rounded-xl border border-border bg-surface-muted px-3 py-2 text-xs text-ink focus:outline-none focus:border-action"
+                  />
+                  <input
+                    type="text"
+                    value={partnerContact}
+                    onChange={(e) => {
+                      setPartnerContact(e.target.value);
+                      if (partnerError) setPartnerError("");
+                    }}
+                    placeholder="Representative Phone / Email *"
+                    className="w-full rounded-xl border border-border bg-surface-muted px-3 py-2 text-xs text-ink focus:outline-none focus:border-action"
+                  />
+                </div>
+                {partnerError && (
+                  <div role="alert" className="text-xs font-bold text-emergency">
+                    ⚠️ {partnerError}
+                  </div>
+                )}
+                {partnerSubmitted ? (
+                  <div role="status" className="rounded-xl bg-emerald-50 border border-emerald-200 p-3 text-xs font-bold text-emerald-800">
+                    ✓ Empanelment application submitted! Our Institutional Relations Director will connect within 1 business day.
+                  </div>
+                ) : (
+                  <button
+                    type="submit"
+                    className="w-full inline-flex h-10 items-center justify-center rounded-full bg-action hover:bg-action-hover text-xs font-bold text-white shadow-sm cursor-pointer"
+                  >
+                    Submit Partner Registration
+                  </button>
+                )}
+              </form>
+
               <div className="pt-2 flex flex-col gap-2.5">
                 <a
                   href={`https://wa.me/${phoneClean}?text=${encodeURIComponent(
@@ -944,7 +1077,7 @@ export const SiteHeader: React.FC<SiteHeaderProps> = ({
                   )}`}
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="w-full inline-flex h-11 items-center justify-center rounded-full bg-action px-6 text-xs font-bold text-white shadow-sm hover:bg-action-hover cursor-pointer"
+                  className="w-full inline-flex h-11 items-center justify-center rounded-full bg-surface-muted px-6 text-xs font-bold text-ink hover:bg-border cursor-pointer text-center"
                 >
                   Connect with Partnership Desk (WhatsApp)
                 </a>

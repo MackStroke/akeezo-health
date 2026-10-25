@@ -84,3 +84,28 @@ describe("Website Audit Task 3: HomeTemplate Section IDs & Form Validation", () 
     assert.ok(homeHtml.includes('overflow-x-hidden'), "Outer page container must have overflow-x-hidden to prevent mobile overflow");
   });
 });
+
+describe("Website Audit Task 4: SiteHeader & SiteFooter Audit & Feedback Messages", () => {
+  it("Footer renders dynamic current year, clickable phone and care email, and clickable footer logo", () => {
+    const data = getDefaultRouteData("/");
+    const footerHtml = renderToString(React.createElement(SiteFooter, { siteSettings: data.siteSettings }));
+
+    const currentYear = new Date().getFullYear().toString();
+    assert.ok(footerHtml.includes(`© ${currentYear}`), `Footer must display dynamic current year ${currentYear}`);
+    assert.ok(footerHtml.includes('href="tel:'), "Footer helpline must be clickable tel: link");
+    assert.ok(footerHtml.includes('href="mailto:'), "Footer care email must be clickable mailto: link");
+    assert.ok(
+      footerHtml.includes('href="/"') && footerHtml.includes('aria-label="Akeezo Healthcare Platform Home"'),
+      "Footer brand logo must be wrapped in a link pointing to home"
+    );
+  });
+
+  it("SiteHeader mobile menu and modals render clickable logo, clickable phone, and accessible forms", () => {
+    const data = getDefaultRouteData("/");
+    const headerHtml = renderToString(React.createElement(SiteHeader, { siteSettings: data.siteSettings }));
+
+    assert.ok(headerHtml.includes('aria-label="Toggle navigation menu"'), "Mobile menu button must have accessible label");
+    assert.ok(headerHtml.includes('href="tel:'), "Header must contain clickable tel: helpline");
+    assert.ok(headerHtml.includes('aria-label="Close menu"'), "Mobile menu must contain accessible close button");
+  });
+});
