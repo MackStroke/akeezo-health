@@ -65,13 +65,20 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         body: JSON.stringify({ email, password }),
       });
 
-      const json = await res.json();
+      const text = await res.text();
+      let json: any = {};
+      try {
+        json = JSON.parse(text);
+      } catch {
+        json = { error: { message: `API response (${res.status}): ${text.slice(0, 100)}` } };
+      }
+
       if (!res.ok) {
         setError(json.error?.message || "Invalid credentials.");
         return false;
       }
 
-      if (json.data.requires2FA) {
+      if (json.data?.requires2FA) {
         setTempToken(json.data.tempToken);
         setRequires2FA(true);
         return false;
@@ -107,7 +114,14 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         body: JSON.stringify({ tempToken, code }),
       });
 
-      const json = await res.json();
+      const text = await res.text();
+      let json: any = {};
+      try {
+        json = JSON.parse(text);
+      } catch {
+        json = { error: { message: `API response (${res.status}): ${text.slice(0, 100)}` } };
+      }
+
       if (!res.ok) {
         setError(json.error?.message || "Invalid authenticator code.");
         return false;

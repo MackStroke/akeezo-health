@@ -35,9 +35,9 @@ const CaseManagementDashboard: React.FC = () => {
         fetch("/api/v1/hospitals"),
       ]);
 
-      const casesJson = await casesRes.json();
-      const partnersJson = await partnersRes.json();
-      const hospitalsJson = await hospitalsRes.json();
+      const casesJson = casesRes.ok ? await casesRes.json().catch(() => ({})) : {};
+      const partnersJson = partnersRes.ok ? await partnersRes.json().catch(() => ({})) : {};
+      const hospitalsJson = hospitalsRes.ok ? await hospitalsRes.json().catch(() => ({})) : {};
 
       setCases(casesJson.data || []);
       setPartners(partnersJson.data || []);
