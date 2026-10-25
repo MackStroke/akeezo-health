@@ -197,7 +197,51 @@ export async function handleSsr(req: Request, res: Response, next: NextFunction)
     let dto: PublicRouteResponseDTO;
     let statusCode = 200;
 
-    if (routeEntry) {
+    const LEGAL_SEO_MAP: Record<string, { title: string; description: string }> = {
+      "/privacy": {
+        title: "Privacy Policy | AKEEZO Healthcare Platform",
+        description: "Learn how AKEEZO protects patient health information (PHI) and clinical records under GDPR, HIPAA, and India DPDP Act 2023."
+      },
+      "/terms": {
+        title: "Terms of Service | AKEEZO Healthcare Platform",
+        description: "Terms and conditions governing healthcare discovery, hospital facilitation, and medical travel coordination with AKEEZO."
+      },
+      "/disclaimer": {
+        title: "Medical Disclaimer | AKEEZO Healthcare Platform",
+        description: "Critical medical notice outlining AKEEZO's non-clinical facilitation scope, physician independence, and emergency care advisory."
+      },
+      "/consent": {
+        title: "Informed Patient Consent | AKEEZO Healthcare Platform",
+        description: "Explicit consent framework for cross-border medical record transmission, hospital referral, and teleconsultation coordination."
+      },
+      "/refund-policy": {
+        title: "Refund Policy & Service Surety | AKEEZO Healthcare Platform",
+        description: "Read AKEEZO's 100% Service Surety commitment and transparent refund guidelines for medical travel coordination."
+      },
+      "/grievance-officer": {
+        title: "Grievance Redressal Officer | AKEEZO Healthcare Platform",
+        description: "Contact AKEEZO's designated Grievance Officer under the IT Intermediary Rules 2021 and Digital Personal Data Protection Act 2023."
+      }
+    };
+
+    if (normalizedPath === "/500") {
+      statusCode = 500;
+      dto = {
+        pageKind: "serverError",
+        path: "/500",
+        locale: "en",
+        seo: {
+          title: "500 - Server Error | AKEEZO Healthcare Platform",
+          description: "A temporary system interruption occurred. Our clinical records and patient data remain secure. Contact our 24/7 care desk for assistance.",
+          canonicalPath: "/500",
+          robots: "noindex,nofollow",
+          schemaKind: "WebPage"
+        },
+        payload: {},
+        siteSettings,
+        statusCode: 500
+      };
+    } else if (routeEntry) {
       if (routeEntry.redirectTo) {
         res.redirect(routeEntry.statusCode || 301, routeEntry.redirectTo);
         return;
@@ -207,9 +251,14 @@ export async function handleSsr(req: Request, res: Response, next: NextFunction)
         ? await ContentRevision.findById(routeEntry.publishedRevisionId).lean()
         : null;
 
+      const defaultSeo = LEGAL_SEO_MAP[normalizedPath] || {
+        title: "AKEEZO | Heal In India, Heal By Akeezo - Medical Tourism & Treatment in India",
+        description: "Discover accredited Indian hospitals, consult top doctors, and receive guided care coordination and transparent cost estimates."
+      };
+
       const seo: SeoMetadata = revision?.seo || {
-        title: "AKEEZO Healthcare Platform",
-        description: "Heal In India, Heal By Akeezo - Medical Tourism & Healthcare Coordination",
+        title: defaultSeo.title,
+        description: defaultSeo.description,
         canonicalPath: normalizedPath,
         robots: "index,follow",
         schemaKind: "MedicalWebPage"
@@ -226,6 +275,24 @@ export async function handleSsr(req: Request, res: Response, next: NextFunction)
         statusCode: routeEntry.statusCode || 200
       };
       statusCode = dto.statusCode;
+    } else if (LEGAL_SEO_MAP[normalizedPath]) {
+      const legalSeo = LEGAL_SEO_MAP[normalizedPath];
+      statusCode = 200;
+      dto = {
+        pageKind: "legal",
+        path: normalizedPath,
+        locale: "en",
+        seo: {
+          title: legalSeo.title,
+          description: legalSeo.description,
+          canonicalPath: normalizedPath,
+          robots: "index,follow",
+          schemaKind: "WebPage"
+        },
+        payload: {},
+        siteSettings,
+        statusCode: 200
+      };
     } else {
       // Genuine 404
       statusCode = 404;
@@ -234,8 +301,8 @@ export async function handleSsr(req: Request, res: Response, next: NextFunction)
         path: normalizedPath,
         locale: "en",
         seo: {
-          title: "Page Not Found | AKEEZO Healthcare Platform",
-          description: "The requested healthcare service or page could not be found.",
+          title: "404 - Healthcare Resource Not Found | AKEEZO Healthcare Platform",
+          description: "The requested medical procedure, hospital, or specialist could not be found. Contact our 24/7 care coordination desk for immediate assistance.",
           canonicalPath: normalizedPath,
           robots: "noindex,nofollow",
           schemaKind: "WebPage"
@@ -322,7 +389,7 @@ export async function handleSsr(req: Request, res: Response, next: NextFunction)
       onShellError(err: unknown) {
         console.error("[Akeezo SSR Shell Error]:", err);
         if (!res.headersSent) {
-          res.status(500).send("<!DOCTYPE html><html><body><h1>Internal Server Error</h1></body></html>");
+          res.status(500).setHeader("Content-Type", "text/html; charset=utf-8").send(renderFallback500Html(siteSettings));
         }
       },
       onError(err: unknown) {
@@ -345,6 +412,16 @@ export async function handleSsr(req: Request, res: Response, next: NextFunction)
     }, 10000);
   } catch (err) {
     console.error("[Akeezo SSR Handler Exception]:", err);
+    if (!res.headersSent) {
+      try {
+        const settingsDoc = await SiteSettings.findOne().lean().catch(() => null);
+        const siteSettings = toSafeSiteSettings(settingsDoc);
+        res.status(500).setHeader("Content-Type", "text/html; charset=utf-8").send(renderFallback500Html(siteSettings));
+        return;
+      } catch (_fallbackErr) {
+        // Continue to next error handler if fallback extraction fails
+      }
+    }
     next(err);
   }
 }

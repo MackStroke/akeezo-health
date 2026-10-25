@@ -46,14 +46,41 @@ export const DEFAULT_SITE_SETTINGS: SiteSettings = {
 export function getDefaultRouteData(path = "/"): PublicRouteResponseDTO {
   const normalized = path.length > 1 && path.endsWith("/") ? path.slice(0, -1) : path;
 
+  const LEGAL_SEO_MAP: Record<string, { title: string; description: string }> = {
+    "/privacy": {
+      title: "Privacy Policy | AKEEZO Healthcare Platform",
+      description: "Learn how AKEEZO protects patient health information (PHI) and clinical records under GDPR, HIPAA, and India DPDP Act 2023."
+    },
+    "/terms": {
+      title: "Terms of Service | AKEEZO Healthcare Platform",
+      description: "Terms and conditions governing healthcare discovery, hospital facilitation, and medical travel coordination with AKEEZO."
+    },
+    "/disclaimer": {
+      title: "Medical Disclaimer | AKEEZO Healthcare Platform",
+      description: "Critical medical notice outlining AKEEZO's non-clinical facilitation scope, physician independence, and emergency care advisory."
+    },
+    "/consent": {
+      title: "Informed Patient Consent | AKEEZO Healthcare Platform",
+      description: "Explicit consent framework for cross-border medical record transmission, hospital referral, and teleconsultation coordination."
+    },
+    "/refund-policy": {
+      title: "Refund Policy & Service Surety | AKEEZO Healthcare Platform",
+      description: "Read AKEEZO's 100% Service Surety commitment and transparent refund guidelines for medical travel coordination."
+    },
+    "/grievance-officer": {
+      title: "Grievance Redressal Officer | AKEEZO Healthcare Platform",
+      description: "Contact AKEEZO's designated Grievance Officer under the IT Intermediary Rules 2021 and Digital Personal Data Protection Act 2023."
+    }
+  };
+
   if (normalized === "/500") {
     return {
       pageKind: "serverError",
       path: "/500",
       locale: "en",
       seo: {
-        title: "Server Error | AKEEZO Healthcare Platform",
-        description: "A temporary system error occurred. Our 24/7 care coordination desk is standing by.",
+        title: "500 - Server Error | AKEEZO Healthcare Platform",
+        description: "A temporary system interruption occurred. Our clinical records and patient data remain secure. Contact our 24/7 care desk for assistance.",
         canonicalPath: "/500",
         robots: "noindex,nofollow",
         schemaKind: "WebPage"
@@ -64,23 +91,15 @@ export function getDefaultRouteData(path = "/"): PublicRouteResponseDTO {
     };
   }
 
-  const isLegal = [
-    "/privacy",
-    "/terms",
-    "/disclaimer",
-    "/consent",
-    "/refund-policy",
-    "/grievance-officer"
-  ].includes(normalized);
-
-  if (isLegal) {
+  const legalSeo = LEGAL_SEO_MAP[normalized];
+  if (legalSeo) {
     return {
       pageKind: "legal",
       path: normalized,
       locale: "en",
       seo: {
-        title: `${normalized.slice(1).replace("-", " ").toUpperCase()} | AKEEZO Healthcare Platform`,
-        description: "Official legal, governance and compliance policies for AKEEZO Healthcare Platform.",
+        title: legalSeo.title,
+        description: legalSeo.description,
         canonicalPath: normalized,
         robots: "index,follow",
         schemaKind: "WebPage"
@@ -119,8 +138,8 @@ export function getDefaultRouteData(path = "/"): PublicRouteResponseDTO {
     path: normalized,
     locale: "en",
     seo: {
-      title: "Page Not Found | AKEEZO Healthcare Platform",
-      description: "The requested healthcare service or page could not be found.",
+      title: "404 - Healthcare Resource Not Found | AKEEZO Healthcare Platform",
+      description: "The requested medical procedure, hospital, or specialist could not be found. Contact our 24/7 care coordination desk for immediate assistance.",
       canonicalPath: normalized,
       robots: "noindex,nofollow",
       schemaKind: "WebPage"
