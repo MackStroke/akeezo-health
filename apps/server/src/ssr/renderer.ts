@@ -91,6 +91,7 @@ export function renderFallback500Html(siteSettings: SiteSettingsDTO): string {
   const phoneClean = phone.replace(/[^0-9]/g, "");
   const careEmail = siteSettings.careEmail || "care@akeezo.com";
   const legalEntity = siteSettings.legalEntityName || "AKEEZO Healthcare Platform Private Limited";
+  const currentYear = new Date().getFullYear();
 
   return `<!DOCTYPE html>
 <html lang="en">
@@ -155,7 +156,7 @@ export function renderFallback500Html(siteSettings: SiteSettingsDTO): string {
   </main>
 
   <footer>
-    <p>© 2026 ${legalEntity}. All rights reserved. · Regulated under Indian Clinical Establishments Acts</p>
+    <p>© ${currentYear} ${legalEntity}. All rights reserved. · Regulated under Indian Clinical Establishments Acts</p>
   </footer>
 </body>
 </html>`;
@@ -362,9 +363,15 @@ export async function handleSsr(req: Request, res: Response, next: NextFunction)
     <meta name="description" content="${escapeHtml(dto.seo.description)}" />
     <meta name="robots" content="${escapeHtml(dto.seo.robots)}" />
     <link rel="canonical" href="${escapeHtml(canonicalUrl)}" />
+    <link rel="icon" type="image/svg+xml" href="/logo/favicon.svg" />
+    <link rel="apple-touch-icon" href="/logo/favicon.svg" />
     <meta property="og:title" content="${escapeHtml(dto.seo.title)}" />
     <meta property="og:description" content="${escapeHtml(dto.seo.description)}" />
+    <meta property="og:url" content="${escapeHtml(canonicalUrl)}" />
     <meta property="og:type" content="website" />
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:title" content="${escapeHtml(dto.seo.title)}" />
+    <meta name="twitter:description" content="${escapeHtml(dto.seo.description)}" />
     <script>window.__INITIAL_DATA__ = ${safeInitialDataJson};</script>
 `;
 

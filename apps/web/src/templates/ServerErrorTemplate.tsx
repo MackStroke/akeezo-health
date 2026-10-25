@@ -65,7 +65,7 @@ export const ServerErrorTemplate: React.FC<ServerErrorTemplateProps> = ({ data, 
           </div>
 
           {/* Optional Developer error info */}
-          {error && import.meta.env?.DEV && (
+          {error && (import.meta as { env?: { DEV?: boolean } }).env?.DEV && (
             <div className="max-w-lg mx-auto mb-6 p-3 rounded-lg bg-red-50 border border-red-200 text-left text-xs font-mono text-red-800 overflow-x-auto">
               <div className="font-bold mb-1">Diagnostic Detail:</div>
               <div>{error.message}</div>

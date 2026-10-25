@@ -9,6 +9,7 @@ import { NotFoundTemplate } from "@akeezo/web/src/templates/NotFoundTemplate.js"
 import { ServerErrorTemplate } from "@akeezo/web/src/templates/ServerErrorTemplate.js";
 import { SiteHeader } from "@akeezo/web/src/components/SiteHeader.js";
 import { SiteFooter } from "@akeezo/web/src/components/SiteFooter.js";
+import { renderFallback500Html } from "../ssr/renderer.js";
 
 describe("Website Audit Task 1: Route SEO Metadata Definitions", () => {
   it("Every legal and error route has Title Case titles and rich meta descriptions", () => {
@@ -124,5 +125,16 @@ describe("Website Audit Task 5: Error Templates Polish & Client Document Title S
 
     assert.ok(html500.includes('href="tel:'), "500 page must render clickable phone link");
     assert.ok(html500.includes('href="mailto:'), "500 page must render clickable email link");
+  });
+});
+
+describe("Website Audit Task 6: Server SSR Renderer Head Injection, Favicon, & Images", () => {
+  it("Fallback 500 HTML renderer contains favicon and dynamic current copyright year", () => {
+    const data = getDefaultRouteData("/500");
+    const fallbackHtml = renderFallback500Html(data.siteSettings);
+
+    const currentYear = new Date().getFullYear().toString();
+    assert.ok(fallbackHtml.includes("/logo/favicon.svg"), "Fallback 500 must include favicon link");
+    assert.ok(fallbackHtml.includes(`© ${currentYear}`), `Fallback 500 must include dynamic current year ${currentYear}`);
   });
 });
