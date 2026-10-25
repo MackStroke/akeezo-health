@@ -6,9 +6,10 @@
   "type": "module",
   "scripts": {
     "dev": "pnpm --filter @akeezo/server dev",
-    "build": "pnpm --filter @akeezo/contracts build && pnpm --filter @akeezo/ui build && pnpm --filter @akeezo/web build && pnpm --filter @akeezo/case-management build && pnpm --filter @akeezo/server build",
+    "build": "pnpm --filter @akeezo/contracts build && pnpm --filter @akeezo/ui build && pnpm --filter @akeezo/web build && pnpm --filter @akeezo/case-management build && pnpm --filter @akeezo/admin build && pnpm --filter @akeezo/server build",
     "start": "pnpm --filter @akeezo/server start",
     "test": "pnpm --filter @akeezo/server test",
+    "dev:admin": "pnpm --filter @akeezo/admin dev",
     "dev:cases": "pnpm --filter @akeezo/case-management dev",
     "typecheck": "pnpm -r exec tsc --noEmit",
     "db:seed": "pnpm --filter @akeezo/server seed",

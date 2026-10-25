@@ -4,6 +4,7 @@ const EnquirySchema = new Schema({
     requesterName: { type: String, required: true, trim: true },
     email: { type: String, trim: true, lowercase: true },
     phone: { type: String, trim: true },
+    country: { type: String, trim: true },
     serviceType: {
         type: String,
         enum: ["medical_tourism", "emergency", "home_healthcare", "consultation", "general"],

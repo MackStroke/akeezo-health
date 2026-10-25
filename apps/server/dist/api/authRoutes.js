@@ -1,8 +1,8 @@
 import { Router } from "express";
+import mongoose from "mongoose";
 import { LoginRequestSchema, Verify2FARequestSchema } from "@akeezo/contracts";
-import { UserModel } from "../db/models/User.js";
 import { CaseAuditLogModel } from "../db/models/CaseActivity.js";
-import { verifyPassword, signToken, verifyToken, requireAuth, } from "../utils/auth.js";
+import { verifyPassword, signToken, verifyToken, requireAuth, findUserByEmailOrFallback, findUserByIdOrFallback, } from "../utils/auth.js";
 export const authRouter = Router();
 const failedAttempts = new Map();
 // Helper to sanitize user object for client response
@@ -39,7 +39,7 @@ authRouter.post("/login", async (req, res) => {
                 },
             });
         }
-        const user = await UserModel.findOne({ email });
+        const user = await findUserByEmailOrFallback(email);
         if (!user || !verifyPassword(parsed.password, user.passwordHash)) {
             // Record failed attempt
             const currentCount = (attempt?.count || 0) + 1;
@@ -48,16 +48,21 @@ authRouter.post("/login", async (req, res) => {
                 lockedUntil = now + 15 * 60 * 1000; // 15 minutes lockout
             }
             failedAttempts.set(lockKey, { count: currentCount, lockedUntil });
-            // Audit log failed attempt
-            if (user) {
-                await CaseAuditLogModel.create({
-                    entityType: "User",
-                    entityId: user._id,
-                    action: "login",
-                    changes: { status: ["failed", "invalid_password"] },
-                    ip: req.ip,
-                    userAgent: req.headers["user-agent"],
-                });
+            // Audit log failed attempt if DB connected
+            if (user && mongoose.connection.readyState === 1) {
+                try {
+                    await CaseAuditLogModel.create({
+                        entityType: "User",
+                        entityId: user._id,
+                        action: "login",
+                        changes: { status: ["failed", "invalid_password"] },
+                        ip: req.ip,
+                        userAgent: req.headers["user-agent"],
+                    });
+                }
+                catch {
+                    // Ignore audit write failure when disconnected
+                }
             }
             return res.status(401).json({
                 error: {
@@ -88,17 +93,29 @@ authRouter.post("/login", async (req, res) => {
         // Issue standard access token
         const token = signToken({ userId: user._id.toString(), role: user.role });
         user.lastLoginAt = new Date();
-        await user.save();
-        // Audit log successful sign-in
-        await CaseAuditLogModel.create({
-            entityType: "User",
-            entityId: user._id,
-            action: "login",
-            actorId: user._id,
-            changes: { status: ["success", user.role] },
-            ip: req.ip,
-            userAgent: req.headers["user-agent"],
-        });
+        try {
+            await user.save();
+        }
+        catch {
+            // Non-critical if in-memory or save fails
+        }
+        // Audit log successful sign-in if DB connected
+        if (mongoose.connection.readyState === 1) {
+            try {
+                await CaseAuditLogModel.create({
+                    entityType: "User",
+                    entityId: user._id,
+                    action: "login",
+                    actorId: user._id,
+                    changes: { status: ["success", user.role] },
+                    ip: req.ip,
+                    userAgent: req.headers["user-agent"],
+                });
+            }
+            catch {
+                // Ignore audit log error
+            }
+        }
         res.json({
             data: {
                 requires2FA: false,
@@ -121,7 +138,7 @@ authRouter.post("/2fa/verify", async (req, res) => {
                 error: { code: "INVALID_2FA_TOKEN", message: "Expired or invalid 2FA session. Please log in again." },
             });
         }
-        const user = await UserModel.findById(payload.userId);
+        const user = await findUserByIdOrFallback(payload.userId);
         if (!user || user.status === "disabled") {
             return res.status(403).json({ error: { code: "FORBIDDEN", message: "Account unavailable." } });
         }
@@ -135,17 +152,29 @@ authRouter.post("/2fa/verify", async (req, res) => {
         // Issue permanent session token
         const token = signToken({ userId: user._id.toString(), role: user.role });
         user.lastLoginAt = new Date();
-        await user.save();
-        // Audit log 2FA login
-        await CaseAuditLogModel.create({
-            entityType: "User",
-            entityId: user._id,
-            action: "login",
-            actorId: user._id,
-            changes: { status: ["success_2fa", user.role] },
-            ip: req.ip,
-            userAgent: req.headers["user-agent"],
-        });
+        try {
+            await user.save();
+        }
+        catch {
+            // Non-critical if in-memory
+        }
+        // Audit log 2FA login if DB connected
+        if (mongoose.connection.readyState === 1) {
+            try {
+                await CaseAuditLogModel.create({
+                    entityType: "User",
+                    entityId: user._id,
+                    action: "login",
+                    actorId: user._id,
+                    changes: { status: ["success_2fa", user.role] },
+                    ip: req.ip,
+                    userAgent: req.headers["user-agent"],
+                });
+            }
+            catch {
+                // Ignore audit log error
+            }
+        }
         res.json({
             data: {
                 token,

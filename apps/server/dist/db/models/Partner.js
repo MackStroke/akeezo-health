@@ -18,6 +18,7 @@ const PartnerPayoutDetailsSchema = new Schema({
 }, { _id: false });
 const PartnerSchema = new Schema({
     partnerCode: { type: String, required: true, unique: true, uppercase: true, trim: true },
+    legacyId: { type: String, sparse: true, index: true },
     name: { type: String, required: true, trim: true },
     type: {
         type: String,

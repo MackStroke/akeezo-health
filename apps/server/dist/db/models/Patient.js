@@ -3,6 +3,7 @@ import crypto from "crypto";
 import { decryptSensitiveField, maskSensitiveValue } from "../../utils/crypto.js";
 const PatientSchema = new Schema({
     fullName: { type: String, required: true, trim: true },
+    legacyId: { type: String, sparse: true, index: true },
     nameNormalized: { type: String, index: true },
     dateOfBirth: { type: String, index: true },
     sex: { type: String, enum: ["male", "female", "other", "unknown"], default: "unknown" },

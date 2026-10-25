@@ -5,6 +5,7 @@ export interface IEnquiry extends Document {
   requesterName: string;
   email?: string;
   phone?: string;
+  country?: string;
   serviceType: "medical_tourism" | "emergency" | "home_healthcare" | "consultation" | "general";
   message?: string;
   sourcePath?: string;
@@ -21,6 +22,7 @@ const EnquirySchema = new Schema<IEnquiry>(
     requesterName: { type: String, required: true, trim: true },
     email: { type: String, trim: true, lowercase: true },
     phone: { type: String, trim: true },
+    country: { type: String, trim: true },
     serviceType: {
       type: String,
       enum: ["medical_tourism", "emergency", "home_healthcare", "consultation", "general"],

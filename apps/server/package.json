@@ -6,9 +6,9 @@
   "scripts": {
     "dev": "tsx watch src/index.ts",
     "prebuild": "pnpm --filter @akeezo/contracts build && pnpm --filter @akeezo/ui build",
-    "build": "pnpm --filter @akeezo/contracts build && pnpm --filter @akeezo/ui build && tsc",
+    "build": "pnpm --filter @akeezo/contracts build && pnpm --filter @akeezo/ui build && tsc && esbuild src/index.ts --bundle --platform=node --format=esm --external:mongoose --external:vite --outfile=dist/bundle.js",
     "start": "node dist/index.js",
-    "test": "node --import tsx --test src/tests/acceptanceCriteria.test.ts src/tests/auth.test.ts src/tests/websiteStructureAndErrors.test.ts src/tests/websiteAudit.test.ts",
+    "test": "node --import tsx --test src/tests/acceptanceCriteria.test.ts && node --import tsx --test src/tests/auth.test.ts && node --import tsx --test src/tests/websiteStructureAndErrors.test.ts && node --import tsx --test src/tests/websiteAudit.test.ts && node --import tsx --test src/tests/dualPortal.test.ts",
     "seed": "tsx src/seeds/seed-dev.ts",
     "seed:cases": "tsx src/seeds/seed-case-management.ts"
   },
@@ -33,6 +33,7 @@
     "@types/node": "^22.10.2",
     "@types/react": "^19.0.0",
     "@types/react-dom": "^19.0.0",
+    "esbuild": "^0.25.0",
     "tsx": "^4.19.2",
     "typescript": "^5.7.2",
     "vite": "^6.0.7"

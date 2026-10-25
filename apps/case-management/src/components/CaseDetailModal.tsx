@@ -15,7 +15,7 @@ import {
   Check,
   Award,
 } from "lucide-react";
-import { CASE_STAGES, CaseStage } from "@akeezo/contracts";
+import { CASE_STAGES, CASE_CLOSURE_REASONS, CaseStage } from "@akeezo/contracts";
 import { STAGE_CONFIG } from "./PipelineBoard.js";
 
 interface CaseDetailModalProps {
@@ -48,6 +48,16 @@ export const CaseDetailModal: React.FC<CaseDetailModalProps> = ({
   // Series modal state
   const [showSeriesModal, setShowSeriesModal] = useState(false);
   const [seriesCycles, setSeriesCycles] = useState(6);
+
+  // Backward move modal state
+  const [showBackwardModal, setShowBackwardModal] = useState(false);
+  const [backwardTargetStage, setBackwardTargetStage] = useState<CaseStage | "">("");
+  const [backwardReason, setBackwardReason] = useState("");
+
+  // Case closure modal state
+  const [showCloseModal, setShowCloseModal] = useState(false);
+  const [closureReason, setClosureReason] = useState<string>("dropped_by_partner");
+  const [closureNotes, setClosureNotes] = useState("");
 
   useEffect(() => {
     fetchCase();
@@ -103,6 +113,58 @@ export const CaseDetailModal: React.FC<CaseDetailModalProps> = ({
       }
     } catch (err: any) {
       setStageError(err.message);
+    }
+  };
+
+  const handleConfirmBackwardMove = async () => {
+    if (!backwardTargetStage || !backwardReason.trim()) {
+      alert("Please select a target stage and provide an explanatory reason.");
+      return;
+    }
+    try {
+      setStageError(null);
+      const res = await fetch(`/api/v1/cases/${caseId}/stage-transitions`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ toStage: backwardTargetStage, reason: backwardReason.trim() }),
+      });
+      const json = await res.json();
+      if (res.ok) {
+        setShowBackwardModal(false);
+        setBackwardTargetStage("");
+        setBackwardReason("");
+        fetchCase();
+        onRefresh();
+      } else {
+        alert(json.error?.message || "Backward move failed.");
+      }
+    } catch (err: any) {
+      alert(err.message);
+    }
+  };
+
+  const handleConfirmClosure = async () => {
+    try {
+      setStageError(null);
+      const res = await fetch(`/api/v1/cases/${caseId}/stage-transitions`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          toStage: "closed",
+          reason: closureNotes.trim() || closureReason,
+          closedReason: closureReason,
+        }),
+      });
+      const json = await res.json();
+      if (res.ok) {
+        setShowCloseModal(false);
+        fetchCase();
+        onRefresh();
+      } else {
+        alert(json.error?.message || "Closure failed.");
+      }
+    } catch (err: any) {
+      alert(err.message);
     }
   };
 
@@ -246,11 +308,34 @@ export const CaseDetailModal: React.FC<CaseDetailModalProps> = ({
             </div>
           </div>
 
-          <div className="flex items-center gap-3">
-            {nextStage && (
+          <div className="flex items-center gap-2">
+            {caseData.stage !== "closed" && currentStageIndex > 0 && (
+              <button
+                onClick={() => {
+                  setBackwardTargetStage(CASE_STAGES[currentStageIndex - 1] as CaseStage);
+                  setShowBackwardModal(true);
+                }}
+                className="bg-slate-700 hover:bg-slate-600 text-white text-xs font-semibold px-2.5 py-1.5 rounded-lg flex items-center gap-1 transition"
+                title="Move case backward with mandatory explanatory reason"
+              >
+                <span>Move Back</span>
+              </button>
+            )}
+
+            {caseData.stage !== "closed" && (
+              <button
+                onClick={() => setShowCloseModal(true)}
+                className="bg-red-900/60 hover:bg-red-800 text-red-200 text-xs font-semibold px-2.5 py-1.5 rounded-lg flex items-center gap-1 transition"
+                title="Close or drop case"
+              >
+                <span>Close Case</span>
+              </button>
+            )}
+
+            {nextStage && caseData.stage !== "closed" && (
               <button
                 onClick={() => handleCheckReadiness(nextStage)}
-                className="bg-emerald-600 hover:bg-emerald-700 active:bg-emerald-800 text-white text-xs font-bold px-3.5 py-2 rounded-lg flex items-center gap-1.5 shadow-sm transition"
+                className="bg-emerald-600 hover:bg-emerald-700 active:bg-emerald-800 text-white text-xs font-bold px-3.5 py-1.5 rounded-lg flex items-center gap-1.5 shadow-sm transition"
               >
                 <span>Advance to {STAGE_CONFIG[nextStage]?.label}</span>
                 <CheckCircle2 className="w-4 h-4" />
@@ -943,6 +1028,131 @@ export const CaseDetailModal: React.FC<CaseDetailModalProps> = ({
                   className="text-xs px-4 py-2 bg-teal-700 hover:bg-teal-800 font-bold text-white rounded-lg"
                 >
                   Generate {seriesCycles} Cycles
+                </button>
+              </div>
+            </div>
+          </div>
+        )}
+
+        {/* Backward Stage Move Dialog */}
+        {showBackwardModal && (
+          <div className="fixed inset-0 z-60 bg-slate-900/50 backdrop-blur-xs flex items-center justify-center p-4">
+            <div className="bg-white p-6 rounded-xl shadow-xl w-full max-w-md border border-slate-200 space-y-4">
+              <div>
+                <h3 className="text-sm font-bold text-slate-900">
+                  Move Case Backward
+                </h3>
+                <p className="text-xs text-slate-500 mt-1">
+                  Backward stage moves require an explanatory reason recorded in the immutable audit log.
+                </p>
+              </div>
+
+              <div>
+                <label className="text-xs text-slate-700 font-bold block mb-1">
+                  Target Earlier Stage
+                </label>
+                <select
+                  value={backwardTargetStage}
+                  onChange={(e) => setBackwardTargetStage(e.target.value as CaseStage)}
+                  className="w-full text-xs p-2.5 border rounded-lg bg-slate-50 focus:bg-white focus:outline-teal-600 font-medium"
+                >
+                  <option value="">Select an earlier stage...</option>
+                  {CASE_STAGES.filter((_, idx) => idx < currentStageIndex).map((s) => (
+                    <option key={s} value={s}>
+                      {STAGE_CONFIG[s]?.label || s}
+                    </option>
+                  ))}
+                </select>
+              </div>
+
+              <div>
+                <label className="text-xs text-slate-700 font-bold block mb-1">
+                  Mandatory Explanatory Reason *
+                </label>
+                <textarea
+                  required
+                  rows={3}
+                  value={backwardReason}
+                  onChange={(e) => setBackwardReason(e.target.value)}
+                  placeholder="e.g. Patient requested additional quotes from alternate hospital networks; consultation doctor unavailable..."
+                  className="w-full text-xs p-2.5 border rounded-lg focus:outline-teal-600"
+                />
+              </div>
+
+              <div className="flex justify-end gap-2 pt-2">
+                <button
+                  onClick={() => setShowBackwardModal(false)}
+                  className="text-xs px-3 py-2 border rounded-lg text-slate-600 hover:bg-slate-50"
+                >
+                  Cancel
+                </button>
+                <button
+                  disabled={!backwardTargetStage || !backwardReason.trim()}
+                  onClick={handleConfirmBackwardMove}
+                  className="text-xs px-4 py-2 bg-slate-800 hover:bg-slate-900 disabled:opacity-50 font-bold text-white rounded-lg transition"
+                >
+                  Confirm Backward Move
+                </button>
+              </div>
+            </div>
+          </div>
+        )}
+
+        {/* Case Closure Dialog */}
+        {showCloseModal && (
+          <div className="fixed inset-0 z-60 bg-slate-900/50 backdrop-blur-xs flex items-center justify-center p-4">
+            <div className="bg-white p-6 rounded-xl shadow-xl w-full max-w-md border border-slate-200 space-y-4">
+              <div>
+                <h3 className="text-sm font-bold text-red-900">
+                  Close / Drop Case
+                </h3>
+                <p className="text-xs text-slate-500 mt-1">
+                  Closing this case marks it inactive. If closing as completed, all commissions must be settled.
+                </p>
+              </div>
+
+              <div>
+                <label className="text-xs text-slate-700 font-bold block mb-1">
+                  Closure Reason *
+                </label>
+                <select
+                  value={closureReason}
+                  onChange={(e) => setClosureReason(e.target.value)}
+                  className="w-full text-xs p-2.5 border rounded-lg bg-slate-50 focus:bg-white focus:outline-teal-600 font-medium"
+                >
+                  {CASE_CLOSURE_REASONS.map((r) => (
+                    <option key={r} value={r}>
+                      {r.replace(/_/g, " ").toUpperCase()}
+                    </option>
+                  ))}
+                </select>
+              </div>
+
+              <div>
+                <label className="text-xs text-slate-700 font-bold block mb-1">
+                  Closure Notes / Reason Details
+                </label>
+                <textarea
+                  rows={3}
+                  value={closureNotes}
+                  onChange={(e) => setClosureNotes(e.target.value)}
+                  placeholder="Additional context or notes for case audit trail..."
+                  className="w-full text-xs p-2.5 border rounded-lg focus:outline-teal-600"
+                />
+              </div>
+
+              <div className="flex justify-end gap-2 pt-2">
+                <button
+                  onClick={() => setShowCloseModal(false)}
+                  className="text-xs px-3 py-2 border rounded-lg text-slate-600 hover:bg-slate-50"
+                >
+                  Cancel
+                </button>
+                <button
+                  onClick={handleConfirmClosure}
+                  className="text-xs px-4 py-2 bg-red-700 hover:bg-red-800 font-bold text-white rounded-lg transition"
+                >
+                  Close Case
                 </button>
               </div>
             </div>

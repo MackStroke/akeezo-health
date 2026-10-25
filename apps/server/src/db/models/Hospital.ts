@@ -20,6 +20,7 @@ export interface IHospital extends Document {
   website?: string;
   status: "active" | "inactive";
   notes?: string;
+  legacyId?: string;
   contacts: IHospitalContact[];
   createdAt: Date;
   updatedAt: Date;
@@ -39,6 +40,7 @@ const HospitalContactSchema = new Schema<IHospitalContact>(
 const HospitalSchema = new Schema<IHospital>(
   {
     hospitalCode: { type: String, required: true, unique: true, uppercase: true, trim: true },
+    legacyId: { type: String, sparse: true, index: true },
     name: { type: String, required: true, trim: true },
     city: { type: String, required: true, trim: true },
     state: { type: String, trim: true },

@@ -20,6 +20,19 @@
         }
       ]
     },
+    "admin": {
+      "root": "apps/admin",
+      "framework": "vite",
+      "outputDirectory": "dist",
+      "bindings": [
+        {
+          "type": "service",
+          "service": "server",
+          "format": "url",
+          "env": "SERVER_URL"
+        }
+      ]
+    },
     "web": {
       "root": "apps/web",
       "framework": "vite",
@@ -64,13 +77,13 @@
     {
       "source": "/admin",
       "destination": {
-        "service": "case-management"
+        "service": "admin"
       }
     },
     {
       "source": "/admin/(.*)",
       "destination": {
-        "service": "case-management"
+        "service": "admin"
       }
     },
     {

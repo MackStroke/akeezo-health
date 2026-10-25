@@ -31,6 +31,7 @@ export interface IPartner extends Document {
   onboardedOn: Date;
   contacts: IPartnerContact[];
   payoutDetails?: IPartnerPayoutDetails;
+  legacyId?: string;
   notes?: string;
   createdAt: Date;
   updatedAt: Date;
@@ -63,6 +64,7 @@ const PartnerPayoutDetailsSchema = new Schema<IPartnerPayoutDetails>(
 const PartnerSchema = new Schema<IPartner>(
   {
     partnerCode: { type: String, required: true, unique: true, uppercase: true, trim: true },
+    legacyId: { type: String, sparse: true, index: true },
     name: { type: String, required: true, trim: true },
     type: {
       type: String,

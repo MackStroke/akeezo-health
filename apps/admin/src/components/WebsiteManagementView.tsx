@@ -1,11 +1,10 @@
 import React, { useState } from "react";
-import { Palette, FileText, Inbox, Globe, ExternalLink, ShieldCheck } from "lucide-react";
+import { Palette, FileText, Globe, ExternalLink, ShieldCheck } from "lucide-react";
 import { SiteSettingsTab } from "./SiteSettingsTab.js";
 import { PageContentTab } from "./PageContentTab.js";
-import { PublicEnquiriesTab } from "./PublicEnquiriesTab.js";
 
-export const SiteAdminView: React.FC = () => {
-  const [activeTab, setActiveTab] = useState<"settings" | "pages" | "enquiries">("settings");
+export const WebsiteManagementView: React.FC = () => {
+  const [activeTab, setActiveTab] = useState<"settings" | "pages">("settings");
 
   return (
     <div className="space-y-6">
@@ -14,11 +13,11 @@ export const SiteAdminView: React.FC = () => {
         <div className="space-y-1">
           <div className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-[11px] font-bold bg-teal-700/60 text-teal-200 border border-teal-500/30">
             <ShieldCheck className="w-3.5 h-3.5 text-teal-300" />
-            <span>Dedicated Public Site CMS & Content Operations</span>
+            <span>Website Management & Content CMS</span>
           </div>
-          <h1 className="text-xl font-black tracking-tight">Website Front End & Content Administration</h1>
+          <h1 className="text-xl font-black tracking-tight">Public Website & Brand Administration</h1>
           <p className="text-xs text-teal-100/80 max-w-2xl leading-relaxed">
-            Manage public discovery portal identity, emergency helplines, landing page heroes, legal policies, and incoming public leads independently from the core B2B Case Operations ERP.
+            Overall responsible for website management: brand identity, emergency helplines, WhatsApp direct channels, landing page heroes, treatments, and legal policies with full draft revision and atomic publishing lifecycle.
           </p>
         </div>
 
@@ -61,28 +60,14 @@ export const SiteAdminView: React.FC = () => {
           }`}
         >
           <FileText className="w-4 h-4" />
-          <span>Page Content & SEO</span>
-        </button>
-
-        <button
-          type="button"
-          onClick={() => setActiveTab("enquiries")}
-          className={`px-4 py-3 text-xs font-bold border-b-2 flex items-center gap-2 transition ${
-            activeTab === "enquiries"
-              ? "border-teal-800 text-teal-900 bg-teal-50/50 rounded-t-lg"
-              : "border-transparent text-slate-500 hover:text-slate-800 hover:bg-slate-50"
-          }`}
-        >
-          <Inbox className="w-4 h-4" />
-          <span>Public Website Enquiries</span>
+          <span>Pages & Content Revisions</span>
         </button>
       </div>
 
       {/* Tab Panels */}
-      <div>
+      <div className="bg-white rounded-2xl border border-slate-200 p-6 shadow-xs">
         {activeTab === "settings" && <SiteSettingsTab />}
         {activeTab === "pages" && <PageContentTab />}
-        {activeTab === "enquiries" && <PublicEnquiriesTab />}
       </div>
     </div>
   );

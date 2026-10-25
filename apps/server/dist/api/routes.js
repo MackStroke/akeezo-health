@@ -54,6 +54,25 @@ apiRouter.get("/route", async (req, res) => {
         }
         const siteSettings = toSafeSiteSettings(settingsDoc);
         if (!routeEntry) {
+            if (normalizedPath === "/500") {
+                const serverErrorDto = {
+                    pageKind: "serverError",
+                    path: "/500",
+                    locale,
+                    seo: {
+                        title: "Server Error (500) | AKEEZO Healthcare Platform",
+                        description: "Temporary system interruption. Our 24/7 care coordination desk is standing by.",
+                        canonicalPath: "/500",
+                        robots: "noindex,nofollow",
+                        schemaKind: "WebPage"
+                    },
+                    payload: {},
+                    siteSettings,
+                    statusCode: 500
+                };
+                res.status(500).json({ error: { code: "INTERNAL_SERVER_ERROR", message: "Server error state" }, data: serverErrorDto });
+                return;
+            }
             // Default home route response
             if (normalizedPath === "/") {
                 const homeDto = {
@@ -78,14 +97,41 @@ apiRouter.get("/route", async (req, res) => {
                 return;
             }
             // Check legal compliance pages
-            if (["/privacy", "/terms", "/disclaimer", "/consent", "/refund-policy", "/grievance-officer"].includes(normalizedPath)) {
+            const LEGAL_SEO_MAP = {
+                "/privacy": {
+                    title: "Privacy Policy | AKEEZO Healthcare Platform",
+                    description: "Learn how AKEEZO protects patient health information (PHI) and clinical records under GDPR, HIPAA, and India DPDP Act 2023."
+                },
+                "/terms": {
+                    title: "Terms of Service | AKEEZO Healthcare Platform",
+                    description: "Terms and conditions governing healthcare discovery, hospital facilitation, and medical travel coordination with AKEEZO."
+                },
+                "/disclaimer": {
+                    title: "Medical Disclaimer | AKEEZO Healthcare Platform",
+                    description: "Critical medical notice outlining AKEEZO's non-clinical facilitation scope, physician independence, and emergency care advisory."
+                },
+                "/consent": {
+                    title: "Informed Patient Consent | AKEEZO Healthcare Platform",
+                    description: "Explicit consent framework for cross-border medical record transmission, hospital referral, and teleconsultation coordination."
+                },
+                "/refund-policy": {
+                    title: "Refund Policy & Service Surety | AKEEZO Healthcare Platform",
+                    description: "Read AKEEZO's 100% Service Surety commitment and transparent refund guidelines for medical travel coordination."
+                },
+                "/grievance-officer": {
+                    title: "Grievance Redressal Officer | AKEEZO Healthcare Platform",
+                    description: "Contact AKEEZO's designated Grievance Officer under the IT Intermediary Rules 2021 and Digital Personal Data Protection Act 2023."
+                }
+            };
+            const legalSeo = LEGAL_SEO_MAP[normalizedPath];
+            if (legalSeo) {
                 const legalDto = {
                     pageKind: "legal",
                     path: normalizedPath,
                     locale,
                     seo: {
-                        title: `${normalizedPath.slice(1).replace("-", " ").toUpperCase()} | AKEEZO Healthcare Platform`,
-                        description: "Official legal, governance and compliance policies for AKEEZO Healthcare Platform.",
+                        title: legalSeo.title,
+                        description: legalSeo.description,
                         canonicalPath: normalizedPath,
                         robots: "index,follow",
                         schemaKind: "WebPage"
@@ -102,8 +148,8 @@ apiRouter.get("/route", async (req, res) => {
                 path: normalizedPath,
                 locale,
                 seo: {
-                    title: "Page Not Found | AKEEZO Healthcare Platform",
-                    description: "The requested healthcare service or page could not be found.",
+                    title: "404 - Healthcare Resource Not Found | AKEEZO Healthcare Platform",
+                    description: "The requested medical procedure, hospital, or specialist could not be found. Contact our 24/7 care coordination desk for immediate assistance.",
                     canonicalPath: normalizedPath,
                     robots: "noindex,nofollow",
                     schemaKind: "WebPage"

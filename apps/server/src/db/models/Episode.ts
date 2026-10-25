@@ -29,6 +29,7 @@ export interface IEpisode extends Document {
   billedCurrency: string;
   billingFinalisedAt?: Date;
   version: number;
+  legacyId?: string;
   createdAt: Date;
   updatedAt: Date;
 }
@@ -36,6 +37,7 @@ export interface IEpisode extends Document {
 const EpisodeSchema = new Schema<IEpisode>(
   {
     caseId: { type: Schema.Types.ObjectId, ref: "Case", required: true },
+    legacyId: { type: String, sparse: true, index: true },
     seriesId: { type: Schema.Types.ObjectId, ref: "EpisodeSeries", index: true },
     sequenceNo: { type: Number, required: true },
     cycleNo: { type: Number },

@@ -48,3 +48,4 @@ coverage/
 # Markdown documentation files
 *.md
 **/*.md
+artifacts/

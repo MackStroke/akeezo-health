@@ -37,6 +37,7 @@ export interface ICase extends Document {
   referredOn: Date;
   version: number;
   activeEpisodeId?: mongoose.Types.ObjectId;
+  legacyId?: string;
   createdAt: Date;
   updatedAt: Date;
 }
@@ -44,6 +45,7 @@ export interface ICase extends Document {
 const CaseSchema = new Schema<ICase>(
   {
     caseCode: { type: String, required: true, unique: true, uppercase: true, trim: true },
+    legacyId: { type: String, sparse: true, index: true },
     patientId: { type: Schema.Types.ObjectId, ref: "Patient", required: true, index: true },
     partnerId: { type: Schema.Types.ObjectId, ref: "Partner", index: true },
     source: { type: String, required: true, enum: CASE_SOURCES, default: "partner" },

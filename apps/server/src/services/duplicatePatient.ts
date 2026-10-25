@@ -1,5 +1,6 @@
 import { DuplicatePatientMatch } from "@akeezo/contracts";
 import { PatientModel, CaseModel } from "../db/models/index.js";
+import { maskSensitiveValue } from "../utils/crypto.js";
 
 export async function findDuplicatePatients(query: {
   passportNumber?: string;
@@ -22,7 +23,7 @@ export async function findDuplicatePatients(query: {
         fullName: p.fullName,
         dateOfBirth: p.dateOfBirth,
         nationality: p.nationality,
-        passportNumberMasked: p.passportNumberEncrypted ? "***" + query.passportNumber!.slice(-3) : undefined,
+        passportNumberMasked: p.passportNumberEncrypted ? maskSensitiveValue(p.passportNumberEncrypted, 3) : undefined,
         matchReason: "passport_match",
         caseCount,
       });
@@ -46,7 +47,7 @@ export async function findDuplicatePatients(query: {
           fullName: p.fullName,
           dateOfBirth: p.dateOfBirth,
           nationality: p.nationality,
-          passportNumberMasked: undefined,
+          passportNumberMasked: p.passportNumberEncrypted ? maskSensitiveValue(p.passportNumberEncrypted, 3) : undefined,
           matchReason: "name_and_dob_match",
           caseCount,
         });

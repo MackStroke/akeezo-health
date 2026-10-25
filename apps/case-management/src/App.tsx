@@ -7,7 +7,6 @@ import { PipelineBoard } from "./components/PipelineBoard.js";
 import { CaseDetailModal } from "./components/CaseDetailModal.js";
 import { NewCaseModal } from "./components/NewCaseModal.js";
 import { FinanceWorkspace } from "./components/FinanceWorkspace.js";
-import { SiteAdminView } from "./components/cms/SiteAdminView.js";
 import { ArrowRight } from "lucide-react";
 
 const CaseManagementDashboard: React.FC = () => {
@@ -199,12 +198,6 @@ const CaseManagementDashboard: React.FC = () => {
 
           {activeTab === "finance" && (
             <FinanceWorkspace onRefresh={loadAllData} />
-          )}
-
-          {activeTab === "site-admin" && (
-            <div className="p-6">
-              <SiteAdminView />
-            </div>
           )}
         </main>
       </div>

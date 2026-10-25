@@ -112,6 +112,7 @@ export interface IPayment extends Document {
   reference: string;
   proofDocumentId?: mongoose.Types.ObjectId;
   recordedBy: mongoose.Types.ObjectId;
+  legacyId?: string;
   createdAt: Date;
   updatedAt: Date;
 }
@@ -119,6 +120,7 @@ export interface IPayment extends Document {
 const PaymentSchema = new Schema<IPayment>(
   {
     direction: { type: String, required: true, enum: PAYMENT_DIRECTIONS },
+    legacyId: { type: String, sparse: true, index: true },
     partyId: { type: Schema.Types.ObjectId, required: true, index: true },
     amountMinor: { type: Number, required: true, min: 1 },
     currency: { type: String, default: "INR" },

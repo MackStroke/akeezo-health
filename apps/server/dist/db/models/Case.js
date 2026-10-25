@@ -2,6 +2,7 @@ import mongoose, { Schema } from "mongoose";
 import { CASE_STAGES, CASE_CLOSURE_REASONS, CASE_SOURCES, CASE_TYPES, CASE_URGENCIES, } from "@akeezo/contracts";
 const CaseSchema = new Schema({
     caseCode: { type: String, required: true, unique: true, uppercase: true, trim: true },
+    legacyId: { type: String, sparse: true, index: true },
     patientId: { type: Schema.Types.ObjectId, ref: "Patient", required: true, index: true },
     partnerId: { type: Schema.Types.ObjectId, ref: "Partner", index: true },
     source: { type: String, required: true, enum: CASE_SOURCES, default: "partner" },

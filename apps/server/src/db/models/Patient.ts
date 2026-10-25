@@ -17,6 +17,7 @@ export interface IPatient extends Document {
   passportExpiry?: string;
   passportCountry?: string;
   notes?: string;
+  legacyId?: string;
   createdAt: Date;
   updatedAt: Date;
 
@@ -27,6 +28,7 @@ export interface IPatient extends Document {
 const PatientSchema = new Schema<IPatient>(
   {
     fullName: { type: String, required: true, trim: true },
+    legacyId: { type: String, sparse: true, index: true },
     nameNormalized: { type: String, index: true },
     dateOfBirth: { type: String, index: true },
     sex: { type: String, enum: ["male", "female", "other", "unknown"], default: "unknown" },

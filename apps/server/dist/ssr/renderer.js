@@ -75,6 +75,80 @@ export function toSafeSiteSettings(doc) {
         socialLinks: doc?.socialLinks
     });
 }
+export function renderFallback500Html(siteSettings) {
+    const phone = siteSettings.phone || "+91 82876 39443";
+    const phoneClean = phone.replace(/[^0-9]/g, "");
+    const careEmail = siteSettings.careEmail || "care@akeezo.com";
+    const legalEntity = siteSettings.legalEntityName || "AKEEZO Healthcare Platform Private Limited";
+    const currentYear = new Date().getFullYear();
+    return `<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Server Error (500) | AKEEZO Healthcare Platform</title>
+  <link rel="icon" type="image/svg+xml" href="/logo/favicon.svg" />
+  <style>
+    :root { --action: #007a6c; --action-hover: #005f54; --ink: #262626; --ink-muted: #595959; --border: #e2e8f0; --surface-teal: #e6f8f6; --surface-orange: #fff4ec; }
+    * { box-sizing: border-box; margin: 0; padding: 0; font-family: system-ui, -apple-system, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif; }
+    body { background-color: #f8fafc; color: var(--ink); min-height: 100vh; display: flex; flex-direction: column; }
+    header { height: 72px; background: #ffffff; border-bottom: 1px solid var(--border); display: flex; align-items: center; justify-content: space-between; padding: 0 24px; position: sticky; top: 0; z-index: 50; }
+    .header-logo { height: 42px; width: auto; object-fit: contain; }
+    main { flex: 1; display: flex; align-items: center; justify-content: center; padding: 48px 16px; }
+    .card { background: #ffffff; border: 1px solid var(--border); border-radius: 24px; max-width: 720px; width: 100%; padding: 48px 32px; text-align: center; box-shadow: 0 4px 20px rgba(0,0,0,0.05); }
+    .badge { display: inline-flex; align-items: center; gap: 8px; background: #fef3c7; border: 1px solid #fde68a; color: #92400e; padding: 4px 14px; border-radius: 999px; font-size: 12px; font-weight: 700; margin-bottom: 24px; }
+    .hero-icon { width: 72px; height: 72px; background: #fee2e2; border-radius: 50%; display: flex; align-items: center; justify-content: center; margin: 0 auto 20px; font-size: 32px; color: #dc2626; }
+    h1 { font-size: 28px; font-weight: 800; color: var(--ink); margin-bottom: 12px; }
+    p { font-size: 15px; color: var(--ink-muted); line-height: 1.6; margin-bottom: 24px; }
+    .security-note { background: #f1f5f9; border: 1px solid var(--border); border-radius: 12px; padding: 14px 18px; text-align: left; font-size: 13px; color: var(--ink); margin-bottom: 32px; }
+    .btn-group { display: flex; flex-wrap: wrap; gap: 12px; justify-content: center; margin-bottom: 36px; }
+    .btn { display: inline-flex; align-items: center; justify-content: center; padding: 12px 24px; border-radius: 999px; font-size: 14px; font-weight: 700; text-decoration: none; cursor: pointer; transition: all 0.2s; border: none; }
+    .btn-primary { background: var(--action); color: #ffffff; }
+    .btn-primary:hover { background: var(--action-hover); }
+    .btn-outline { background: #ffffff; color: var(--ink); border: 1px solid var(--border); }
+    .btn-outline:hover { border-color: var(--action); color: var(--action); background: var(--surface-teal); }
+    .btn-orange { background: var(--surface-orange); color: #b54700; border: 1px solid #ffd8bf; }
+    .btn-orange:hover { background: #ffe8d9; }
+    .contact-box { background: #f8fafc; border: 1px solid var(--border); border-radius: 16px; padding: 20px; text-align: left; display: flex; flex-direction: column; gap: 6px; }
+    footer { background: #ffffff; border-top: 1px solid var(--border); padding: 32px 24px; font-size: 13px; color: var(--ink-muted); text-align: center; }
+  </style>
+</head>
+<body>
+  <header>
+    <a href="/"><img src="/logo/logo with tagline-dark.svg" alt="AKEEZO" class="header-logo" /></a>
+    <a href="https://wa.me/${phoneClean}" class="btn btn-outline" style="font-size: 12px; padding: 8px 16px;">💬 24/7 Desk: ${phone}</a>
+  </header>
+
+  <main>
+    <div class="card">
+      <div class="badge">HTTP 500 · System Interruption</div>
+      <div class="hero-icon">⚠️</div>
+      <h1>Temporary System Interruption</h1>
+      <p>Our server encountered a temporary technical issue. Our engineering team has been alerted and is restoring full operations. All patient records, doctor consultation requests, and quotes are securely saved.</p>
+      
+      <div class="security-note">
+        <strong>🔒 Protected Patient Health Information:</strong> Your submitted files and diagnostic data remain encrypted and completely safe in our clinical database.
+      </div>
+
+      <div class="btn-group">
+        <button onclick="window.location.reload()" class="btn btn-primary">Try Again / Reload</button>
+        <a href="/" class="btn btn-outline">Return to Homepage</a>
+        <a href="https://wa.me/${phoneClean}?text=Hello%20Akeezo%20Care%20Desk,%20I%20experienced%20a%20500%20server%20error" class="btn btn-orange">WhatsApp 24/7 Desk</a>
+      </div>
+
+      <div class="contact-box">
+        <div style="font-size: 11px; font-weight: 700; color: var(--action); text-transform: uppercase;">Urgent Medical Inquiries</div>
+        <div style="font-size: 14px; font-weight: 700;">Hotline: <a href="tel:${phoneClean}" style="color: var(--action);">${phone}</a> · Care: <a href="mailto:${careEmail}" style="color: var(--ink);">${careEmail}</a></div>
+      </div>
+    </div>
+  </main>
+
+  <footer>
+    <p>© ${currentYear} ${legalEntity}. All rights reserved. · Regulated under Indian Clinical Establishments Acts</p>
+  </footer>
+</body>
+</html>`;
+}
 function escapeHtml(str) {
     return str
         .replace(/&/g, "&amp;")
@@ -102,7 +176,51 @@ export async function handleSsr(req, res, next) {
         const routeEntry = await RouteEntry.findOne({ locale: "en", path: normalizedPath }).lean();
         let dto;
         let statusCode = 200;
-        if (routeEntry) {
+        const LEGAL_SEO_MAP = {
+            "/privacy": {
+                title: "Privacy Policy | AKEEZO Healthcare Platform",
+                description: "Learn how AKEEZO protects patient health information (PHI) and clinical records under GDPR, HIPAA, and India DPDP Act 2023."
+            },
+            "/terms": {
+                title: "Terms of Service | AKEEZO Healthcare Platform",
+                description: "Terms and conditions governing healthcare discovery, hospital facilitation, and medical travel coordination with AKEEZO."
+            },
+            "/disclaimer": {
+                title: "Medical Disclaimer | AKEEZO Healthcare Platform",
+                description: "Critical medical notice outlining AKEEZO's non-clinical facilitation scope, physician independence, and emergency care advisory."
+            },
+            "/consent": {
+                title: "Informed Patient Consent | AKEEZO Healthcare Platform",
+                description: "Explicit consent framework for cross-border medical record transmission, hospital referral, and teleconsultation coordination."
+            },
+            "/refund-policy": {
+                title: "Refund Policy & Service Surety | AKEEZO Healthcare Platform",
+                description: "Read AKEEZO's 100% Service Surety commitment and transparent refund guidelines for medical travel coordination."
+            },
+            "/grievance-officer": {
+                title: "Grievance Redressal Officer | AKEEZO Healthcare Platform",
+                description: "Contact AKEEZO's designated Grievance Officer under the IT Intermediary Rules 2021 and Digital Personal Data Protection Act 2023."
+            }
+        };
+        if (normalizedPath === "/500") {
+            statusCode = 500;
+            dto = {
+                pageKind: "serverError",
+                path: "/500",
+                locale: "en",
+                seo: {
+                    title: "500 - Server Error | AKEEZO Healthcare Platform",
+                    description: "A temporary system interruption occurred. Our clinical records and patient data remain secure. Contact our 24/7 care desk for assistance.",
+                    canonicalPath: "/500",
+                    robots: "noindex,nofollow",
+                    schemaKind: "WebPage"
+                },
+                payload: {},
+                siteSettings,
+                statusCode: 500
+            };
+        }
+        else if (routeEntry) {
             if (routeEntry.redirectTo) {
                 res.redirect(routeEntry.statusCode || 301, routeEntry.redirectTo);
                 return;
@@ -110,9 +228,13 @@ export async function handleSsr(req, res, next) {
             const revision = routeEntry.publishedRevisionId
                 ? await ContentRevision.findById(routeEntry.publishedRevisionId).lean()
                 : null;
+            const defaultSeo = LEGAL_SEO_MAP[normalizedPath] || {
+                title: "AKEEZO | Heal In India, Heal By Akeezo - Medical Tourism & Treatment in India",
+                description: "Discover accredited Indian hospitals, consult top doctors, and receive guided care coordination and transparent cost estimates."
+            };
             const seo = revision?.seo || {
-                title: "AKEEZO Healthcare Platform",
-                description: "Heal In India, Heal By Akeezo - Medical Tourism & Healthcare Coordination",
+                title: defaultSeo.title,
+                description: defaultSeo.description,
                 canonicalPath: normalizedPath,
                 robots: "index,follow",
                 schemaKind: "MedicalWebPage"
@@ -129,6 +251,25 @@ export async function handleSsr(req, res, next) {
             };
             statusCode = dto.statusCode;
         }
+        else if (LEGAL_SEO_MAP[normalizedPath]) {
+            const legalSeo = LEGAL_SEO_MAP[normalizedPath];
+            statusCode = 200;
+            dto = {
+                pageKind: "legal",
+                path: normalizedPath,
+                locale: "en",
+                seo: {
+                    title: legalSeo.title,
+                    description: legalSeo.description,
+                    canonicalPath: normalizedPath,
+                    robots: "index,follow",
+                    schemaKind: "WebPage"
+                },
+                payload: {},
+                siteSettings,
+                statusCode: 200
+            };
+        }
         else {
             // Genuine 404
             statusCode = 404;
@@ -137,8 +278,8 @@ export async function handleSsr(req, res, next) {
                 path: normalizedPath,
                 locale: "en",
                 seo: {
-                    title: "Page Not Found | AKEEZO Healthcare Platform",
-                    description: "The requested healthcare service or page could not be found.",
+                    title: "404 - Healthcare Resource Not Found | AKEEZO Healthcare Platform",
+                    description: "The requested medical procedure, hospital, or specialist could not be found. Contact our 24/7 care coordination desk for immediate assistance.",
                     canonicalPath: normalizedPath,
                     robots: "noindex,nofollow",
                     schemaKind: "WebPage"
@@ -188,9 +329,15 @@ export async function handleSsr(req, res, next) {
     <meta name="description" content="${escapeHtml(dto.seo.description)}" />
     <meta name="robots" content="${escapeHtml(dto.seo.robots)}" />
     <link rel="canonical" href="${escapeHtml(canonicalUrl)}" />
+    <link rel="icon" type="image/svg+xml" href="/logo/favicon.svg" />
+    <link rel="apple-touch-icon" href="/logo/favicon.svg" />
     <meta property="og:title" content="${escapeHtml(dto.seo.title)}" />
     <meta property="og:description" content="${escapeHtml(dto.seo.description)}" />
+    <meta property="og:url" content="${escapeHtml(canonicalUrl)}" />
     <meta property="og:type" content="website" />
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:title" content="${escapeHtml(dto.seo.title)}" />
+    <meta name="twitter:description" content="${escapeHtml(dto.seo.description)}" />
     <script>window.__INITIAL_DATA__ = ${safeInitialDataJson};</script>
 `;
         const htmlWithHead = template.replace("<!--ssr-head-->", headInjection);
@@ -211,7 +358,7 @@ export async function handleSsr(req, res, next) {
             onShellError(err) {
                 console.error("[Akeezo SSR Shell Error]:", err);
                 if (!res.headersSent) {
-                    res.status(500).send("<!DOCTYPE html><html><body><h1>Internal Server Error</h1></body></html>");
+                    res.status(500).setHeader("Content-Type", "text/html; charset=utf-8").send(renderFallback500Html(siteSettings));
                 }
             },
             onError(err) {
@@ -232,6 +379,17 @@ export async function handleSsr(req, res, next) {
     }
     catch (err) {
         console.error("[Akeezo SSR Handler Exception]:", err);
+        if (!res.headersSent) {
+            try {
+                const settingsDoc = await SiteSettings.findOne().lean().catch(() => null);
+                const siteSettings = toSafeSiteSettings(settingsDoc);
+                res.status(500).setHeader("Content-Type", "text/html; charset=utf-8").send(renderFallback500Html(siteSettings));
+                return;
+            }
+            catch (_fallbackErr) {
+                // Continue to next error handler if fallback extraction fails
+            }
+        }
         next(err);
     }
 }

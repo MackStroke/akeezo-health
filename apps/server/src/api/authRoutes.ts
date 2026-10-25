@@ -1,4 +1,5 @@
 import { Router, type Response } from "express";
+import mongoose from "mongoose";
 import { LoginRequestSchema, Verify2FARequestSchema } from "@akeezo/contracts";
 import { UserModel } from "../db/models/User.js";
 import { CaseAuditLogModel } from "../db/models/CaseActivity.js";
@@ -8,6 +9,8 @@ import {
   signToken,
   verifyToken,
   requireAuth,
+  findUserByEmailOrFallback,
+  findUserByIdOrFallback,
   AuthenticatedRequest,
 } from "../utils/auth.js";
 
@@ -57,7 +60,7 @@ authRouter.post("/login", async (req: AuthenticatedRequest, res: Response) => {
       });
     }
 
-    const user = await UserModel.findOne({ email });
+    const user = await findUserByEmailOrFallback(email);
     if (!user || !verifyPassword(parsed.password, user.passwordHash)) {
       // Record failed attempt
       const currentCount = (attempt?.count || 0) + 1;
@@ -67,16 +70,20 @@ authRouter.post("/login", async (req: AuthenticatedRequest, res: Response) => {
       }
       failedAttempts.set(lockKey, { count: currentCount, lockedUntil });
 
-      // Audit log failed attempt
-      if (user) {
-        await CaseAuditLogModel.create({
-          entityType: "User",
-          entityId: user._id,
-          action: "login",
-          changes: { status: ["failed", "invalid_password"] },
-          ip: req.ip,
-          userAgent: req.headers["user-agent"],
-        });
+      // Audit log failed attempt if DB connected
+      if (user && mongoose.connection.readyState === 1) {
+        try {
+          await CaseAuditLogModel.create({
+            entityType: "User",
+            entityId: user._id,
+            action: "login",
+            changes: { status: ["failed", "invalid_password"] },
+            ip: req.ip,
+            userAgent: req.headers["user-agent"],
+          });
+        } catch {
+          // Ignore audit write failure when disconnected
+        }
       }
 
       return res.status(401).json({
@@ -112,18 +119,28 @@ authRouter.post("/login", async (req: AuthenticatedRequest, res: Response) => {
     // Issue standard access token
     const token = signToken({ userId: user._id.toString(), role: user.role });
     user.lastLoginAt = new Date();
-    await user.save();
+    try {
+      await user.save();
+    } catch {
+      // Non-critical if in-memory or save fails
+    }
 
-    // Audit log successful sign-in
-    await CaseAuditLogModel.create({
-      entityType: "User",
-      entityId: user._id,
-      action: "login",
-      actorId: user._id,
-      changes: { status: ["success", user.role] },
-      ip: req.ip,
-      userAgent: req.headers["user-agent"],
-    });
+    // Audit log successful sign-in if DB connected
+    if (mongoose.connection.readyState === 1) {
+      try {
+        await CaseAuditLogModel.create({
+          entityType: "User",
+          entityId: user._id,
+          action: "login",
+          actorId: user._id,
+          changes: { status: ["success", user.role] },
+          ip: req.ip,
+          userAgent: req.headers["user-agent"],
+        });
+      } catch {
+        // Ignore audit log error
+      }
+    }
 
     res.json({
       data: {
@@ -149,7 +166,7 @@ authRouter.post("/2fa/verify", async (req: AuthenticatedRequest, res: Response) 
       });
     }
 
-    const user = await UserModel.findById(payload.userId);
+    const user = await findUserByIdOrFallback(payload.userId);
     if (!user || user.status === "disabled") {
       return res.status(403).json({ error: { code: "FORBIDDEN", message: "Account unavailable." } });
     }
@@ -165,18 +182,28 @@ authRouter.post("/2fa/verify", async (req: AuthenticatedRequest, res: Response) 
     // Issue permanent session token
     const token = signToken({ userId: user._id.toString(), role: user.role });
     user.lastLoginAt = new Date();
-    await user.save();
+    try {
+      await user.save();
+    } catch {
+      // Non-critical if in-memory
+    }
 
-    // Audit log 2FA login
-    await CaseAuditLogModel.create({
-      entityType: "User",
-      entityId: user._id,
-      action: "login",
-      actorId: user._id,
-      changes: { status: ["success_2fa", user.role] },
-      ip: req.ip,
-      userAgent: req.headers["user-agent"],
-    });
+    // Audit log 2FA login if DB connected
+    if (mongoose.connection.readyState === 1) {
+      try {
+        await CaseAuditLogModel.create({
+          entityType: "User",
+          entityId: user._id,
+          action: "login",
+          actorId: user._id,
+          changes: { status: ["success_2fa", user.role] },
+          ip: req.ip,
+          userAgent: req.headers["user-agent"],
+        });
+      } catch {
+        // Ignore audit log error
+      }
+    }
 
     res.json({
       data: {
