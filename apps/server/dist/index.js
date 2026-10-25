@@ -47,32 +47,58 @@ app.use(helmet({
     crossOriginEmbedderPolicy: false
 }));
 app.use(express.json());
-// 3. Static Assets (active when running standalone)
-app.use(express.static(webPublicDir));
-if (env.NODE_ENV === "production") {
-    app.use(express.static(webClientDistDir, { index: false }));
+// 3. Root & Health Probes (instant 200 responses)
+app.get(["/health", "/api/health", "/api/v1/health", "/v1/health"], (_req, res) => {
+    res.status(200).json({
+        data: {
+            status: "healthy",
+            service: "akeezo-server",
+            timestamp: new Date().toISOString()
+        }
+    });
+});
+// 4. REST API Routes (mounted at all common prefixes)
+app.use("/api/v1", apiRouter);
+app.use("/v1", apiRouter);
+app.use("/api", apiRouter);
+// 5. Environment-specific routing: Standalone SSR vs Vercel Serverless
+if (!process.env.VERCEL) {
+    // Static Assets (active when running standalone outside Vercel)
+    app.use(express.static(webPublicDir));
+    if (env.NODE_ENV === "production") {
+        app.use(express.static(webClientDistDir, { index: false }));
+    }
+    else {
+        getViteServer()
+            .then((vite) => {
+            if (vite)
+                app.use(vite.middlewares);
+        })
+            .catch(() => { });
+    }
+    // Internal Case Management Operations & Admin Portal
+    const caseManagementDistDir = path.resolve(__dirname, "../../case-management/dist");
+    app.use("/case-management", express.static(caseManagementDistDir));
+    app.get("/case-management*", (_req, res) => {
+        res.sendFile(path.join(caseManagementDistDir, "index.html"));
+    });
+    app.get(["/admin", "/admin/*"], (_req, res) => {
+        res.redirect("/case-management/");
+    });
+    // Standalone SSR Catch-all Handler
+    app.use(handleSsr);
 }
 else {
-    getViteServer()
-        .then((vite) => {
-        if (vite)
-            app.use(vite.middlewares);
-    })
-        .catch(() => { });
+    // On Vercel Serverless, unhandled API requests return clean 404 JSON without filesystem access
+    app.use((req, res) => {
+        res.status(404).json({
+            error: {
+                code: "NOT_FOUND",
+                message: `Endpoint ${req.method} ${req.originalUrl || req.url} not found on serverless API`
+            }
+        });
+    });
 }
-// 4. REST API Routes
-app.use("/api/v1", apiRouter);
-// 4b. Internal Case Management Operations & Admin Portal
-const caseManagementDistDir = path.resolve(__dirname, "../../case-management/dist");
-app.use("/case-management", express.static(caseManagementDistDir));
-app.get("/case-management*", (_req, res) => {
-    res.sendFile(path.join(caseManagementDistDir, "index.html"));
-});
-app.get(["/admin", "/admin/*"], (_req, res) => {
-    res.redirect("/case-management/");
-});
-// 5. SSR Catch-all Handler
-app.use(handleSsr);
 // 6. Global Error Handler
 app.use((err, _req, res, _next) => {
     console.error("[Akeezo Server Unhandled Error]:", err);

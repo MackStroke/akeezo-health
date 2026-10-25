@@ -20,10 +20,10 @@ export const SiteSettingsSchema = z.object({
     emergencyNotice: z.string().default("EMERGENCY?"),
     telegramChannel: z.string().default("https://t.me/akeezohealth"),
     supportedLocales: z.array(z.string()).default(["en"]),
-    primaryColor: z.string().default("#00C7BE"),
-    secondaryColor: z.string().default("#FF6B00"),
-    accentColor: z.string().default("#FF6D1B"),
-    actionColor: z.string().default("#007A6C"),
+    primaryColor: z.string().optional(),
+    secondaryColor: z.string().optional(),
+    accentColor: z.string().optional(),
+    actionColor: z.string().optional(),
     logoVariants: z
         .object({
         light: z.string().optional(),

@@ -50,10 +50,10 @@ export declare const PublicRouteResponseSchema: z.ZodObject<{
         emergencyNotice: z.ZodDefault<z.ZodString>;
         telegramChannel: z.ZodDefault<z.ZodString>;
         supportedLocales: z.ZodDefault<z.ZodArray<z.ZodString, "many">>;
-        primaryColor: z.ZodDefault<z.ZodString>;
-        secondaryColor: z.ZodDefault<z.ZodString>;
-        accentColor: z.ZodDefault<z.ZodString>;
-        actionColor: z.ZodDefault<z.ZodString>;
+        primaryColor: z.ZodOptional<z.ZodString>;
+        secondaryColor: z.ZodOptional<z.ZodString>;
+        accentColor: z.ZodOptional<z.ZodString>;
+        actionColor: z.ZodOptional<z.ZodString>;
         logoVariants: z.ZodOptional<z.ZodObject<{
             light: z.ZodOptional<z.ZodString>;
             dark: z.ZodOptional<z.ZodString>;
@@ -114,14 +114,14 @@ export declare const PublicRouteResponseSchema: z.ZodObject<{
         emergencyNotice: string;
         telegramChannel: string;
         supportedLocales: string[];
-        primaryColor: string;
-        secondaryColor: string;
-        accentColor: string;
-        actionColor: string;
         headquartersAddress?: string | undefined;
         contactEmail?: string | undefined;
         emergencyHelpline?: string | undefined;
         whatsappHelpline?: string | undefined;
+        primaryColor?: string | undefined;
+        secondaryColor?: string | undefined;
+        accentColor?: string | undefined;
+        actionColor?: string | undefined;
         logoVariants?: {
             light?: string | undefined;
             dark?: string | undefined;
@@ -214,14 +214,14 @@ export declare const PublicRouteResponseSchema: z.ZodObject<{
         emergencyNotice: string;
         telegramChannel: string;
         supportedLocales: string[];
-        primaryColor: string;
-        secondaryColor: string;
-        accentColor: string;
-        actionColor: string;
         headquartersAddress?: string | undefined;
         contactEmail?: string | undefined;
         emergencyHelpline?: string | undefined;
         whatsappHelpline?: string | undefined;
+        primaryColor?: string | undefined;
+        secondaryColor?: string | undefined;
+        accentColor?: string | undefined;
+        actionColor?: string | undefined;
         logoVariants?: {
             light?: string | undefined;
             dark?: string | undefined;

@@ -11,7 +11,7 @@ const defaultCors = [
     .join(",");
 const EnvSchema = z.object({
     PORT: z.coerce.number().default(4000),
-    NODE_ENV: z.enum(["development", "production", "test"]).default("production"),
+    NODE_ENV: z.string().default("production"),
     MONGODB_URI: z.string().default("mongodb://127.0.0.1:27017/akeezo_local"),
     PUBLIC_SITE_URL: z.string().default(process.env.WEB_URL || "http://localhost:4000"),
     CORS_ORIGINS: z.string().default(defaultCors)
