@@ -261,34 +261,6 @@ export const SiteHeader: React.FC<SiteHeaderProps> = ({
           </div>
 
           <div className="flex items-center gap-2.5 sm:gap-3">
-            {/* Regional Country / Currency / Language Switcher Button */}
-            <button
-              type="button"
-              data-cy="country-lang-switcher"
-              data-testid="country-lang-switcher"
-              onClick={() => setIsCountryLangOpen(true)}
-              className="flex items-center gap-1.5 rounded-sm bg-surface-muted px-2.5 py-1 text-[0.75rem] font-bold text-ink border border-border transition-colors hover:bg-surface-teal/50 hover:text-action hover:border-action focus-visible:outline-2 focus-visible:outline-action cursor-pointer shadow-2xs"
-              aria-label={`Selected currency: ${selectedCountry.currencyCode}, language: ${selectedLanguage.name}`}
-              aria-haspopup="dialog"
-              aria-expanded={isCountryLangOpen}
-            >
-              <span className="inline-flex items-center shrink-0">
-                <img
-                  alt={selectedCountry.countryName}
-                  className="h-3 w-4.5 rounded-[1px] object-cover shadow-xs"
-                  srcSet={`https://flagcdn.com/w80/${selectedCountry.countryCode.toLowerCase()}.png 2x`}
-                  src={selectedCountry.flagUrl}
-                />
-              </span>
-              <span className="font-extrabold uppercase tracking-tight">{selectedCountry.currencyCode}</span>
-              <span className="text-ink-muted/60">|</span>
-              <span className="font-medium text-ink-muted">{selectedLanguage.name}</span>
-              <ChevronDown
-                className={`size-3 text-ink-muted/80 transition-transform duration-200 ${isCountryLangOpen ? "rotate-180" : ""}`}
-                aria-hidden="true"
-              />
-            </button>
-
             {/* Live WhatsApp / Phone Helpline with Active Pulse */}
             <a
               href={`https://wa.me/${phoneClean}?text=Hello%20Akeezo%20Care%20Desk`}
