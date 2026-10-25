@@ -1,6 +1,8 @@
 import React from "react";
 import type { PublicRouteResponseDTO } from "@akeezo/contracts";
-import { Header, Footer, LegalLayout, colors } from "@akeezo/ui";
+import { LegalLayout, colors } from "@akeezo/ui";
+import { SiteHeader } from "../components/SiteHeader.js";
+import { SiteFooter } from "../components/SiteFooter.js";
 
 export interface LegalTemplateProps {
   data: PublicRouteResponseDTO;
@@ -484,18 +486,20 @@ export const LegalTemplate: React.FC<LegalTemplateProps> = ({ data }) => {
   const meta = getDocMeta();
 
   return (
-    <div style={{ display: "flex", flexDirection: "column", minHeight: "100vh" }}>
-      <Header variant="inner" siteSettings={siteSettings} />
-      <LegalLayout
-        title={meta.title}
-        subtitle={meta.subtitle}
-        category={meta.category}
-        activePath={path}
-        lastUpdated="September 13, 2026"
-      >
-        {renderContent()}
-      </LegalLayout>
-      <Footer siteSettings={siteSettings} />
+    <div className="flex flex-col min-h-screen bg-[#f8fafc] font-sans text-ink">
+      <SiteHeader siteSettings={siteSettings} activePath={path} />
+      <div className="flex-1">
+        <LegalLayout
+          title={meta.title}
+          subtitle={meta.subtitle}
+          category={meta.category}
+          activePath={path}
+          lastUpdated="September 13, 2026"
+        >
+          {renderContent()}
+        </LegalLayout>
+      </div>
+      <SiteFooter siteSettings={siteSettings} />
     </div>
   );
 };

@@ -17,9 +17,12 @@
   /* Akeezo Brand Palette */
   --color-brand-teal: #00c7be;
   --color-brand-orange: #ff6b00;
+  --color-brand-orange-alt: #ff6d1b;
   --color-action: #007a6c;
   --color-action-hover: #005f54;
   --color-action-accent: #b54700;
+  --color-action-orange: #ff6b00;
+  --color-action-orange-alt: #ff6d1b;
   --color-surface: #ffffff;
   --color-surface-muted: #f4f6f9;
   --color-surface-teal: #e6f8f6;
@@ -28,6 +31,9 @@
   --color-ink-muted: #595959;
   --color-border: #e2e8f0;
   --color-emergency: #d92d20;
+  --color-emergency-strong: #a32118;
+  --color-emergency-surface: #fdf2f1;
+  --color-emergency-ink: #99201a;
   --color-navy: #061e1b;
 
   /* Shadcn Semantic Mapping */
@@ -70,9 +76,12 @@
   /* Akeezo Core Brand Tokens */
   --brand-teal: #00c7be;
   --brand-orange: #ff6b00;
+  --brand-orange-alt: #ff6d1b;
   --action: #007a6c;
   --action-hover: #005f54;
   --action-accent: #b54700;
+  --action-orange: #ff6b00;
+  --action-orange-alt: #ff6d1b;
   --surface: #ffffff;
   --surface-muted: #f4f6f9;
   --surface-teal: #e6f8f6;
@@ -81,6 +90,9 @@
   --ink-muted: #595959;
   --border: #e2e8f0;
   --emergency: #d92d20;
+  --emergency-strong: #a32118;
+  --emergency-surface: #fdf2f1;
+  --emergency-ink: #99201a;
   --navy: #061e1b;
   --font-ui: 'Lato', system-ui, -apple-system, sans-serif;
   --page-max: 1280px;

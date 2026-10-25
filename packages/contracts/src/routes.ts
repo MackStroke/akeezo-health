@@ -31,7 +31,8 @@ export const PageKindEnum = z.enum([
   "specializedGuide",
   "serviceDetail",
   "medicineEnquiry",
-  "notFound"
+  "notFound",
+  "serverError"
 ]);
 
 export type PageKind = z.infer<typeof PageKindEnum>;

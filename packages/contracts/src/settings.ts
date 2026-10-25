@@ -17,6 +17,8 @@ export const SiteSettingsSchema = z.object({
   contactEmail: z.string().optional(),
   emergencyHelpline: z.string().optional(),
   whatsappHelpline: z.string().optional(),
+  showTopUtilityBar: z.boolean().default(true),
+  emergencyNotice: z.string().default("EMERGENCY?"),
   telegramChannel: z.string().default("https://t.me/akeezohealth"),
   supportedLocales: z.array(z.string()).default(["en"]),
   primaryColor: z.string().optional(),

@@ -13,7 +13,10 @@ import {
   Compass,
   Menu,
   ChevronDown,
-  Check
+  Check,
+  Phone,
+  Building2,
+  User2
 } from "lucide-react";
 
 export interface HomeTemplateProps {
@@ -313,6 +316,10 @@ export const HomeTemplate: React.FC<HomeTemplateProps> = ({ data }) => {
   // Interactive Modals
   const [isCalculatorOpen, setIsCalculatorOpen] = useState(false);
   const [isExploreOpen, setIsExploreOpen] = useState(false);
+  const [isPatientModalOpen, setIsPatientModalOpen] = useState(false);
+  const [isPartnerModalOpen, setIsPartnerModalOpen] = useState(false);
+  const [patientLookupId, setPatientLookupId] = useState("");
+  const [partnerType, setPartnerType] = useState<"hospital" | "agent">("hospital");
 
   // Quick Estimate State inside Calculator Modal
   const [calcSpecialty, setCalcSpecialty] = useState("Cardiac Surgery");
@@ -334,6 +341,10 @@ export const HomeTemplate: React.FC<HomeTemplateProps> = ({ data }) => {
 
   const phone = siteSettings.phone || siteSettings.emergencyHelpline || "+91 82876 39443";
   const phoneClean = phone.replace(/[^0-9]/g, "");
+  const emergencyPhone = siteSettings.emergencyHelpline || siteSettings.phone || "+91 82876 39443";
+  const emergencyPhoneClean = emergencyPhone.replace(/[^0-9+]/g, "");
+  const whatsappPhone = siteSettings.whatsappHelpline || siteSettings.phone || "+91 82876 39443";
+  const whatsappPhoneClean = whatsappPhone.replace(/[^0-9]/g, "");
 
   const handleSearchSubmit = (e: React.FormEvent) => {
     e.preventDefault();
@@ -354,6 +365,110 @@ export const HomeTemplate: React.FC<HomeTemplateProps> = ({ data }) => {
 
   return (
     <div className="min-h-screen bg-white font-sans text-ink antialiased selection:bg-surface-teal selection:text-action">
+      {/* Top Utility & Emergency Bar (Synchronized with Admin Settings) */}
+      {siteSettings.showTopUtilityBar !== false && (
+        <div className="hidden lg:block bg-black text-white">
+          <div className="mx-auto flex max-w-[76rem] flex-wrap items-center justify-between gap-x-6 gap-y-1.5 px-4 py-1.5 text-[0.78rem]">
+            <div className="flex items-center gap-2 font-bold flex-wrap">
+              <span className="relative flex size-2 shrink-0">
+                <span className="absolute inline-flex size-full animate-ping rounded-full bg-emergency opacity-75 motion-reduce:animate-none"></span>
+                <span className="relative inline-flex size-2 rounded-full bg-emergency"></span>
+              </span>
+              <span className="text-white/90 uppercase">{siteSettings.emergencyNotice || "EMERGENCY?"}</span>
+              <a
+                href={`tel:${emergencyPhoneClean}`}
+                title={`Call: ${emergencyPhone}`}
+                aria-label={`Call: ${emergencyPhone}`}
+                className="inline-flex size-7 items-center justify-center rounded-full bg-emergency text-white hover:bg-emergency-strong hover:scale-105 transition-all shadow-xs"
+              >
+                <Phone className="size-3.5" aria-hidden="true" />
+              </a>
+              <a
+                href={`https://wa.me/${whatsappPhoneClean}?text=Hello%20AKEEZO%2C%20I%20need%20help%20with%20a%20healthcare%20requirement.`}
+                target="_blank"
+                rel="noopener noreferrer"
+                title={`WhatsApp: ${whatsappPhone}`}
+                aria-label={`WhatsApp: ${whatsappPhone}`}
+                className="inline-flex size-7 items-center justify-center rounded-full bg-[#25D366] text-white hover:bg-[#20bd5a] hover:scale-105 transition-all shadow-xs"
+              >
+                <svg className="size-3.5 text-white" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
+                  <path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.501-.669-.51l-.57-.01c-.198 0-.52.074-.792.372s-1.04 1.016-1.04 2.479 1.065 2.876 1.213 3.074c.149.198 2.095 3.2 5.076 4.487.709.306 1.263.489 1.694.626.712.226 1.36.194 1.872.118.571-.085 1.758-.719 2.006-1.413.248-.695.248-1.29.173-1.414-.074-.124-.272-.198-.57-.347z"></path>
+                  <path fillRule="evenodd" clipRule="evenodd" d="M12 0C5.373 0 0 5.373 0 12c0 2.119.553 4.11 1.519 5.842L.055 23.361l5.688-1.491A11.936 11.936 0 0012 24c6.627 0 12-5.373 12-12S18.627 0 12 0zm0 22c-1.83 0-3.551-.482-5.05-1.325l-.362-.202-3.37.884.899-3.284-.236-.375A9.953 9.953 0 012 12C2 6.477 6.477 2 12 2s10 4.477 10 10-4.477 10-10 10z"></path>
+                </svg>
+              </a>
+            </div>
+            <ul className="flex flex-wrap items-center gap-x-5 gap-y-1">
+              <li>
+                <button
+                  type="button"
+                  onClick={() => {
+                    setPartnerType("hospital");
+                    setIsPartnerModalOpen(true);
+                  }}
+                  className="flex items-center gap-1.5 font-bold hover:underline cursor-pointer bg-transparent border-0 text-inherit p-0 font-inherit"
+                >
+                  <Building2 className="size-3.5" aria-hidden="true" />
+                  <span>List your hospital</span>
+                </button>
+              </li>
+              <li>
+                <button
+                  type="button"
+                  onClick={() => {
+                    setPartnerType("agent");
+                    setIsPartnerModalOpen(true);
+                  }}
+                  className="flex items-center gap-1.5 font-bold hover:underline cursor-pointer bg-transparent border-0 text-inherit p-0 font-inherit"
+                >
+                  <Globe2 className="size-3.5" aria-hidden="true" />
+                  <span>Agent portal</span>
+                </button>
+              </li>
+              <li>
+                <button
+                  type="button"
+                  onClick={() => setIsPatientModalOpen(true)}
+                  className="flex items-center gap-1.5 font-bold hover:underline cursor-pointer bg-transparent border-0 text-inherit p-0 font-inherit"
+                >
+                  <User2 className="size-3.5" aria-hidden="true" />
+                  <span>My journey / Patient Login</span>
+                </button>
+              </li>
+              <li className="list-none">
+                <button
+                  type="button"
+                  data-cy="country-lang-switcher"
+                  data-testid="country-lang-switcher"
+                  onClick={() => setIsCountryLangOpen(true)}
+                  className="flex items-center gap-1.5 rounded-sm bg-white/15 px-2.5 py-1 text-[0.75rem] font-bold text-white transition-colors hover:bg-white/25 focus-visible:outline-2 focus-visible:outline-white cursor-pointer border-0"
+                  aria-label={`Selected currency: ${selectedCountry.currencyCode}, language: ${selectedLanguage.name}`}
+                  aria-haspopup="dialog"
+                  aria-expanded={isCountryLangOpen}
+                  data-state={isCountryLangOpen ? "open" : "closed"}
+                  data-slot="popover-trigger"
+                >
+                  <span {...{ countrycode: selectedCountry.countryCode }} className="inline-flex items-center shrink-0">
+                    <img
+                      alt={selectedCountry.countryName}
+                      className="h-3 w-4.5 rounded-[1px] object-cover shadow-xs"
+                      srcSet={`https://flagcdn.com/w80/${selectedCountry.countryCode.toLowerCase()}.png 2x`}
+                      src={selectedCountry.flagUrl}
+                    />
+                  </span>
+                  <span className="font-extrabold uppercase tracking-tight">{selectedCountry.currencyCode}</span>
+                  <span className="text-white/60">|</span>
+                  <span className="font-medium text-white/90">{selectedLanguage.name}</span>
+                  <ChevronDown
+                    className={`size-3 text-white/80 transition-transform duration-200 ${isCountryLangOpen ? "rotate-180" : ""}`}
+                    aria-hidden="true"
+                  />
+                </button>
+              </li>
+            </ul>
+          </div>
+        </div>
+      )}
+
       {/* 1. Improved Header with Full Size Official Brand Logo */}
       <header className="sticky top-0 z-50 h-18 sm:h-20 border-b border-border/80 bg-white/95 backdrop-blur-md transition-shadow shadow-2xs">
         <div className="mx-auto flex h-full max-w-[1280px] items-center justify-between px-4 sm:px-8">
@@ -395,36 +510,6 @@ export const HomeTemplate: React.FC<HomeTemplateProps> = ({ data }) => {
           </div>
 
           <div className="flex items-center gap-2.5 sm:gap-3">
-            {/* Regional Country / Currency / Language Switcher Button */}
-            <button
-              type="button"
-              data-cy="country-lang-switcher"
-              data-testid="country-lang-switcher"
-              onClick={() => setIsCountryLangOpen(true)}
-              className="flex items-center gap-1.5 rounded-sm bg-surface-muted px-2.5 py-1 text-[0.75rem] font-bold text-ink border border-border transition-colors hover:bg-surface-teal/50 hover:text-action hover:border-action focus-visible:outline-2 focus-visible:outline-action cursor-pointer shadow-2xs"
-              aria-label={`Selected currency: ${selectedCountry.currencyCode}, language: ${selectedLanguage.name}`}
-              aria-haspopup="dialog"
-              aria-expanded={isCountryLangOpen}
-              data-state={isCountryLangOpen ? "open" : "closed"}
-              data-slot="popover-trigger"
-            >
-              <span {...{ countrycode: selectedCountry.countryCode }} className="inline-flex items-center shrink-0">
-                <img
-                  alt={selectedCountry.countryName}
-                  className="h-3 w-4.5 rounded-[1px] object-cover shadow-xs"
-                  srcSet={`https://flagcdn.com/w80/${selectedCountry.countryCode.toLowerCase()}.png 2x`}
-                  src={selectedCountry.flagUrl}
-                />
-              </span>
-              <span className="font-extrabold uppercase tracking-tight">{selectedCountry.currencyCode}</span>
-              <span className="text-ink-muted/60">|</span>
-              <span className="font-medium text-ink-muted">{selectedLanguage.name}</span>
-              <ChevronDown
-                className={`size-3 text-ink-muted/80 transition-transform duration-200 ${isCountryLangOpen ? "rotate-180" : ""}`}
-                aria-hidden="true"
-              />
-            </button>
-
             {/* Live WhatsApp / Phone Helpline with Active Pulse */}
             <a
               href={`https://wa.me/${phoneClean}?text=Hello%20Akeezo%20Care%20Desk`}
@@ -1082,13 +1167,42 @@ export const HomeTemplate: React.FC<HomeTemplateProps> = ({ data }) => {
 
           <hr className="border-border my-6" />
 
-          {/* Bottom Bar: Copyright & Grievance */}
+          {/* Bottom Bar: Copyright, Country Switcher & Grievance */}
           <div className="flex flex-col sm:flex-row items-center justify-between gap-4 text-xs text-ink-muted">
             <div className="flex items-center gap-2">
               <img src="/logo/favicon.svg" alt="Akeezo" className="size-5" />
               <span>© 2026 {siteSettings.legalEntityName}. All rights reserved.</span>
             </div>
-            <div className="flex items-center gap-6">
+            <div className="flex items-center gap-4 sm:gap-6 flex-wrap">
+              {/* Regional Country / Currency / Language Switcher Button in Footer */}
+              <button
+                type="button"
+                data-cy="country-lang-switcher-footer"
+                data-testid="country-lang-switcher-footer"
+                onClick={() => setIsCountryLangOpen(true)}
+                className="flex items-center gap-1.5 rounded-sm bg-surface-muted px-2.5 py-1 text-[0.75rem] font-bold text-ink border border-border transition-colors hover:bg-surface-teal/50 hover:text-action hover:border-action focus-visible:outline-2 focus-visible:outline-action cursor-pointer shadow-2xs"
+                aria-label={`Selected currency: ${selectedCountry.currencyCode}, language: ${selectedLanguage.name}`}
+                aria-haspopup="dialog"
+                aria-expanded={isCountryLangOpen}
+                data-state={isCountryLangOpen ? "open" : "closed"}
+                data-slot="popover-trigger"
+              >
+                <span {...{ countrycode: selectedCountry.countryCode }} className="inline-flex items-center shrink-0">
+                  <img
+                    alt={selectedCountry.countryName}
+                    className="h-3 w-4.5 rounded-[1px] object-cover shadow-xs"
+                    srcSet={`https://flagcdn.com/w80/${selectedCountry.countryCode.toLowerCase()}.png 2x`}
+                    src={selectedCountry.flagUrl}
+                  />
+                </span>
+                <span className="font-extrabold uppercase tracking-tight">{selectedCountry.currencyCode}</span>
+                <span className="text-ink-muted/60">|</span>
+                <span className="font-medium text-ink-muted">{selectedLanguage.name}</span>
+                <ChevronDown
+                  className={`size-3 text-ink-muted/80 transition-transform duration-200 ${isCountryLangOpen ? "rotate-180" : ""}`}
+                  aria-hidden="true"
+                />
+              </button>
               <span>Regulated under Indian Clinical Establishments Acts</span>
               <a href="/grievance-officer" className="hover:text-action font-bold">Grievance Desk</a>
             </div>
@@ -1438,6 +1552,187 @@ export const HomeTemplate: React.FC<HomeTemplateProps> = ({ data }) => {
               >
                 Done
               </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* MODAL 4: Patient Journey / Login Modal */}
+      {isPatientModalOpen && (
+        <div
+          role="dialog"
+          aria-modal="true"
+          aria-labelledby="patient-journey-modal-title"
+          className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4 backdrop-blur-xs"
+          onClick={() => setIsPatientModalOpen(false)}
+        >
+          <div
+            className="relative max-h-[85vh] w-full max-w-md overflow-hidden rounded-[20px] bg-white p-6 sm:p-7 shadow-2xl flex flex-col"
+            onClick={(e) => e.stopPropagation()}
+          >
+            <div className="flex items-center justify-between border-b border-border pb-3.5">
+              <div className="flex items-center gap-2.5">
+                <div className="inline-flex size-9 items-center justify-center rounded-full bg-surface-teal text-action border border-[#b2ebe4]">
+                  <User2 className="size-4" />
+                </div>
+                <div>
+                  <h3 id="patient-journey-modal-title" className="text-base font-bold text-ink">
+                    My Medical Journey
+                  </h3>
+                  <p className="text-[11px] text-ink-muted">Track treatment progress, visa letters & hospital quotes</p>
+                </div>
+              </div>
+              <button
+                type="button"
+                onClick={() => setIsPatientModalOpen(false)}
+                className="rounded-full p-2 text-ink-muted hover:bg-surface-muted hover:text-ink cursor-pointer"
+                aria-label="Close patient journey dialog"
+              >
+                <X className="size-5" />
+              </button>
+            </div>
+
+            <div className="mt-5 space-y-4">
+              <div>
+                <label htmlFor="patient-lookup-id" className="block text-xs font-bold text-ink mb-1.5">
+                  Case ID, Passport or WhatsApp Number
+                </label>
+                <input
+                  id="patient-lookup-id"
+                  type="text"
+                  value={patientLookupId}
+                  onChange={(e) => setPatientLookupId(e.target.value)}
+                  placeholder="e.g. AKZ-2026-0842 or +971 50..."
+                  className="w-full rounded-xl border border-border bg-surface-muted py-2.5 px-3.5 text-xs text-ink placeholder:text-ink-muted/70 focus:border-action focus:outline-none focus:bg-white font-medium"
+                />
+              </div>
+
+              <div className="rounded-xl border border-[#b2ebe4] bg-surface-teal/40 p-3.5 text-xs text-ink space-y-2">
+                <div className="font-bold text-action flex items-center gap-1.5">
+                  <span>🔒 Patient Health Privacy Protected</span>
+                </div>
+                <p className="text-[11px] text-ink-muted leading-relaxed">
+                  Your medical records and physician triage are secured under Indian DPDP & international health confidentiality rules.
+                </p>
+              </div>
+
+              <div className="pt-2 flex flex-col gap-2">
+                <a
+                  href={`https://wa.me/${phoneClean}?text=${encodeURIComponent(
+                    patientLookupId.trim()
+                      ? `Hello Akeezo Patient Desk, I would like to track my medical case: ${patientLookupId}`
+                      : `Hello Akeezo Patient Desk, I would like to access my medical journey and active case status.`
+                  )}`}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="w-full inline-flex h-11 items-center justify-center rounded-full bg-action px-6 text-xs font-bold text-white shadow-sm hover:bg-action-hover cursor-pointer"
+                >
+                  Track Live on WhatsApp Care Desk
+                </a>
+                <a
+                  href="/case-management"
+                  className="w-full inline-flex h-10 items-center justify-center rounded-full bg-surface-muted px-4 text-xs font-bold text-ink hover:bg-border cursor-pointer text-center"
+                >
+                  Clinical Staff & Coordinator Login
+                </a>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* MODAL 5: Hospital & Agent Partner Onboarding Modal */}
+      {isPartnerModalOpen && (
+        <div
+          role="dialog"
+          aria-modal="true"
+          aria-labelledby="partner-onboarding-modal-title"
+          className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4 backdrop-blur-xs"
+          onClick={() => setIsPartnerModalOpen(false)}
+        >
+          <div
+            className="relative max-h-[90vh] w-full max-w-lg overflow-y-auto rounded-[20px] bg-white p-6 sm:p-7 shadow-2xl flex flex-col"
+            onClick={(e) => e.stopPropagation()}
+          >
+            <div className="flex items-center justify-between border-b border-border pb-3.5">
+              <div className="flex items-center gap-2.5">
+                <div className="inline-flex size-9 items-center justify-center rounded-full bg-surface-orange text-action-accent border border-[#ffd8bf]">
+                  <Building2 className="size-4" />
+                </div>
+                <div>
+                  <h3 id="partner-onboarding-modal-title" className="text-base font-bold text-ink">
+                    {partnerType === "hospital" ? "List Your Hospital / Medical Center" : "Healthcare Tourism Agent Portal"}
+                  </h3>
+                  <p className="text-[11px] text-ink-muted">Join India&apos;s accredited medical travel network</p>
+                </div>
+              </div>
+              <button
+                type="button"
+                onClick={() => setIsPartnerModalOpen(false)}
+                className="rounded-full p-2 text-ink-muted hover:bg-surface-muted hover:text-ink cursor-pointer"
+                aria-label="Close partnership dialog"
+              >
+                <X className="size-5" />
+              </button>
+            </div>
+
+            <div className="mt-4 flex border-b border-border">
+              <button
+                type="button"
+                onClick={() => setPartnerType("hospital")}
+                className={`flex-1 py-2 text-center text-xs font-bold transition-colors border-b-2 cursor-pointer ${
+                  partnerType === "hospital" ? "border-action text-action" : "border-transparent text-ink-muted hover:text-ink"
+                }`}
+              >
+                Hospital / Clinic Partner
+              </button>
+              <button
+                type="button"
+                onClick={() => setPartnerType("agent")}
+                className={`flex-1 py-2 text-center text-xs font-bold transition-colors border-b-2 cursor-pointer ${
+                  partnerType === "agent" ? "border-action text-action" : "border-transparent text-ink-muted hover:text-ink"
+                }`}
+              >
+                Travel Agent / Facilitator
+              </button>
+            </div>
+
+            <div className="mt-4 space-y-3.5">
+              <div className="rounded-xl border border-border bg-surface-muted p-4 text-xs text-ink space-y-2">
+                <div className="font-bold text-ink">
+                  {partnerType === "hospital"
+                    ? "NABH / JCI Accreditation Requirement"
+                    : "Official Medical Travel Partner Empanelment"}
+                </div>
+                <p className="text-[11px] text-ink-muted leading-relaxed">
+                  {partnerType === "hospital"
+                    ? "Akeezo empanels NABH, NABL, and JCI accredited healthcare institutions across India. Empaneled hospitals receive direct international patient referrals, verified clinical dossiers, and dedicated multilingual bedside coordinators."
+                    : "International facilitators and medical tourism agents receive transparent zero-leakage commission tracking, priority doctor appointment slots, and fast-track Medical Visa assistance for traveling patients."}
+                </p>
+              </div>
+
+              <div className="pt-2 flex flex-col gap-2.5">
+                <a
+                  href={`https://wa.me/${phoneClean}?text=${encodeURIComponent(
+                    partnerType === "hospital"
+                      ? "Hello Akeezo Partnership Team, I represent a hospital interested in listing on the Akeezo healthcare platform."
+                      : "Hello Akeezo Partnership Team, I am a medical travel agent interested in partner empanelment."
+                  )}`}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="w-full inline-flex h-11 items-center justify-center rounded-full bg-action px-6 text-xs font-bold text-white shadow-sm hover:bg-action-hover cursor-pointer"
+                >
+                  Connect with Partnership Desk (WhatsApp)
+                </a>
+                <a
+                  href={`mailto:${siteSettings.partnershipEmail || "partnership@akeezo.com"}?subject=${encodeURIComponent(
+                    partnerType === "hospital" ? "Hospital Empanelment Application" : "Medical Tourism Agent Registration"
+                  )}`}
+                  className="w-full inline-flex h-10 items-center justify-center rounded-full bg-surface-muted px-4 text-xs font-bold text-ink hover:bg-border cursor-pointer text-center"
+                >
+                  Email Partnership Team ({siteSettings.partnershipEmail || "partnership@akeezo.com"})
+                </a>
+              </div>
             </div>
           </div>
         </div>

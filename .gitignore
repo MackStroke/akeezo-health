@@ -4,6 +4,8 @@ node_modules/
 
 # Build artifacts & distribution
 dist/
+!apps/server/dist/
+!apps/server/dist/**
 build/
 .vite/
 *.tsbuildinfo

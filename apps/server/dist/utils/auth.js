@@ -1,0 +1,115 @@
+import crypto from "crypto";
+import { UserModel } from "../db/models/User.js";
+const JWT_SECRET = process.env.JWT_SECRET || "akeezo_super_secure_jwt_secret_token_2026";
+const TOKEN_EXPIRY_SECONDS = 60 * 60 * 12; // 12 hours absolute limit per PRD Section 27
+const TEMP_TOKEN_EXPIRY_SECONDS = 60 * 5; // 5 minutes for 2FA verification
+export function hashPassword(password) {
+    return crypto.createHash("sha256").update(password.trim()).digest("hex");
+}
+export function verifyPassword(password, storedHash) {
+    return hashPassword(password) === storedHash;
+}
+function base64UrlEncode(str) {
+    return Buffer.from(str)
+        .toString("base64")
+        .replace(/=/g, "")
+        .replace(/\+/g, "-")
+        .replace(/\//g, "_");
+}
+function base64UrlDecode(str) {
+    str = str.replace(/-/g, "+").replace(/_/g, "/");
+    while (str.length % 4) {
+        str += "=";
+    }
+    return Buffer.from(str, "base64").toString("utf8");
+}
+export function signToken(payload, isTemp2FA = false) {
+    const header = { alg: "HS256", typ: "JWT" };
+    const exp = Math.floor(Date.now() / 1000) + (isTemp2FA ? TEMP_TOKEN_EXPIRY_SECONDS : TOKEN_EXPIRY_SECONDS);
+    const fullPayload = { ...payload, exp, iat: Math.floor(Date.now() / 1000) };
+    const encodedHeader = base64UrlEncode(JSON.stringify(header));
+    const encodedPayload = base64UrlEncode(JSON.stringify(fullPayload));
+    const signature = crypto
+        .createHmac("sha256", JWT_SECRET)
+        .update(`${encodedHeader}.${encodedPayload}`)
+        .digest("base64")
+        .replace(/=/g, "")
+        .replace(/\+/g, "-")
+        .replace(/\//g, "_");
+    return `${encodedHeader}.${encodedPayload}.${signature}`;
+}
+export function verifyToken(token) {
+    try {
+        const parts = token.split(".");
+        if (parts.length !== 3)
+            return null;
+        const [header, payload, signature] = parts;
+        const expectedSig = crypto
+            .createHmac("sha256", JWT_SECRET)
+            .update(`${header}.${payload}`)
+            .digest("base64")
+            .replace(/=/g, "")
+            .replace(/\+/g, "-")
+            .replace(/\//g, "_");
+        if (signature !== expectedSig)
+            return null;
+        const decodedPayload = JSON.parse(base64UrlDecode(payload));
+        const now = Math.floor(Date.now() / 1000);
+        if (decodedPayload.exp && decodedPayload.exp < now) {
+            return null; // Expired
+        }
+        return decodedPayload;
+    }
+    catch (err) {
+        return null;
+    }
+}
+// Authentication Middleware
+export async function requireAuth(req, res, next) {
+    const authHeader = req.headers.authorization;
+    if (!authHeader || !authHeader.startsWith("Bearer ")) {
+        res.status(401).json({
+            error: { code: "UNAUTHORIZED", message: "Authentication required. Please sign in." },
+        });
+        return;
+    }
+    const token = authHeader.split(" ")[1];
+    const payload = verifyToken(token);
+    if (!payload || !payload.userId || payload.isTemp2FA) {
+        res.status(401).json({
+            error: { code: "INVALID_TOKEN", message: "Invalid or expired session token." },
+        });
+        return;
+    }
+    const user = await UserModel.findById(payload.userId);
+    if (!user || user.status === "disabled") {
+        res.status(403).json({
+            error: { code: "FORBIDDEN", message: "User account is disabled or no longer exists." },
+        });
+        return;
+    }
+    req.user = user;
+    next();
+}
+// Granular RBAC Permission Middleware
+export function requirePermission(permission) {
+    return (req, res, next) => {
+        if (!req.user) {
+            res.status(401).json({ error: { code: "UNAUTHORIZED", message: "Sign in required." } });
+            return;
+        }
+        // Admin role has implicit bypass
+        if (req.user.role === "admin") {
+            return next();
+        }
+        if (req.user.permissions && req.user.permissions.includes(permission)) {
+            return next();
+        }
+        res.status(403).json({
+            error: {
+                code: "PERMISSION_DENIED",
+                message: `You do not have the required permission: ${permission}`,
+            },
+        });
+    };
+}

@@ -17,6 +17,8 @@ export interface ISiteSettings extends Document {
   partnershipEmail: string;
   emergencyHelpline: string;
   whatsappHelpline: string;
+  showTopUtilityBar?: boolean;
+  emergencyNotice?: string;
   headquartersAddress: string;
   grievanceOfficer: {
     name: string;
@@ -59,6 +61,8 @@ const SiteSettingsSchema = new Schema<ISiteSettings>(
     partnershipEmail: { type: String, default: "partnership@akeezo.com" },
     emergencyHelpline: { type: String, default: "+91 82876 39443" },
     whatsappHelpline: { type: String, default: "+91 82876 39443" },
+    showTopUtilityBar: { type: Boolean, default: true },
+    emergencyNotice: { type: String, default: "EMERGENCY?" },
     headquartersAddress: {
       type: String,
       default: "Regus Elegance, Jasola District Centre, New Delhi, India 110025"

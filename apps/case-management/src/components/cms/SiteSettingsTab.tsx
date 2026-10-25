@@ -180,7 +180,43 @@ export const SiteSettingsTab: React.FC = () => {
       <div className="bg-white p-5 rounded-xl border border-slate-200 shadow-xs space-y-4">
         <div className="flex items-center gap-2 text-xs font-bold text-slate-800 uppercase tracking-wider">
           <Phone className="w-4 h-4 text-teal-700" />
-          <span>Patient Contact Helplines & WhatsApp</span>
+          <span>Patient Contact Helplines & Emergency Controls</span>
+        </div>
+
+        {/* Top Emergency Utility Bar Controls */}
+        <div className="p-3.5 bg-slate-50 border border-slate-200 rounded-lg space-y-3">
+          <div className="flex items-center justify-between">
+            <div>
+              <span className="text-xs font-bold text-slate-800 block">
+                Top Emergency & Utility Bar
+              </span>
+              <span className="text-[11px] text-slate-500">
+                Displays the 24/7 emergency response badge, quick calling buttons, hospital/agent portals, and regional switcher.
+              </span>
+            </div>
+            <label className="relative inline-flex items-center cursor-pointer">
+              <input
+                type="checkbox"
+                checked={settings.showTopUtilityBar !== false}
+                onChange={(e) => setSettings({ ...settings, showTopUtilityBar: e.target.checked })}
+                className="sr-only peer"
+              />
+              <div className="w-9 h-5 bg-slate-300 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-slate-300 after:border after:rounded-full after:h-4 after:w-4 after:transition-all peer-checked:bg-teal-700"></div>
+            </label>
+          </div>
+
+          <div>
+            <label className="text-xs font-bold text-slate-700 block mb-1">
+              Emergency Notice Label
+            </label>
+            <input
+              type="text"
+              value={settings.emergencyNotice || "EMERGENCY?"}
+              onChange={(e) => setSettings({ ...settings, emergencyNotice: e.target.value })}
+              className="w-full text-xs p-2 bg-white border rounded-lg focus:outline-teal-600 font-bold"
+              placeholder="EMERGENCY?"
+            />
+          </div>
         </div>
 
         <div className="grid grid-cols-2 gap-4">

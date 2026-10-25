@@ -4,6 +4,7 @@
     "server": {
       "root": "apps/server",
       "framework": "express",
+      "buildCommand": "pnpm build",
       "entrypoint": "index.js"
     },
     "case-management": {

@@ -49,6 +49,8 @@ cmsAdminRouter.put("/site-settings", async (req: Request, res: Response) => {
           partnershipEmail: req.body.partnershipEmail,
           emergencyHelpline: req.body.emergencyHelpline,
           whatsappHelpline: req.body.whatsappHelpline,
+          showTopUtilityBar: req.body.showTopUtilityBar,
+          emergencyNotice: req.body.emergencyNotice,
           headquartersAddress: req.body.headquartersAddress,
           socialLinks: req.body.socialLinks,
         },

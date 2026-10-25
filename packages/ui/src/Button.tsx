@@ -1,7 +1,7 @@
 import React from "react";
 
 export interface ButtonProps extends React.ButtonHTMLAttributes<HTMLButtonElement> {
-  variant?: "primary" | "secondary" | "ghost" | "emergency" | "outline";
+  variant?: "primary" | "secondary" | "ghost" | "emergency" | "outline" | "orange" | "orangeAlt" | "teal";
   size?: "sm" | "md" | "lg";
   asChild?: boolean;
   href?: string;
@@ -43,6 +43,22 @@ export const Button: React.FC<ButtonProps> = ({
     primary: {
       backgroundColor: "var(--action)",
       color: "#ffffff"
+    },
+    orange: {
+      backgroundColor: "var(--brand-orange)",
+      color: "#ffffff",
+      borderColor: "var(--brand-orange)"
+    },
+    orangeAlt: {
+      backgroundColor: "var(--brand-orange-alt)",
+      color: "#ffffff",
+      borderColor: "var(--brand-orange-alt)"
+    },
+    teal: {
+      backgroundColor: "var(--brand-teal)",
+      color: "var(--navy)",
+      borderColor: "var(--brand-teal)",
+      fontWeight: 800
     },
     secondary: {
       backgroundColor: "var(--surface-teal)",

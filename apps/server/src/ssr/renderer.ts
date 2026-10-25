@@ -57,6 +57,8 @@ export function toSafeSiteSettings(doc: any): SiteSettingsDTO {
     supportEmail: doc?.supportEmail || "support@akeezo.com",
     emergencyHelpline: doc?.emergencyHelpline || doc?.phone || "+91 82876 39443",
     whatsappHelpline: doc?.whatsappHelpline || doc?.phone || "+91 82876 39443",
+    showTopUtilityBar: doc?.showTopUtilityBar !== false,
+    emergencyNotice: doc?.emergencyNotice || "EMERGENCY?",
     contactEmail: doc?.contactEmail || doc?.careEmail || "care@akeezo.com",
     telegramChannel: doc?.telegramChannel || "https://t.me/akeezohealth",
     supportedLocales: doc?.supportedLocales || ["en"],
