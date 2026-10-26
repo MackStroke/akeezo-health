@@ -21,6 +21,7 @@ import {
   ViewToggle,
   ViewMode,
 } from "@akeezo/ui";
+import { apiFetch } from "../utils/api.js";
 
 interface FinanceWorkspaceProps {
   onRefresh: () => void;
@@ -70,7 +71,7 @@ export const FinanceWorkspace: React.FC<FinanceWorkspaceProps> = () => {
   const fetchCommissions = async () => {
     try {
       setLoading(true);
-      const res = await fetch("/api/v1/commission-records");
+      const res = await apiFetch("/api/v1/commission-records");
       const json = await res.json();
       setCommissions(json.data || []);
       if (json.data && json.data.length > 0) {
@@ -107,7 +108,7 @@ export const FinanceWorkspace: React.FC<FinanceWorkspaceProps> = () => {
         ],
       };
 
-      const res = await fetch("/api/v1/payments", {
+      const res = await apiFetch("/api/v1/payments", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(payload),

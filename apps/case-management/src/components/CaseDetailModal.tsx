@@ -18,6 +18,7 @@ import {
 import { CASE_STAGES, CASE_CLOSURE_REASONS, CaseStage } from "@akeezo/contracts";
 import { useToast, DisabledGuideButton } from "@akeezo/ui";
 import { STAGE_CONFIG } from "./PipelineBoard.js";
+import { apiFetch } from "../utils/api.js";
 
 interface CaseDetailModalProps {
   caseId: string;
@@ -68,7 +69,7 @@ export const CaseDetailModal: React.FC<CaseDetailModalProps> = ({
   const fetchCase = async () => {
     try {
       setLoading(true);
-      const res = await fetch(`/api/v1/cases/${caseId}`);
+      const res = await apiFetch(`/api/v1/cases/${caseId}`);
       const json = await res.json();
       if (json.data) {
         setCaseData(json.data);
@@ -87,7 +88,7 @@ export const CaseDetailModal: React.FC<CaseDetailModalProps> = ({
       setTargetStage(toStage);
       setGuardLoading(true);
       setStageError(null);
-      const res = await fetch(`/api/v1/cases/${targetId}/readiness?toStage=${toStage}`);
+      const res = await apiFetch(`/api/v1/cases/${targetId}/readiness?toStage=${toStage}`);
       const json = await res.json();
       setReadiness(json.data);
     } catch (err: any) {
@@ -101,7 +102,7 @@ export const CaseDetailModal: React.FC<CaseDetailModalProps> = ({
     if (!targetStage) return;
     try {
       setStageError(null);
-      const res = await fetch(`/api/v1/cases/${targetId}/stage-transitions`, {
+      const res = await apiFetch(`/api/v1/cases/${targetId}/stage-transitions`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ toStage: targetStage }),
@@ -136,7 +137,7 @@ export const CaseDetailModal: React.FC<CaseDetailModalProps> = ({
     }
     try {
       setStageError(null);
-      const res = await fetch(`/api/v1/cases/${targetId}/stage-transitions`, {
+      const res = await apiFetch(`/api/v1/cases/${targetId}/stage-transitions`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ toStage: backwardTargetStage, reason: backwardReason.trim() }),
@@ -163,7 +164,7 @@ export const CaseDetailModal: React.FC<CaseDetailModalProps> = ({
   const handleConfirmClosure = async () => {
     try {
       setStageError(null);
-      const res = await fetch(`/api/v1/cases/${targetId}/stage-transitions`, {
+      const res = await apiFetch(`/api/v1/cases/${targetId}/stage-transitions`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
@@ -189,7 +190,7 @@ export const CaseDetailModal: React.FC<CaseDetailModalProps> = ({
   const handleActivateEpisode = async (episodeId: string) => {
     try {
       setStageError(null);
-      const res = await fetch(`/api/v1/episodes/${episodeId}/activate`, {
+      const res = await apiFetch(`/api/v1/episodes/${episodeId}/activate`, {
         method: "POST",
       });
       const json = await res.json();
@@ -207,7 +208,7 @@ export const CaseDetailModal: React.FC<CaseDetailModalProps> = ({
 
   const handleCompleteEpisode = async (episodeId: string) => {
     try {
-      const res = await fetch(`/api/v1/episodes/${episodeId}/complete`, {
+      const res = await apiFetch(`/api/v1/episodes/${episodeId}/complete`, {
         method: "POST",
       });
       if (res.ok) {
@@ -227,7 +228,7 @@ export const CaseDetailModal: React.FC<CaseDetailModalProps> = ({
     if (!billingEpisodeId || !billedAmount) return;
     try {
       const amountPaise = Math.round(parseFloat(billedAmount) * 100);
-      const res = await fetch(`/api/v1/episodes/${billingEpisodeId}/billing`, {
+      const res = await apiFetch(`/api/v1/episodes/${billingEpisodeId}/billing`, {
         method: "PUT",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
@@ -257,7 +258,7 @@ export const CaseDetailModal: React.FC<CaseDetailModalProps> = ({
   const handleCreateSeries = async () => {
     if (!caseData) return;
     try {
-      const res = await fetch(`/api/v1/cases/${targetId}/episode-series`, {
+      const res = await apiFetch(`/api/v1/cases/${targetId}/episode-series`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
@@ -288,7 +289,7 @@ export const CaseDetailModal: React.FC<CaseDetailModalProps> = ({
 
   const handleSelectQuote = async (quoteId: string) => {
     try {
-      const res = await fetch(`/api/v1/quotes/${quoteId}/select`, {
+      const res = await apiFetch(`/api/v1/quotes/${quoteId}/select`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ selectedVia: "whatsapp" }),

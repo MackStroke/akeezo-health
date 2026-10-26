@@ -1,7 +1,7 @@
 import { z } from "zod";
 export declare const PERMISSION_KEYS: readonly ["case.view", "case.create", "case.edit", "case.stage_move", "case.close", "case.reassign", "document.view", "document.upload", "document.view_identity", "quote.manage", "travel.manage", "episode.manage", "commission.view", "commission.manage", "payment.record", "partner.manage", "partner.view_payout", "hospital.manage", "agreement.view", "agreement.manage", "user.manage", "report.view", "report.financial", "export.data", "audit.view"];
 export type PermissionKey = (typeof PERMISSION_KEYS)[number];
-export declare const ROLE_KEYS: readonly ["admin", "coordinator", "hospital_liaison", "finance", "viewer"];
+export declare const ROLE_KEYS: readonly ["admin", "coordinator", "hospital_liaison", "finance", "viewer", "partner"];
 export type RoleKey = (typeof ROLE_KEYS)[number];
 export declare const DEFAULT_ROLE_PERMISSIONS: Record<RoleKey, PermissionKey[]>;
 export declare const UserSchema: z.ZodObject<{
@@ -9,7 +9,7 @@ export declare const UserSchema: z.ZodObject<{
     name: z.ZodString;
     email: z.ZodString;
     phone: z.ZodOptional<z.ZodString>;
-    role: z.ZodEnum<["admin", "coordinator", "hospital_liaison", "finance", "viewer"]>;
+    role: z.ZodEnum<["admin", "coordinator", "hospital_liaison", "finance", "viewer", "partner"]>;
     permissions: z.ZodArray<z.ZodString, "many">;
     status: z.ZodDefault<z.ZodEnum<["active", "disabled"]>>;
     phoneVerified: z.ZodDefault<z.ZodBoolean>;
@@ -24,7 +24,7 @@ export declare const UserSchema: z.ZodObject<{
     email: string;
     createdAt: string;
     updatedAt: string;
-    role: "admin" | "coordinator" | "hospital_liaison" | "finance" | "viewer";
+    role: "partner" | "admin" | "coordinator" | "hospital_liaison" | "finance" | "viewer";
     permissions: string[];
     phoneVerified: boolean;
     totpEnabled: boolean;
@@ -36,7 +36,7 @@ export declare const UserSchema: z.ZodObject<{
     email: string;
     createdAt: string;
     updatedAt: string;
-    role: "admin" | "coordinator" | "hospital_liaison" | "finance" | "viewer";
+    role: "partner" | "admin" | "coordinator" | "hospital_liaison" | "finance" | "viewer";
     permissions: string[];
     status?: "active" | "disabled" | undefined;
     phone?: string | undefined;
@@ -108,7 +108,7 @@ export declare const AuthResponseSchema: z.ZodObject<{
         name: z.ZodString;
         email: z.ZodString;
         phone: z.ZodOptional<z.ZodString>;
-        role: z.ZodEnum<["admin", "coordinator", "hospital_liaison", "finance", "viewer"]>;
+        role: z.ZodEnum<["admin", "coordinator", "hospital_liaison", "finance", "viewer", "partner"]>;
         permissions: z.ZodArray<z.ZodString, "many">;
         status: z.ZodDefault<z.ZodEnum<["active", "disabled"]>>;
         phoneVerified: z.ZodDefault<z.ZodBoolean>;
@@ -123,7 +123,7 @@ export declare const AuthResponseSchema: z.ZodObject<{
         email: string;
         createdAt: string;
         updatedAt: string;
-        role: "admin" | "coordinator" | "hospital_liaison" | "finance" | "viewer";
+        role: "partner" | "admin" | "coordinator" | "hospital_liaison" | "finance" | "viewer";
         permissions: string[];
         phoneVerified: boolean;
         totpEnabled: boolean;
@@ -135,7 +135,7 @@ export declare const AuthResponseSchema: z.ZodObject<{
         email: string;
         createdAt: string;
         updatedAt: string;
-        role: "admin" | "coordinator" | "hospital_liaison" | "finance" | "viewer";
+        role: "partner" | "admin" | "coordinator" | "hospital_liaison" | "finance" | "viewer";
         permissions: string[];
         status?: "active" | "disabled" | undefined;
         phone?: string | undefined;
@@ -159,7 +159,7 @@ export declare const AuthResponseSchema: z.ZodObject<{
         email: string;
         createdAt: string;
         updatedAt: string;
-        role: "admin" | "coordinator" | "hospital_liaison" | "finance" | "viewer";
+        role: "partner" | "admin" | "coordinator" | "hospital_liaison" | "finance" | "viewer";
         permissions: string[];
         phoneVerified: boolean;
         totpEnabled: boolean;
@@ -180,7 +180,7 @@ export declare const AuthResponseSchema: z.ZodObject<{
         email: string;
         createdAt: string;
         updatedAt: string;
-        role: "admin" | "coordinator" | "hospital_liaison" | "finance" | "viewer";
+        role: "partner" | "admin" | "coordinator" | "hospital_liaison" | "finance" | "viewer";
         permissions: string[];
         status?: "active" | "disabled" | undefined;
         phone?: string | undefined;

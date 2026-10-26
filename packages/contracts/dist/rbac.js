@@ -32,6 +32,7 @@ export const ROLE_KEYS = [
     "hospital_liaison",
     "finance",
     "viewer",
+    "partner",
 ];
 export const DEFAULT_ROLE_PERMISSIONS = {
     admin: [...PERMISSION_KEYS],
@@ -86,6 +87,12 @@ export const DEFAULT_ROLE_PERMISSIONS = {
     viewer: [
         "case.view",
         "report.view",
+    ],
+    partner: [
+        "case.view",
+        "document.view",
+        "commission.view",
+        "partner.view_payout",
     ],
 };
 export const UserSchema = z.object({

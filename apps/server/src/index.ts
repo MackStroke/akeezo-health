@@ -13,6 +13,7 @@ import { RedirectModel } from "./db/models/Redirect.js";
 import { SiteSettings } from "./db/models/SiteSettings.js";
 import { generateAdminThemeCss, getGoogleFontUrl } from "@akeezo/contracts";
 import { handleSsr, getViteServer, renderFallback500Html, toSafeSiteSettings } from "./ssr/renderer.js";
+import { verifyToken } from "./utils/auth.js";
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -40,17 +41,17 @@ app.use(
     origin: (origin, callback) => {
       // Allow requests with no origin (mobile apps, curl, server-to-server)
       if (!origin) return callback(null, true);
-      // Allow any vercel.app preview or production deployment, localhost, or production domain
-      if (
-        origin.endsWith(".vercel.app") ||
-        origin.includes("localhost") ||
-        origin.includes("127.0.0.1") ||
-        origin === "https://akeezo.com" ||
-        origin === "https://www.akeezo.com"
-      ) {
+      // Allow official production domains, Vercel preview deployments, or local development ports
+      const allowedPatterns = [
+        /^https?:\/\/localhost(:\d+)?$/,
+        /^https?:\/\/127\.0\.0\.1(:\d+)?$/,
+        /^https:\/\/([a-zA-Z0-9-]+\.)*vercel\.app$/,
+        /^https:\/\/(www\.)?akeezo\.com$/
+      ];
+      if (allowedPatterns.some((pattern) => pattern.test(origin))) {
         return callback(null, true);
       }
-      return callback(null, true);
+      return callback(null, false);
     },
     credentials: true
   })
@@ -102,8 +103,29 @@ if (!process.env.VERCEL) {
 
   // 2. Akeezo Website Management & Super Admin Portal (Overall website CMS, lead collector, and Case Management oversight)
   const adminDistDir = path.resolve(__dirname, "../../admin/dist");
+
+  // Server-side Super Admin Gate: Intercept non-super-admin sessions and prevent access to /admin
+  app.use(["/admin", "/admin/*"], (req, res, next) => {
+    let token: string | undefined = undefined;
+    if (req.headers.cookie) {
+      const match = req.headers.cookie.match(/akeezo_session=([^;]+)/);
+      if (match) token = decodeURIComponent(match[1]);
+    }
+    if (!token && req.headers.authorization?.startsWith("Bearer ")) {
+      token = req.headers.authorization.split(" ")[1];
+    }
+
+    if (token) {
+      const payload = verifyToken(token);
+      if (payload && payload.role && payload.role !== "admin") {
+        return res.redirect("/case-management?access=denied_super_admin_only");
+      }
+    }
+    next();
+  });
+
   app.use("/admin", express.static(adminDistDir, { index: false }));
-  app.get(["/admin", "/admin/*"], async (_req, res) => {
+  app.get(["/admin", "/admin/*"], async (req, res) => {
     const indexPath = path.join(adminDistDir, "index.html");
     if (!fs.existsSync(indexPath)) {
       res.status(404).send("Admin portal build not found.");
@@ -144,7 +166,15 @@ if (!process.env.VERCEL) {
   if (!fs.existsSync(uploadsDir)) {
     fs.mkdirSync(uploadsDir, { recursive: true });
   }
-  app.use("/uploads", express.static(uploadsDir));
+  app.use(
+    "/uploads",
+    (_req, res, next) => {
+      res.setHeader("Content-Security-Policy", "default-src 'none'; sandbox");
+      res.setHeader("X-Content-Type-Options", "nosniff");
+      next();
+    },
+    express.static(uploadsDir)
+  );
 
   // 4. Dynamic SEO 301/302 Redirect Execution Middleware (before SSR)
   app.use(async (req, res, next) => {

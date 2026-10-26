@@ -59,4 +59,40 @@ describe("Authentication & RBAC Security Verification", () => {
     assert.equal(verified?.isTempOtp, true);
     assert.equal(verified?.isTemp2FA, true);
   });
+
+  it("UserSession schema enforces TTL expiration and token hash uniqueness", async () => {
+    const { UserSessionModel } = await import("../db/models/UserSession.js");
+    const indexes = UserSessionModel.schema.indexes();
+
+    const ttlIndex = indexes.find(
+      ([idx, opts]: any) => idx.expiresAt === 1 && opts?.expireAfterSeconds === 0
+    );
+    assert.ok(ttlIndex, "UserSession must define a TTL index on expiresAt with expireAfterSeconds: 0");
+
+    const tokenHashField = UserSessionModel.schema.path("tokenHash") as any;
+    assert.equal(tokenHashField?.options?.unique, true, "UserSession tokenHash must be unique");
+  });
+
+  it("User model schema defines tokenVersion and compound indexes for session security", async () => {
+    const { UserModel } = await import("../db/models/User.js");
+    const tokenVersionField = UserModel.schema.path("tokenVersion") as any;
+    assert.ok(tokenVersionField, "User schema must define tokenVersion field for session invalidation");
+    assert.equal(tokenVersionField.defaultValue, 1);
+
+    const indexes = UserModel.schema.indexes();
+    const roleStatusIndex = indexes.find(
+      ([idx]: any) => idx.role === 1 && idx.status === 1
+    );
+    assert.ok(roleStatusIndex, "User schema must have compound index on { role: 1, status: 1 }");
+  });
+
+  it("Token versioning: signs tokens with user's tokenVersion", () => {
+    const tokenV1 = signToken({ userId: "u-1", tokenVersion: 1 });
+    const verifiedV1 = verifyToken(tokenV1);
+    assert.equal(verifiedV1?.tokenVersion, 1);
+
+    const tokenV2 = signToken({ userId: "u-1", tokenVersion: 2 });
+    const verifiedV2 = verifyToken(tokenV2);
+    assert.equal(verifiedV2?.tokenVersion, 2);
+  });
 });

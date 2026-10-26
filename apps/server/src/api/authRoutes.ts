@@ -1,7 +1,9 @@
 import { Router, type Response } from "express";
+import crypto from "crypto";
 import mongoose from "mongoose";
 import { LoginRequestSchema, VerifyPhoneOtpRequestSchema, Verify2FARequestSchema } from "@akeezo/contracts";
 import { UserModel } from "../db/models/User.js";
+import { UserSessionModel } from "../db/models/UserSession.js";
 import { CaseAuditLogModel } from "../db/models/CaseActivity.js";
 import {
   hashPassword,
@@ -160,9 +162,10 @@ const handleOtpVerify = async (req: AuthenticatedRequest, res: Response) => {
       return res.status(403).json({ error: { code: "FORBIDDEN", message: "Account unavailable." } });
     }
 
-    // Verify OTP code (Supports Firebase verification or standard test OTPs: '123456', '000000', '999999')
-    const validBypassCodes = ["123456", "000000", "999999"];
-    const isValidCode = validBypassCodes.includes(parsed.code) || parsed.firebaseIdToken || parsed.code.length === 6;
+    // Verify OTP code (Supports Firebase verification or standard test OTPs in non-production)
+    const isDevOrTest = process.env.NODE_ENV !== "production";
+    const validBypassCodes = isDevOrTest ? ["123456", "000000", "999999"] : [];
+    const isValidCode = validBypassCodes.includes(parsed.code) || Boolean(parsed.firebaseIdToken);
 
     if (!isValidCode) {
       return res.status(422).json({
@@ -170,14 +173,50 @@ const handleOtpVerify = async (req: AuthenticatedRequest, res: Response) => {
       });
     }
 
-    // Issue permanent session token
-    const token = signToken({ userId: user._id.toString(), role: user.role });
+    // Issue permanent session token with embedded tokenVersion
+    const token = signToken({
+      userId: user._id.toString(),
+      role: user.role,
+      tokenVersion: user.tokenVersion || 1,
+    });
+
     user.lastLoginAt = new Date();
+    user.lastLoginIp = req.ip || "127.0.0.1";
+    user.failedAttempts = 0;
+    user.lockoutUntil = undefined;
     try {
       await user.save();
     } catch {
       // Non-critical if in-memory
     }
+
+    // Persist session document in MongoDB with TTL index
+    if (mongoose.connection.readyState === 1) {
+      try {
+        const tokenHash = crypto.createHash("sha256").update(token).digest("hex");
+        const expiresAt = new Date(Date.now() + 12 * 60 * 60 * 1000);
+        await UserSessionModel.create({
+          userId: user._id,
+          tokenHash,
+          role: user.role,
+          ipAddress: req.ip || "127.0.0.1",
+          userAgent: req.headers["user-agent"] || "Unknown",
+          tokenVersion: user.tokenVersion || 1,
+          isValid: true,
+          expiresAt,
+        });
+      } catch {
+        // Non-critical session logging
+      }
+    }
+
+    // Set secure httpOnly cookie
+    res.cookie("akeezo_session", token, {
+      httpOnly: true,
+      sameSite: "lax",
+      secure: process.env.NODE_ENV === "production",
+      maxAge: 12 * 60 * 60 * 1000,
+    });
 
     // Audit log phone OTP login if DB connected
     if (mongoose.connection.readyState === 1) {
@@ -261,14 +300,34 @@ authRouter.get("/me", requireAuth, async (req: AuthenticatedRequest, res: Respon
 
 // POST /api/v1/auth/logout
 authRouter.post("/logout", requireAuth, async (req: AuthenticatedRequest, res: Response) => {
+  // Clear session cookie
+  res.clearCookie("akeezo_session");
+
+  const authHeader = req.headers.authorization;
+  const token = authHeader?.startsWith("Bearer ") ? authHeader.split(" ")[1] : undefined;
+
   if (req.user) {
-    await CaseAuditLogModel.create({
-      entityType: "User",
-      entityId: req.user._id,
-      action: "login",
-      actorId: req.user._id,
-      changes: { status: ["logout"] },
-    });
+    if (token && mongoose.connection.readyState === 1) {
+      try {
+        const tokenHash = crypto.createHash("sha256").update(token).digest("hex");
+        await UserSessionModel.updateOne({ tokenHash }, { $set: { isValid: false } });
+      } catch {
+        // Ignore session update error
+      }
+    }
+
+    try {
+      await CaseAuditLogModel.create({
+        entityType: "User",
+        entityId: req.user._id,
+        action: "login",
+        actorId: req.user._id,
+        changes: { status: ["logout"] },
+      });
+    } catch {
+      // Ignore audit error
+    }
   }
+
   res.json({ data: { success: true, message: "Logged out successfully" } });
 });

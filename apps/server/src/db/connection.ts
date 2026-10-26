@@ -17,7 +17,9 @@ export async function connectDB(): Promise<typeof mongoose> {
         autoIndex: env.NODE_ENV !== "production",
         serverSelectionTimeoutMS: 2500,
         connectTimeoutMS: 2500,
-        socketTimeoutMS: 10000
+        socketTimeoutMS: 10000,
+        maxPoolSize: 50,
+        minPoolSize: 5,
       })
       .then((m) => {
         console.log(

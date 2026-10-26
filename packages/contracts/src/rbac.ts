@@ -36,6 +36,7 @@ export const ROLE_KEYS = [
   "hospital_liaison",
   "finance",
   "viewer",
+  "partner",
 ] as const;
 
 export type RoleKey = (typeof ROLE_KEYS)[number];
@@ -93,6 +94,12 @@ export const DEFAULT_ROLE_PERMISSIONS: Record<RoleKey, PermissionKey[]> = {
   viewer: [
     "case.view",
     "report.view",
+  ],
+  partner: [
+    "case.view",
+    "document.view",
+    "commission.view",
+    "partner.view_payout",
   ],
 };
 

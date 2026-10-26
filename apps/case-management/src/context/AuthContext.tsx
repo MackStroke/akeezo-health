@@ -54,6 +54,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       setIsLoading(true);
       const res = await fetch("/api/v1/auth/me", {
         headers: { Authorization: `Bearer ${authToken}` },
+        credentials: "same-origin",
       });
       if (res.ok) {
         const json = await res.json();
@@ -102,6 +103,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       const res = await fetch("/api/v1/auth/login", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
+        credentials: "same-origin",
         body: JSON.stringify({ email, password }),
       });
 
@@ -172,6 +174,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       const res = await fetch("/api/v1/auth/otp/verify", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
+        credentials: "same-origin",
         body: JSON.stringify({
           tempToken,
           code,
@@ -225,6 +228,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       const res = await fetch("/api/v1/auth/otp/resend", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
+        credentials: "same-origin",
         body: JSON.stringify({ tempToken, phone }),
       });
 
@@ -251,6 +255,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       fetch("/api/v1/auth/logout", {
         method: "POST",
         headers: { Authorization: `Bearer ${token}` },
+        credentials: "same-origin",
       }).catch(() => {});
     }
     localStorage.removeItem("akeezo_auth_token");

@@ -49,8 +49,20 @@ import {
 } from "../services/commissionEngine.js";
 import { findDuplicatePatients } from "../services/duplicatePatient.js";
 import { encryptSensitiveField, maskSensitiveValue } from "../utils/crypto.js";
+import {
+  requireAuth,
+  requireRole,
+  requirePermission,
+  AuthenticatedRequest,
+  escapeRegex,
+} from "../utils/auth.js";
 
 export const caseManagementRouter = Router();
+
+// ==========================================
+// STRICT AUTHENTICATION & ACCESS SCOPE ISOLATION
+// ==========================================
+caseManagementRouter.use(requireAuth);
 
 // ==========================================
 // FALLBACK DATA STORES (Resilience against DB disconnected/preview states)
@@ -238,10 +250,19 @@ caseManagementRouter.get("/patients/duplicates", async (req: Request, res: Respo
 });
 
 // GET /api/v1/patients
-caseManagementRouter.get("/patients", async (req: Request, res: Response) => {
+caseManagementRouter.get("/patients", async (req: AuthenticatedRequest, res: Response) => {
   try {
     if (mongoose.connection.readyState === 1) {
-      const patients = await PatientModel.find().sort({ createdAt: -1 }).limit(50).lean();
+      let patientFilter: Record<string, any> = {};
+      if (req.user?.role === "partner") {
+        if (!req.user.partnerId) {
+          return res.json({ data: [] });
+        }
+        const partnerCases = await CaseModel.find({ partnerId: req.user.partnerId }).select("patientId").lean();
+        const patientIds = partnerCases.map((c) => c.patientId);
+        patientFilter = { _id: { $in: patientIds } };
+      }
+      const patients = await PatientModel.find(patientFilter).sort({ createdAt: -1 }).limit(50).lean();
       if (patients.length > 0) {
         return res.json({
           data: patients.map((p) => {
@@ -266,10 +287,11 @@ caseManagementRouter.get("/patients", async (req: Request, res: Response) => {
 // ==========================================
 
 // GET /api/v1/partners
-caseManagementRouter.get("/partners", async (_req: Request, res: Response) => {
+caseManagementRouter.get("/partners", async (req: AuthenticatedRequest, res: Response) => {
   try {
     if (mongoose.connection.readyState === 1) {
-      const partners = await PartnerModel.find().sort({ name: 1 }).lean();
+      const filter = req.user?.role === "partner" && req.user.partnerId ? { _id: req.user.partnerId } : {};
+      const partners = await PartnerModel.find(filter).sort({ name: 1 }).lean();
       if (partners.length > 0) return res.json({ data: partners });
     }
     res.json({ data: FALLBACK_PARTNERS });
@@ -279,7 +301,7 @@ caseManagementRouter.get("/partners", async (_req: Request, res: Response) => {
 });
 
 // POST /api/v1/partners
-caseManagementRouter.post("/partners", async (req: Request, res: Response) => {
+caseManagementRouter.post("/partners", requireRole(["admin", "coordinator"]), async (req: Request, res: Response) => {
   try {
     const count = await PartnerModel.countDocuments();
     const partnerCode = `PTR-${String(count + 1).padStart(4, "0")}`;
@@ -306,7 +328,7 @@ caseManagementRouter.post("/partners", async (req: Request, res: Response) => {
 });
 
 // POST /api/v1/partners/:id/agreements
-caseManagementRouter.post("/partners/:id/agreements", async (req: Request, res: Response) => {
+caseManagementRouter.post("/partners/:id/agreements", requireRole(["admin", "coordinator"]), async (req: Request, res: Response) => {
   try {
     const agreement = await PartnerAgreementModel.create({
       ...req.body,
@@ -319,9 +341,12 @@ caseManagementRouter.post("/partners/:id/agreements", async (req: Request, res: 
 });
 
 // GET /api/v1/partners/:id/statement
-caseManagementRouter.get("/partners/:id/statement", async (req: Request, res: Response) => {
+caseManagementRouter.get("/partners/:id/statement", async (req: AuthenticatedRequest, res: Response) => {
   try {
     const partnerId = req.params.id;
+    if (req.user?.role === "partner" && req.user.partnerId?.toString() !== partnerId) {
+      return res.status(403).json({ error: { code: "FORBIDDEN", message: "Access denied to partner statement." } });
+    }
     const partner = await PartnerModel.findById(partnerId).lean();
     if (!partner) return res.status(404).json({ error: { code: "NOT_FOUND", message: "Partner not found" } });
 
@@ -424,13 +449,23 @@ caseManagementRouter.post("/hospitals/:id/doctors", async (req: Request, res: Re
 // ==========================================
 
 // GET /api/v1/cases
-caseManagementRouter.get("/cases", async (req: Request, res: Response) => {
+caseManagementRouter.get("/cases", async (req: AuthenticatedRequest, res: Response) => {
   try {
     if (mongoose.connection.readyState === 1) {
       const filter: Record<string, any> = {};
       if (req.query.stage) filter.stage = req.query.stage;
       if (req.query.status) filter.status = req.query.status;
-      if (req.query.partnerId) filter.partnerId = req.query.partnerId;
+
+      // Strict partner data isolation: Partner users are strictly bound to their partnerId
+      if (req.user?.role === "partner") {
+        if (!req.user.partnerId) {
+          return res.json({ data: [] });
+        }
+        filter.partnerId = req.user.partnerId;
+      } else if (req.query.partnerId) {
+        filter.partnerId = req.query.partnerId;
+      }
+
       if (req.query.ownerId) filter.ownerId = req.query.ownerId;
       if (req.query.specialty) filter.specialty = req.query.specialty;
 
@@ -443,17 +478,34 @@ caseManagementRouter.get("/cases", async (req: Request, res: Response) => {
 
       if (cases.length > 0) return res.json({ data: cases });
     }
+    if (req.user?.role === "partner") {
+      const pId = req.user.partnerId?.toString();
+      const fallback = FALLBACK_CASES.filter((c: any) => c.partnerId && c.partnerId.toString() === pId);
+      return res.json({ data: fallback });
+    }
     res.json({ data: FALLBACK_CASES });
   } catch {
+    if (req.user?.role === "partner") {
+      const pId = req.user.partnerId?.toString();
+      const fallback = FALLBACK_CASES.filter((c: any) => c.partnerId && c.partnerId.toString() === pId);
+      return res.json({ data: fallback });
+    }
     res.json({ data: FALLBACK_CASES });
   }
 });
 
 // GET /api/v1/cases/board (Pipeline Board)
-caseManagementRouter.get("/cases/board", async (_req: Request, res: Response) => {
+caseManagementRouter.get("/cases/board", async (req: AuthenticatedRequest, res: Response) => {
   try {
     if (mongoose.connection.readyState === 1) {
-      const cases = await CaseModel.find({ status: "open" })
+      const filter: Record<string, any> = { status: "open" };
+      if (req.user?.role === "partner") {
+        if (!req.user.partnerId) {
+          return res.json({ data: {} });
+        }
+        filter.partnerId = req.user.partnerId;
+      }
+      const cases = await CaseModel.find(filter)
         .populate("patientId", "fullName nationality")
         .populate("partnerId", "name")
         .populate("ownerId", "name")
@@ -586,8 +638,78 @@ caseManagementRouter.post("/cases", async (req: Request, res: Response) => {
   }
 });
 
+// GET /api/v1/cases/search (Placed before /cases/:id to avoid parameter collision)
+caseManagementRouter.get("/cases/search", async (req: AuthenticatedRequest, res: Response) => {
+  try {
+    const q = typeof req.query.q === "string" ? req.query.q.trim() : "";
+    if (!q) {
+      const filter: Record<string, any> = { status: "open" };
+      if (req.user?.role === "partner") {
+        filter.partnerId = req.user.partnerId || new mongoose.Types.ObjectId();
+      }
+      const allCases = await CaseModel.find(filter)
+        .populate("patientId")
+        .populate("partnerId", "name partnerCode")
+        .populate("ownerId", "name email")
+        .sort({ createdAt: -1 })
+        .limit(50)
+        .lean();
+      return res.json({ data: allCases });
+    }
+
+    const safeQ = escapeRegex(q);
+    let patientQuery: Record<string, any> = {
+      $or: [
+        { fullName: { $regex: safeQ, $options: "i" } },
+        { nameNormalized: { $regex: safeQ.toLowerCase(), $options: "i" } },
+      ],
+    };
+    if (req.user?.role === "partner") {
+      const partnerCases = await CaseModel.find({ partnerId: req.user.partnerId }).select("patientId").lean();
+      const allowedPatientIds = partnerCases.map((c) => c.patientId);
+      patientQuery._id = { $in: allowedPatientIds };
+    }
+    const matchingPatients = await PatientModel.find(patientQuery).select("_id");
+    const matchingPatientIds = matchingPatients.map((p) => p._id);
+
+    const orClauses: any[] = [
+      { caseCode: { $regex: safeQ, $options: "i" } },
+      { specialty: { $regex: safeQ, $options: "i" } },
+      { diagnosisSummary: { $regex: safeQ, $options: "i" } },
+      { patientId: { $in: matchingPatientIds } },
+    ];
+
+    if (req.user?.role !== "partner") {
+      const matchingPartners = await PartnerModel.find({
+        $or: [
+          { name: { $regex: safeQ, $options: "i" } },
+          { partnerCode: { $regex: safeQ, $options: "i" } },
+        ],
+      }).select("_id");
+      const matchingPartnerIds = matchingPartners.map((p) => p._id);
+      orClauses.push({ partnerId: { $in: matchingPartnerIds } });
+    }
+
+    const caseFilter: Record<string, any> = { $or: orClauses };
+    if (req.user?.role === "partner") {
+      caseFilter.partnerId = req.user.partnerId || new mongoose.Types.ObjectId();
+    }
+
+    const cases = await CaseModel.find(caseFilter)
+      .populate("patientId")
+      .populate("partnerId", "name partnerCode")
+      .populate("ownerId", "name email")
+      .sort({ createdAt: -1 })
+      .lean();
+
+    res.json({ data: cases });
+  } catch (err: any) {
+    res.status(500).json({ error: { code: "SEARCH_CASES_FAILED", message: err.message } });
+  }
+});
+
 // GET /api/v1/cases/:id
-caseManagementRouter.get("/cases/:id", async (req: Request, res: Response) => {
+caseManagementRouter.get("/cases/:id", async (req: AuthenticatedRequest, res: Response) => {
   try {
     let caseDoc: any = null;
     if (mongoose.connection.readyState === 1) {
@@ -630,6 +752,21 @@ caseManagementRouter.get("/cases/:id", async (req: Request, res: Response) => {
         });
       }
       return res.status(404).json({ error: { code: "NOT_FOUND", message: "Case not found" } });
+    }
+
+    // Anti-Cross-Access Authorization Guard: Partner accounts cannot read cases belonging to another partner
+    if (req.user?.role === "partner") {
+      if (!req.user.partnerId || !caseDoc.partnerId) {
+        return res.status(403).json({
+          error: { code: "FORBIDDEN", message: "Access restricted. You are not authorized to view this case." },
+        });
+      }
+      const casePartnerId = (caseDoc.partnerId._id || caseDoc.partnerId).toString();
+      if (casePartnerId !== req.user.partnerId.toString()) {
+        return res.status(403).json({
+          error: { code: "FORBIDDEN", message: "Access restricted. You are not authorized to access cases from another partner agency." },
+        });
+      }
     }
 
     const patient = caseDoc.patientId as any;
@@ -1109,7 +1246,7 @@ caseManagementRouter.post("/episodes/:id/complete", async (req: Request, res: Re
 });
 
 // PUT /api/v1/episodes/:id/billing (FINALISE BILLING & COMPUTE COMMISSION!)
-caseManagementRouter.put("/episodes/:id/billing", async (req: Request, res: Response) => {
+caseManagementRouter.put("/episodes/:id/billing", requireRole(["admin", "finance"]), async (req: Request, res: Response) => {
   try {
     const parsed = FinaliseEpisodeBillingSchema.parse(req.body);
     const episode = await EpisodeModel.findById(req.params.id);
@@ -1197,7 +1334,7 @@ caseManagementRouter.put("/episodes/:id/billing", async (req: Request, res: Resp
 // ==========================================
 
 // POST /api/v1/payments (Record Receipt or Partner Payout)
-caseManagementRouter.post("/payments", async (req: Request, res: Response) => {
+caseManagementRouter.post("/payments", requireRole(["admin", "finance"]), async (req: Request, res: Response) => {
   try {
     const parsed = RecordPaymentSchema.parse(req.body);
 
@@ -1277,11 +1414,19 @@ caseManagementRouter.post("/payments", async (req: Request, res: Response) => {
 });
 
 // GET /api/v1/commission-records
-caseManagementRouter.get("/commission-records", async (req: Request, res: Response) => {
+caseManagementRouter.get("/commission-records", async (req: AuthenticatedRequest, res: Response) => {
   try {
     const filter: Record<string, any> = {};
     if (req.query.status) filter.status = req.query.status;
     if (req.query.caseId) filter.caseId = req.query.caseId;
+
+    // Strict partner data isolation: Partner users can only see their own partner commission ledger
+    if (req.user?.role === "partner") {
+      if (!req.user.partnerId) {
+        return res.json({ data: [] });
+      }
+      filter.partnerId = req.user.partnerId;
+    }
 
     const records = await CommissionRecordModel.find(filter)
       .populate("episodeId")
@@ -1296,63 +1441,7 @@ caseManagementRouter.get("/commission-records", async (req: Request, res: Respon
 });
 
 // ==========================================
-// 8. GLOBAL CASE SEARCH
-// ==========================================
-
-// GET /api/v1/cases/search
-caseManagementRouter.get("/cases/search", async (req: Request, res: Response) => {
-  try {
-    const q = typeof req.query.q === "string" ? req.query.q.trim() : "";
-    if (!q) {
-      const allCases = await CaseModel.find({ status: "open" })
-        .populate("patientId")
-        .populate("partnerId", "name partnerCode")
-        .populate("ownerId", "name email")
-        .sort({ createdAt: -1 })
-        .limit(50)
-        .lean();
-      return res.json({ data: allCases });
-    }
-
-    const matchingPatients = await PatientModel.find({
-      $or: [
-        { fullName: { $regex: q, $options: "i" } },
-        { nameNormalized: { $regex: q.toLowerCase(), $options: "i" } },
-      ],
-    }).select("_id");
-    const matchingPatientIds = matchingPatients.map((p) => p._id);
-
-    const matchingPartners = await PartnerModel.find({
-      $or: [
-        { name: { $regex: q, $options: "i" } },
-        { partnerCode: { $regex: q, $options: "i" } },
-      ],
-    }).select("_id");
-    const matchingPartnerIds = matchingPartners.map((p) => p._id);
-
-    const cases = await CaseModel.find({
-      $or: [
-        { caseCode: { $regex: q, $options: "i" } },
-        { specialty: { $regex: q, $options: "i" } },
-        { diagnosisSummary: { $regex: q, $options: "i" } },
-        { patientId: { $in: matchingPatientIds } },
-        { partnerId: { $in: matchingPartnerIds } },
-      ],
-    })
-      .populate("patientId")
-      .populate("partnerId", "name partnerCode")
-      .populate("ownerId", "name email")
-      .sort({ createdAt: -1 })
-      .lean();
-
-    res.json({ data: cases });
-  } catch (err: any) {
-    res.status(500).json({ error: { code: "SEARCH_CASES_FAILED", message: err.message } });
-  }
-});
-
-// ==========================================
-// 9. CASE DOCUMENTS & CONSENT
+// 8. CASE DOCUMENTS & CONSENT
 // ==========================================
 
 // POST /api/v1/cases/:id/documents
@@ -1601,7 +1690,7 @@ caseManagementRouter.post("/cases/:id/notes", async (req: Request, res: Response
 // ==========================================
 
 // POST /api/v1/migration/import
-caseManagementRouter.post("/migration/import", async (req: Request, res: Response) => {
+caseManagementRouter.post("/migration/import", requireRole("admin"), async (req: Request, res: Response) => {
   try {
     const dryRun = Boolean(req.body.dryRun ?? req.query.dry_run === "true");
     const { partners = [], hospitals = [], patients = [], cases = [], episodes = [], payments = [] } = req.body.data || {};

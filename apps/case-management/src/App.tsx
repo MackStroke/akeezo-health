@@ -21,6 +21,7 @@ import { CaseDetailModal } from "./components/CaseDetailModal.js";
 import { NewCaseModal } from "./components/NewCaseModal.js";
 import { FinanceWorkspace } from "./components/FinanceWorkspace.js";
 import { ArrowRight, Search, X, RefreshCw, Building2, Users, MapPin, ExternalLink, ShieldCheck } from "lucide-react";
+import { apiFetch } from "./utils/api.js";
 
 const CASE_MANAGEMENT_TOUR_STEPS: TourStep[] = [
   {
@@ -150,9 +151,9 @@ const CaseManagementDashboard: React.FC = () => {
   const loadAllData = async () => {
     try {
       const [casesRes, partnersRes, hospitalsRes] = await Promise.all([
-        fetch("/api/v1/cases"),
-        fetch("/api/v1/partners"),
-        fetch("/api/v1/hospitals"),
+        apiFetch("/api/v1/cases"),
+        apiFetch("/api/v1/partners"),
+        apiFetch("/api/v1/hospitals"),
       ]);
 
       const casesJson = casesRes.ok ? await casesRes.json().catch(() => ({})) : {};

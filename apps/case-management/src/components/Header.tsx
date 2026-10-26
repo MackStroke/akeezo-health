@@ -100,7 +100,7 @@ export const Header: React.FC<HeaderProps> = ({
           <div className="text-left text-xs hidden sm:block">
             <div className="font-semibold text-slate-800">{user?.name || "Staff User"}</div>
             <div className="text-[10px] text-[#007A6C] font-bold uppercase tracking-wider">
-              {user?.role || "Admin"}
+              {user?.role || "User"}
             </div>
           </div>
 

@@ -13,6 +13,10 @@ export interface AuthenticatedRequest extends Request {
   user?: IUser;
 }
 
+export function escapeRegex(text: string): string {
+  return text.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+}
+
 export function hashPassword(password: string): string {
   return crypto.createHash("sha256").update(password.trim()).digest("hex");
 }
@@ -20,11 +24,13 @@ export function hashPassword(password: string): string {
 export function verifyPassword(password: string, storedHash: string): boolean {
   const trimmed = password.trim();
   if (hashPassword(trimmed) === storedHash) return true;
-  if (
-    ["Akeezo@2026!", "Password@123", "Admin@123"].includes(trimmed) &&
-    (storedHash === hashPassword("Akeezo@2026!") || storedHash === hashPassword("Password@123"))
-  ) {
-    return true;
+  if (process.env.NODE_ENV !== "production") {
+    if (
+      ["Akeezo@2026!", "Password@123", "Admin@123"].includes(trimmed) &&
+      (storedHash === hashPassword("Akeezo@2026!") || storedHash === hashPassword("Password@123"))
+    ) {
+      return true;
+    }
   }
   return false;
 }
@@ -40,6 +46,7 @@ export const FALLBACK_USERS: any[] = [
     status: "active",
     phoneVerified: true,
     totpEnabled: false,
+    tokenVersion: 1,
     permissions: ["all"],
     createdAt: new Date("2026-01-01"),
     updatedAt: new Date("2026-01-01"),
@@ -55,6 +62,7 @@ export const FALLBACK_USERS: any[] = [
     status: "active",
     phoneVerified: true,
     totpEnabled: false,
+    tokenVersion: 1,
     permissions: ["cases:read", "cases:write", "patients:read", "patients:write"],
     createdAt: new Date("2026-01-01"),
     updatedAt: new Date("2026-01-01"),
@@ -70,6 +78,7 @@ export const FALLBACK_USERS: any[] = [
     status: "active",
     phoneVerified: true,
     totpEnabled: false,
+    tokenVersion: 1,
     permissions: ["all"],
     createdAt: new Date("2026-01-01"),
     updatedAt: new Date("2026-01-01"),
@@ -85,6 +94,7 @@ export const FALLBACK_USERS: any[] = [
     status: "active",
     phoneVerified: true,
     totpEnabled: false,
+    tokenVersion: 1,
     permissions: ["finance:read", "finance:write", "commissions:read"],
     createdAt: new Date("2026-01-01"),
     updatedAt: new Date("2026-01-01"),
@@ -100,6 +110,7 @@ export const FALLBACK_USERS: any[] = [
     status: "active",
     phoneVerified: true,
     totpEnabled: false,
+    tokenVersion: 1,
     permissions: ["hospitals:read", "hospitals:write", "quotes:read", "quotes:write"],
     createdAt: new Date("2026-01-01"),
     updatedAt: new Date("2026-01-01"),
@@ -115,6 +126,7 @@ export const FALLBACK_USERS: any[] = [
     status: "active",
     phoneVerified: true,
     totpEnabled: false,
+    tokenVersion: 1,
     permissions: ["all"],
     createdAt: new Date("2026-01-01"),
     updatedAt: new Date("2026-01-01"),
@@ -130,6 +142,7 @@ export const FALLBACK_USERS: any[] = [
     status: "active",
     phoneVerified: true,
     totpEnabled: false,
+    tokenVersion: 1,
     permissions: ["cases:read", "cases:write"],
     createdAt: new Date("2026-01-01"),
     updatedAt: new Date("2026-01-01"),
@@ -181,7 +194,12 @@ function base64UrlDecode(str: string): string {
 export function signToken(payload: Record<string, any>, isTemp2FA = false): string {
   const header = { alg: "HS256", typ: "JWT" };
   const exp = Math.floor(Date.now() / 1000) + (isTemp2FA ? TEMP_TOKEN_EXPIRY_SECONDS : TOKEN_EXPIRY_SECONDS);
-  const fullPayload = { ...payload, exp, iat: Math.floor(Date.now() / 1000) };
+  const fullPayload = {
+    tokenVersion: payload.tokenVersion ?? 1,
+    ...payload,
+    exp,
+    iat: Math.floor(Date.now() / 1000),
+  };
 
   const encodedHeader = base64UrlEncode(JSON.stringify(header));
   const encodedPayload = base64UrlEncode(JSON.stringify(fullPayload));
@@ -224,21 +242,32 @@ export function verifyToken(token: string): Record<string, any> | null {
   }
 }
 
-// Authentication Middleware
+// Authentication Middleware with Anti-Cross-Access and Anti-Replay Session Guards
 export async function requireAuth(
   req: AuthenticatedRequest,
   res: Response,
   next: NextFunction
 ): Promise<void> {
   const authHeader = req.headers.authorization;
-  if (!authHeader || !authHeader.startsWith("Bearer ")) {
+  let token: string | undefined = undefined;
+
+  if (authHeader && authHeader.startsWith("Bearer ")) {
+    token = authHeader.split(" ")[1];
+  } else if (req.headers.cookie) {
+    // Extract akeezo_session cookie if present
+    const match = req.headers.cookie.match(/akeezo_session=([^;]+)/);
+    if (match) {
+      token = decodeURIComponent(match[1]);
+    }
+  }
+
+  if (!token) {
     res.status(401).json({
       error: { code: "UNAUTHORIZED", message: "Authentication required. Please sign in." },
     });
     return;
   }
 
-  const token = authHeader.split(" ")[1];
   const payload = verifyToken(token);
 
   if (!payload || !payload.userId || payload.isTemp2FA) {
@@ -252,6 +281,18 @@ export async function requireAuth(
   if (!user || user.status === "disabled") {
     res.status(403).json({
       error: { code: "FORBIDDEN", message: "User account is disabled or no longer exists." },
+    });
+    return;
+  }
+
+  // Token revocation guard: invalidate tokens issued before a password change or session revocation
+  if (
+    user.tokenVersion &&
+    payload.tokenVersion !== undefined &&
+    payload.tokenVersion < user.tokenVersion
+  ) {
+    res.status(401).json({
+      error: { code: "TOKEN_REVOKED", message: "Session token has been revoked. Please sign in again." },
     });
     return;
   }

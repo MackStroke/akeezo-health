@@ -6,7 +6,10 @@ import {
   Building2,
   DollarSign,
   FileCheck2,
+  ShieldAlert,
+  ExternalLink,
 } from "lucide-react";
+import { useAuth } from "../context/AuthContext.js";
 
 export type NavTab = "board" | "cases" | "partners" | "hospitals" | "finance";
 
@@ -21,6 +24,9 @@ export const Sidebar: React.FC<SidebarProps> = ({
   onSelectTab,
   caseCount,
 }) => {
+  const { user } = useAuth();
+  const isSuperAdmin = user?.role === "admin";
+
   const erpNavItems = [
     { id: "board" as NavTab, label: "Pipeline Board", icon: LayoutDashboard },
     { id: "cases" as NavTab, label: "All Cases", icon: FolderKanban, badge: caseCount },
@@ -69,6 +75,29 @@ export const Sidebar: React.FC<SidebarProps> = ({
             );
           })}
         </div>
+
+        {/* Section 2: Quick Jump to Website Super Admin - STRICTLY VISIBLE ONLY TO SUPER ADMIN */}
+        {isSuperAdmin && (
+          <div className="pt-3 border-t border-teal-950/80">
+            <div className="px-3 pb-1.5 text-[10px] font-bold text-teal-400/80 uppercase tracking-wider flex items-center justify-between">
+              <span>Super Admin Oversight</span>
+              <span className="text-[9px] bg-[#007A6C]/40 text-[#00C7BE] px-1.5 py-0.2 rounded border border-[#00C7BE]/30 font-bold">
+                Admin
+              </span>
+            </div>
+            <a
+              href="/admin/"
+              className="flex items-center justify-between px-3 py-2.5 rounded-lg text-xs font-medium text-[#00C7BE] hover:text-white bg-teal-950/40 hover:bg-[#007A6C]/30 border border-teal-800/40 transition group"
+              title="Launch Website Management Super Admin Portal (Authorized for Super Admin only)"
+            >
+              <div className="flex items-center gap-2">
+                <ShieldAlert className="w-4 h-4 text-[#00C7BE]" />
+                <span>Website Super Admin</span>
+              </div>
+              <ExternalLink className="w-3.5 h-3.5 opacity-60 group-hover:opacity-100 transition" />
+            </a>
+          </div>
+        )}
       </div>
 
       <div className="p-3 border-t border-teal-950/80 text-[11px] text-slate-400 space-y-2">

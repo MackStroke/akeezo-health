@@ -2,6 +2,7 @@ import React, { useState, useEffect } from "react";
 import { X, AlertTriangle, Check, UserPlus, Link2 } from "lucide-react";
 import { SPECIALTIES } from "@akeezo/contracts";
 import { useToast, DisabledGuideButton } from "@akeezo/ui";
+import { apiFetch } from "../utils/api.js";
 
 interface NewCaseModalProps {
   onClose: () => void;
@@ -74,7 +75,7 @@ export const NewCaseModal: React.FC<NewCaseModalProps> = ({
       if (formData.fullName) params.append("name", formData.fullName);
       if (formData.dateOfBirth) params.append("dob", formData.dateOfBirth);
 
-      const res = await fetch(`/api/v1/patients/duplicates?${params.toString()}`);
+      const res = await apiFetch(`/api/v1/patients/duplicates?${params.toString()}`);
       const json = await res.json();
       setDuplicates(json.data || []);
     } catch (err) {
@@ -115,7 +116,7 @@ export const NewCaseModal: React.FC<NewCaseModalProps> = ({
         ownerId: "67b938000000000000000001", // Priya Sharma / Default coordinator
       };
 
-      const res = await fetch("/api/v1/cases", {
+      const res = await apiFetch("/api/v1/cases", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(payload),

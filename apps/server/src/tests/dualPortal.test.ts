@@ -176,4 +176,251 @@ describe("Dual Portal Architecture Verification: Website Admin & Case Management
     // Test D: Ensure /admin/ is NOT redirected to /case-management/
     assert.notEqual(adminRes.url, `${baseUrl}/case-management/`, "/admin/ must NOT redirect to /case-management/");
   });
+
+  it("4. Super Admin Gateway: Non-admin users cannot access /admin via direct URL", async () => {
+    const coordinatorToken = signToken({ userId: "660000000000000000000002", role: "coordinator" });
+    const partnerToken = signToken({ userId: "660000000000000000000003", role: "partner" });
+
+    // A. Coordinator with cookie attempting to visit /admin must be redirected to /case-management
+    const coordRes = await fetch(`${baseUrl}/admin`, {
+      headers: { Cookie: `akeezo_session=${encodeURIComponent(coordinatorToken)}` },
+      redirect: "manual",
+    });
+    assert.equal(coordRes.status, 302, "Coordinator attempting to visit /admin must receive 302 redirect");
+    assert.ok(
+      coordRes.headers.get("location")?.includes("/case-management?access=denied_super_admin_only"),
+      "Must redirect to case management with denied query param"
+    );
+
+    // B. Partner with cookie attempting to visit /admin must also be redirected
+    const partnerRes = await fetch(`${baseUrl}/admin/users`, {
+      headers: { Cookie: `akeezo_session=${encodeURIComponent(partnerToken)}` },
+      redirect: "manual",
+    });
+    assert.equal(partnerRes.status, 302, "Partner visiting /admin/* must receive 302 redirect");
+  });
+
+  it("5. Case Management Cross-Account Isolation and RBAC Protection", async () => {
+    // A. Unauthenticated requests to Case Management API must be rejected with 401
+    const unauthRes = await fetch(`${baseUrl}/api/v1/cases`);
+    assert.equal(unauthRes.status, 401, "Unauthenticated request to /api/v1/cases must be rejected with 401");
+
+    // B. Unauthenticated requests to commission records must be rejected with 401
+    const unauthCommRes = await fetch(`${baseUrl}/api/v1/commission-records`);
+    assert.equal(unauthCommRes.status, 401, "Unauthenticated request to /commission-records must be rejected with 401");
+
+    // C. Create two distinct partner agencies and cases for isolation test
+    const { PartnerModel, CaseModel, PatientModel, UserModel } = await import("../db/models/index.js");
+    const testOwner = (await UserModel.findOne()) || new mongoose.Types.ObjectId();
+    const testTime = Date.now();
+    const partnerA = await PartnerModel.create({
+      name: "Tashkent Health Facilitators",
+      partnerCode: `TEST-UZ-${testTime}`,
+      country: "UZ",
+      contactName: "Aziz",
+      contactPhone: "+998901234567",
+      contactEmail: `aziz-${testTime}@uz-test.org`,
+      status: "active",
+    });
+    const partnerB = await PartnerModel.create({
+      name: "Nairobi Medical Escorts",
+      partnerCode: `TEST-KE-${testTime}`,
+      country: "KE",
+      contactName: "John",
+      contactPhone: "+254712345678",
+      contactEmail: `john-${testTime}@ke-test.org`,
+      status: "active",
+    });
+
+    const userPartnerA = await UserModel.create({
+      name: "Partner Agent A",
+      email: `agent-a-${testTime}@uz-test.org`,
+      role: "partner",
+      partnerId: partnerA._id,
+      passwordHash: "hash-test",
+      status: "active",
+      tokenVersion: 1,
+    });
+
+    const userPartnerB = await UserModel.create({
+      name: "Partner Agent B",
+      email: `agent-b-${testTime}@ke-test.org`,
+      role: "partner",
+      partnerId: partnerB._id,
+      passwordHash: "hash-test",
+      status: "active",
+      tokenVersion: 1,
+    });
+
+    const patientA = await PatientModel.create({
+      fullName: "Rustam Karimov",
+      dateOfBirth: "1985-04-12",
+      sex: "male",
+      nationality: "UZ",
+      phone: `+99890${String(testTime).slice(-6)}`,
+      source: "partner",
+    });
+
+    const caseA = await CaseModel.create({
+      caseCode: `AKZ-ISO-${testTime}`,
+      patientId: patientA._id,
+      partnerId: partnerA._id,
+      source: "partner",
+      caseType: "treatment",
+      specialty: "oncology",
+      diagnosisSummary: "Gastric adenocarcinoma",
+      urgency: "priority",
+      stage: "new_referral",
+      status: "open",
+      ownerId: (testOwner as any)._id || testOwner,
+    });
+
+    try {
+      // Partner A token
+      const tokenPartnerA = signToken({
+        userId: userPartnerA._id.toString(),
+        role: "partner",
+        partnerId: partnerA._id.toString(),
+      });
+      // Partner B token
+      const tokenPartnerB = signToken({
+        userId: userPartnerB._id.toString(),
+        role: "partner",
+        partnerId: partnerB._id.toString(),
+      });
+
+      // D. Partner A can view Case A
+      const viewResA = await fetch(`${baseUrl}/api/v1/cases/${caseA._id}`, {
+        headers: { Authorization: `Bearer ${tokenPartnerA}` },
+      });
+      assert.equal(viewResA.status, 200, "Partner A must be able to read own case");
+
+      // E. Anti-Cross-Access: Partner B CANNOT view Case A -> MUST BE REJECTED WITH 403
+      const crossRes = await fetch(`${baseUrl}/api/v1/cases/${caseA._id}`, {
+        headers: { Authorization: `Bearer ${tokenPartnerB}` },
+      });
+      assert.equal(crossRes.status, 403, "Partner B must be forbidden from accessing Partner A's case");
+      const crossJson = await crossRes.json();
+      assert.equal(crossJson.error?.code, "FORBIDDEN");
+
+      // F. Partner attempting to tamper with query parameter to view Partner A's cases
+      const queryTamperRes = await fetch(`${baseUrl}/api/v1/cases?partnerId=${partnerA._id}`, {
+        headers: { Authorization: `Bearer ${tokenPartnerB}` },
+      });
+      assert.equal(queryTamperRes.status, 200);
+      const queryTamperJson = await queryTamperRes.json();
+      // Server overrides query partnerId with authenticated partner ID, so Partner B gets 0 cases!
+      const leakedCase = (queryTamperJson.data || []).find((c: any) => c._id === caseA._id.toString());
+      assert.equal(leakedCase, undefined, "Server must override partnerId query param and never leak other partner cases");
+
+      // G. Partner cannot record payments -> MUST BE REJECTED WITH 403
+      const paymentForbiddenRes = await fetch(`${baseUrl}/api/v1/payments`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${tokenPartnerA}`,
+        },
+        body: JSON.stringify({ amountMinor: 100000 }),
+      });
+      assert.equal(paymentForbiddenRes.status, 403, "Partner role must be rejected from recording payments");
+
+      // H. Partner cannot call migration import -> MUST BE REJECTED WITH 403
+      const migrationForbiddenRes = await fetch(`${baseUrl}/api/v1/migration/import`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${tokenPartnerA}`,
+        },
+        body: JSON.stringify({ dryRun: true }),
+      });
+      assert.equal(migrationForbiddenRes.status, 403, "Partner role must be rejected from migration import");
+
+      // I. Search Isolation: Partner A sees case in search, Partner B does NOT
+      const searchResA = await fetch(`${baseUrl}/api/v1/cases/search?q=Rustam`, {
+        headers: { Authorization: `Bearer ${tokenPartnerA}` },
+      });
+      assert.equal(searchResA.status, 200);
+      const searchJsonA = await searchResA.json();
+      assert.equal(searchJsonA.data.length, 1, "Partner A should find their own patient in search");
+
+      const searchResB = await fetch(`${baseUrl}/api/v1/cases/search?q=Rustam`, {
+        headers: { Authorization: `Bearer ${tokenPartnerB}` },
+      });
+      assert.equal(searchResB.status, 200);
+      const searchJsonB = await searchResB.json();
+      assert.equal(searchJsonB.data.length, 0, "Partner B must NEVER see Partner A's patient in search");
+
+      // J. Partner Statement IDOR: Partner B cannot view Partner A's commission statement
+      const statementRes = await fetch(`${baseUrl}/api/v1/partners/${partnerA._id}/statement`, {
+        headers: { Authorization: `Bearer ${tokenPartnerB}` },
+      });
+      assert.equal(statementRes.status, 403, "Partner B must be forbidden from accessing Partner A statement");
+
+      // K. Partner Agency Isolation: Partner B listing partners only sees own partner agency
+      const partnersListRes = await fetch(`${baseUrl}/api/v1/partners`, {
+        headers: { Authorization: `Bearer ${tokenPartnerB}` },
+      });
+      assert.equal(partnersListRes.status, 200);
+      const partnersListJson = await partnersListRes.json();
+      assert.equal(partnersListJson.data.length, 1, "Partner B should only see their own partner agency");
+      assert.equal(partnersListJson.data[0]._id, partnerB._id.toString());
+    } finally {
+      await CaseModel.deleteOne({ _id: caseA._id });
+      await PatientModel.deleteOne({ _id: patientA._id });
+      await PartnerModel.deleteOne({ _id: partnerA._id });
+      await PartnerModel.deleteOne({ _id: partnerB._id });
+      await UserModel.deleteMany({ _id: { $in: [userPartnerA._id, userPartnerB._id] } });
+    }
+  });
+
+  it("6. CORS origin security and OTP verification enforcement", async () => {
+    // A. CORS: Untrusted origin is rejected (no Access-Control-Allow-Origin returned)
+    const corsRes = await fetch(`${baseUrl}/health`, {
+      headers: { Origin: "https://unauthorized-attacker-site.com" },
+    });
+    assert.equal(
+      corsRes.headers.get("access-control-allow-origin"),
+      null,
+      "Untrusted origin must not receive Access-Control-Allow-Origin"
+    );
+
+    // B. CORS: Trusted origin receives header
+    const trustedCorsRes = await fetch(`${baseUrl}/health`, {
+      headers: { Origin: "https://akeezo.com" },
+    });
+    assert.equal(
+      trustedCorsRes.headers.get("access-control-allow-origin"),
+      "https://akeezo.com",
+      "Trusted domain must receive matching Access-Control-Allow-Origin"
+    );
+
+    // C. OTP: Arbitrary 6-digit code must be rejected with 422
+    const loginRes = await fetch(`${baseUrl}/api/v1/auth/login`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ email: "priti@akeezo.com", password: "Akeezo@2026!" }),
+    });
+    const loginJson = await loginRes.json();
+    const tempToken = loginJson.data?.tempToken;
+    assert.ok(tempToken, "Login must yield temporary OTP token");
+
+    const invalidOtpRes = await fetch(`${baseUrl}/api/v1/auth/otp/verify`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ tempToken, code: "777777" }),
+    });
+    assert.equal(invalidOtpRes.status, 422, "Arbitrary 6-digit code must be rejected with 422");
+    const invalidJson = await invalidOtpRes.json();
+    assert.equal(invalidJson.error?.code, "INVALID_OTP_CODE");
+
+    // D. OTP: Valid test code succeeds
+    const validOtpRes = await fetch(`${baseUrl}/api/v1/auth/otp/verify`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ tempToken, code: "123456" }),
+    });
+    assert.equal(validOtpRes.status, 200, "Valid OTP code must succeed");
+    const validJson = await validOtpRes.json();
+    assert.ok(validJson.data?.token, "Must return active session token");
+  });
 });

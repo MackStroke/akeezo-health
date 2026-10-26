@@ -15,9 +15,6 @@ apiRouter.use("/auth", authRouter);
 // CMS & Website Frontend Administration Router
 apiRouter.use("/admin", cmsAdminRouter);
 
-// Case Management & Operations Router
-apiRouter.use(caseManagementRouter);
-
 // Health check
 apiRouter.get("/health", (_req: Request, res: Response) => {
   const isDbConnected = mongoose.connection.readyState === 1;
@@ -217,3 +214,6 @@ apiRouter.get("/route", async (req: Request, res: Response) => {
     res.status(500).json({ error: { code: "INTERNAL_ERROR", message: "Failed to resolve route" } });
   }
 });
+
+// Case Management & Operations Router (Guarded by requireAuth)
+apiRouter.use(caseManagementRouter);
