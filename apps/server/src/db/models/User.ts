@@ -47,6 +47,7 @@ const UserSchema = new Schema<IUser>(
 // Indexes per MongoDB schema design guidelines
 UserSchema.index({ role: 1, status: 1 });
 UserSchema.index({ phone: 1 });
+UserSchema.index({ _id: 1, status: 1, tokenVersion: 1 });
 
 UserSchema.pre("save", function (next) {
   // If permissions are not explicitly overridden, populate with defaults for the role

@@ -14,3 +14,4 @@ export * from "./CaseActivity.js";
 export * from "./Enquiry.js";
 export * from "./MediaAsset.js";
 export * from "./Redirect.js";
+export * from "./UserSession.js";

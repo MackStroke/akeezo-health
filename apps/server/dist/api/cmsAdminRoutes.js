@@ -4,7 +4,7 @@ import crypto from "node:crypto";
 import { Router } from "express";
 import mongoose from "mongoose";
 import { SiteSettings, Page, ContentRevision, RouteEntry, EnquiryModel, PatientModel, CaseModel, CaseAuditLogModel, HospitalModel, PartnerModel, UserModel, MediaAssetModel, RedirectModel, } from "../db/models/index.js";
-import { hashPassword, verifyPassword, requireAuth, requireRole, FALLBACK_USERS, } from "../utils/auth.js";
+import { hashPassword, verifyPassword, escapeRegex, verifyToken, requireAuth, requireRole, FALLBACK_USERS, } from "../utils/auth.js";
 import { DEFAULT_WEBSITE_THEME, DEFAULT_ADMIN_THEME, THEME_PRESETS, sanitizeCssValue } from "@akeezo/contracts";
 import { env } from "../config/env.js";
 export const cmsAdminRouter = Router();
@@ -489,7 +489,7 @@ cmsAdminRouter.get("/pages", async (req, res) => {
             filter.status = req.query.status;
         }
         if (req.query.search) {
-            const q = String(req.query.search).trim();
+            const q = escapeRegex(String(req.query.search).trim());
             filter.$or = [
                 { slug: { $regex: q, $options: "i" } },
                 { "publishedRevisionId.seo.title": { $regex: q, $options: "i" } },
@@ -853,7 +853,7 @@ cmsAdminRouter.get("/media", async (req, res) => {
     try {
         const filter = {};
         if (req.query.search) {
-            const q = String(req.query.search).trim();
+            const q = escapeRegex(String(req.query.search).trim());
             filter.$or = [
                 { originalFilename: { $regex: q, $options: "i" } },
                 { altText: { $regex: q, $options: "i" } },
@@ -981,7 +981,15 @@ cmsAdminRouter.post("/media/upload", async (req, res) => {
                 .replace(/javascript:/gi, "");
             cleanBuffer = Buffer.from(svgText, "utf8");
         }
-        const ext = path.extname(originalFilename).toLowerCase() || ".png";
+        const MIME_TO_EXTENSION = {
+            "image/jpeg": ".jpg",
+            "image/png": ".png",
+            "image/webp": ".webp",
+            "image/svg+xml": ".svg",
+            "image/gif": ".gif",
+            "application/pdf": ".pdf",
+        };
+        const ext = MIME_TO_EXTENSION[mimeType.toLowerCase()] || ".png";
         const fileHash = crypto.createHash("sha256").update(cleanBuffer).digest("hex").slice(0, 16);
         const storedFilename = `${fileHash}${ext}`;
         const uploadsDir = path.resolve(process.cwd(), "uploads");
@@ -1069,7 +1077,7 @@ cmsAdminRouter.get("/enquiries", async (req, res) => {
             filter.status = req.query.status;
         }
         if (req.query.search) {
-            const q = String(req.query.search).trim();
+            const q = escapeRegex(String(req.query.search).trim());
             filter.$or = [
                 { requesterName: { $regex: q, $options: "i" } },
                 { email: { $regex: q, $options: "i" } },
@@ -1502,12 +1510,16 @@ cmsAdminRouter.patch("/users/:id", async (req, res) => {
         }
         if (req.body.name)
             userToChange.name = req.body.name;
-        if (req.body.role)
+        if (req.body.role && req.body.role !== userToChange.role) {
             userToChange.role = req.body.role;
+            userToChange.tokenVersion = (userToChange.tokenVersion || 1) + 1;
+        }
         if (req.body.phone)
             userToChange.phone = req.body.phone;
-        if (req.body.status)
+        if (req.body.status && req.body.status !== userToChange.status) {
             userToChange.status = req.body.status;
+            userToChange.tokenVersion = (userToChange.tokenVersion || 1) + 1;
+        }
         await userToChange.save();
         await logAdminActivity(req.user?._id, "user", userToChange._id, "update", { role: ["previous", userToChange.role], status: ["previous", userToChange.status] }, req);
         res.json({
@@ -1761,15 +1773,9 @@ cmsAdminRouter.post("/profile/password", async (req, res) => {
         const token = authHeader?.startsWith("Bearer ") ? authHeader.split(" ")[1] : null;
         let userId = FALLBACK_USERS[0]._id;
         if (token) {
-            const parts = token.split(".");
-            if (parts.length === 3) {
-                try {
-                    const payload = JSON.parse(Buffer.from(parts[1], "base64").toString("utf8"));
-                    if (payload.userId)
-                        userId = payload.userId;
-                }
-                catch { }
-            }
+            const payload = verifyToken(token);
+            if (payload && payload.userId)
+                userId = payload.userId;
         }
         if (mongoose.connection.readyState === 1) {
             const user = await UserModel.findById(userId);
@@ -1779,6 +1785,7 @@ cmsAdminRouter.post("/profile/password", async (req, res) => {
                     return res.status(401).json({ error: { code: "WRONG_PASSWORD", message: "Current password does not match." } });
                 }
                 user.passwordHash = hashPassword(newPassword);
+                user.tokenVersion = (user.tokenVersion || 1) + 1;
                 await user.save();
                 await logAdminActivity(user._id, "user", user._id, "update", { password: ["***", "***"] }, req);
                 return res.json({ data: { success: true, message: "Password updated successfully." } });

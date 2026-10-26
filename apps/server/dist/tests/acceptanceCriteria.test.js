@@ -7,10 +7,12 @@ import { calculateAkeezoCommission, calculatePartnerShare, calculatePartnerPayab
 import { encryptSensitiveField, decryptSensitiveField, maskSensitiveValue, } from "../utils/crypto.js";
 import { findDuplicatePatients } from "../services/duplicatePatient.js";
 import { evaluateStageGuards } from "../services/stageGuards.js";
+import { signToken } from "../utils/auth.js";
 import { UserModel, PartnerModel, HospitalModel, PatientModel, CaseModel, CaseStageHistoryModel, QuoteRequestModel, QuoteModel, EpisodeModel, EpisodeSeriesModel, CommissionRecordModel, VisaRecordModel, TravelRecordModel, CaseAuditLogModel, } from "../db/models/index.js";
 describe("Phase 1 Acceptance Criteria Verification (AC-1 to AC-15)", () => {
     let server;
     let baseUrl;
+    const adminToken = signToken({ userId: "660000000000000000000001", role: "admin" });
     before(async () => {
         await connectDB();
         await EpisodeModel.init(); // Enforce database partial unique index build
@@ -190,7 +192,10 @@ describe("Phase 1 Acceptance Criteria Verification (AC-1 to AC-15)", () => {
         });
         try {
             // 1. Service layer check: activating ep2 via API when currentActive exists must fail with 422
-            const res = await fetch(`${baseUrl}/api/v1/episodes/${ep2._id}/activate`, { method: "POST" });
+            const res = await fetch(`${baseUrl}/api/v1/episodes/${ep2._id}/activate`, {
+                method: "POST",
+                headers: { Authorization: `Bearer ${adminToken}` },
+            });
             assert.equal(res.status, 422, "API must reject activating a second episode on the same case");
             const errJson = await res.json();
             assert.equal(errJson.error?.code, "episode_already_active");
@@ -381,7 +386,10 @@ describe("Phase 1 Acceptance Criteria Verification (AC-1 to AC-15)", () => {
         // 1. Dry Run Verification: calls real API endpoint with dry_run=true
         const dryRunRes = await fetch(`${baseUrl}/api/v1/migration/import?dry_run=true`, {
             method: "POST",
-            headers: { "Content-Type": "application/json" },
+            headers: {
+                "Content-Type": "application/json",
+                Authorization: `Bearer ${adminToken}`,
+            },
             body: JSON.stringify({ data: batchData }),
         });
         assert.equal(dryRunRes.status, 200, "Dry run request must succeed with 200");
@@ -397,7 +405,10 @@ describe("Phase 1 Acceptance Criteria Verification (AC-1 to AC-15)", () => {
         // 2. Phase 2 Actual Import Execution
         const importRes = await fetch(`${baseUrl}/api/v1/migration/import`, {
             method: "POST",
-            headers: { "Content-Type": "application/json" },
+            headers: {
+                "Content-Type": "application/json",
+                Authorization: `Bearer ${adminToken}`,
+            },
             body: JSON.stringify({ data: batchData, dryRun: false }),
         });
         assert.equal(importRes.status, 201, "Live import request must succeed with 201");
@@ -410,7 +421,10 @@ describe("Phase 1 Acceptance Criteria Verification (AC-1 to AC-15)", () => {
         // 3. Deduplication: running the same import batch again must skip existing legacyIds
         const reImportRes = await fetch(`${baseUrl}/api/v1/migration/import`, {
             method: "POST",
-            headers: { "Content-Type": "application/json" },
+            headers: {
+                "Content-Type": "application/json",
+                Authorization: `Bearer ${adminToken}`,
+            },
             body: JSON.stringify({ data: batchData, dryRun: false }),
         });
         assert.equal(reImportRes.status, 201);
@@ -436,7 +450,10 @@ describe("Phase 1 Acceptance Criteria Verification (AC-1 to AC-15)", () => {
             // 1. Attempt backward move to 'quotes_requested' without reason -> MUST FAIL with 422 reason_required
             const failRes = await fetch(`${baseUrl}/api/v1/cases/${case5._id}/stage-transitions`, {
                 method: "POST",
-                headers: { "Content-Type": "application/json" },
+                headers: {
+                    "Content-Type": "application/json",
+                    Authorization: `Bearer ${adminToken}`,
+                },
                 body: JSON.stringify({ toStage: "quotes_requested" }),
             });
             assert.equal(failRes.status, 422);
@@ -445,7 +462,10 @@ describe("Phase 1 Acceptance Criteria Verification (AC-1 to AC-15)", () => {
             // 2. Attempt backward move WITH reason -> MUST SUCCEED
             const successRes = await fetch(`${baseUrl}/api/v1/cases/${case5._id}/stage-transitions`, {
                 method: "POST",
-                headers: { "Content-Type": "application/json" },
+                headers: {
+                    "Content-Type": "application/json",
+                    Authorization: `Bearer ${adminToken}`,
+                },
                 body: JSON.stringify({
                     toStage: "quotes_requested",
                     reason: "Patient requested second surgical opinion and alternate hospital options",
@@ -470,7 +490,10 @@ describe("Phase 1 Acceptance Criteria Verification (AC-1 to AC-15)", () => {
         // 3. Case closure without reason -> MUST FAIL with 422 reason_required
         const closeFailRes = await fetch(`${baseUrl}/api/v1/cases/${case5._id}/stage-transitions`, {
             method: "POST",
-            headers: { "Content-Type": "application/json" },
+            headers: {
+                "Content-Type": "application/json",
+                Authorization: `Bearer ${adminToken}`,
+            },
             body: JSON.stringify({ toStage: "closed" }),
         });
         assert.equal(closeFailRes.status, 422);
@@ -494,7 +517,10 @@ describe("Phase 1 Acceptance Criteria Verification (AC-1 to AC-15)", () => {
         try {
             const closeSuccessRes = await fetch(`${baseUrl}/api/v1/cases/${testCase._id}/stage-transitions`, {
                 method: "POST",
-                headers: { "Content-Type": "application/json" },
+                headers: {
+                    "Content-Type": "application/json",
+                    Authorization: `Bearer ${adminToken}`,
+                },
                 body: JSON.stringify({
                     toStage: "closed",
                     reason: "Patient decided to undergo procedure in home country",

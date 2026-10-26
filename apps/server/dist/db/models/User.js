@@ -10,8 +10,18 @@ const UserSchema = new Schema({
     status: { type: String, enum: ["active", "disabled"], default: "active" },
     phoneVerified: { type: Boolean, default: true },
     totpEnabled: { type: Boolean, default: false },
+    tokenVersion: { type: Number, default: 1 },
+    failedAttempts: { type: Number, default: 0 },
+    lockoutUntil: { type: Date },
     lastLoginAt: { type: Date },
+    lastLoginIp: { type: String },
+    lastActiveAt: { type: Date },
+    partnerId: { type: Schema.Types.ObjectId, ref: "Partner" },
 }, { timestamps: true });
+// Indexes per MongoDB schema design guidelines
+UserSchema.index({ role: 1, status: 1 });
+UserSchema.index({ phone: 1 });
+UserSchema.index({ _id: 1, status: 1, tokenVersion: 1 });
 UserSchema.pre("save", function (next) {
     // If permissions are not explicitly overridden, populate with defaults for the role
     if (!this.permissions || this.permissions.length === 0) {

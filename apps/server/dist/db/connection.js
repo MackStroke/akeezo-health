@@ -13,7 +13,9 @@ export async function connectDB() {
             autoIndex: env.NODE_ENV !== "production",
             serverSelectionTimeoutMS: 2500,
             connectTimeoutMS: 2500,
-            socketTimeoutMS: 10000
+            socketTimeoutMS: 10000,
+            maxPoolSize: 50,
+            minPoolSize: 5,
         })
             .then((m) => {
             console.log(`[Akeezo MongoDB] Connected successfully to ${m.connection.host}:${m.connection.port}/${m.connection.name}`);

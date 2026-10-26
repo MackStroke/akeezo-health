@@ -20367,14 +20367,14 @@ var require_etag = __commonJS({
   "../../node_modules/etag/index.js"(exports, module) {
     "use strict";
     module.exports = etag;
-    var crypto5 = __require("crypto");
+    var crypto6 = __require("crypto");
     var Stats = __require("fs").Stats;
     var toString = Object.prototype.toString;
     function entitytag(entity) {
       if (entity.length === 0) {
         return '"0-2jmj7l5rSw0yVb/vlWAYkK/YBwk"';
       }
-      var hash = crypto5.createHash("sha1").update(entity, "utf8").digest("base64").substring(0, 27);
+      var hash = crypto6.createHash("sha1").update(entity, "utf8").digest("base64").substring(0, 27);
       var len = typeof entity === "string" ? Buffer.byteLength(entity, "utf8") : entity.length;
       return '"' + len.toString(16) + "-" + hash + '"';
     }
@@ -31905,11 +31905,11 @@ var require_request = __commonJS({
 // ../../node_modules/cookie-signature/index.js
 var require_cookie_signature = __commonJS({
   "../../node_modules/cookie-signature/index.js"(exports) {
-    var crypto5 = __require("crypto");
+    var crypto6 = __require("crypto");
     exports.sign = function(val, secret) {
       if ("string" !== typeof val) throw new TypeError("Cookie value must be provided as a string.");
       if (null == secret) throw new TypeError("Secret key must be provided.");
-      return val + "." + crypto5.createHmac("sha256", secret).update(val).digest("base64").replace(/\=+$/, "");
+      return val + "." + crypto6.createHmac("sha256", secret).update(val).digest("base64").replace(/\=+$/, "");
     };
     exports.unsign = function(val, secret) {
       if ("string" !== typeof val) throw new TypeError("Signed cookie string must be provided.");
@@ -31918,7 +31918,7 @@ var require_cookie_signature = __commonJS({
       return sha1(mac) == sha1(val) ? str : false;
     };
     function sha1(str) {
-      return crypto5.createHash("sha1").update(str).digest("hex");
+      return crypto6.createHash("sha1").update(str).digest("hex");
     }
   }
 });
@@ -43832,7 +43832,7 @@ var require_main = __commonJS({
     var fs4 = __require("fs");
     var path4 = __require("path");
     var os = __require("os");
-    var crypto5 = __require("crypto");
+    var crypto6 = __require("crypto");
     var packageJson = require_package();
     var version = packageJson.version;
     var LINE = /(?:^|^)\s*(?:export\s+)?([\w.-]+)(?:\s*=\s*?|:\s+?)(\s*'(?:\\'|[^'])*'|\s*"(?:\\"|[^"])*"|\s*`(?:\\`|[^`])*`|[^#\r\n]+)?\s*(?:#.*)?(?:$|$)/mg;
@@ -44051,7 +44051,7 @@ var require_main = __commonJS({
       const authTag = ciphertext.subarray(-16);
       ciphertext = ciphertext.subarray(12, -16);
       try {
-        const aesgcm = crypto5.createDecipheriv("aes-256-gcm", key, nonce);
+        const aesgcm = crypto6.createDecipheriv("aes-256-gcm", key, nonce);
         aesgcm.setAuthTag(authTag);
         return `${aesgcm.update(ciphertext)}${aesgcm.final()}`;
       } catch (error) {
@@ -48751,7 +48751,7 @@ var EnvSchema = external_exports.object({
 var env = EnvSchema.parse(process.env);
 
 // src/index.ts
-import mongoose23 from "mongoose";
+import mongoose24 from "mongoose";
 
 // src/db/connection.ts
 import mongoose from "mongoose";
@@ -48766,7 +48766,9 @@ async function connectDB() {
       autoIndex: env.NODE_ENV !== "production",
       serverSelectionTimeoutMS: 2500,
       connectTimeoutMS: 2500,
-      socketTimeoutMS: 1e4
+      socketTimeoutMS: 1e4,
+      maxPoolSize: 50,
+      minPoolSize: 5
     }).then((m) => {
       console.log(
         `[Akeezo MongoDB] Connected successfully to ${m.connection.host}:${m.connection.port}/${m.connection.name}`
@@ -48783,7 +48785,7 @@ async function connectDB() {
 
 // src/api/routes.ts
 var import_express4 = __toESM(require_express2(), 1);
-import mongoose22 from "mongoose";
+import mongoose23 from "mongoose";
 
 // src/db/models/RouteEntry.ts
 import mongoose2, { Schema } from "mongoose";
@@ -49475,7 +49477,8 @@ var ROLE_KEYS = [
   "coordinator",
   "hospital_liaison",
   "finance",
-  "viewer"
+  "viewer",
+  "partner"
 ];
 var DEFAULT_ROLE_PERMISSIONS = {
   admin: [...PERMISSION_KEYS],
@@ -49530,6 +49533,12 @@ var DEFAULT_ROLE_PERMISSIONS = {
   viewer: [
     "case.view",
     "report.view"
+  ],
+  partner: [
+    "case.view",
+    "document.view",
+    "commission.view",
+    "partner.view_payout"
   ]
 };
 var UserSchema = external_exports.object({
@@ -50283,10 +50292,19 @@ var UserSchema2 = new Schema5(
     status: { type: String, enum: ["active", "disabled"], default: "active" },
     phoneVerified: { type: Boolean, default: true },
     totpEnabled: { type: Boolean, default: false },
-    lastLoginAt: { type: Date }
+    tokenVersion: { type: Number, default: 1 },
+    failedAttempts: { type: Number, default: 0 },
+    lockoutUntil: { type: Date },
+    lastLoginAt: { type: Date },
+    lastLoginIp: { type: String },
+    lastActiveAt: { type: Date },
+    partnerId: { type: Schema5.Types.ObjectId, ref: "Partner" }
   },
   { timestamps: true }
 );
+UserSchema2.index({ role: 1, status: 1 });
+UserSchema2.index({ phone: 1 });
+UserSchema2.index({ _id: 1, status: 1, tokenVersion: 1 });
 UserSchema2.pre("save", function(next) {
   if (!this.permissions || this.permissions.length === 0) {
     this.permissions = DEFAULT_ROLE_PERMISSIONS[this.role] || [];
@@ -51031,6 +51049,25 @@ var RedirectSchema = new Schema16(
 RedirectSchema.index({ enabled: 1 });
 var RedirectModel = mongoose17.models.Redirect || mongoose17.model("Redirect", RedirectSchema);
 
+// src/db/models/UserSession.ts
+import mongoose18, { Schema as Schema17 } from "mongoose";
+var UserSessionSchema = new Schema17(
+  {
+    userId: { type: Schema17.Types.ObjectId, ref: "User", required: true, index: true },
+    tokenHash: { type: String, required: true, unique: true },
+    role: { type: String, required: true },
+    ipAddress: { type: String, default: "127.0.0.1" },
+    userAgent: { type: String, default: "Unknown" },
+    tokenVersion: { type: Number, default: 1 },
+    isValid: { type: Boolean, default: true },
+    expiresAt: { type: Date, required: true }
+  },
+  { timestamps: true }
+);
+UserSessionSchema.index({ expiresAt: 1 }, { expireAfterSeconds: 0 });
+UserSessionSchema.index({ userId: 1, isValid: 1 });
+var UserSessionModel = mongoose18.models.UserSession || mongoose18.model("UserSession", UserSessionSchema);
+
 // src/ssr/renderer.ts
 import fs from "node:fs/promises";
 import path from "node:path";
@@ -51428,7 +51465,7 @@ ${dynamicThemeCss}
 
 // src/api/caseManagementRoutes.ts
 var import_express = __toESM(require_express2(), 1);
-import mongoose18 from "mongoose";
+import mongoose20 from "mongoose";
 
 // src/services/stageGuards.ts
 async function evaluateStageGuards(caseId, toStage) {
@@ -51826,8 +51863,292 @@ async function findDuplicatePatients(query) {
   return matches;
 }
 
+// src/utils/auth.ts
+import crypto3 from "crypto";
+import mongoose19 from "mongoose";
+var JWT_SECRET = process.env.JWT_SECRET || "akeezo_super_secure_jwt_secret_token_2026";
+var TOKEN_EXPIRY_SECONDS = 60 * 60 * 12;
+var TEMP_TOKEN_EXPIRY_SECONDS = 60 * 5;
+function escapeRegex(text) {
+  return text.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+}
+function hashPassword(password) {
+  return crypto3.createHash("sha256").update(password.trim()).digest("hex");
+}
+function verifyPassword(password, storedHash) {
+  const trimmed = password.trim();
+  if (hashPassword(trimmed) === storedHash) return true;
+  if (process.env.NODE_ENV !== "production") {
+    if (["Akeezo@2026!", "Password@123", "Admin@123"].includes(trimmed) && (storedHash === hashPassword("Akeezo@2026!") || storedHash === hashPassword("Password@123"))) {
+      return true;
+    }
+  }
+  return false;
+}
+var FALLBACK_USERS = [
+  {
+    _id: "660000000000000000000001",
+    name: "Priti",
+    email: "priti@akeezo.com",
+    phone: "+91 98765 43210",
+    role: "admin",
+    passwordHash: hashPassword("Akeezo@2026!"),
+    status: "active",
+    phoneVerified: true,
+    totpEnabled: false,
+    tokenVersion: 1,
+    permissions: ["all"],
+    createdAt: /* @__PURE__ */ new Date("2026-01-01"),
+    updatedAt: /* @__PURE__ */ new Date("2026-01-01"),
+    save: async () => {
+    }
+  },
+  {
+    _id: "660000000000000000000002",
+    name: "Priya Sharma",
+    email: "priya@akeezo.com",
+    phone: "+91 98765 43211",
+    role: "coordinator",
+    passwordHash: hashPassword("Akeezo@2026!"),
+    status: "active",
+    phoneVerified: true,
+    totpEnabled: false,
+    tokenVersion: 1,
+    permissions: ["cases:read", "cases:write", "patients:read", "patients:write"],
+    createdAt: /* @__PURE__ */ new Date("2026-01-01"),
+    updatedAt: /* @__PURE__ */ new Date("2026-01-01"),
+    save: async () => {
+    }
+  },
+  {
+    _id: "660000000000000000000003",
+    name: "Yogesh Verma",
+    email: "yogesh@akeezo.com",
+    phone: "+91 82876 39443",
+    role: "admin",
+    passwordHash: hashPassword("Akeezo@2026!"),
+    status: "active",
+    phoneVerified: true,
+    totpEnabled: false,
+    tokenVersion: 1,
+    permissions: ["all"],
+    createdAt: /* @__PURE__ */ new Date("2026-01-01"),
+    updatedAt: /* @__PURE__ */ new Date("2026-01-01"),
+    save: async () => {
+    }
+  },
+  {
+    _id: "660000000000000000000004",
+    name: "Rajesh Kumar",
+    email: "rajesh@akeezo.com",
+    phone: "+91 98765 43213",
+    role: "finance",
+    passwordHash: hashPassword("Akeezo@2026!"),
+    status: "active",
+    phoneVerified: true,
+    totpEnabled: false,
+    tokenVersion: 1,
+    permissions: ["finance:read", "finance:write", "commissions:read"],
+    createdAt: /* @__PURE__ */ new Date("2026-01-01"),
+    updatedAt: /* @__PURE__ */ new Date("2026-01-01"),
+    save: async () => {
+    }
+  },
+  {
+    _id: "660000000000000000000005",
+    name: "Adesh",
+    email: "adesh@akeezo.com",
+    phone: "+91 98765 43214",
+    role: "hospital_liaison",
+    passwordHash: hashPassword("Akeezo@2026!"),
+    status: "active",
+    phoneVerified: true,
+    totpEnabled: false,
+    tokenVersion: 1,
+    permissions: ["hospitals:read", "hospitals:write", "quotes:read", "quotes:write"],
+    createdAt: /* @__PURE__ */ new Date("2026-01-01"),
+    updatedAt: /* @__PURE__ */ new Date("2026-01-01"),
+    save: async () => {
+    }
+  },
+  {
+    _id: "660000000000000000000006",
+    name: "Akeezo Super Admin",
+    email: "admin@akeezo.com",
+    phone: "+91 82876 39443",
+    role: "admin",
+    passwordHash: hashPassword("Akeezo@2026!"),
+    status: "active",
+    phoneVerified: true,
+    totpEnabled: false,
+    tokenVersion: 1,
+    permissions: ["all"],
+    createdAt: /* @__PURE__ */ new Date("2026-01-01"),
+    updatedAt: /* @__PURE__ */ new Date("2026-01-01"),
+    save: async () => {
+    }
+  },
+  {
+    _id: "660000000000000000000007",
+    name: "Lead Care Coordinator",
+    email: "coordinator@akeezo.com",
+    phone: "+91 98765 43211",
+    role: "coordinator",
+    passwordHash: hashPassword("Akeezo@2026!"),
+    status: "active",
+    phoneVerified: true,
+    totpEnabled: false,
+    tokenVersion: 1,
+    permissions: ["cases:read", "cases:write"],
+    createdAt: /* @__PURE__ */ new Date("2026-01-01"),
+    updatedAt: /* @__PURE__ */ new Date("2026-01-01"),
+    save: async () => {
+    }
+  },
+  {
+    _id: "660000000000000000000008",
+    name: "Tashkent Facilitator (Aziz)",
+    email: "partner@akeezo.com",
+    phone: "+91 98765 43215",
+    role: "partner",
+    partnerId: "661000000000000000000001",
+    passwordHash: hashPassword("Akeezo@2026!"),
+    status: "active",
+    phoneVerified: true,
+    totpEnabled: false,
+    tokenVersion: 1,
+    permissions: ["case.view", "document.view", "commission.view", "partner.view_payout"],
+    createdAt: /* @__PURE__ */ new Date("2026-01-01"),
+    updatedAt: /* @__PURE__ */ new Date("2026-01-01"),
+    save: async () => {
+    }
+  }
+];
+async function findUserByEmailOrFallback(email) {
+  const normalized = email.toLowerCase().trim();
+  if (mongoose19.connection.readyState === 1) {
+    try {
+      const user = await UserModel.findOne({ email: normalized });
+      if (user) return user;
+    } catch {
+    }
+  }
+  return FALLBACK_USERS.find((u) => u.email.toLowerCase() === normalized) || null;
+}
+async function findUserByIdOrFallback(id) {
+  if (mongoose19.connection.readyState === 1) {
+    try {
+      const user = await UserModel.findById(id);
+      if (user) return user;
+    } catch {
+    }
+  }
+  return FALLBACK_USERS.find((u) => u._id === id || u._id.toString() === id) || null;
+}
+function base64UrlEncode(str) {
+  return Buffer.from(str).toString("base64").replace(/=/g, "").replace(/\+/g, "-").replace(/\//g, "_");
+}
+function base64UrlDecode(str) {
+  str = str.replace(/-/g, "+").replace(/_/g, "/");
+  while (str.length % 4) {
+    str += "=";
+  }
+  return Buffer.from(str, "base64").toString("utf8");
+}
+function signToken(payload, isTemp2FA = false) {
+  const header = { alg: "HS256", typ: "JWT" };
+  const exp = Math.floor(Date.now() / 1e3) + (isTemp2FA ? TEMP_TOKEN_EXPIRY_SECONDS : TOKEN_EXPIRY_SECONDS);
+  const fullPayload = {
+    tokenVersion: payload.tokenVersion ?? 1,
+    ...payload,
+    exp,
+    iat: Math.floor(Date.now() / 1e3)
+  };
+  const encodedHeader = base64UrlEncode(JSON.stringify(header));
+  const encodedPayload = base64UrlEncode(JSON.stringify(fullPayload));
+  const signature = crypto3.createHmac("sha256", JWT_SECRET).update(`${encodedHeader}.${encodedPayload}`).digest("base64").replace(/=/g, "").replace(/\+/g, "-").replace(/\//g, "_");
+  return `${encodedHeader}.${encodedPayload}.${signature}`;
+}
+function verifyToken(token) {
+  try {
+    const parts = token.split(".");
+    if (parts.length !== 3) return null;
+    const [header, payload, signature] = parts;
+    const expectedSig = crypto3.createHmac("sha256", JWT_SECRET).update(`${header}.${payload}`).digest("base64").replace(/=/g, "").replace(/\+/g, "-").replace(/\//g, "_");
+    if (signature !== expectedSig) return null;
+    const decodedPayload = JSON.parse(base64UrlDecode(payload));
+    const now = Math.floor(Date.now() / 1e3);
+    if (decodedPayload.exp && decodedPayload.exp < now) {
+      return null;
+    }
+    return decodedPayload;
+  } catch (err) {
+    return null;
+  }
+}
+async function requireAuth(req, res, next) {
+  const authHeader = req.headers.authorization;
+  let token = void 0;
+  if (authHeader && authHeader.startsWith("Bearer ")) {
+    token = authHeader.split(" ")[1];
+  } else if (req.headers.cookie) {
+    const match = req.headers.cookie.match(/akeezo_session=([^;]+)/);
+    if (match) {
+      token = decodeURIComponent(match[1]);
+    }
+  }
+  if (!token) {
+    res.status(401).json({
+      error: { code: "UNAUTHORIZED", message: "Authentication required. Please sign in." }
+    });
+    return;
+  }
+  const payload = verifyToken(token);
+  if (!payload || !payload.userId || payload.isTemp2FA) {
+    res.status(401).json({
+      error: { code: "INVALID_TOKEN", message: "Invalid or expired session token." }
+    });
+    return;
+  }
+  const user = await findUserByIdOrFallback(payload.userId);
+  if (!user || user.status === "disabled") {
+    res.status(403).json({
+      error: { code: "FORBIDDEN", message: "User account is disabled or no longer exists." }
+    });
+    return;
+  }
+  if (user.tokenVersion && payload.tokenVersion !== void 0 && payload.tokenVersion < user.tokenVersion) {
+    res.status(401).json({
+      error: { code: "TOKEN_REVOKED", message: "Session token has been revoked. Please sign in again." }
+    });
+    return;
+  }
+  req.user = user;
+  next();
+}
+function requireRole(allowedRoles) {
+  const roles = Array.isArray(allowedRoles) ? allowedRoles : [allowedRoles];
+  return (req, res, next) => {
+    if (!req.user) {
+      res.status(401).json({ error: { code: "UNAUTHORIZED", message: "Sign in required." } });
+      return;
+    }
+    if (!roles.includes(req.user.role)) {
+      res.status(403).json({
+        error: {
+          code: "FORBIDDEN",
+          message: `Access denied. Role '${req.user.role}' is not authorized. Required: ${roles.join(", ")}.`
+        }
+      });
+      return;
+    }
+    next();
+  };
+}
+
 // src/api/caseManagementRoutes.ts
 var caseManagementRouter = (0, import_express.Router)();
+caseManagementRouter.use(requireAuth);
 var FALLBACK_HOSPITALS = [
   {
     _id: "660000000000000000000101",
@@ -52001,8 +52322,17 @@ caseManagementRouter.get("/patients/duplicates", async (req, res) => {
 });
 caseManagementRouter.get("/patients", async (req, res) => {
   try {
-    if (mongoose18.connection.readyState === 1) {
-      const patients = await PatientModel.find().sort({ createdAt: -1 }).limit(50).lean();
+    if (mongoose20.connection.readyState === 1) {
+      let patientFilter = {};
+      if (req.user?.role === "partner") {
+        if (!req.user.partnerId) {
+          return res.json({ data: [] });
+        }
+        const partnerCases = await CaseModel.find({ partnerId: req.user.partnerId }).select("patientId").lean();
+        const patientIds = partnerCases.map((c) => c.patientId);
+        patientFilter = { _id: { $in: patientIds } };
+      }
+      const patients = await PatientModel.find(patientFilter).sort({ createdAt: -1 }).limit(50).lean();
       if (patients.length > 0) {
         return res.json({
           data: patients.map((p) => {
@@ -52021,10 +52351,11 @@ caseManagementRouter.get("/patients", async (req, res) => {
     res.json({ data: FALLBACK_PATIENTS });
   }
 });
-caseManagementRouter.get("/partners", async (_req, res) => {
+caseManagementRouter.get("/partners", async (req, res) => {
   try {
-    if (mongoose18.connection.readyState === 1) {
-      const partners = await PartnerModel.find().sort({ name: 1 }).lean();
+    if (mongoose20.connection.readyState === 1) {
+      const filter = req.user?.role === "partner" && req.user.partnerId ? { _id: req.user.partnerId } : {};
+      const partners = await PartnerModel.find(filter).sort({ name: 1 }).lean();
       if (partners.length > 0) return res.json({ data: partners });
     }
     res.json({ data: FALLBACK_PARTNERS });
@@ -52032,7 +52363,7 @@ caseManagementRouter.get("/partners", async (_req, res) => {
     res.json({ data: FALLBACK_PARTNERS });
   }
 });
-caseManagementRouter.post("/partners", async (req, res) => {
+caseManagementRouter.post("/partners", requireRole(["admin", "coordinator"]), async (req, res) => {
   try {
     const count = await PartnerModel.countDocuments();
     const partnerCode = `PTR-${String(count + 1).padStart(4, "0")}`;
@@ -52050,7 +52381,7 @@ caseManagementRouter.post("/partners", async (req, res) => {
     res.status(400).json({ error: { code: "CREATE_PARTNER_FAILED", message: err.message } });
   }
 });
-caseManagementRouter.post("/partners/:id/agreements", async (req, res) => {
+caseManagementRouter.post("/partners/:id/agreements", requireRole(["admin", "coordinator"]), async (req, res) => {
   try {
     const agreement = await PartnerAgreementModel.create({
       ...req.body,
@@ -52064,6 +52395,9 @@ caseManagementRouter.post("/partners/:id/agreements", async (req, res) => {
 caseManagementRouter.get("/partners/:id/statement", async (req, res) => {
   try {
     const partnerId = req.params.id;
+    if (req.user?.role === "partner" && req.user.partnerId?.toString() !== partnerId) {
+      return res.status(403).json({ error: { code: "FORBIDDEN", message: "Access denied to partner statement." } });
+    }
     const partner = await PartnerModel.findById(partnerId).lean();
     if (!partner) return res.status(404).json({ error: { code: "NOT_FOUND", message: "Partner not found" } });
     const cases = await CaseModel.find({ partnerId }).lean();
@@ -52096,7 +52430,7 @@ caseManagementRouter.get("/partners/:id/statement", async (req, res) => {
 });
 caseManagementRouter.get("/hospitals", async (_req, res) => {
   try {
-    if (mongoose18.connection.readyState === 1) {
+    if (mongoose20.connection.readyState === 1) {
       const hospitals = await HospitalModel.find().sort({ name: 1 }).lean();
       if (hospitals.length > 0) return res.json({ data: hospitals });
     }
@@ -52142,25 +52476,49 @@ caseManagementRouter.post("/hospitals/:id/doctors", async (req, res) => {
 });
 caseManagementRouter.get("/cases", async (req, res) => {
   try {
-    if (mongoose18.connection.readyState === 1) {
+    if (mongoose20.connection.readyState === 1) {
       const filter = {};
       if (req.query.stage) filter.stage = req.query.stage;
       if (req.query.status) filter.status = req.query.status;
-      if (req.query.partnerId) filter.partnerId = req.query.partnerId;
+      if (req.user?.role === "partner") {
+        if (!req.user.partnerId) {
+          return res.json({ data: [] });
+        }
+        filter.partnerId = req.user.partnerId;
+      } else if (req.query.partnerId) {
+        filter.partnerId = req.query.partnerId;
+      }
       if (req.query.ownerId) filter.ownerId = req.query.ownerId;
       if (req.query.specialty) filter.specialty = req.query.specialty;
       const cases = await CaseModel.find(filter).populate("patientId").populate("partnerId", "name partnerCode").populate("ownerId", "name email").sort({ createdAt: -1 }).lean();
       if (cases.length > 0) return res.json({ data: cases });
     }
+    if (req.user?.role === "partner") {
+      const pId = req.user.partnerId?.toString();
+      const fallback = FALLBACK_CASES.filter((c) => c.partnerId && c.partnerId.toString() === pId);
+      return res.json({ data: fallback });
+    }
     res.json({ data: FALLBACK_CASES });
   } catch {
+    if (req.user?.role === "partner") {
+      const pId = req.user.partnerId?.toString();
+      const fallback = FALLBACK_CASES.filter((c) => c.partnerId && c.partnerId.toString() === pId);
+      return res.json({ data: fallback });
+    }
     res.json({ data: FALLBACK_CASES });
   }
 });
-caseManagementRouter.get("/cases/board", async (_req, res) => {
+caseManagementRouter.get("/cases/board", async (req, res) => {
   try {
-    if (mongoose18.connection.readyState === 1) {
-      const cases = await CaseModel.find({ status: "open" }).populate("patientId", "fullName nationality").populate("partnerId", "name").populate("ownerId", "name").sort({ stageChangedAt: 1 }).lean();
+    if (mongoose20.connection.readyState === 1) {
+      const filter = { status: "open" };
+      if (req.user?.role === "partner") {
+        if (!req.user.partnerId) {
+          return res.json({ data: {} });
+        }
+        filter.partnerId = req.user.partnerId;
+      }
+      const cases = await CaseModel.find(filter).populate("patientId", "fullName nationality").populate("partnerId", "name").populate("ownerId", "name").sort({ stageChangedAt: 1 }).lean();
       if (cases.length > 0) {
         const board2 = {};
         for (const c of cases) {
@@ -52205,7 +52563,7 @@ caseManagementRouter.post("/cases", async (req, res) => {
     const parsed = CreateCaseIntakeSchema.parse(req.body);
     let patientId;
     if (parsed.existingPatientId) {
-      patientId = new mongoose18.Types.ObjectId(parsed.existingPatientId);
+      patientId = new mongoose20.Types.ObjectId(parsed.existingPatientId);
     } else {
       const passportEncrypted = parsed.patient.passportNumber ? encryptSensitiveField(parsed.patient.passportNumber) : void 0;
       const passportHash = parsed.patient.passportNumber ? PatientModel.hashPassport(parsed.patient.passportNumber) : void 0;
@@ -52229,7 +52587,7 @@ caseManagementRouter.post("/cases", async (req, res) => {
     const newCase = await CaseModel.create({
       caseCode,
       patientId,
-      partnerId: parsed.partnerId ? new mongoose18.Types.ObjectId(parsed.partnerId) : void 0,
+      partnerId: parsed.partnerId ? new mongoose20.Types.ObjectId(parsed.partnerId) : void 0,
       source: parsed.source,
       caseType: parsed.caseType,
       specialty: parsed.specialty,
@@ -52241,7 +52599,7 @@ caseManagementRouter.post("/cases", async (req, res) => {
       budgetCurrency: parsed.budgetCurrency,
       patientInIndia: parsed.patientInIndia,
       stage: "new_referral",
-      ownerId: new mongoose18.Types.ObjectId(parsed.ownerId),
+      ownerId: new mongoose20.Types.ObjectId(parsed.ownerId),
       referredOn: parsed.referredOn ? new Date(parsed.referredOn) : /* @__PURE__ */ new Date(),
       feeDisclosedToPartner: parsed.feeDisclosedToPartner,
       feeDisclosedOn: parsed.feeDisclosedToPartner ? /* @__PURE__ */ new Date() : void 0
@@ -52259,7 +52617,7 @@ caseManagementRouter.post("/cases", async (req, res) => {
       entityId: newCase._id,
       caseId: newCase._id,
       action: "create",
-      actorId: new mongoose18.Types.ObjectId(parsed.ownerId),
+      actorId: new mongoose20.Types.ObjectId(parsed.ownerId),
       changes: { caseCode: [null, caseCode], stage: [null, "new_referral"] }
     });
     res.status(201).json({ data: newCase });
@@ -52267,12 +52625,63 @@ caseManagementRouter.post("/cases", async (req, res) => {
     res.status(400).json({ error: { code: "CREATE_CASE_FAILED", message: err.message } });
   }
 });
+caseManagementRouter.get("/cases/search", async (req, res) => {
+  try {
+    const q = typeof req.query.q === "string" ? req.query.q.trim() : "";
+    if (!q) {
+      const filter = { status: "open" };
+      if (req.user?.role === "partner") {
+        filter.partnerId = req.user.partnerId || new mongoose20.Types.ObjectId();
+      }
+      const allCases = await CaseModel.find(filter).populate("patientId").populate("partnerId", "name partnerCode").populate("ownerId", "name email").sort({ createdAt: -1 }).limit(50).lean();
+      return res.json({ data: allCases });
+    }
+    const safeQ = escapeRegex(q);
+    let patientQuery = {
+      $or: [
+        { fullName: { $regex: safeQ, $options: "i" } },
+        { nameNormalized: { $regex: safeQ.toLowerCase(), $options: "i" } }
+      ]
+    };
+    if (req.user?.role === "partner") {
+      const partnerCases = await CaseModel.find({ partnerId: req.user.partnerId }).select("patientId").lean();
+      const allowedPatientIds = partnerCases.map((c) => c.patientId);
+      patientQuery._id = { $in: allowedPatientIds };
+    }
+    const matchingPatients = await PatientModel.find(patientQuery).select("_id");
+    const matchingPatientIds = matchingPatients.map((p) => p._id);
+    const orClauses = [
+      { caseCode: { $regex: safeQ, $options: "i" } },
+      { specialty: { $regex: safeQ, $options: "i" } },
+      { diagnosisSummary: { $regex: safeQ, $options: "i" } },
+      { patientId: { $in: matchingPatientIds } }
+    ];
+    if (req.user?.role !== "partner") {
+      const matchingPartners = await PartnerModel.find({
+        $or: [
+          { name: { $regex: safeQ, $options: "i" } },
+          { partnerCode: { $regex: safeQ, $options: "i" } }
+        ]
+      }).select("_id");
+      const matchingPartnerIds = matchingPartners.map((p) => p._id);
+      orClauses.push({ partnerId: { $in: matchingPartnerIds } });
+    }
+    const caseFilter = { $or: orClauses };
+    if (req.user?.role === "partner") {
+      caseFilter.partnerId = req.user.partnerId || new mongoose20.Types.ObjectId();
+    }
+    const cases = await CaseModel.find(caseFilter).populate("patientId").populate("partnerId", "name partnerCode").populate("ownerId", "name email").sort({ createdAt: -1 }).lean();
+    res.json({ data: cases });
+  } catch (err) {
+    res.status(500).json({ error: { code: "SEARCH_CASES_FAILED", message: err.message } });
+  }
+});
 caseManagementRouter.get("/cases/:id", async (req, res) => {
   try {
     let caseDoc = null;
-    if (mongoose18.connection.readyState === 1) {
+    if (mongoose20.connection.readyState === 1) {
       try {
-        if (mongoose18.Types.ObjectId.isValid(req.params.id)) {
+        if (mongoose20.Types.ObjectId.isValid(req.params.id)) {
           caseDoc = await CaseModel.findById(req.params.id).populate("patientId").populate("partnerId").populate("ownerId", "name email role").lean();
         }
         if (!caseDoc) {
@@ -52300,6 +52709,19 @@ caseManagementRouter.get("/cases/:id", async (req, res) => {
         });
       }
       return res.status(404).json({ error: { code: "NOT_FOUND", message: "Case not found" } });
+    }
+    if (req.user?.role === "partner") {
+      if (!req.user.partnerId || !caseDoc.partnerId) {
+        return res.status(403).json({
+          error: { code: "FORBIDDEN", message: "Access restricted. You are not authorized to view this case." }
+        });
+      }
+      const casePartnerId = (caseDoc.partnerId._id || caseDoc.partnerId).toString();
+      if (casePartnerId !== req.user.partnerId.toString()) {
+        return res.status(403).json({
+          error: { code: "FORBIDDEN", message: "Access restricted. You are not authorized to access cases from another partner agency." }
+        });
+      }
     }
     const patient = caseDoc.patientId;
     if (patient && patient.passportNumberEncrypted) {
@@ -52333,6 +52755,16 @@ caseManagementRouter.get("/cases/:id", async (req, res) => {
 });
 caseManagementRouter.get("/cases/:id/readiness", async (req, res) => {
   try {
+    const caseDoc = await CaseModel.findById(req.params.id);
+    if (!caseDoc) {
+      return res.status(404).json({ error: { code: "NOT_FOUND", message: "Case not found" } });
+    }
+    if (req.user?.role === "partner") {
+      const casePartnerId = (caseDoc.partnerId?._id || caseDoc.partnerId)?.toString();
+      if (!casePartnerId || casePartnerId !== req.user.partnerId?.toString()) {
+        return res.status(403).json({ error: { code: "FORBIDDEN", message: "Access denied to case readiness." } });
+      }
+    }
     const toStage = req.query.toStage;
     if (!toStage) {
       return res.status(400).json({ error: { code: "STAGE_REQUIRED", message: "toStage query param is required" } });
@@ -52343,7 +52775,7 @@ caseManagementRouter.get("/cases/:id/readiness", async (req, res) => {
     res.status(422).json({ error: { code: "READINESS_EVAL_FAILED", message: err.message } });
   }
 });
-caseManagementRouter.post("/cases/:id/stage-transitions", async (req, res) => {
+caseManagementRouter.post("/cases/:id/stage-transitions", requireRole(["admin", "coordinator"]), async (req, res) => {
   try {
     const parsed = CaseStageTransitionSchema.parse(req.body);
     const caseDoc = await CaseModel.findById(req.params.id);
@@ -52547,6 +52979,16 @@ caseManagementRouter.post("/quotes/:id/select", async (req, res) => {
 });
 caseManagementRouter.get("/cases/:id/quote-comparison", async (req, res) => {
   try {
+    const caseDoc = await CaseModel.findById(req.params.id);
+    if (!caseDoc) {
+      return res.status(404).json({ error: { code: "NOT_FOUND", message: "Case not found" } });
+    }
+    if (req.user?.role === "partner") {
+      const casePartnerId = (caseDoc.partnerId?._id || caseDoc.partnerId)?.toString();
+      if (!casePartnerId || casePartnerId !== req.user.partnerId?.toString()) {
+        return res.status(403).json({ error: { code: "FORBIDDEN", message: "Access denied to case quote comparison." } });
+      }
+    }
     const quotes = await QuoteModel.find({ caseId: req.params.id }).populate("hospitalId", "name city").lean();
     let lowestMin = Infinity;
     for (const q of quotes) {
@@ -52676,7 +53118,7 @@ caseManagementRouter.post("/episodes/:id/complete", async (req, res) => {
     res.status(400).json({ error: { code: "COMPLETE_EPISODE_FAILED", message: err.message } });
   }
 });
-caseManagementRouter.put("/episodes/:id/billing", async (req, res) => {
+caseManagementRouter.put("/episodes/:id/billing", requireRole(["admin", "finance"]), async (req, res) => {
   try {
     const parsed = FinaliseEpisodeBillingSchema.parse(req.body);
     const episode = await EpisodeModel.findById(req.params.id);
@@ -52742,7 +53184,7 @@ caseManagementRouter.put("/episodes/:id/billing", async (req, res) => {
     res.status(400).json({ error: { code: "BILLING_FINALISATION_FAILED", message: err.message } });
   }
 });
-caseManagementRouter.post("/payments", async (req, res) => {
+caseManagementRouter.post("/payments", requireRole(["admin", "finance"]), async (req, res) => {
   try {
     const parsed = RecordPaymentSchema.parse(req.body);
     const allocatedSum = (parsed.allocations || []).reduce(
@@ -52814,51 +53256,28 @@ caseManagementRouter.get("/commission-records", async (req, res) => {
     const filter = {};
     if (req.query.status) filter.status = req.query.status;
     if (req.query.caseId) filter.caseId = req.query.caseId;
+    if (req.user?.role === "partner") {
+      if (!req.user.partnerId) {
+        return res.json({ data: [] });
+      }
+      filter.partnerId = req.user.partnerId;
+    }
     const records = await CommissionRecordModel.find(filter).populate("episodeId").populate("caseId", "caseCode").sort({ createdAt: -1 }).lean();
     res.json({ data: records });
   } catch (err) {
     res.status(500).json({ error: { code: "FETCH_COMMISSIONS_FAILED", message: err.message } });
   }
 });
-caseManagementRouter.get("/cases/search", async (req, res) => {
-  try {
-    const q = typeof req.query.q === "string" ? req.query.q.trim() : "";
-    if (!q) {
-      const allCases = await CaseModel.find({ status: "open" }).populate("patientId").populate("partnerId", "name partnerCode").populate("ownerId", "name email").sort({ createdAt: -1 }).limit(50).lean();
-      return res.json({ data: allCases });
-    }
-    const matchingPatients = await PatientModel.find({
-      $or: [
-        { fullName: { $regex: q, $options: "i" } },
-        { nameNormalized: { $regex: q.toLowerCase(), $options: "i" } }
-      ]
-    }).select("_id");
-    const matchingPatientIds = matchingPatients.map((p) => p._id);
-    const matchingPartners = await PartnerModel.find({
-      $or: [
-        { name: { $regex: q, $options: "i" } },
-        { partnerCode: { $regex: q, $options: "i" } }
-      ]
-    }).select("_id");
-    const matchingPartnerIds = matchingPartners.map((p) => p._id);
-    const cases = await CaseModel.find({
-      $or: [
-        { caseCode: { $regex: q, $options: "i" } },
-        { specialty: { $regex: q, $options: "i" } },
-        { diagnosisSummary: { $regex: q, $options: "i" } },
-        { patientId: { $in: matchingPatientIds } },
-        { partnerId: { $in: matchingPartnerIds } }
-      ]
-    }).populate("patientId").populate("partnerId", "name partnerCode").populate("ownerId", "name email").sort({ createdAt: -1 }).lean();
-    res.json({ data: cases });
-  } catch (err) {
-    res.status(500).json({ error: { code: "SEARCH_CASES_FAILED", message: err.message } });
-  }
-});
 caseManagementRouter.post("/cases/:id/documents", async (req, res) => {
   try {
     const caseDoc = await CaseModel.findById(req.params.id);
     if (!caseDoc) return res.status(404).json({ error: { code: "NOT_FOUND", message: "Case not found" } });
+    if (req.user?.role === "partner") {
+      const casePartnerId = (caseDoc.partnerId?._id || caseDoc.partnerId)?.toString();
+      if (!casePartnerId || casePartnerId !== req.user.partnerId?.toString()) {
+        return res.status(403).json({ error: { code: "FORBIDDEN", message: "Access denied. Cannot upload documents to another partner's case." } });
+      }
+    }
     const { docType, fileName, storageKey, mimeType, sizeBytes, visibility, description, uploadedBy } = req.body;
     if (!docType || !fileName) {
       return res.status(400).json({ error: { code: "VALIDATION_FAILED", message: "docType and fileName are required" } });
@@ -53053,7 +53472,7 @@ caseManagementRouter.post("/cases/:id/notes", async (req, res) => {
     res.status(400).json({ error: { code: "CREATE_NOTE_FAILED", message: err.message } });
   }
 });
-caseManagementRouter.post("/migration/import", async (req, res) => {
+caseManagementRouter.post("/migration/import", requireRole("admin"), async (req, res) => {
   try {
     const dryRun = Boolean(req.body.dryRun ?? req.query.dry_run === "true");
     const { partners = [], hospitals = [], patients = [], cases = [], episodes = [], payments = [] } = req.body.data || {};
@@ -53227,7 +53646,7 @@ caseManagementRouter.post("/migration/import", async (req, res) => {
     }
     await CaseAuditLogModel.create({
       entityType: "MigrationImport",
-      entityId: new mongoose18.Types.ObjectId(),
+      entityId: new mongoose20.Types.ObjectId(),
       action: "create",
       changes: { importedSummary: [null, summary.counts] }
     });
@@ -53239,243 +53658,8 @@ caseManagementRouter.post("/migration/import", async (req, res) => {
 
 // src/api/authRoutes.ts
 var import_express2 = __toESM(require_express2(), 1);
-import mongoose20 from "mongoose";
-
-// src/utils/auth.ts
-import crypto3 from "crypto";
-import mongoose19 from "mongoose";
-var JWT_SECRET = process.env.JWT_SECRET || "akeezo_super_secure_jwt_secret_token_2026";
-var TOKEN_EXPIRY_SECONDS = 60 * 60 * 12;
-var TEMP_TOKEN_EXPIRY_SECONDS = 60 * 5;
-function hashPassword(password) {
-  return crypto3.createHash("sha256").update(password.trim()).digest("hex");
-}
-function verifyPassword(password, storedHash) {
-  const trimmed = password.trim();
-  if (hashPassword(trimmed) === storedHash) return true;
-  if (["Akeezo@2026!", "Password@123", "Admin@123"].includes(trimmed) && (storedHash === hashPassword("Akeezo@2026!") || storedHash === hashPassword("Password@123"))) {
-    return true;
-  }
-  return false;
-}
-var FALLBACK_USERS = [
-  {
-    _id: "660000000000000000000001",
-    name: "Priti",
-    email: "priti@akeezo.com",
-    phone: "+91 98765 43210",
-    role: "admin",
-    passwordHash: hashPassword("Akeezo@2026!"),
-    status: "active",
-    phoneVerified: true,
-    totpEnabled: false,
-    permissions: ["all"],
-    createdAt: /* @__PURE__ */ new Date("2026-01-01"),
-    updatedAt: /* @__PURE__ */ new Date("2026-01-01"),
-    save: async () => {
-    }
-  },
-  {
-    _id: "660000000000000000000002",
-    name: "Priya Sharma",
-    email: "priya@akeezo.com",
-    phone: "+91 98765 43211",
-    role: "coordinator",
-    passwordHash: hashPassword("Akeezo@2026!"),
-    status: "active",
-    phoneVerified: true,
-    totpEnabled: false,
-    permissions: ["cases:read", "cases:write", "patients:read", "patients:write"],
-    createdAt: /* @__PURE__ */ new Date("2026-01-01"),
-    updatedAt: /* @__PURE__ */ new Date("2026-01-01"),
-    save: async () => {
-    }
-  },
-  {
-    _id: "660000000000000000000003",
-    name: "Yogesh Verma",
-    email: "yogesh@akeezo.com",
-    phone: "+91 82876 39443",
-    role: "admin",
-    passwordHash: hashPassword("Akeezo@2026!"),
-    status: "active",
-    phoneVerified: true,
-    totpEnabled: false,
-    permissions: ["all"],
-    createdAt: /* @__PURE__ */ new Date("2026-01-01"),
-    updatedAt: /* @__PURE__ */ new Date("2026-01-01"),
-    save: async () => {
-    }
-  },
-  {
-    _id: "660000000000000000000004",
-    name: "Rajesh Kumar",
-    email: "rajesh@akeezo.com",
-    phone: "+91 98765 43213",
-    role: "finance",
-    passwordHash: hashPassword("Akeezo@2026!"),
-    status: "active",
-    phoneVerified: true,
-    totpEnabled: false,
-    permissions: ["finance:read", "finance:write", "commissions:read"],
-    createdAt: /* @__PURE__ */ new Date("2026-01-01"),
-    updatedAt: /* @__PURE__ */ new Date("2026-01-01"),
-    save: async () => {
-    }
-  },
-  {
-    _id: "660000000000000000000005",
-    name: "Adesh",
-    email: "adesh@akeezo.com",
-    phone: "+91 98765 43214",
-    role: "hospital_liaison",
-    passwordHash: hashPassword("Akeezo@2026!"),
-    status: "active",
-    phoneVerified: true,
-    totpEnabled: false,
-    permissions: ["hospitals:read", "hospitals:write", "quotes:read", "quotes:write"],
-    createdAt: /* @__PURE__ */ new Date("2026-01-01"),
-    updatedAt: /* @__PURE__ */ new Date("2026-01-01"),
-    save: async () => {
-    }
-  },
-  {
-    _id: "660000000000000000000006",
-    name: "Akeezo Super Admin",
-    email: "admin@akeezo.com",
-    phone: "+91 82876 39443",
-    role: "admin",
-    passwordHash: hashPassword("Akeezo@2026!"),
-    status: "active",
-    phoneVerified: true,
-    totpEnabled: false,
-    permissions: ["all"],
-    createdAt: /* @__PURE__ */ new Date("2026-01-01"),
-    updatedAt: /* @__PURE__ */ new Date("2026-01-01"),
-    save: async () => {
-    }
-  },
-  {
-    _id: "660000000000000000000007",
-    name: "Lead Care Coordinator",
-    email: "coordinator@akeezo.com",
-    phone: "+91 98765 43211",
-    role: "coordinator",
-    passwordHash: hashPassword("Akeezo@2026!"),
-    status: "active",
-    phoneVerified: true,
-    totpEnabled: false,
-    permissions: ["cases:read", "cases:write"],
-    createdAt: /* @__PURE__ */ new Date("2026-01-01"),
-    updatedAt: /* @__PURE__ */ new Date("2026-01-01"),
-    save: async () => {
-    }
-  }
-];
-async function findUserByEmailOrFallback(email) {
-  const normalized = email.toLowerCase().trim();
-  if (mongoose19.connection.readyState === 1) {
-    try {
-      const user = await UserModel.findOne({ email: normalized });
-      if (user) return user;
-    } catch {
-    }
-  }
-  return FALLBACK_USERS.find((u) => u.email.toLowerCase() === normalized) || null;
-}
-async function findUserByIdOrFallback(id) {
-  if (mongoose19.connection.readyState === 1) {
-    try {
-      const user = await UserModel.findById(id);
-      if (user) return user;
-    } catch {
-    }
-  }
-  return FALLBACK_USERS.find((u) => u._id === id || u._id.toString() === id) || null;
-}
-function base64UrlEncode(str) {
-  return Buffer.from(str).toString("base64").replace(/=/g, "").replace(/\+/g, "-").replace(/\//g, "_");
-}
-function base64UrlDecode(str) {
-  str = str.replace(/-/g, "+").replace(/_/g, "/");
-  while (str.length % 4) {
-    str += "=";
-  }
-  return Buffer.from(str, "base64").toString("utf8");
-}
-function signToken(payload, isTemp2FA = false) {
-  const header = { alg: "HS256", typ: "JWT" };
-  const exp = Math.floor(Date.now() / 1e3) + (isTemp2FA ? TEMP_TOKEN_EXPIRY_SECONDS : TOKEN_EXPIRY_SECONDS);
-  const fullPayload = { ...payload, exp, iat: Math.floor(Date.now() / 1e3) };
-  const encodedHeader = base64UrlEncode(JSON.stringify(header));
-  const encodedPayload = base64UrlEncode(JSON.stringify(fullPayload));
-  const signature = crypto3.createHmac("sha256", JWT_SECRET).update(`${encodedHeader}.${encodedPayload}`).digest("base64").replace(/=/g, "").replace(/\+/g, "-").replace(/\//g, "_");
-  return `${encodedHeader}.${encodedPayload}.${signature}`;
-}
-function verifyToken(token) {
-  try {
-    const parts = token.split(".");
-    if (parts.length !== 3) return null;
-    const [header, payload, signature] = parts;
-    const expectedSig = crypto3.createHmac("sha256", JWT_SECRET).update(`${header}.${payload}`).digest("base64").replace(/=/g, "").replace(/\+/g, "-").replace(/\//g, "_");
-    if (signature !== expectedSig) return null;
-    const decodedPayload = JSON.parse(base64UrlDecode(payload));
-    const now = Math.floor(Date.now() / 1e3);
-    if (decodedPayload.exp && decodedPayload.exp < now) {
-      return null;
-    }
-    return decodedPayload;
-  } catch (err) {
-    return null;
-  }
-}
-async function requireAuth(req, res, next) {
-  const authHeader = req.headers.authorization;
-  if (!authHeader || !authHeader.startsWith("Bearer ")) {
-    res.status(401).json({
-      error: { code: "UNAUTHORIZED", message: "Authentication required. Please sign in." }
-    });
-    return;
-  }
-  const token = authHeader.split(" ")[1];
-  const payload = verifyToken(token);
-  if (!payload || !payload.userId || payload.isTemp2FA) {
-    res.status(401).json({
-      error: { code: "INVALID_TOKEN", message: "Invalid or expired session token." }
-    });
-    return;
-  }
-  const user = await findUserByIdOrFallback(payload.userId);
-  if (!user || user.status === "disabled") {
-    res.status(403).json({
-      error: { code: "FORBIDDEN", message: "User account is disabled or no longer exists." }
-    });
-    return;
-  }
-  req.user = user;
-  next();
-}
-function requireRole(allowedRoles) {
-  const roles = Array.isArray(allowedRoles) ? allowedRoles : [allowedRoles];
-  return (req, res, next) => {
-    if (!req.user) {
-      res.status(401).json({ error: { code: "UNAUTHORIZED", message: "Sign in required." } });
-      return;
-    }
-    if (!roles.includes(req.user.role)) {
-      res.status(403).json({
-        error: {
-          code: "FORBIDDEN",
-          message: `Access denied. Role '${req.user.role}' is not authorized. Required: ${roles.join(", ")}.`
-        }
-      });
-      return;
-    }
-    next();
-  };
-}
-
-// src/api/authRoutes.ts
+import crypto4 from "crypto";
+import mongoose21 from "mongoose";
 var authRouter = (0, import_express2.Router)();
 var failedAttempts = /* @__PURE__ */ new Map();
 function maskPhone(phone) {
@@ -53525,7 +53709,7 @@ authRouter.post("/login", async (req, res) => {
         lockedUntil = now + 15 * 60 * 1e3;
       }
       failedAttempts.set(lockKey, { count: currentCount, lockedUntil });
-      if (user && mongoose20.connection.readyState === 1) {
+      if (user && mongoose21.connection.readyState === 1) {
         try {
           await CaseAuditLogModel.create({
             entityType: "User",
@@ -53591,20 +53775,51 @@ var handleOtpVerify = async (req, res) => {
     if (!user || user.status === "disabled") {
       return res.status(403).json({ error: { code: "FORBIDDEN", message: "Account unavailable." } });
     }
-    const validBypassCodes = ["123456", "000000", "999999"];
-    const isValidCode = validBypassCodes.includes(parsed.code) || parsed.firebaseIdToken || parsed.code.length === 6;
+    const isDevOrTest = process.env.NODE_ENV !== "production";
+    const validBypassCodes = isDevOrTest ? ["123456", "000000", "999999"] : [];
+    const isValidCode = validBypassCodes.includes(parsed.code) || Boolean(parsed.firebaseIdToken);
     if (!isValidCode) {
       return res.status(422).json({
         error: { code: "INVALID_OTP_CODE", message: "Invalid OTP code. Please enter the valid 6-digit SMS OTP." }
       });
     }
-    const token = signToken({ userId: user._id.toString(), role: user.role });
+    const token = signToken({
+      userId: user._id.toString(),
+      role: user.role,
+      tokenVersion: user.tokenVersion || 1
+    });
     user.lastLoginAt = /* @__PURE__ */ new Date();
+    user.lastLoginIp = req.ip || "127.0.0.1";
+    user.failedAttempts = 0;
+    user.lockoutUntil = void 0;
     try {
       await user.save();
     } catch {
     }
-    if (mongoose20.connection.readyState === 1) {
+    if (mongoose21.connection.readyState === 1) {
+      try {
+        const tokenHash = crypto4.createHash("sha256").update(token).digest("hex");
+        const expiresAt = new Date(Date.now() + 12 * 60 * 60 * 1e3);
+        await UserSessionModel.create({
+          userId: user._id,
+          tokenHash,
+          role: user.role,
+          ipAddress: req.ip || "127.0.0.1",
+          userAgent: req.headers["user-agent"] || "Unknown",
+          tokenVersion: user.tokenVersion || 1,
+          isValid: true,
+          expiresAt
+        });
+      } catch {
+      }
+    }
+    res.cookie("akeezo_session", token, {
+      httpOnly: true,
+      sameSite: "lax",
+      secure: process.env.NODE_ENV === "production",
+      maxAge: 12 * 60 * 60 * 1e3
+    });
+    if (mongoose21.connection.readyState === 1) {
       try {
         await CaseAuditLogModel.create({
           entityType: "User",
@@ -53669,14 +53884,27 @@ authRouter.get("/me", requireAuth, async (req, res) => {
   res.json({ data: sanitizeUser(req.user) });
 });
 authRouter.post("/logout", requireAuth, async (req, res) => {
+  res.clearCookie("akeezo_session");
+  const authHeader = req.headers.authorization;
+  const token = authHeader?.startsWith("Bearer ") ? authHeader.split(" ")[1] : void 0;
   if (req.user) {
-    await CaseAuditLogModel.create({
-      entityType: "User",
-      entityId: req.user._id,
-      action: "login",
-      actorId: req.user._id,
-      changes: { status: ["logout"] }
-    });
+    if (token && mongoose21.connection.readyState === 1) {
+      try {
+        const tokenHash = crypto4.createHash("sha256").update(token).digest("hex");
+        await UserSessionModel.updateOne({ tokenHash }, { $set: { isValid: false } });
+      } catch {
+      }
+    }
+    try {
+      await CaseAuditLogModel.create({
+        entityType: "User",
+        entityId: req.user._id,
+        action: "login",
+        actorId: req.user._id,
+        changes: { status: ["logout"] }
+      });
+    } catch {
+    }
   }
   res.json({ data: { success: true, message: "Logged out successfully" } });
 });
@@ -53685,19 +53913,19 @@ authRouter.post("/logout", requireAuth, async (req, res) => {
 var import_express3 = __toESM(require_express2(), 1);
 import fs2 from "node:fs";
 import path2 from "node:path";
-import crypto4 from "node:crypto";
-import mongoose21 from "mongoose";
+import crypto5 from "node:crypto";
+import mongoose22 from "mongoose";
 var cmsAdminRouter = (0, import_express3.Router)();
 cmsAdminRouter.use(requireAuth);
 cmsAdminRouter.use(requireRole("admin"));
 async function logAdminActivity(actorId, entityType, entityId, action, changes, req, caseId) {
-  if (mongoose21.connection.readyState === 1) {
+  if (mongoose22.connection.readyState === 1) {
     try {
       await CaseAuditLogModel.create({
         occurredAt: /* @__PURE__ */ new Date(),
-        actorId: actorId && mongoose21.isValidObjectId(actorId) ? actorId : void 0,
+        actorId: actorId && mongoose22.isValidObjectId(actorId) ? actorId : void 0,
         entityType,
-        entityId: entityId && mongoose21.isValidObjectId(entityId) ? entityId : new mongoose21.Types.ObjectId(),
+        entityId: entityId && mongoose22.isValidObjectId(entityId) ? entityId : new mongoose22.Types.ObjectId(),
         caseId: caseId || (entityType === "case" ? entityId : void 0),
         action,
         changes,
@@ -53729,7 +53957,7 @@ cmsAdminRouter.get("/overview-stats", async (_req, res) => {
     let partnersCount = 4;
     let hospitalsCount = 6;
     let usersCount = 7;
-    if (mongoose21.connection.readyState === 1) {
+    if (mongoose22.connection.readyState === 1) {
       const [
         pCount,
         dCount,
@@ -53781,7 +54009,7 @@ cmsAdminRouter.get("/overview-stats", async (_req, res) => {
       status: e.status || "received"
     }));
     let recentActivities = [];
-    if (mongoose21.connection.readyState === 1) {
+    if (mongoose22.connection.readyState === 1) {
       recentActivities = await CaseAuditLogModel.find().sort({ occurredAt: -1 }).limit(6).populate("actorId", "name role email").lean();
     }
     res.json({
@@ -53823,8 +54051,8 @@ cmsAdminRouter.get("/overview-stats", async (_req, res) => {
         recentEnquiries,
         recentActivities,
         system: {
-          environment: mongoose21.connection.readyState === 1 ? "production" : "demo-preview",
-          database: mongoose21.connection.readyState === 1 ? "connected" : "in-memory-fallback",
+          environment: mongoose22.connection.readyState === 1 ? "production" : "demo-preview",
+          database: mongoose22.connection.readyState === 1 ? "connected" : "in-memory-fallback",
           status: "healthy",
           timestamp: (/* @__PURE__ */ new Date()).toISOString()
         }
@@ -53858,7 +54086,7 @@ async function updateActiveSiteSettings(updatePayload) {
 cmsAdminRouter.get("/site-settings", async (_req, res) => {
   try {
     let settings = null;
-    if (mongoose21.connection.readyState === 1) {
+    if (mongoose22.connection.readyState === 1) {
       const doc = await getActiveSiteSettingsDoc();
       if (doc) settings = doc.toObject ? doc.toObject() : doc;
     }
@@ -54116,10 +54344,10 @@ cmsAdminRouter.get("/system-health", async (_req, res) => {
         heapUsedMb: Math.round(memUsage.heapUsed / 1024 / 1024)
       },
       database: {
-        status: mongoose21.connection.readyState === 1 ? "connected" : "disconnected",
-        host: mongoose21.connection.host || "127.0.0.1",
-        port: mongoose21.connection.port || 27017,
-        dbName: mongoose21.connection.name || "akeezo_local"
+        status: mongoose22.connection.readyState === 1 ? "connected" : "disconnected",
+        host: mongoose22.connection.host || "127.0.0.1",
+        port: mongoose22.connection.port || 27017,
+        dbName: mongoose22.connection.name || "akeezo_local"
       },
       timestamp: (/* @__PURE__ */ new Date()).toISOString()
     }
@@ -54132,7 +54360,7 @@ cmsAdminRouter.get("/pages", async (req, res) => {
       filter.status = req.query.status;
     }
     if (req.query.search) {
-      const q = String(req.query.search).trim();
+      const q = escapeRegex(String(req.query.search).trim());
       filter.$or = [
         { slug: { $regex: q, $options: "i" } },
         { "publishedRevisionId.seo.title": { $regex: q, $options: "i" } }
@@ -54485,7 +54713,7 @@ cmsAdminRouter.get("/media", async (req, res) => {
   try {
     const filter = {};
     if (req.query.search) {
-      const q = String(req.query.search).trim();
+      const q = escapeRegex(String(req.query.search).trim());
       filter.$or = [
         { originalFilename: { $regex: q, $options: "i" } },
         { altText: { $regex: q, $options: "i" } },
@@ -54507,7 +54735,7 @@ cmsAdminRouter.get("/media", async (req, res) => {
     const skip = (page - 1) * limit;
     let items = [];
     let total = 0;
-    if (mongoose21.connection.readyState === 1) {
+    if (mongoose22.connection.readyState === 1) {
       [items, total] = await Promise.all([
         MediaAssetModel.find(filter).sort({ createdAt: -1 }).skip(skip).limit(limit).lean(),
         MediaAssetModel.countDocuments(filter)
@@ -54600,8 +54828,16 @@ cmsAdminRouter.post("/media/upload", async (req, res) => {
       svgText = svgText.replace(/<script\b[^<]*(?:(?!<\/script>)<[^<]*)*<\/script>/gi, "").replace(/on\w+\s*=\s*["'][^"']*["']/gi, "").replace(/javascript:/gi, "");
       cleanBuffer = Buffer.from(svgText, "utf8");
     }
-    const ext = path2.extname(originalFilename).toLowerCase() || ".png";
-    const fileHash = crypto4.createHash("sha256").update(cleanBuffer).digest("hex").slice(0, 16);
+    const MIME_TO_EXTENSION = {
+      "image/jpeg": ".jpg",
+      "image/png": ".png",
+      "image/webp": ".webp",
+      "image/svg+xml": ".svg",
+      "image/gif": ".gif",
+      "application/pdf": ".pdf"
+    };
+    const ext = MIME_TO_EXTENSION[mimeType.toLowerCase()] || ".png";
+    const fileHash = crypto5.createHash("sha256").update(cleanBuffer).digest("hex").slice(0, 16);
     const storedFilename = `${fileHash}${ext}`;
     const uploadsDir = path2.resolve(process.cwd(), "uploads");
     if (!fs2.existsSync(uploadsDir)) {
@@ -54697,7 +54933,7 @@ cmsAdminRouter.get("/enquiries", async (req, res) => {
       filter.status = req.query.status;
     }
     if (req.query.search) {
-      const q = String(req.query.search).trim();
+      const q = escapeRegex(String(req.query.search).trim());
       filter.$or = [
         { requesterName: { $regex: q, $options: "i" } },
         { email: { $regex: q, $options: "i" } },
@@ -54785,7 +55021,7 @@ cmsAdminRouter.get("/enquiries/export/csv", async (req, res) => {
     await logAdminActivity(
       req.user?._id,
       "enquiry",
-      new mongoose21.Types.ObjectId(),
+      new mongoose22.Types.ObjectId(),
       "export",
       { count: [0, enquiries.length] },
       req
@@ -54875,7 +55111,7 @@ cmsAdminRouter.post("/enquiries/:id/convert-to-case", async (req, res) => {
     const count = await CaseModel.countDocuments();
     const caseCode = `CASE-2026-${String(count + 1).padStart(4, "0")}`;
     const defaultOwner = await UserModel.findOne({ role: { $in: ["administrator", "coordinator"] } });
-    const ownerId = defaultOwner?._id || new mongoose21.Types.ObjectId();
+    const ownerId = defaultOwner?._id || new mongoose22.Types.ObjectId();
     const specialtyMap = {
       medical_tourism: "general_surgery",
       cardiology: "cardiac_sciences",
@@ -54927,7 +55163,7 @@ cmsAdminRouter.post("/enquiries/:id/convert-to-case", async (req, res) => {
 cmsAdminRouter.get("/redirects", async (_req, res) => {
   try {
     let redirects = [];
-    if (mongoose21.connection.readyState === 1) {
+    if (mongoose22.connection.readyState === 1) {
       redirects = await RedirectModel.find().sort({ createdAt: -1 }).lean();
     }
     if (redirects.length === 0) {
@@ -55034,7 +55270,7 @@ cmsAdminRouter.delete("/redirects/:id", async (req, res) => {
 cmsAdminRouter.get("/users", async (_req, res) => {
   try {
     let users = [];
-    if (mongoose21.connection.readyState === 1) {
+    if (mongoose22.connection.readyState === 1) {
       users = await UserModel.find().sort({ createdAt: -1 }).select("-passwordHash").lean();
     }
     if (users.length === 0) {
@@ -55121,9 +55357,15 @@ cmsAdminRouter.patch("/users/:id", async (req, res) => {
       }
     }
     if (req.body.name) userToChange.name = req.body.name;
-    if (req.body.role) userToChange.role = req.body.role;
+    if (req.body.role && req.body.role !== userToChange.role) {
+      userToChange.role = req.body.role;
+      userToChange.tokenVersion = (userToChange.tokenVersion || 1) + 1;
+    }
     if (req.body.phone) userToChange.phone = req.body.phone;
-    if (req.body.status) userToChange.status = req.body.status;
+    if (req.body.status && req.body.status !== userToChange.status) {
+      userToChange.status = req.body.status;
+      userToChange.tokenVersion = (userToChange.tokenVersion || 1) + 1;
+    }
     await userToChange.save();
     await logAdminActivity(
       req.user?._id,
@@ -55245,7 +55487,7 @@ cmsAdminRouter.get("/activity", async (req, res) => {
     }
     const limit = Math.max(1, Math.min(100, parseInt(String(req.query.limit || "50"), 10)));
     let logs = [];
-    if (mongoose21.connection.readyState === 1) {
+    if (mongoose22.connection.readyState === 1) {
       logs = await CaseAuditLogModel.find(filter).sort({ occurredAt: -1 }).limit(limit).populate("actorId", "name email role").lean();
     }
     if (logs.length === 0) {
@@ -55287,7 +55529,7 @@ cmsAdminRouter.get("/profile", async (req, res) => {
       if (parts.length === 3) {
         try {
           const payload = JSON.parse(Buffer.from(parts[1], "base64").toString("utf8"));
-          if (payload.userId && mongoose21.connection.readyState === 1) {
+          if (payload.userId && mongoose22.connection.readyState === 1) {
             const dbUser = await UserModel.findById(payload.userId).select("-passwordHash").lean();
             if (dbUser) user = dbUser;
           }
@@ -55325,7 +55567,7 @@ cmsAdminRouter.put("/profile", async (req, res) => {
         }
       }
     }
-    if (mongoose21.connection.readyState === 1) {
+    if (mongoose22.connection.readyState === 1) {
       const user = await UserModel.findById(userId);
       if (user) {
         if (req.body.name) user.name = req.body.name;
@@ -55359,16 +55601,10 @@ cmsAdminRouter.post("/profile/password", async (req, res) => {
     const token = authHeader?.startsWith("Bearer ") ? authHeader.split(" ")[1] : null;
     let userId = FALLBACK_USERS[0]._id;
     if (token) {
-      const parts = token.split(".");
-      if (parts.length === 3) {
-        try {
-          const payload = JSON.parse(Buffer.from(parts[1], "base64").toString("utf8"));
-          if (payload.userId) userId = payload.userId;
-        } catch {
-        }
-      }
+      const payload = verifyToken(token);
+      if (payload && payload.userId) userId = payload.userId;
     }
-    if (mongoose21.connection.readyState === 1) {
+    if (mongoose22.connection.readyState === 1) {
       const user = await UserModel.findById(userId);
       if (user) {
         const isMatch = verifyPassword(currentPassword, user.passwordHash);
@@ -55376,6 +55612,7 @@ cmsAdminRouter.post("/profile/password", async (req, res) => {
           return res.status(401).json({ error: { code: "WRONG_PASSWORD", message: "Current password does not match." } });
         }
         user.passwordHash = hashPassword(newPassword);
+        user.tokenVersion = (user.tokenVersion || 1) + 1;
         await user.save();
         await logAdminActivity(user._id, "user", user._id, "update", { password: ["***", "***"] }, req);
         return res.json({ data: { success: true, message: "Password updated successfully." } });
@@ -55391,9 +55628,8 @@ cmsAdminRouter.post("/profile/password", async (req, res) => {
 var apiRouter = (0, import_express4.Router)();
 apiRouter.use("/auth", authRouter);
 apiRouter.use("/admin", cmsAdminRouter);
-apiRouter.use(caseManagementRouter);
 apiRouter.get("/health", (_req, res) => {
-  const isDbConnected = mongoose22.connection.readyState === 1;
+  const isDbConnected = mongoose23.connection.readyState === 1;
   res.status(200).json({
     data: {
       status: isDbConnected ? "healthy" : "degraded",
@@ -55405,7 +55641,7 @@ apiRouter.get("/health", (_req, res) => {
 });
 apiRouter.get("/site", async (_req, res) => {
   try {
-    const settingsDoc = mongoose22.connection.readyState === 1 ? await SiteSettings.findOne({ environment: "development" }).lean() || await SiteSettings.findOne().lean() : null;
+    const settingsDoc = mongoose23.connection.readyState === 1 ? await SiteSettings.findOne({ environment: "development" }).lean() || await SiteSettings.findOne().lean() : null;
     const siteSettings = toSafeSiteSettings(settingsDoc);
     res.json({ data: siteSettings });
   } catch (err) {
@@ -55419,7 +55655,7 @@ apiRouter.get("/route", async (req, res) => {
     const normalizedPath = rawPath.length > 1 && rawPath.endsWith("/") ? rawPath.slice(0, -1) : rawPath;
     let settingsDoc = null;
     let routeEntry = null;
-    if (mongoose22.connection.readyState === 1) {
+    if (mongoose23.connection.readyState === 1) {
       settingsDoc = await SiteSettings.findOne({ environment: "development" }).lean() || await SiteSettings.findOne().lean();
       routeEntry = await RouteEntry.findOne({ locale, path: normalizedPath }).lean();
     }
@@ -55562,6 +55798,7 @@ apiRouter.get("/route", async (req, res) => {
     res.status(500).json({ error: { code: "INTERNAL_ERROR", message: "Failed to resolve route" } });
   }
 });
+apiRouter.use(caseManagementRouter);
 
 // src/index.ts
 var __filename2 = fileURLToPath2(import.meta.url);
@@ -55573,7 +55810,7 @@ connectDB().catch((err) => {
   console.warn("[Akeezo Server] Non-blocking initial DB connection notice:", err?.message);
 });
 app.use((_req, _res, next) => {
-  if (mongoose23.connection.readyState === 0) {
+  if (mongoose24.connection.readyState === 0) {
     connectDB().catch(() => {
     });
   }
@@ -55584,10 +55821,16 @@ app.use(
   (0, import_cors.default)({
     origin: (origin, callback) => {
       if (!origin) return callback(null, true);
-      if (origin.endsWith(".vercel.app") || origin.includes("localhost") || origin.includes("127.0.0.1") || origin === "https://akeezo.com" || origin === "https://www.akeezo.com") {
+      const allowedPatterns = [
+        /^https?:\/\/localhost(:\d+)?$/,
+        /^https?:\/\/127\.0\.0\.1(:\d+)?$/,
+        /^https:\/\/([a-zA-Z0-9-]+\.)*vercel\.app$/,
+        /^https:\/\/(www\.)?akeezo\.com$/
+      ];
+      if (allowedPatterns.some((pattern) => pattern.test(origin))) {
         return callback(null, true);
       }
-      return callback(null, true);
+      return callback(null, false);
     },
     credentials: true
   })
@@ -55627,8 +55870,25 @@ if (!process.env.VERCEL) {
     res.sendFile(path3.join(caseManagementDistDir, "index.html"));
   });
   const adminDistDir = path3.resolve(__dirname2, "../../admin/dist");
+  app.use(["/admin", "/admin/*"], (req, res, next) => {
+    let token = void 0;
+    if (req.headers.cookie) {
+      const match = req.headers.cookie.match(/akeezo_session=([^;]+)/);
+      if (match) token = decodeURIComponent(match[1]);
+    }
+    if (!token && req.headers.authorization?.startsWith("Bearer ")) {
+      token = req.headers.authorization.split(" ")[1];
+    }
+    if (token) {
+      const payload = verifyToken(token);
+      if (payload && payload.role && payload.role !== "admin") {
+        return res.redirect("/case-management?access=denied_super_admin_only");
+      }
+    }
+    next();
+  });
   app.use("/admin", import_express5.default.static(adminDistDir, { index: false }));
-  app.get(["/admin", "/admin/*"], async (_req, res) => {
+  app.get(["/admin", "/admin/*"], async (req, res) => {
     const indexPath = path3.join(adminDistDir, "index.html");
     if (!fs3.existsSync(indexPath)) {
       res.status(404).send("Admin portal build not found.");
@@ -55636,7 +55896,7 @@ if (!process.env.VERCEL) {
     }
     try {
       let html = await fs3.promises.readFile(indexPath, "utf-8");
-      if (mongoose23.connection.readyState === 1) {
+      if (mongoose24.connection.readyState === 1) {
         const targetEnv = env.NODE_ENV || "development";
         const doc = await SiteSettings.findOne({ environment: targetEnv }).lean() || await SiteSettings.findOne({ environment: "development" }).lean() || await SiteSettings.findOne().lean();
         const adminTheme = doc?.adminTheme;
@@ -55664,13 +55924,21 @@ ${themeCss}
   if (!fs3.existsSync(uploadsDir)) {
     fs3.mkdirSync(uploadsDir, { recursive: true });
   }
-  app.use("/uploads", import_express5.default.static(uploadsDir));
+  app.use(
+    "/uploads",
+    (_req, res, next) => {
+      res.setHeader("Content-Security-Policy", "default-src 'none'; sandbox");
+      res.setHeader("X-Content-Type-Options", "nosniff");
+      next();
+    },
+    import_express5.default.static(uploadsDir)
+  );
   app.use(async (req, res, next) => {
     if (req.method !== "GET" && req.method !== "HEAD") return next();
     if (req.path.startsWith("/api") || req.path.startsWith("/v1") || req.path.startsWith("/admin") || req.path.startsWith("/case-management") || req.path.startsWith("/uploads")) {
       return next();
     }
-    if (mongoose23.connection.readyState !== 1) return next();
+    if (mongoose24.connection.readyState !== 1) return next();
     try {
       const rawPath = req.path.toLowerCase().replace(/\/+$/, "") || "/";
       const redirect = await RedirectModel.findOne({ sourcePath: rawPath, enabled: true }).lean();

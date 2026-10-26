@@ -4,6 +4,9 @@ import { UserModel } from "../db/models/User.js";
 const JWT_SECRET = process.env.JWT_SECRET || "akeezo_super_secure_jwt_secret_token_2026";
 const TOKEN_EXPIRY_SECONDS = 60 * 60 * 12; // 12 hours absolute limit per PRD Section 27
 const TEMP_TOKEN_EXPIRY_SECONDS = 60 * 5; // 5 minutes for 2FA verification
+export function escapeRegex(text) {
+    return text.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+}
 export function hashPassword(password) {
     return crypto.createHash("sha256").update(password.trim()).digest("hex");
 }
@@ -11,9 +14,11 @@ export function verifyPassword(password, storedHash) {
     const trimmed = password.trim();
     if (hashPassword(trimmed) === storedHash)
         return true;
-    if (["Akeezo@2026!", "Password@123", "Admin@123"].includes(trimmed) &&
-        (storedHash === hashPassword("Akeezo@2026!") || storedHash === hashPassword("Password@123"))) {
-        return true;
+    if (process.env.NODE_ENV !== "production") {
+        if (["Akeezo@2026!", "Password@123", "Admin@123"].includes(trimmed) &&
+            (storedHash === hashPassword("Akeezo@2026!") || storedHash === hashPassword("Password@123"))) {
+            return true;
+        }
     }
     return false;
 }
@@ -28,6 +33,7 @@ export const FALLBACK_USERS = [
         status: "active",
         phoneVerified: true,
         totpEnabled: false,
+        tokenVersion: 1,
         permissions: ["all"],
         createdAt: new Date("2026-01-01"),
         updatedAt: new Date("2026-01-01"),
@@ -43,6 +49,7 @@ export const FALLBACK_USERS = [
         status: "active",
         phoneVerified: true,
         totpEnabled: false,
+        tokenVersion: 1,
         permissions: ["cases:read", "cases:write", "patients:read", "patients:write"],
         createdAt: new Date("2026-01-01"),
         updatedAt: new Date("2026-01-01"),
@@ -58,6 +65,7 @@ export const FALLBACK_USERS = [
         status: "active",
         phoneVerified: true,
         totpEnabled: false,
+        tokenVersion: 1,
         permissions: ["all"],
         createdAt: new Date("2026-01-01"),
         updatedAt: new Date("2026-01-01"),
@@ -73,6 +81,7 @@ export const FALLBACK_USERS = [
         status: "active",
         phoneVerified: true,
         totpEnabled: false,
+        tokenVersion: 1,
         permissions: ["finance:read", "finance:write", "commissions:read"],
         createdAt: new Date("2026-01-01"),
         updatedAt: new Date("2026-01-01"),
@@ -88,6 +97,7 @@ export const FALLBACK_USERS = [
         status: "active",
         phoneVerified: true,
         totpEnabled: false,
+        tokenVersion: 1,
         permissions: ["hospitals:read", "hospitals:write", "quotes:read", "quotes:write"],
         createdAt: new Date("2026-01-01"),
         updatedAt: new Date("2026-01-01"),
@@ -103,6 +113,7 @@ export const FALLBACK_USERS = [
         status: "active",
         phoneVerified: true,
         totpEnabled: false,
+        tokenVersion: 1,
         permissions: ["all"],
         createdAt: new Date("2026-01-01"),
         updatedAt: new Date("2026-01-01"),
@@ -118,7 +129,25 @@ export const FALLBACK_USERS = [
         status: "active",
         phoneVerified: true,
         totpEnabled: false,
+        tokenVersion: 1,
         permissions: ["cases:read", "cases:write"],
+        createdAt: new Date("2026-01-01"),
+        updatedAt: new Date("2026-01-01"),
+        save: async () => { },
+    },
+    {
+        _id: "660000000000000000000008",
+        name: "Tashkent Facilitator (Aziz)",
+        email: "partner@akeezo.com",
+        phone: "+91 98765 43215",
+        role: "partner",
+        partnerId: "661000000000000000000001",
+        passwordHash: hashPassword("Akeezo@2026!"),
+        status: "active",
+        phoneVerified: true,
+        totpEnabled: false,
+        tokenVersion: 1,
+        permissions: ["case.view", "document.view", "commission.view", "partner.view_payout"],
         createdAt: new Date("2026-01-01"),
         updatedAt: new Date("2026-01-01"),
         save: async () => { },
@@ -168,7 +197,12 @@ function base64UrlDecode(str) {
 export function signToken(payload, isTemp2FA = false) {
     const header = { alg: "HS256", typ: "JWT" };
     const exp = Math.floor(Date.now() / 1000) + (isTemp2FA ? TEMP_TOKEN_EXPIRY_SECONDS : TOKEN_EXPIRY_SECONDS);
-    const fullPayload = { ...payload, exp, iat: Math.floor(Date.now() / 1000) };
+    const fullPayload = {
+        tokenVersion: payload.tokenVersion ?? 1,
+        ...payload,
+        exp,
+        iat: Math.floor(Date.now() / 1000),
+    };
     const encodedHeader = base64UrlEncode(JSON.stringify(header));
     const encodedPayload = base64UrlEncode(JSON.stringify(fullPayload));
     const signature = crypto
@@ -206,16 +240,26 @@ export function verifyToken(token) {
         return null;
     }
 }
-// Authentication Middleware
+// Authentication Middleware with Anti-Cross-Access and Anti-Replay Session Guards
 export async function requireAuth(req, res, next) {
     const authHeader = req.headers.authorization;
-    if (!authHeader || !authHeader.startsWith("Bearer ")) {
+    let token = undefined;
+    if (authHeader && authHeader.startsWith("Bearer ")) {
+        token = authHeader.split(" ")[1];
+    }
+    else if (req.headers.cookie) {
+        // Extract akeezo_session cookie if present
+        const match = req.headers.cookie.match(/akeezo_session=([^;]+)/);
+        if (match) {
+            token = decodeURIComponent(match[1]);
+        }
+    }
+    if (!token) {
         res.status(401).json({
             error: { code: "UNAUTHORIZED", message: "Authentication required. Please sign in." },
         });
         return;
     }
-    const token = authHeader.split(" ")[1];
     const payload = verifyToken(token);
     if (!payload || !payload.userId || payload.isTemp2FA) {
         res.status(401).json({
@@ -227,6 +271,15 @@ export async function requireAuth(req, res, next) {
     if (!user || user.status === "disabled") {
         res.status(403).json({
             error: { code: "FORBIDDEN", message: "User account is disabled or no longer exists." },
+        });
+        return;
+    }
+    // Token revocation guard: invalidate tokens issued before a password change or session revocation
+    if (user.tokenVersion &&
+        payload.tokenVersion !== undefined &&
+        payload.tokenVersion < user.tokenVersion) {
+        res.status(401).json({
+            error: { code: "TOKEN_REVOKED", message: "Session token has been revoked. Please sign in again." },
         });
         return;
     }

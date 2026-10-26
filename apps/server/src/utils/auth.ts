@@ -147,6 +147,23 @@ export const FALLBACK_USERS: any[] = [
     createdAt: new Date("2026-01-01"),
     updatedAt: new Date("2026-01-01"),
     save: async () => {},
+  },
+  {
+    _id: "660000000000000000000008",
+    name: "Tashkent Facilitator (Aziz)",
+    email: "partner@akeezo.com",
+    phone: "+91 98765 43215",
+    role: "partner",
+    partnerId: "661000000000000000000001",
+    passwordHash: hashPassword("Akeezo@2026!"),
+    status: "active",
+    phoneVerified: true,
+    totpEnabled: false,
+    tokenVersion: 1,
+    permissions: ["case.view", "document.view", "commission.view", "partner.view_payout"],
+    createdAt: new Date("2026-01-01"),
+    updatedAt: new Date("2026-01-01"),
+    save: async () => {},
   }
 ];
 

@@ -5,7 +5,7 @@ import { useAuth } from "../context/AuthContext.js";
 export const AdminLoginView: React.FC = () => {
   const { login, verifyOtp, requiresPhoneOtp, maskedPhone, error, isLoading, clearError, resendOtp } = useAuth();
 
-  const [email, setEmail] = useState("priti@akeezo.com");
+  const [email, setEmail] = useState("priya@akeezo.com");
   const [password, setPassword] = useState("Akeezo@2026!");
   const [otpCode, setOtpCode] = useState("123456");
   const [resendCooldown, setResendCooldown] = useState(0);
@@ -223,27 +223,12 @@ export const AdminLoginView: React.FC = () => {
             <div className="grid grid-cols-2 gap-2 text-[11px]">
               <button
                 type="button"
-                onClick={() => handleQuickFill("priti@akeezo.com")}
-                className="p-2 text-left rounded border border-slate-200 hover:border-[#007A6C] hover:bg-[#E6F8F6] transition"
-              >
-                <div className="font-bold text-slate-800">Priti (CEO)</div>
-                <div className="text-[10px] text-[#007A6C] font-semibold">OTP: +91 98765 43210</div>
-              </button>
-              <button
-                type="button"
                 onClick={() => handleQuickFill("priya@akeezo.com")}
                 className="p-2 text-left rounded border border-slate-200 hover:border-[#007A6C] hover:bg-[#E6F8F6] transition"
               >
                 <div className="font-bold text-slate-800">Priya Sharma</div>
-                <div className="text-[10px] text-[#007A6C] font-semibold">OTP: +91 98765 43211</div>
-              </button>
-              <button
-                type="button"
-                onClick={() => handleQuickFill("yogesh@akeezo.com")}
-                className="p-2 text-left rounded border border-slate-200 hover:border-[#007A6C] hover:bg-[#E6F8F6] transition"
-              >
-                <div className="font-bold text-slate-800">Yogesh (CTO)</div>
-                <div className="text-[10px] text-[#007A6C] font-semibold">OTP: +91 82876 39443</div>
+                <div className="text-[10px] text-teal-700 font-semibold">Coordinator (No Admin)</div>
+                <div className="text-[10px] text-slate-400">OTP: +91 98765 43211</div>
               </button>
               <button
                 type="button"
@@ -251,7 +236,26 @@ export const AdminLoginView: React.FC = () => {
                 className="p-2 text-left rounded border border-slate-200 hover:border-[#007A6C] hover:bg-[#E6F8F6] transition"
               >
                 <div className="font-bold text-slate-800">Rajesh Kumar</div>
-                <div className="text-[10px] text-[#007A6C] font-semibold">OTP: +91 98765 43213</div>
+                <div className="text-[10px] text-teal-700 font-semibold">Finance (No Admin)</div>
+                <div className="text-[10px] text-slate-400">OTP: +91 98765 43213</div>
+              </button>
+              <button
+                type="button"
+                onClick={() => handleQuickFill("partner@akeezo.com")}
+                className="p-2 text-left rounded border border-slate-200 hover:border-[#007A6C] hover:bg-[#E6F8F6] transition"
+              >
+                <div className="font-bold text-slate-800">Aziz Karimov</div>
+                <div className="text-[10px] text-teal-700 font-semibold">Partner (No Admin)</div>
+                <div className="text-[10px] text-slate-400">OTP: +91 98765 43215</div>
+              </button>
+              <button
+                type="button"
+                onClick={() => handleQuickFill("priti@akeezo.com")}
+                className="p-2 text-left rounded border border-amber-300 bg-amber-50/40 hover:border-amber-500 hover:bg-amber-50 transition"
+              >
+                <div className="font-bold text-slate-800">Priti (Executive)</div>
+                <div className="text-[10px] text-amber-800 font-bold">Role: Super Admin</div>
+                <div className="text-[10px] text-slate-400">OTP: +91 98765 43210</div>
               </button>
             </div>
           </div>

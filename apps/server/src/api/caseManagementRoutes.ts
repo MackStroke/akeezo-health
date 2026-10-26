@@ -803,8 +803,18 @@ caseManagementRouter.get("/cases/:id", async (req: AuthenticatedRequest, res: Re
 });
 
 // GET /api/v1/cases/:id/readiness
-caseManagementRouter.get("/cases/:id/readiness", async (req: Request, res: Response) => {
+caseManagementRouter.get("/cases/:id/readiness", async (req: AuthenticatedRequest, res: Response) => {
   try {
+    const caseDoc = await CaseModel.findById(req.params.id);
+    if (!caseDoc) {
+      return res.status(404).json({ error: { code: "NOT_FOUND", message: "Case not found" } });
+    }
+    if (req.user?.role === "partner") {
+      const casePartnerId = (caseDoc.partnerId?._id || caseDoc.partnerId)?.toString();
+      if (!casePartnerId || casePartnerId !== req.user.partnerId?.toString()) {
+        return res.status(403).json({ error: { code: "FORBIDDEN", message: "Access denied to case readiness." } });
+      }
+    }
     const toStage = req.query.toStage as any;
     if (!toStage) {
       return res.status(400).json({ error: { code: "STAGE_REQUIRED", message: "toStage query param is required" } });
@@ -816,8 +826,8 @@ caseManagementRouter.get("/cases/:id/readiness", async (req: Request, res: Respo
   }
 });
 
-// POST /api/v1/cases/:id/stage-transitions
-caseManagementRouter.post("/cases/:id/stage-transitions", async (req: Request, res: Response) => {
+// POST /api/v1/cases/:id/stage-transitions (Protected to staff coordinators and admins)
+caseManagementRouter.post("/cases/:id/stage-transitions", requireRole(["admin", "coordinator"]), async (req: Request, res: Response) => {
   try {
     const parsed = CaseStageTransitionSchema.parse(req.body);
     const caseDoc = await CaseModel.findById(req.params.id);
@@ -1073,8 +1083,19 @@ caseManagementRouter.post("/quotes/:id/select", async (req: Request, res: Respon
 });
 
 // GET /api/v1/cases/:id/quote-comparison
-caseManagementRouter.get("/cases/:id/quote-comparison", async (req: Request, res: Response) => {
+caseManagementRouter.get("/cases/:id/quote-comparison", async (req: AuthenticatedRequest, res: Response) => {
   try {
+    const caseDoc = await CaseModel.findById(req.params.id);
+    if (!caseDoc) {
+      return res.status(404).json({ error: { code: "NOT_FOUND", message: "Case not found" } });
+    }
+    if (req.user?.role === "partner") {
+      const casePartnerId = (caseDoc.partnerId?._id || caseDoc.partnerId)?.toString();
+      if (!casePartnerId || casePartnerId !== req.user.partnerId?.toString()) {
+        return res.status(403).json({ error: { code: "FORBIDDEN", message: "Access denied to case quote comparison." } });
+      }
+    }
+
     const quotes = await QuoteModel.find({ caseId: req.params.id })
       .populate("hospitalId", "name city")
       .lean();
@@ -1445,10 +1466,17 @@ caseManagementRouter.get("/commission-records", async (req: AuthenticatedRequest
 // ==========================================
 
 // POST /api/v1/cases/:id/documents
-caseManagementRouter.post("/cases/:id/documents", async (req: Request, res: Response) => {
+caseManagementRouter.post("/cases/:id/documents", async (req: AuthenticatedRequest, res: Response) => {
   try {
     const caseDoc = await CaseModel.findById(req.params.id);
     if (!caseDoc) return res.status(404).json({ error: { code: "NOT_FOUND", message: "Case not found" } });
+
+    if (req.user?.role === "partner") {
+      const casePartnerId = (caseDoc.partnerId?._id || caseDoc.partnerId)?.toString();
+      if (!casePartnerId || casePartnerId !== req.user.partnerId?.toString()) {
+        return res.status(403).json({ error: { code: "FORBIDDEN", message: "Access denied. Cannot upload documents to another partner's case." } });
+      }
+    }
 
     const { docType, fileName, storageKey, mimeType, sizeBytes, visibility, description, uploadedBy } = req.body;
     if (!docType || !fileName) {
