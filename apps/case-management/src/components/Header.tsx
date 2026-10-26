@@ -1,5 +1,5 @@
 import React from "react";
-import { Search, Plus, LogOut, Globe, ExternalLink, ShieldAlert } from "lucide-react";
+import { Search, Plus, LogOut } from "lucide-react";
 import { useAuth } from "../context/AuthContext.js";
 import type { NavTab } from "./Sidebar.js";
 
@@ -66,28 +66,6 @@ export const Header: React.FC<HeaderProps> = ({
       </div>
 
       <div className="flex items-center gap-3">
-        {/* Switch to Website Super Admin */}
-        <a
-          href="/admin/"
-          className="flex items-center gap-1.5 text-xs text-[#00C7BE] hover:text-white font-bold bg-[#061E1B] hover:bg-[#0a2e29] border border-teal-800/50 px-3 py-1.5 rounded-lg transition shadow-2xs group"
-          title="Open Website Management Super Admin Portal"
-        >
-          <ShieldAlert className="w-3.5 h-3.5 text-[#00C7BE]" />
-          <span>Website Super Admin</span>
-          <ExternalLink className="w-3 h-3 opacity-60 group-hover:opacity-100" />
-        </a>
-
-        {/* Open Public Site in New Tab */}
-        <a
-          href="/"
-          target="_blank"
-          rel="noreferrer"
-          className="hidden md:flex items-center gap-1.5 text-xs text-slate-600 hover:text-slate-900 font-semibold border border-slate-200 hover:bg-slate-50 px-3 py-1.5 rounded-lg transition"
-        >
-          <Globe className="w-3.5 h-3.5" />
-          <span>Public Site</span>
-        </a>
-
         {/* New Case Intake Button */}
         <button
           onClick={onOpenNewCase}

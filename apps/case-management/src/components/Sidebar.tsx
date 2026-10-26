@@ -6,8 +6,6 @@ import {
   Building2,
   DollarSign,
   FileCheck2,
-  ExternalLink,
-  ShieldAlert,
 } from "lucide-react";
 
 export type NavTab = "board" | "cases" | "partners" | "hospitals" | "finance";
@@ -70,23 +68,6 @@ export const Sidebar: React.FC<SidebarProps> = ({
               </button>
             );
           })}
-        </div>
-
-        {/* Section 2: Quick Jump to Website Super Admin */}
-        <div className="pt-3 border-t border-teal-950/80">
-          <div className="px-3 pb-1.5 text-[10px] font-bold text-slate-500 uppercase tracking-wider">
-            Cross-System Management
-          </div>
-          <a
-            href="/admin/"
-            className="flex items-center justify-between px-3 py-2.5 rounded-lg text-xs font-medium text-[#00C7BE] hover:text-white bg-teal-950/40 hover:bg-[#007A6C]/30 border border-teal-800/40 transition group"
-          >
-            <div className="flex items-center gap-2">
-              <ShieldAlert className="w-4 h-4 text-[#00C7BE]" />
-              <span>Website Super Admin</span>
-            </div>
-            <ExternalLink className="w-3.5 h-3.5 opacity-60 group-hover:opacity-100 transition" />
-          </a>
         </div>
       </div>
 
