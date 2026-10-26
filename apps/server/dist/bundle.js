@@ -48873,6 +48873,389 @@ var PagePayloadSchema = external_exports.object({
 });
 
 // ../../packages/contracts/dist/settings.js
+var ThemeModeSchema = external_exports.enum(["light", "dark", "auto"]);
+var WebsiteThemeSchema = external_exports.object({
+  // Brand & Action Colors
+  primaryColor: external_exports.string().default("#00C7BE"),
+  secondaryColor: external_exports.string().default("#FF6B00"),
+  accentColor: external_exports.string().default("#FF6D1B"),
+  actionColor: external_exports.string().default("#007A6C"),
+  actionHoverColor: external_exports.string().default("#005F54"),
+  actionAccentColor: external_exports.string().default("#B54700"),
+  // Surfaces & Backgrounds
+  backgroundColor: external_exports.string().default("#FFFFFF"),
+  surfaceColor: external_exports.string().default("#FFFFFF"),
+  surfaceMutedColor: external_exports.string().default("#F4F6F9"),
+  surfaceTealColor: external_exports.string().default("#E6F8F6"),
+  surfaceOrangeColor: external_exports.string().default("#FFF4EC"),
+  cardColor: external_exports.string().default("#FFFFFF"),
+  // Typography & Inks
+  textColor: external_exports.string().default("#262626"),
+  textMutedColor: external_exports.string().default("#595959"),
+  headingColor: external_exports.string().default("#061E1B"),
+  // Borders & Accents
+  borderColor: external_exports.string().default("#E2E8F0"),
+  borderTealColor: external_exports.string().default("#B2EBE4"),
+  borderOrangeColor: external_exports.string().default("#FFD8BF"),
+  emergencyColor: external_exports.string().default("#D92D20"),
+  // Typography
+  fontFamily: external_exports.string().default("'Lato', system-ui, -apple-system, sans-serif"),
+  headingFontFamily: external_exports.string().default("'Lato', system-ui, -apple-system, sans-serif"),
+  // Geometry / Radii
+  radiusCard: external_exports.string().default("20px"),
+  radiusHero: external_exports.string().default("30px"),
+  radiusButton: external_exports.string().default("12px"),
+  radiusPill: external_exports.string().default("999px"),
+  // Display Mode & Preset
+  mode: ThemeModeSchema.default("light"),
+  activePreset: external_exports.string().default("classic")
+});
+var AdminThemeSchema = external_exports.object({
+  // Admin Identity & Accents
+  primaryColor: external_exports.string().default("#007A6C"),
+  accentColor: external_exports.string().default("#00C7BE"),
+  secondaryColor: external_exports.string().default("#FF6B00"),
+  // Shell Layout Colors
+  sidebarBackground: external_exports.string().default("#061E1B"),
+  sidebarText: external_exports.string().default("#F4F6F9"),
+  sidebarActiveBackground: external_exports.string().default("#0B2B27"),
+  headerBackground: external_exports.string().default("#FFFFFF"),
+  headerText: external_exports.string().default("#1E293B"),
+  contentBackground: external_exports.string().default("#F8FAFC"),
+  cardBackground: external_exports.string().default("#FFFFFF"),
+  // Inks & Borders
+  textColor: external_exports.string().default("#1E293B"),
+  textMutedColor: external_exports.string().default("#64748B"),
+  borderColor: external_exports.string().default("#E2E8F0"),
+  // Typography & Geometry
+  fontFamily: external_exports.string().default("'Lato', system-ui, -apple-system, sans-serif"),
+  radiusCard: external_exports.string().default("16px"),
+  radiusButton: external_exports.string().default("10px"),
+  // Display Mode & Preset
+  mode: ThemeModeSchema.default("light"),
+  activePreset: external_exports.string().default("classic")
+});
+var DEFAULT_WEBSITE_THEME = {
+  primaryColor: "#00C7BE",
+  secondaryColor: "#FF6B00",
+  accentColor: "#FF6D1B",
+  actionColor: "#007A6C",
+  actionHoverColor: "#005F54",
+  actionAccentColor: "#B54700",
+  backgroundColor: "#FFFFFF",
+  surfaceColor: "#FFFFFF",
+  surfaceMutedColor: "#F4F6F9",
+  surfaceTealColor: "#E6F8F6",
+  surfaceOrangeColor: "#FFF4EC",
+  cardColor: "#FFFFFF",
+  textColor: "#262626",
+  textMutedColor: "#595959",
+  headingColor: "#061E1B",
+  borderColor: "#E2E8F0",
+  borderTealColor: "#B2EBE4",
+  borderOrangeColor: "#FFD8BF",
+  emergencyColor: "#D92D20",
+  fontFamily: "'Lato', system-ui, -apple-system, sans-serif",
+  headingFontFamily: "'Lato', system-ui, -apple-system, sans-serif",
+  radiusCard: "20px",
+  radiusHero: "30px",
+  radiusButton: "12px",
+  radiusPill: "999px",
+  mode: "light",
+  activePreset: "classic"
+};
+var DEFAULT_ADMIN_THEME = {
+  primaryColor: "#007A6C",
+  accentColor: "#00C7BE",
+  secondaryColor: "#FF6B00",
+  sidebarBackground: "#061E1B",
+  sidebarText: "#F4F6F9",
+  sidebarActiveBackground: "#0B2B27",
+  headerBackground: "#FFFFFF",
+  headerText: "#1E293B",
+  contentBackground: "#F8FAFC",
+  cardBackground: "#FFFFFF",
+  textColor: "#1E293B",
+  textMutedColor: "#64748B",
+  borderColor: "#E2E8F0",
+  fontFamily: "'Lato', system-ui, -apple-system, sans-serif",
+  radiusCard: "16px",
+  radiusButton: "10px",
+  mode: "light",
+  activePreset: "classic"
+};
+var THEME_PRESETS = {
+  classic: {
+    id: "classic",
+    name: "AKEEZO Classic (Teal & Orange)",
+    description: "Official dual-palette brand identity with clinical dark teal action and vibrant orange accents.",
+    websiteTheme: {
+      primaryColor: "#00C7BE",
+      secondaryColor: "#FF6B00",
+      accentColor: "#FF6D1B",
+      actionColor: "#007A6C",
+      actionHoverColor: "#005F54",
+      actionAccentColor: "#B54700",
+      backgroundColor: "#FFFFFF",
+      surfaceColor: "#FFFFFF",
+      surfaceMutedColor: "#F4F6F9",
+      surfaceTealColor: "#E6F8F6",
+      surfaceOrangeColor: "#FFF4EC",
+      cardColor: "#FFFFFF",
+      textColor: "#262626",
+      textMutedColor: "#595959",
+      headingColor: "#061E1B",
+      borderColor: "#E2E8F0",
+      borderTealColor: "#B2EBE4",
+      borderOrangeColor: "#FFD8BF",
+      emergencyColor: "#D92D20",
+      fontFamily: "'Lato', system-ui, -apple-system, sans-serif",
+      headingFontFamily: "'Lato', system-ui, -apple-system, sans-serif",
+      radiusCard: "20px",
+      radiusHero: "30px",
+      radiusButton: "12px",
+      radiusPill: "999px",
+      mode: "light",
+      activePreset: "classic"
+    },
+    adminTheme: {
+      primaryColor: "#007A6C",
+      accentColor: "#00C7BE",
+      secondaryColor: "#FF6B00",
+      sidebarBackground: "#061E1B",
+      sidebarText: "#F4F6F9",
+      sidebarActiveBackground: "#0B2B27",
+      headerBackground: "#FFFFFF",
+      headerText: "#1E293B",
+      contentBackground: "#F8FAFC",
+      cardBackground: "#FFFFFF",
+      textColor: "#1E293B",
+      textMutedColor: "#64748B",
+      borderColor: "#E2E8F0",
+      fontFamily: "'Lato', system-ui, -apple-system, sans-serif",
+      radiusCard: "16px",
+      radiusButton: "10px",
+      mode: "light",
+      activePreset: "classic"
+    }
+  },
+  emerald: {
+    id: "emerald",
+    name: "Emerald Vitality",
+    description: "Invigorating healthcare green palette symbolizing renewal, wellness, and clinical trust.",
+    websiteTheme: {
+      primaryColor: "#10B981",
+      secondaryColor: "#F59E0B",
+      accentColor: "#D97706",
+      actionColor: "#059669",
+      actionHoverColor: "#047857",
+      actionAccentColor: "#B45309",
+      backgroundColor: "#FFFFFF",
+      surfaceColor: "#FFFFFF",
+      surfaceMutedColor: "#F0FDF4",
+      surfaceTealColor: "#DCFCE7",
+      surfaceOrangeColor: "#FEF3C7",
+      cardColor: "#FFFFFF",
+      textColor: "#1F2937",
+      textMutedColor: "#4B5563",
+      headingColor: "#064E3B",
+      borderColor: "#E5E7EB",
+      borderTealColor: "#A7F3D0",
+      borderOrangeColor: "#FDE68A",
+      emergencyColor: "#DC2626",
+      fontFamily: "'Open Sans', system-ui, sans-serif",
+      headingFontFamily: "'Open Sans', system-ui, sans-serif",
+      radiusCard: "18px",
+      radiusHero: "28px",
+      radiusButton: "12px",
+      radiusPill: "999px",
+      mode: "light",
+      activePreset: "emerald"
+    },
+    adminTheme: {
+      primaryColor: "#059669",
+      accentColor: "#10B981",
+      secondaryColor: "#F59E0B",
+      sidebarBackground: "#064E3B",
+      sidebarText: "#ECFDF5",
+      sidebarActiveBackground: "#065F46",
+      headerBackground: "#FFFFFF",
+      headerText: "#111827",
+      contentBackground: "#F9FAFB",
+      cardBackground: "#FFFFFF",
+      textColor: "#111827",
+      textMutedColor: "#6B7280",
+      borderColor: "#E5E7EB",
+      fontFamily: "'Open Sans', system-ui, sans-serif",
+      radiusCard: "16px",
+      radiusButton: "10px",
+      mode: "light",
+      activePreset: "emerald"
+    }
+  },
+  sapphire: {
+    id: "sapphire",
+    name: "Ocean Sapphire Clinical",
+    description: "Deep clinical oceanic blues conveying world-class hospital authority, reassurance, and precision.",
+    websiteTheme: {
+      primaryColor: "#0284C7",
+      secondaryColor: "#F97316",
+      accentColor: "#EA580C",
+      actionColor: "#0369A1",
+      actionHoverColor: "#075985",
+      actionAccentColor: "#C2410C",
+      backgroundColor: "#FFFFFF",
+      surfaceColor: "#FFFFFF",
+      surfaceMutedColor: "#F0F9FF",
+      surfaceTealColor: "#E0F2FE",
+      surfaceOrangeColor: "#FFEDD5",
+      cardColor: "#FFFFFF",
+      textColor: "#0F172A",
+      textMutedColor: "#475569",
+      headingColor: "#082F49",
+      borderColor: "#E2E8F0",
+      borderTealColor: "#BAE6FD",
+      borderOrangeColor: "#FED7AA",
+      emergencyColor: "#E11D48",
+      fontFamily: "'Inter', system-ui, sans-serif",
+      headingFontFamily: "'Inter', system-ui, sans-serif",
+      radiusCard: "16px",
+      radiusHero: "24px",
+      radiusButton: "10px",
+      radiusPill: "999px",
+      mode: "light",
+      activePreset: "sapphire"
+    },
+    adminTheme: {
+      primaryColor: "#0369A1",
+      accentColor: "#38BDF8",
+      secondaryColor: "#F97316",
+      sidebarBackground: "#082F49",
+      sidebarText: "#F0F9FF",
+      sidebarActiveBackground: "#0C4A6E",
+      headerBackground: "#FFFFFF",
+      headerText: "#0F172A",
+      contentBackground: "#F8FAFC",
+      cardBackground: "#FFFFFF",
+      textColor: "#0F172A",
+      textMutedColor: "#64748B",
+      borderColor: "#E2E8F0",
+      fontFamily: "'Inter', system-ui, sans-serif",
+      radiusCard: "14px",
+      radiusButton: "8px",
+      mode: "light",
+      activePreset: "sapphire"
+    }
+  },
+  midnight: {
+    id: "midnight",
+    name: "Midnight Clinical (Dark)",
+    description: "Sleek, eye-resting dark mode theme with neon cyan and warm amber contrast for night operation.",
+    websiteTheme: {
+      primaryColor: "#00C7BE",
+      secondaryColor: "#FF8A3D",
+      accentColor: "#FFA05C",
+      actionColor: "#00A896",
+      actionHoverColor: "#028073",
+      actionAccentColor: "#D9681E",
+      backgroundColor: "#061E1B",
+      surfaceColor: "#0B2B27",
+      surfaceMutedColor: "#0F3833",
+      surfaceTealColor: "#134640",
+      surfaceOrangeColor: "#3D2B1C",
+      cardColor: "#0B2B27",
+      textColor: "#F1F5F9",
+      textMutedColor: "#94A3B8",
+      headingColor: "#FFFFFF",
+      borderColor: "#1E4B45",
+      borderTealColor: "#00C7BE",
+      borderOrangeColor: "#FF8A3D",
+      emergencyColor: "#F43F5E",
+      fontFamily: "'Poppins', system-ui, sans-serif",
+      headingFontFamily: "'Poppins', system-ui, sans-serif",
+      radiusCard: "20px",
+      radiusHero: "30px",
+      radiusButton: "12px",
+      radiusPill: "999px",
+      mode: "dark",
+      activePreset: "midnight"
+    },
+    adminTheme: {
+      primaryColor: "#00A896",
+      accentColor: "#00C7BE",
+      secondaryColor: "#FF8A3D",
+      sidebarBackground: "#030E0D",
+      sidebarText: "#F8FAFC",
+      sidebarActiveBackground: "#092420",
+      headerBackground: "#061E1B",
+      headerText: "#F8FAFC",
+      contentBackground: "#0B2B27",
+      cardBackground: "#0F3833",
+      textColor: "#F1F5F9",
+      textMutedColor: "#94A3B8",
+      borderColor: "#1E4B45",
+      fontFamily: "'Poppins', system-ui, sans-serif",
+      radiusCard: "16px",
+      radiusButton: "10px",
+      mode: "dark",
+      activePreset: "midnight"
+    }
+  },
+  warmCare: {
+    id: "warmCare",
+    name: "Warm Care (Coral & Violet)",
+    description: "Gentle empathetic medical palette blending comforting coral warmth with royal healing violet.",
+    websiteTheme: {
+      primaryColor: "#8B5CF6",
+      secondaryColor: "#FB923C",
+      accentColor: "#F97316",
+      actionColor: "#7C3AED",
+      actionHoverColor: "#6D28D9",
+      actionAccentColor: "#EA580C",
+      backgroundColor: "#FFFFFF",
+      surfaceColor: "#FFFFFF",
+      surfaceMutedColor: "#FAF5FF",
+      surfaceTealColor: "#F3E8FF",
+      surfaceOrangeColor: "#FFF7ED",
+      cardColor: "#FFFFFF",
+      textColor: "#1E1B4B",
+      textMutedColor: "#6B7280",
+      headingColor: "#2E1065",
+      borderColor: "#E9D5FF",
+      borderTealColor: "#D8B4FE",
+      borderOrangeColor: "#FED7AA",
+      emergencyColor: "#E11D48",
+      fontFamily: "'Lato', system-ui, -apple-system, sans-serif",
+      headingFontFamily: "'Poppins', system-ui, sans-serif",
+      radiusCard: "22px",
+      radiusHero: "32px",
+      radiusButton: "14px",
+      radiusPill: "999px",
+      mode: "light",
+      activePreset: "warmCare"
+    },
+    adminTheme: {
+      primaryColor: "#7C3AED",
+      accentColor: "#A78BFA",
+      secondaryColor: "#FB923C",
+      sidebarBackground: "#2E1065",
+      sidebarText: "#FAF5FF",
+      sidebarActiveBackground: "#3B0764",
+      headerBackground: "#FFFFFF",
+      headerText: "#1E1B4B",
+      contentBackground: "#FAF5FF",
+      cardBackground: "#FFFFFF",
+      textColor: "#1E1B4B",
+      textMutedColor: "#6B7280",
+      borderColor: "#E9D5FF",
+      fontFamily: "'Lato', system-ui, -apple-system, sans-serif",
+      radiusCard: "16px",
+      radiusButton: "10px",
+      mode: "light",
+      activePreset: "warmCare"
+    }
+  }
+};
 var SiteSettingsSchema = external_exports.object({
   brandName: external_exports.string().default("AKEEZO"),
   tagline: external_exports.string().default("Heal In India, Heal By Akeezo"),
@@ -48898,6 +49281,8 @@ var SiteSettingsSchema = external_exports.object({
   secondaryColor: external_exports.string().optional(),
   accentColor: external_exports.string().optional(),
   actionColor: external_exports.string().optional(),
+  websiteTheme: WebsiteThemeSchema.default(DEFAULT_WEBSITE_THEME),
+  adminTheme: AdminThemeSchema.default(DEFAULT_ADMIN_THEME),
   logoVariants: external_exports.object({
     light: external_exports.string().optional(),
     dark: external_exports.string().optional(),
@@ -48916,6 +49301,134 @@ var SiteSettingsSchema = external_exports.object({
   }).optional(),
   socialLinks: external_exports.record(external_exports.string()).optional()
 });
+function sanitizeCssValue(val) {
+  if (!val)
+    return "";
+  return val.replace(/[<>{};]/g, "").trim();
+}
+function websiteThemeToCssVariables(theme) {
+  const merged = { ...DEFAULT_WEBSITE_THEME, ...theme || {} };
+  return {
+    "--brand-teal": sanitizeCssValue(merged.primaryColor),
+    "--brand-orange": sanitizeCssValue(merged.secondaryColor),
+    "--brand-orange-alt": sanitizeCssValue(merged.accentColor),
+    "--action": sanitizeCssValue(merged.actionColor),
+    "--action-hover": sanitizeCssValue(merged.actionHoverColor),
+    "--action-accent": sanitizeCssValue(merged.actionAccentColor),
+    "--action-orange": sanitizeCssValue(merged.secondaryColor),
+    "--action-orange-alt": sanitizeCssValue(merged.accentColor),
+    "--surface": sanitizeCssValue(merged.surfaceColor),
+    "--surface-muted": sanitizeCssValue(merged.surfaceMutedColor),
+    "--surface-teal": sanitizeCssValue(merged.surfaceTealColor),
+    "--surface-orange": sanitizeCssValue(merged.surfaceOrangeColor),
+    "--ink": sanitizeCssValue(merged.textColor),
+    "--ink-muted": sanitizeCssValue(merged.textMutedColor),
+    "--border": sanitizeCssValue(merged.borderColor),
+    "--border-teal": sanitizeCssValue(merged.borderTealColor),
+    "--border-orange": sanitizeCssValue(merged.borderOrangeColor),
+    "--emergency": sanitizeCssValue(merged.emergencyColor),
+    "--navy": sanitizeCssValue(merged.headingColor),
+    "--font-ui": sanitizeCssValue(merged.fontFamily),
+    "--font-heading": sanitizeCssValue(merged.headingFontFamily),
+    "--radius-card": sanitizeCssValue(merged.radiusCard),
+    "--radius-hero": sanitizeCssValue(merged.radiusHero),
+    "--radius-pill": sanitizeCssValue(merged.radiusPill),
+    "--radius-sm": "8px",
+    "--radius-md": sanitizeCssValue(merged.radiusButton),
+    "--radius-lg": "16px",
+    "--radius-xl": sanitizeCssValue(merged.radiusCard),
+    "--radius-2xl": "24px",
+    "--radius-3xl": sanitizeCssValue(merged.radiusHero),
+    "--radius-full": sanitizeCssValue(merged.radiusPill),
+    "--radius": sanitizeCssValue(merged.radiusButton),
+    "--background": sanitizeCssValue(merged.backgroundColor),
+    "--foreground": sanitizeCssValue(merged.textColor),
+    "--card": sanitizeCssValue(merged.cardColor),
+    "--card-foreground": sanitizeCssValue(merged.textColor),
+    "--popover": sanitizeCssValue(merged.cardColor),
+    "--popover-foreground": sanitizeCssValue(merged.textColor),
+    "--primary": sanitizeCssValue(merged.actionColor),
+    "--primary-foreground": "#ffffff",
+    "--secondary": sanitizeCssValue(merged.surfaceTealColor),
+    "--secondary-foreground": sanitizeCssValue(merged.actionColor),
+    "--muted": sanitizeCssValue(merged.surfaceMutedColor),
+    "--muted-foreground": sanitizeCssValue(merged.textMutedColor),
+    "--accent": sanitizeCssValue(merged.surfaceOrangeColor),
+    "--accent-foreground": sanitizeCssValue(merged.actionAccentColor),
+    "--destructive": sanitizeCssValue(merged.emergencyColor),
+    "--destructive-foreground": "#ffffff",
+    "--ring": sanitizeCssValue(merged.actionColor)
+  };
+}
+function adminThemeToCssVariables(theme) {
+  const merged = { ...DEFAULT_ADMIN_THEME, ...theme || {} };
+  return {
+    "--admin-primary": sanitizeCssValue(merged.primaryColor),
+    "--admin-accent": sanitizeCssValue(merged.accentColor),
+    "--admin-secondary": sanitizeCssValue(merged.secondaryColor),
+    "--admin-sidebar-bg": sanitizeCssValue(merged.sidebarBackground),
+    "--admin-sidebar-text": sanitizeCssValue(merged.sidebarText),
+    "--admin-sidebar-active": sanitizeCssValue(merged.sidebarActiveBackground),
+    "--admin-header-bg": sanitizeCssValue(merged.headerBackground),
+    "--admin-header-text": sanitizeCssValue(merged.headerText),
+    "--admin-content-bg": sanitizeCssValue(merged.contentBackground),
+    "--admin-card-bg": sanitizeCssValue(merged.cardBackground),
+    "--admin-text": sanitizeCssValue(merged.textColor),
+    "--admin-text-muted": sanitizeCssValue(merged.textMutedColor),
+    "--admin-border": sanitizeCssValue(merged.borderColor),
+    "--admin-font": sanitizeCssValue(merged.fontFamily),
+    "--admin-radius-card": sanitizeCssValue(merged.radiusCard),
+    "--admin-radius-button": sanitizeCssValue(merged.radiusButton)
+  };
+}
+function generateWebsiteThemeCss(theme) {
+  const vars = websiteThemeToCssVariables(theme);
+  const rules = Object.entries(vars).map(([key, val]) => `  ${key}: ${val};`).join("\n");
+  return `:root {
+${rules}
+}`;
+}
+function generateAdminThemeCss(theme) {
+  const vars = adminThemeToCssVariables(theme);
+  const rules = Object.entries(vars).map(([key, val]) => `  ${key}: ${val};`).join("\n");
+  return `:root {
+${rules}
+}`;
+}
+function extractPrimaryFontName(fontFamily) {
+  if (!fontFamily)
+    return null;
+  const cleaned = sanitizeCssValue(fontFamily);
+  const first = cleaned.split(",")[0].trim().replace(/^['"]|['"]$/g, "").trim();
+  if (!first)
+    return null;
+  const generic = [
+    "system-ui",
+    "-apple-system",
+    "blinkmacsystemfont",
+    "segoe ui",
+    "sans-serif",
+    "serif",
+    "monospace",
+    "cursive",
+    "fantasy",
+    "inherit",
+    "initial"
+  ];
+  if (generic.includes(first.toLowerCase())) {
+    return null;
+  }
+  return first;
+}
+function getGoogleFontUrl(fontFamily) {
+  const fontName = extractPrimaryFontName(fontFamily);
+  if (!fontName)
+    return null;
+  if (fontName.toLowerCase() === "lato")
+    return null;
+  const encoded = fontName.replace(/\s+/g, "+");
+  return `https://fonts.googleapis.com/css2?family=${encoded}:wght@300;400;500;600;700;800;900&display=swap`;
+}
 
 // ../../packages/contracts/dist/dto.js
 var PublicRouteResponseSchema = external_exports.object({
@@ -49624,6 +50137,55 @@ var SiteSettingsSchema2 = new Schema4(
     secondaryColor: { type: String, default: "#FF6B00" },
     accentColor: { type: String, default: "#FF6D1B" },
     actionColor: { type: String, default: "#007A6C" },
+    websiteTheme: {
+      primaryColor: { type: String, default: "#00C7BE" },
+      secondaryColor: { type: String, default: "#FF6B00" },
+      accentColor: { type: String, default: "#FF6D1B" },
+      actionColor: { type: String, default: "#007A6C" },
+      actionHoverColor: { type: String, default: "#005F54" },
+      actionAccentColor: { type: String, default: "#B54700" },
+      backgroundColor: { type: String, default: "#FFFFFF" },
+      surfaceColor: { type: String, default: "#FFFFFF" },
+      surfaceMutedColor: { type: String, default: "#F4F6F9" },
+      surfaceTealColor: { type: String, default: "#E6F8F6" },
+      surfaceOrangeColor: { type: String, default: "#FFF4EC" },
+      cardColor: { type: String, default: "#FFFFFF" },
+      textColor: { type: String, default: "#262626" },
+      textMutedColor: { type: String, default: "#595959" },
+      headingColor: { type: String, default: "#061E1B" },
+      borderColor: { type: String, default: "#E2E8F0" },
+      borderTealColor: { type: String, default: "#B2EBE4" },
+      borderOrangeColor: { type: String, default: "#FFD8BF" },
+      emergencyColor: { type: String, default: "#D92D20" },
+      fontFamily: { type: String, default: "'Lato', system-ui, -apple-system, sans-serif" },
+      headingFontFamily: { type: String, default: "'Lato', system-ui, -apple-system, sans-serif" },
+      radiusCard: { type: String, default: "20px" },
+      radiusHero: { type: String, default: "30px" },
+      radiusButton: { type: String, default: "12px" },
+      radiusPill: { type: String, default: "999px" },
+      mode: { type: String, default: "light" },
+      activePreset: { type: String, default: "classic" }
+    },
+    adminTheme: {
+      primaryColor: { type: String, default: "#007A6C" },
+      accentColor: { type: String, default: "#00C7BE" },
+      secondaryColor: { type: String, default: "#FF6B00" },
+      sidebarBackground: { type: String, default: "#061E1B" },
+      sidebarText: { type: String, default: "#F4F6F9" },
+      sidebarActiveBackground: { type: String, default: "#0B2B27" },
+      headerBackground: { type: String, default: "#FFFFFF" },
+      headerText: { type: String, default: "#1E293B" },
+      contentBackground: { type: String, default: "#F8FAFC" },
+      cardBackground: { type: String, default: "#FFFFFF" },
+      textColor: { type: String, default: "#1E293B" },
+      textMutedColor: { type: String, default: "#64748B" },
+      borderColor: { type: String, default: "#E2E8F0" },
+      fontFamily: { type: String, default: "'Lato', system-ui, -apple-system, sans-serif" },
+      radiusCard: { type: String, default: "16px" },
+      radiusButton: { type: String, default: "10px" },
+      mode: { type: String, default: "light" },
+      activePreset: { type: String, default: "classic" }
+    },
     contactEmail: { type: String, default: "care@akeezo.com" },
     careEmail: { type: String, default: "care@akeezo.com" },
     medicalEmail: { type: String, default: "medical@akeezo.com" },
@@ -50520,10 +51082,17 @@ function toSafeSiteSettings(doc) {
     contactEmail: doc?.contactEmail || doc?.careEmail || "care@akeezo.com",
     telegramChannel: doc?.telegramChannel || "https://t.me/akeezohealth",
     supportedLocales: doc?.supportedLocales || ["en"],
-    primaryColor: doc?.primaryColor || "#00C7BE",
-    secondaryColor: doc?.secondaryColor || "#FF6B00",
-    accentColor: doc?.accentColor || "#FF6D1B",
-    actionColor: doc?.actionColor || "#007A6C",
+    primaryColor: doc?.websiteTheme?.primaryColor || doc?.primaryColor || "#00C7BE",
+    secondaryColor: doc?.websiteTheme?.secondaryColor || doc?.secondaryColor || "#FF6B00",
+    accentColor: doc?.websiteTheme?.accentColor || doc?.accentColor || "#FF6D1B",
+    actionColor: doc?.websiteTheme?.actionColor || doc?.actionColor || "#007A6C",
+    websiteTheme: doc?.websiteTheme || {
+      primaryColor: doc?.primaryColor || "#00C7BE",
+      secondaryColor: doc?.secondaryColor || "#FF6B00",
+      accentColor: doc?.accentColor || "#FF6D1B",
+      actionColor: doc?.actionColor || "#007A6C"
+    },
+    adminTheme: doc?.adminTheme || void 0,
     logoVariants: doc?.logoVariants || {
       light: "/logo/logo with tagline-light.svg",
       dark: "/logo/logo with tagline-dark.svg",
@@ -50549,6 +51118,12 @@ function renderFallback500Html(siteSettings) {
   const careEmail = siteSettings.careEmail || "care@akeezo.com";
   const legalEntity = siteSettings.legalEntityName || "AKEEZO Healthcare Platform Private Limited";
   const currentYear = (/* @__PURE__ */ new Date()).getFullYear();
+  const dynamicThemeCss = generateWebsiteThemeCss(siteSettings.websiteTheme);
+  const fontUrl = getGoogleFontUrl(siteSettings.websiteTheme?.fontFamily) || getGoogleFontUrl(siteSettings.websiteTheme?.headingFontFamily);
+  const fontLinkHtml = fontUrl ? `  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link rel="stylesheet" href="${fontUrl}" />
+` : "";
   return `<!DOCTYPE html>
 <html lang="en">
 <head>
@@ -50556,6 +51131,9 @@ function renderFallback500Html(siteSettings) {
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Server Error (500) | AKEEZO Healthcare Platform</title>
   <link rel="icon" type="image/svg+xml" href="/logo/favicon.svg" />
+${fontLinkHtml}  <style id="akeezo-dynamic-theme">
+${dynamicThemeCss}
+  </style>
   <style>
     :root { --action: #007a6c; --action-hover: #005f54; --ink: #262626; --ink-muted: #595959; --border: #e2e8f0; --surface-teal: #e6f8f6; --surface-orange: #fff4ec; }
     * { box-sizing: border-box; margin: 0; padding: 0; font-family: system-ui, -apple-system, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif; }
@@ -50628,7 +51206,7 @@ async function handleSsr(req, res, next) {
   try {
     const rawPath = req.path;
     const normalizedPath = rawPath.length > 1 && rawPath.endsWith("/") ? rawPath.slice(0, -1) : rawPath;
-    const settingsDoc = await SiteSettings.findOne({ environment: env.NODE_ENV }).lean() || await SiteSettings.findOne().lean();
+    const settingsDoc = await SiteSettings.findOne({ environment: env.NODE_ENV }).lean() || await SiteSettings.findOne({ environment: "development" }).lean() || await SiteSettings.findOne().lean();
     const siteSettings = toSafeSiteSettings(settingsDoc);
     const routeEntry = await RouteEntry.findOne({ locale: "en", path: normalizedPath }).lean();
     let dto;
@@ -50770,6 +51348,16 @@ async function handleSsr(req, res, next) {
     const origin = req.protocol + "://" + (req.get("host") || "akeezo.com");
     const canonicalUrl = dto.seo.canonicalPath.startsWith("http") ? dto.seo.canonicalPath : `${origin}${dto.seo.canonicalPath.startsWith("/") ? "" : "/"}${dto.seo.canonicalPath}`;
     const safeInitialDataJson = JSON.stringify(dto).replace(/</g, "\\u003c");
+    const dynamicThemeCss = generateWebsiteThemeCss(dto.siteSettings?.websiteTheme);
+    const isDark = dto.siteSettings?.websiteTheme?.mode === "dark";
+    if (isDark && !template.includes('class="dark"')) {
+      template = template.replace("<html", '<html class="dark"');
+    }
+    const fontUrl = getGoogleFontUrl(dto.siteSettings?.websiteTheme?.fontFamily) || getGoogleFontUrl(dto.siteSettings?.websiteTheme?.headingFontFamily);
+    const fontLinkHtml = fontUrl ? `    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link rel="stylesheet" href="${fontUrl}">
+` : "";
     const headInjection = `
     <title>${escapeHtml(dto.seo.title)}</title>
     <meta name="description" content="${escapeHtml(dto.seo.description)}" />
@@ -50784,6 +51372,9 @@ async function handleSsr(req, res, next) {
     <meta name="twitter:card" content="summary_large_image" />
     <meta name="twitter:title" content="${escapeHtml(dto.seo.title)}" />
     <meta name="twitter:description" content="${escapeHtml(dto.seo.description)}" />
+${fontLinkHtml}    <style id="akeezo-dynamic-theme">
+${dynamicThemeCss}
+    </style>
     <script>window.__INITIAL_DATA__ = ${safeInitialDataJson};</script>
 `;
     const htmlWithHead = template.replace("<!--ssr-head-->", headInjection);
@@ -51681,7 +52272,12 @@ caseManagementRouter.get("/cases/:id", async (req, res) => {
     let caseDoc = null;
     if (mongoose18.connection.readyState === 1) {
       try {
-        caseDoc = await CaseModel.findById(req.params.id).populate("patientId").populate("partnerId").populate("ownerId", "name email role").lean();
+        if (mongoose18.Types.ObjectId.isValid(req.params.id)) {
+          caseDoc = await CaseModel.findById(req.params.id).populate("patientId").populate("partnerId").populate("ownerId", "name email role").lean();
+        }
+        if (!caseDoc) {
+          caseDoc = await CaseModel.findOne({ caseCode: req.params.id }).populate("patientId").populate("partnerId").populate("ownerId", "name email role").lean();
+        }
       } catch {
       }
     }
@@ -53217,15 +53813,37 @@ cmsAdminRouter.get("/overview-stats", async (_req, res) => {
     res.status(500).json({ error: { code: "STATS_FAILED", message: err.message } });
   }
 });
+async function getActiveSiteSettingsDoc() {
+  const targetEnv = env.NODE_ENV || "development";
+  let doc = await SiteSettings.findOne({ environment: targetEnv });
+  if (!doc && targetEnv !== "development") {
+    doc = await SiteSettings.findOne({ environment: "development" });
+  }
+  if (!doc) {
+    doc = await SiteSettings.findOne();
+  }
+  return doc;
+}
+async function updateActiveSiteSettings(updatePayload) {
+  const targetEnv = env.NODE_ENV || "development";
+  const existing = await getActiveSiteSettingsDoc();
+  const filter = existing ? { _id: existing._id } : { environment: targetEnv };
+  return SiteSettings.findOneAndUpdate(
+    filter,
+    { $set: updatePayload, $inc: { version: 1 } },
+    { upsert: true, new: true }
+  );
+}
 cmsAdminRouter.get("/site-settings", async (_req, res) => {
   try {
     let settings = null;
     if (mongoose21.connection.readyState === 1) {
-      settings = await SiteSettings.findOne({ environment: "development" }).lean();
+      const doc = await getActiveSiteSettingsDoc();
+      if (doc) settings = doc.toObject ? doc.toObject() : doc;
     }
     if (!settings) {
       settings = {
-        environment: "development",
+        environment: env.NODE_ENV || "development",
         brandName: "AKEEZO",
         tagline: "Heal In India, Heal By Akeezo",
         legalEntityName: "AKEEZO Healthcare Platform Private Limited",
@@ -53259,6 +53877,18 @@ cmsAdminRouter.get("/site-settings", async (_req, res) => {
         }
       };
     } else {
+      if (!settings.websiteTheme) {
+        settings.websiteTheme = {
+          ...DEFAULT_WEBSITE_THEME,
+          primaryColor: settings.primaryColor || DEFAULT_WEBSITE_THEME.primaryColor,
+          secondaryColor: settings.secondaryColor || DEFAULT_WEBSITE_THEME.secondaryColor,
+          accentColor: settings.accentColor || DEFAULT_WEBSITE_THEME.accentColor,
+          actionColor: settings.actionColor || DEFAULT_WEBSITE_THEME.actionColor
+        };
+      }
+      if (!settings.adminTheme) {
+        settings.adminTheme = { ...DEFAULT_ADMIN_THEME };
+      }
       if (!settings.integrations) {
         settings.integrations = {
           googleAnalyticsId: "",
@@ -53285,21 +53915,72 @@ cmsAdminRouter.get("/site-settings", async (_req, res) => {
   } catch {
     res.json({
       data: {
-        environment: "development",
+        environment: env.NODE_ENV || "development",
         brandName: "AKEEZO",
-        tagline: "Heal In India, Heal By Akeezo"
+        tagline: "Heal In India, Heal By Akeezo",
+        websiteTheme: DEFAULT_WEBSITE_THEME,
+        adminTheme: DEFAULT_ADMIN_THEME
       }
     });
   }
 });
+function sanitizeThemeObject(input) {
+  if (!input || typeof input !== "object") return {};
+  const cleaned = {};
+  for (const [key, value] of Object.entries(input)) {
+    if (typeof value === "string") {
+      cleaned[key] = sanitizeCssValue(value);
+    } else {
+      cleaned[key] = value;
+    }
+  }
+  return cleaned;
+}
 cmsAdminRouter.put(["/site-settings", "/settings/:section"], async (req, res) => {
   try {
+    const existingDoc = await getActiveSiteSettingsDoc();
+    const existingObj = existingDoc ? existingDoc.toObject ? existingDoc.toObject() : existingDoc : null;
     const updatePayload = {};
     if (req.body.brandName !== void 0) updatePayload.brandName = req.body.brandName;
     if (req.body.tagline !== void 0) updatePayload.tagline = req.body.tagline;
+    if (req.body.legalEntityName !== void 0) updatePayload.legalEntityName = req.body.legalEntityName;
     if (req.body.logoVariants !== void 0) updatePayload.logoVariants = req.body.logoVariants;
-    if (req.body.primaryColor !== void 0) updatePayload.primaryColor = req.body.primaryColor;
-    if (req.body.actionColor !== void 0) updatePayload.actionColor = req.body.actionColor;
+    if (req.body.primaryColor !== void 0) updatePayload.primaryColor = sanitizeCssValue(req.body.primaryColor);
+    if (req.body.secondaryColor !== void 0) updatePayload.secondaryColor = sanitizeCssValue(req.body.secondaryColor);
+    if (req.body.accentColor !== void 0) updatePayload.accentColor = sanitizeCssValue(req.body.accentColor);
+    if (req.body.actionColor !== void 0) updatePayload.actionColor = sanitizeCssValue(req.body.actionColor);
+    if (req.body.websiteTheme !== void 0) {
+      const existingWebsite = existingObj?.websiteTheme || {};
+      const sanitized = sanitizeThemeObject(req.body.websiteTheme);
+      updatePayload.websiteTheme = {
+        ...DEFAULT_WEBSITE_THEME,
+        ...existingWebsite,
+        ...sanitized
+      };
+      if (updatePayload.websiteTheme.primaryColor) updatePayload.primaryColor = updatePayload.websiteTheme.primaryColor;
+      if (updatePayload.websiteTheme.secondaryColor) updatePayload.secondaryColor = updatePayload.websiteTheme.secondaryColor;
+      if (updatePayload.websiteTheme.accentColor) updatePayload.accentColor = updatePayload.websiteTheme.accentColor;
+      if (updatePayload.websiteTheme.actionColor) updatePayload.actionColor = updatePayload.websiteTheme.actionColor;
+    } else if (updatePayload.primaryColor || updatePayload.secondaryColor || updatePayload.accentColor || updatePayload.actionColor) {
+      const existingWebsite = existingObj?.websiteTheme || {};
+      updatePayload.websiteTheme = {
+        ...DEFAULT_WEBSITE_THEME,
+        ...existingWebsite,
+        ...updatePayload.primaryColor ? { primaryColor: updatePayload.primaryColor } : {},
+        ...updatePayload.secondaryColor ? { secondaryColor: updatePayload.secondaryColor } : {},
+        ...updatePayload.accentColor ? { accentColor: updatePayload.accentColor } : {},
+        ...updatePayload.actionColor ? { actionColor: updatePayload.actionColor } : {}
+      };
+    }
+    if (req.body.adminTheme !== void 0) {
+      const existingAdmin = existingObj?.adminTheme || {};
+      const sanitized = sanitizeThemeObject(req.body.adminTheme);
+      updatePayload.adminTheme = {
+        ...DEFAULT_ADMIN_THEME,
+        ...existingAdmin,
+        ...sanitized
+      };
+    }
     if (req.body.contactEmail !== void 0) updatePayload.contactEmail = req.body.contactEmail;
     if (req.body.careEmail !== void 0) updatePayload.careEmail = req.body.careEmail;
     if (req.body.medicalEmail !== void 0) updatePayload.medicalEmail = req.body.medicalEmail;
@@ -53314,14 +53995,7 @@ cmsAdminRouter.put(["/site-settings", "/settings/:section"], async (req, res) =>
     if (req.body.defaultLanguage !== void 0) updatePayload.defaultLanguage = req.body.defaultLanguage;
     if (req.body.defaultTimezone !== void 0) updatePayload.defaultTimezone = req.body.defaultTimezone;
     if (req.body.integrations !== void 0) updatePayload.integrations = req.body.integrations;
-    const updated = await SiteSettings.findOneAndUpdate(
-      { environment: "development" },
-      {
-        $set: updatePayload,
-        $inc: { version: 1 }
-      },
-      { upsert: true, new: true }
-    );
+    const updated = await updateActiveSiteSettings(updatePayload);
     await logAdminActivity(
       req.user?._id,
       "SiteSettings",
@@ -53333,6 +54007,79 @@ cmsAdminRouter.put(["/site-settings", "/settings/:section"], async (req, res) =>
     res.json({ data: updated });
   } catch (err) {
     res.status(400).json({ error: { code: "UPDATE_SETTINGS_FAILED", message: err.message } });
+  }
+});
+cmsAdminRouter.post("/theme/preset", async (req, res) => {
+  try {
+    const { presetId, target = "both" } = req.body;
+    const preset = THEME_PRESETS[presetId];
+    if (!preset) {
+      res.status(400).json({ error: { code: "INVALID_PRESET", message: `Preset "${presetId}" does not exist.` } });
+      return;
+    }
+    const existingDoc = await getActiveSiteSettingsDoc();
+    const existingObj = existingDoc ? existingDoc.toObject ? existingDoc.toObject() : existingDoc : null;
+    const updatePayload = {};
+    if (target === "website" || target === "both") {
+      updatePayload.websiteTheme = {
+        ...DEFAULT_WEBSITE_THEME,
+        ...existingObj?.websiteTheme || {},
+        ...preset.websiteTheme,
+        activePreset: presetId
+      };
+      if (preset.websiteTheme.primaryColor) updatePayload.primaryColor = preset.websiteTheme.primaryColor;
+      if (preset.websiteTheme.secondaryColor) updatePayload.secondaryColor = preset.websiteTheme.secondaryColor;
+      if (preset.websiteTheme.accentColor) updatePayload.accentColor = preset.websiteTheme.accentColor;
+      if (preset.websiteTheme.actionColor) updatePayload.actionColor = preset.websiteTheme.actionColor;
+    }
+    if (target === "admin" || target === "both") {
+      updatePayload.adminTheme = {
+        ...DEFAULT_ADMIN_THEME,
+        ...existingObj?.adminTheme || {},
+        ...preset.adminTheme,
+        activePreset: presetId
+      };
+    }
+    const updated = await updateActiveSiteSettings(updatePayload);
+    await logAdminActivity(
+      req.user?._id,
+      "SiteSettings",
+      updated._id,
+      "update",
+      { section: ["theme", `preset:${presetId}`], target },
+      req
+    );
+    res.json({ data: updated });
+  } catch (err) {
+    res.status(400).json({ error: { code: "APPLY_PRESET_FAILED", message: err.message } });
+  }
+});
+cmsAdminRouter.post("/theme/reset", async (req, res) => {
+  try {
+    const { target = "both" } = req.body;
+    const updatePayload = {};
+    if (target === "website" || target === "both") {
+      updatePayload.websiteTheme = { ...DEFAULT_WEBSITE_THEME };
+      updatePayload.primaryColor = DEFAULT_WEBSITE_THEME.primaryColor;
+      updatePayload.secondaryColor = DEFAULT_WEBSITE_THEME.secondaryColor;
+      updatePayload.accentColor = DEFAULT_WEBSITE_THEME.accentColor;
+      updatePayload.actionColor = DEFAULT_WEBSITE_THEME.actionColor;
+    }
+    if (target === "admin" || target === "both") {
+      updatePayload.adminTheme = { ...DEFAULT_ADMIN_THEME };
+    }
+    const updated = await updateActiveSiteSettings(updatePayload);
+    await logAdminActivity(
+      req.user?._id,
+      "SiteSettings",
+      updated._id,
+      "update",
+      { section: ["theme", "reset"], target },
+      req
+    );
+    res.json({ data: updated });
+  } catch (err) {
+    res.status(400).json({ error: { code: "RESET_THEME_FAILED", message: err.message } });
   }
 });
 cmsAdminRouter.get("/system-health", async (_req, res) => {
@@ -53640,7 +54387,7 @@ cmsAdminRouter.post("/pages/:slug/restore/:revisionId", async (req, res) => {
 });
 cmsAdminRouter.get("/navigation", async (_req, res) => {
   try {
-    const settings = await SiteSettings.findOne({ environment: "development" }).lean();
+    const settings = await getActiveSiteSettingsDoc();
     const nav = settings?.navigation || {
       headerMenu: [
         { id: "nav-1", label: "Surgeries & Treatments", destination: "/#treatments", isExternal: false, order: 1, isVisible: true },
@@ -53691,18 +54438,12 @@ cmsAdminRouter.get("/navigation", async (_req, res) => {
 cmsAdminRouter.put("/navigation", async (req, res) => {
   try {
     const { headerMenu, footerGroups } = req.body;
-    const updated = await SiteSettings.findOneAndUpdate(
-      { environment: "development" },
-      {
-        $set: {
-          navigation: {
-            headerMenu: headerMenu || [],
-            footerGroups: footerGroups || []
-          }
-        }
-      },
-      { upsert: true, new: true }
-    );
+    const updated = await updateActiveSiteSettings({
+      navigation: {
+        headerMenu: headerMenu || [],
+        footerGroups: footerGroups || []
+      }
+    });
     await logAdminActivity(
       req.user?._id,
       "SiteSettings",
@@ -54865,9 +55606,38 @@ if (!process.env.VERCEL) {
     res.sendFile(path3.join(caseManagementDistDir, "index.html"));
   });
   const adminDistDir = path3.resolve(__dirname2, "../../admin/dist");
-  app.use("/admin", import_express5.default.static(adminDistDir));
-  app.get(["/admin", "/admin/*"], (_req, res) => {
-    res.sendFile(path3.join(adminDistDir, "index.html"));
+  app.use("/admin", import_express5.default.static(adminDistDir, { index: false }));
+  app.get(["/admin", "/admin/*"], async (_req, res) => {
+    const indexPath = path3.join(adminDistDir, "index.html");
+    if (!fs3.existsSync(indexPath)) {
+      res.status(404).send("Admin portal build not found.");
+      return;
+    }
+    try {
+      let html = await fs3.promises.readFile(indexPath, "utf-8");
+      if (mongoose23.connection.readyState === 1) {
+        const targetEnv = env.NODE_ENV || "development";
+        const doc = await SiteSettings.findOne({ environment: targetEnv }).lean() || await SiteSettings.findOne({ environment: "development" }).lean() || await SiteSettings.findOne().lean();
+        const adminTheme = doc?.adminTheme;
+        if (adminTheme) {
+          const themeCss = generateAdminThemeCss(adminTheme);
+          const fontUrl = getGoogleFontUrl(adminTheme.fontFamily);
+          const fontHtml = fontUrl ? `<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin><link rel="stylesheet" href="${fontUrl}">` : "";
+          const injection = `${fontHtml}<style id="akeezo-dynamic-admin-theme">
+${themeCss}
+</style>`;
+          html = html.replace("</head>", `${injection}
+</head>`);
+          if (adminTheme.mode === "dark" && !html.includes('class="dark"')) {
+            html = html.replace("<html", '<html class="dark"');
+          }
+        }
+      }
+      res.setHeader("Content-Type", "text/html; charset=utf-8");
+      res.send(html);
+    } catch {
+      res.sendFile(indexPath);
+    }
   });
   const uploadsDir = path3.resolve(process.cwd(), "uploads");
   if (!fs3.existsSync(uploadsDir)) {

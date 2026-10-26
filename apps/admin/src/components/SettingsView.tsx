@@ -15,7 +15,9 @@ import {
   Server,
   Database,
   RefreshCw,
+  Sparkles,
 } from "lucide-react";
+import { ThemeStudioView } from "./ThemeStudioView.js";
 
 export const SettingsView: React.FC = () => {
   const [activeTab, setActiveTab] = useState<
@@ -146,8 +148,8 @@ export const SettingsView: React.FC = () => {
               : "border-transparent text-slate-500 hover:text-slate-800 hover:bg-slate-50"
           }`}
         >
-          <Palette className="w-4 h-4 text-[#007A6C]" />
-          <span>Branding & Colors</span>
+          <Sparkles className="w-4 h-4 text-[#007A6C]" />
+          <span>Branding & Theme Studio</span>
         </button>
 
         <button
@@ -308,91 +310,8 @@ export const SettingsView: React.FC = () => {
         </form>
       )}
 
-      {/* TAB 2: BRANDING & COLORS */}
-      {activeTab === "branding" && (
-        <form
-          onSubmit={(e) => {
-            e.preventDefault();
-            handleSaveSection("branding", {
-              primaryColor: settings.primaryColor,
-              secondaryColor: settings.secondaryColor,
-              actionColor: settings.actionColor,
-            });
-          }}
-          className="bg-white rounded-2xl border border-slate-200 p-6 shadow-xs space-y-6"
-        >
-          <div className="flex items-center justify-between pb-3 border-b border-slate-100">
-            <h2 className="text-base font-bold text-slate-900">Brand Identity & Palette Tokens</h2>
-            <button
-              type="submit"
-              disabled={savingSection}
-              className="px-4 py-2 text-xs font-bold text-white bg-[#007A6C] hover:bg-[#005F54] rounded-xl shadow-xs transition disabled:opacity-60 flex items-center gap-1.5"
-            >
-              <Save className="w-3.5 h-3.5" />
-              <span>{savingSection ? "Saving..." : "Save Branding"}</span>
-            </button>
-          </div>
-
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-            <div className="p-4 bg-slate-50 rounded-xl border border-slate-200 space-y-2">
-              <label className="block text-xs font-bold text-slate-700">Brand Teal (Primary)</label>
-              <div className="flex items-center gap-3">
-                <input
-                  type="color"
-                  value={settings.primaryColor || "#00C7BE"}
-                  onChange={(e) => setSettings({ ...settings, primaryColor: e.target.value })}
-                  className="w-10 h-10 rounded-lg cursor-pointer border border-slate-300"
-                />
-                <input
-                  type="text"
-                  value={settings.primaryColor || "#00C7BE"}
-                  onChange={(e) => setSettings({ ...settings, primaryColor: e.target.value })}
-                  className="text-xs px-3 py-1.5 rounded-lg border border-slate-300 font-mono w-28 uppercase"
-                />
-              </div>
-              <span className="text-[10px] text-slate-400 block">Verified: #00C7BE</span>
-            </div>
-
-            <div className="p-4 bg-slate-50 rounded-xl border border-slate-200 space-y-2">
-              <label className="block text-xs font-bold text-slate-700">Action Teal (Buttons)</label>
-              <div className="flex items-center gap-3">
-                <input
-                  type="color"
-                  value={settings.actionColor || "#007A6C"}
-                  onChange={(e) => setSettings({ ...settings, actionColor: e.target.value })}
-                  className="w-10 h-10 rounded-lg cursor-pointer border border-slate-300"
-                />
-                <input
-                  type="text"
-                  value={settings.actionColor || "#007A6C"}
-                  onChange={(e) => setSettings({ ...settings, actionColor: e.target.value })}
-                  className="text-xs px-3 py-1.5 rounded-lg border border-slate-300 font-mono w-28 uppercase"
-                />
-              </div>
-              <span className="text-[10px] text-slate-400 block">Verified: #007A6C</span>
-            </div>
-
-            <div className="p-4 bg-slate-50 rounded-xl border border-slate-200 space-y-2">
-              <label className="block text-xs font-bold text-slate-700">Brand Orange (Accent)</label>
-              <div className="flex items-center gap-3">
-                <input
-                  type="color"
-                  value={settings.secondaryColor || "#FF6B00"}
-                  onChange={(e) => setSettings({ ...settings, secondaryColor: e.target.value })}
-                  className="w-10 h-10 rounded-lg cursor-pointer border border-slate-300"
-                />
-                <input
-                  type="text"
-                  value={settings.secondaryColor || "#FF6B00"}
-                  onChange={(e) => setSettings({ ...settings, secondaryColor: e.target.value })}
-                  className="text-xs px-3 py-1.5 rounded-lg border border-slate-300 font-mono w-28 uppercase"
-                />
-              </div>
-              <span className="text-[10px] text-slate-400 block">Verified: #FF6B00</span>
-            </div>
-          </div>
-        </form>
-      )}
+      {/* TAB 2: BRANDING & THEME STUDIO */}
+      {activeTab === "branding" && <ThemeStudioView />}
 
       {/* TAB 3: FORMS & NOTIFICATIONS */}
       {activeTab === "forms" && (

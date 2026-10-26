@@ -3,7 +3,7 @@ import path from "node:path";
 import { fileURLToPath, pathToFileURL } from "node:url";
 import { PassThrough } from "node:stream";
 import { RouteEntry, ContentRevision, SiteSettings } from "../db/models/index.js";
-import { SiteSettingsSchema } from "@akeezo/contracts";
+import { SiteSettingsSchema, generateWebsiteThemeCss, getGoogleFontUrl } from "@akeezo/contracts";
 import { env } from "../config/env.js";
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -52,10 +52,17 @@ export function toSafeSiteSettings(doc) {
         contactEmail: doc?.contactEmail || doc?.careEmail || "care@akeezo.com",
         telegramChannel: doc?.telegramChannel || "https://t.me/akeezohealth",
         supportedLocales: doc?.supportedLocales || ["en"],
-        primaryColor: doc?.primaryColor || "#00C7BE",
-        secondaryColor: doc?.secondaryColor || "#FF6B00",
-        accentColor: doc?.accentColor || "#FF6D1B",
-        actionColor: doc?.actionColor || "#007A6C",
+        primaryColor: doc?.websiteTheme?.primaryColor || doc?.primaryColor || "#00C7BE",
+        secondaryColor: doc?.websiteTheme?.secondaryColor || doc?.secondaryColor || "#FF6B00",
+        accentColor: doc?.websiteTheme?.accentColor || doc?.accentColor || "#FF6D1B",
+        actionColor: doc?.websiteTheme?.actionColor || doc?.actionColor || "#007A6C",
+        websiteTheme: doc?.websiteTheme || {
+            primaryColor: doc?.primaryColor || "#00C7BE",
+            secondaryColor: doc?.secondaryColor || "#FF6B00",
+            accentColor: doc?.accentColor || "#FF6D1B",
+            actionColor: doc?.actionColor || "#007A6C"
+        },
+        adminTheme: doc?.adminTheme || undefined,
         logoVariants: doc?.logoVariants || {
             light: "/logo/logo with tagline-light.svg",
             dark: "/logo/logo with tagline-dark.svg",
@@ -81,6 +88,12 @@ export function renderFallback500Html(siteSettings) {
     const careEmail = siteSettings.careEmail || "care@akeezo.com";
     const legalEntity = siteSettings.legalEntityName || "AKEEZO Healthcare Platform Private Limited";
     const currentYear = new Date().getFullYear();
+    const dynamicThemeCss = generateWebsiteThemeCss(siteSettings.websiteTheme);
+    const fontUrl = getGoogleFontUrl(siteSettings.websiteTheme?.fontFamily) ||
+        getGoogleFontUrl(siteSettings.websiteTheme?.headingFontFamily);
+    const fontLinkHtml = fontUrl
+        ? `  <link rel="preconnect" href="https://fonts.googleapis.com" />\n  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />\n  <link rel="stylesheet" href="${fontUrl}" />\n`
+        : "";
     return `<!DOCTYPE html>
 <html lang="en">
 <head>
@@ -88,6 +101,9 @@ export function renderFallback500Html(siteSettings) {
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Server Error (500) | AKEEZO Healthcare Platform</title>
   <link rel="icon" type="image/svg+xml" href="/logo/favicon.svg" />
+${fontLinkHtml}  <style id="akeezo-dynamic-theme">
+${dynamicThemeCss}
+  </style>
   <style>
     :root { --action: #007a6c; --action-hover: #005f54; --ink: #262626; --ink-muted: #595959; --border: #e2e8f0; --surface-teal: #e6f8f6; --surface-orange: #fff4ec; }
     * { box-sizing: border-box; margin: 0; padding: 0; font-family: system-ui, -apple-system, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif; }
@@ -170,7 +186,9 @@ export async function handleSsr(req, res, next) {
         const rawPath = req.path;
         const normalizedPath = rawPath.length > 1 && rawPath.endsWith("/") ? rawPath.slice(0, -1) : rawPath;
         // 1. Fetch SiteSettings
-        const settingsDoc = (await SiteSettings.findOne({ environment: env.NODE_ENV }).lean()) || (await SiteSettings.findOne().lean());
+        const settingsDoc = (await SiteSettings.findOne({ environment: env.NODE_ENV }).lean()) ||
+            (await SiteSettings.findOne({ environment: "development" }).lean()) ||
+            (await SiteSettings.findOne().lean());
         const siteSettings = toSafeSiteSettings(settingsDoc);
         // 2. Resolve RouteEntry
         const routeEntry = await RouteEntry.findOne({ locale: "en", path: normalizedPath }).lean();
@@ -324,6 +342,16 @@ export async function handleSsr(req, res, next) {
             ? dto.seo.canonicalPath
             : `${origin}${dto.seo.canonicalPath.startsWith("/") ? "" : "/"}${dto.seo.canonicalPath}`;
         const safeInitialDataJson = JSON.stringify(dto).replace(/</g, "\\u003c");
+        const dynamicThemeCss = generateWebsiteThemeCss(dto.siteSettings?.websiteTheme);
+        const isDark = dto.siteSettings?.websiteTheme?.mode === "dark";
+        if (isDark && !template.includes('class="dark"')) {
+            template = template.replace("<html", '<html class="dark"');
+        }
+        const fontUrl = getGoogleFontUrl(dto.siteSettings?.websiteTheme?.fontFamily) ||
+            getGoogleFontUrl(dto.siteSettings?.websiteTheme?.headingFontFamily);
+        const fontLinkHtml = fontUrl
+            ? `    <link rel="preconnect" href="https://fonts.googleapis.com">\n    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>\n    <link rel="stylesheet" href="${fontUrl}">\n`
+            : "";
         const headInjection = `
     <title>${escapeHtml(dto.seo.title)}</title>
     <meta name="description" content="${escapeHtml(dto.seo.description)}" />
@@ -338,6 +366,9 @@ export async function handleSsr(req, res, next) {
     <meta name="twitter:card" content="summary_large_image" />
     <meta name="twitter:title" content="${escapeHtml(dto.seo.title)}" />
     <meta name="twitter:description" content="${escapeHtml(dto.seo.description)}" />
+${fontLinkHtml}    <style id="akeezo-dynamic-theme">
+${dynamicThemeCss}
+    </style>
     <script>window.__INITIAL_DATA__ = ${safeInitialDataJson};</script>
 `;
         const htmlWithHead = template.replace("<!--ssr-head-->", headInjection);

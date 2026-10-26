@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useCallback } from "react";
 import { AuthProvider, useAuth } from "./context/AuthContext.js";
 import { AdminLoginView } from "./components/AdminLoginView.js";
 import { Header } from "./components/Header.js";
@@ -9,14 +9,63 @@ import { NewCaseModal } from "./components/NewCaseModal.js";
 import { FinanceWorkspace } from "./components/FinanceWorkspace.js";
 import { ArrowRight } from "lucide-react";
 
+const tabPathMap: Record<NavTab, string> = {
+  board: "/case-management",
+  cases: "/case-management/cases",
+  partners: "/case-management/partners",
+  hospitals: "/case-management/hospitals",
+  finance: "/case-management/finance",
+};
+
+interface ParsedRoute {
+  tab: NavTab;
+  caseIdentifier: string | null;
+}
+
+function parseCurrentRoute(): ParsedRoute {
+  if (typeof window === "undefined") {
+    return { tab: "board", caseIdentifier: null };
+  }
+  const pathname = window.location.pathname.replace(/\/$/, "");
+
+  // Deep-link to a specific case: /case-management/cases/:id or /case-management/board/cases/:id or /case-management/case/:id
+  const caseMatch = pathname.match(/\/case-management\/(?:cases|board|case)\/([A-Za-z0-9_-]+)/);
+  if (caseMatch && caseMatch[1]) {
+    const parentTab: NavTab = pathname.includes("/board") ? "board" : "cases";
+    return {
+      tab: parentTab,
+      caseIdentifier: caseMatch[1],
+    };
+  }
+
+  if (pathname === "/case-management" || pathname === "/case-management/board") {
+    return { tab: "board", caseIdentifier: null };
+  }
+  if (pathname.startsWith("/case-management/cases")) {
+    return { tab: "cases", caseIdentifier: null };
+  }
+  if (pathname.startsWith("/case-management/partners")) {
+    return { tab: "partners", caseIdentifier: null };
+  }
+  if (pathname.startsWith("/case-management/hospitals")) {
+    return { tab: "hospitals", caseIdentifier: null };
+  }
+  if (pathname.startsWith("/case-management/finance")) {
+    return { tab: "finance", caseIdentifier: null };
+  }
+
+  return { tab: "board", caseIdentifier: null };
+}
+
 const CaseManagementDashboard: React.FC = () => {
   const { user, isLoading } = useAuth();
-  const [activeTab, setActiveTab] = useState<NavTab>("board");
+  const initialRoute = parseCurrentRoute();
+  const [activeTab, setActiveTabState] = useState<NavTab>(initialRoute.tab);
   const [cases, setCases] = useState<any[]>([]);
   const [partners, setPartners] = useState<any[]>([]);
   const [hospitals, setHospitals] = useState<any[]>([]);
 
-  const [selectedCaseId, setSelectedCaseId] = useState<string | null>(null);
+  const [selectedCaseId, setSelectedCaseId] = useState<string | null>(initialRoute.caseIdentifier);
   const [showNewCaseModal, setShowNewCaseModal] = useState(false);
   const [searchQuery, setSearchQuery] = useState("");
 
@@ -38,13 +87,96 @@ const CaseManagementDashboard: React.FC = () => {
       const partnersJson = partnersRes.ok ? await partnersRes.json().catch(() => ({})) : {};
       const hospitalsJson = hospitalsRes.ok ? await hospitalsRes.json().catch(() => ({})) : {};
 
-      setCases(casesJson.data || []);
+      const loadedCases = casesJson.data || [];
+      setCases(loadedCases);
       setPartners(partnersJson.data || []);
       setHospitals(hospitalsJson.data || []);
+
+      // If initial URL had a caseCode, resolve to internal MongoDB _id if present
+      const currentRoute = parseCurrentRoute();
+      if (currentRoute.caseIdentifier) {
+        const found = loadedCases.find(
+          (c: any) => c.caseCode === currentRoute.caseIdentifier || c._id === currentRoute.caseIdentifier
+        );
+        setSelectedCaseId(found ? found._id : currentRoute.caseIdentifier);
+      }
     } catch (err) {
       console.error("Failed to load platform data", err);
     }
   };
+
+  // Sync state when browser Back / Forward buttons are clicked
+  useEffect(() => {
+    const handlePopState = () => {
+      const route = parseCurrentRoute();
+      setActiveTabState(route.tab);
+      if (route.caseIdentifier) {
+        const found = cases.find(
+          (c) => c.caseCode === route.caseIdentifier || c._id === route.caseIdentifier
+        );
+        setSelectedCaseId(found ? found._id : route.caseIdentifier);
+      } else {
+        setSelectedCaseId(null);
+      }
+    };
+
+    window.addEventListener("popstate", handlePopState);
+    return () => window.removeEventListener("popstate", handlePopState);
+  }, [cases]);
+
+  // Update browser document title based on active view
+  useEffect(() => {
+    const titles: Record<NavTab, string> = {
+      board: "Pipeline Board · Akeezo Case Management",
+      cases: "All Patient Cases · Akeezo Case Management",
+      partners: "Partners Directory · Akeezo Case Management",
+      hospitals: "Hospital Network · Akeezo Case Management",
+      finance: "Commission & Payouts · Akeezo Case Management",
+    };
+    if (selectedCaseId) {
+      const found = cases.find((c) => c._id === selectedCaseId || c.caseCode === selectedCaseId);
+      const code = found?.caseCode || selectedCaseId;
+      document.title = `${code} · Case Detail · Akeezo`;
+    } else {
+      document.title = titles[activeTab] || "Akeezo Case Management";
+    }
+  }, [activeTab, selectedCaseId, cases]);
+
+  // Select Tab & update URL via HTML5 pushState
+  const selectTab = useCallback((tab: NavTab) => {
+    setActiveTabState(tab);
+    setSelectedCaseId(null);
+    const targetPath = tabPathMap[tab];
+    if (window.location.pathname !== targetPath) {
+      window.history.pushState({ tab, caseIdentifier: null }, "", targetPath);
+    }
+  }, []);
+
+  // Open Case & update URL to /case-management/cases/:caseCode
+  const openCase = useCallback(
+    (caseIdOrCode: string) => {
+      const found = cases.find((c) => c._id === caseIdOrCode || c.caseCode === caseIdOrCode);
+      const internalId = found ? found._id : caseIdOrCode;
+      const displaySlug = found?.caseCode || caseIdOrCode;
+
+      setSelectedCaseId(internalId);
+
+      const targetPath = `/case-management/cases/${displaySlug}`;
+      if (window.location.pathname !== targetPath) {
+        window.history.pushState({ tab: activeTab, caseIdentifier: displaySlug }, "", targetPath);
+      }
+    },
+    [cases, activeTab]
+  );
+
+  // Close Case & restore tab URL
+  const closeCase = useCallback(() => {
+    setSelectedCaseId(null);
+    const targetPath = tabPathMap[activeTab] || "/case-management";
+    if (window.location.pathname !== targetPath) {
+      window.history.pushState({ tab: activeTab, caseIdentifier: null }, "", targetPath);
+    }
+  }, [activeTab]);
 
   if (isLoading) {
     return (
@@ -74,7 +206,7 @@ const CaseManagementDashboard: React.FC = () => {
       {/* Top Navigation */}
       <Header
         activeTab={activeTab}
-        onSelectTab={setActiveTab}
+        onSelectTab={selectTab}
         onOpenNewCase={() => setShowNewCaseModal(true)}
         searchQuery={searchQuery}
         onSearchChange={setSearchQuery}
@@ -84,7 +216,7 @@ const CaseManagementDashboard: React.FC = () => {
         {/* Left Sidebar */}
         <Sidebar
           activeTab={activeTab}
-          onSelectTab={setActiveTab}
+          onSelectTab={selectTab}
           caseCount={cases.length}
         />
 
@@ -93,7 +225,7 @@ const CaseManagementDashboard: React.FC = () => {
           {activeTab === "board" && (
             <PipelineBoard
               cases={filteredCases}
-              onSelectCase={(id) => setSelectedCaseId(id)}
+              onSelectCase={(id) => openCase(id)}
             />
           )}
 
@@ -117,7 +249,7 @@ const CaseManagementDashboard: React.FC = () => {
                     {filteredCases.map((c) => (
                       <tr
                         key={c._id}
-                        onClick={() => setSelectedCaseId(c._id)}
+                        onClick={() => openCase(c.caseCode || c._id)}
                         className="hover:bg-slate-50 cursor-pointer"
                       >
                         <td className="p-3 font-mono font-bold text-[#007A6C]">{c.caseCode}</td>
@@ -206,7 +338,7 @@ const CaseManagementDashboard: React.FC = () => {
       {selectedCaseId && (
         <CaseDetailModal
           caseId={selectedCaseId}
-          onClose={() => setSelectedCaseId(null)}
+          onClose={closeCase}
           onRefresh={loadAllData}
         />
       )}

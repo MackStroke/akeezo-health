@@ -10,6 +10,8 @@ import mongoose from "mongoose";
 import { connectDB } from "./db/connection.js";
 import { apiRouter } from "./api/routes.js";
 import { RedirectModel } from "./db/models/Redirect.js";
+import { SiteSettings } from "./db/models/SiteSettings.js";
+import { generateAdminThemeCss, getGoogleFontUrl } from "@akeezo/contracts";
 import { handleSsr, getViteServer, renderFallback500Html, toSafeSiteSettings } from "./ssr/renderer.js";
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -88,9 +90,40 @@ if (!process.env.VERCEL) {
     });
     // 2. Akeezo Website Management & Super Admin Portal (Overall website CMS, lead collector, and Case Management oversight)
     const adminDistDir = path.resolve(__dirname, "../../admin/dist");
-    app.use("/admin", express.static(adminDistDir));
-    app.get(["/admin", "/admin/*"], (_req, res) => {
-        res.sendFile(path.join(adminDistDir, "index.html"));
+    app.use("/admin", express.static(adminDistDir, { index: false }));
+    app.get(["/admin", "/admin/*"], async (_req, res) => {
+        const indexPath = path.join(adminDistDir, "index.html");
+        if (!fs.existsSync(indexPath)) {
+            res.status(404).send("Admin portal build not found.");
+            return;
+        }
+        try {
+            let html = await fs.promises.readFile(indexPath, "utf-8");
+            if (mongoose.connection.readyState === 1) {
+                const targetEnv = env.NODE_ENV || "development";
+                const doc = (await SiteSettings.findOne({ environment: targetEnv }).lean()) ||
+                    (await SiteSettings.findOne({ environment: "development" }).lean()) ||
+                    (await SiteSettings.findOne().lean());
+                const adminTheme = doc?.adminTheme;
+                if (adminTheme) {
+                    const themeCss = generateAdminThemeCss(adminTheme);
+                    const fontUrl = getGoogleFontUrl(adminTheme.fontFamily);
+                    const fontHtml = fontUrl
+                        ? `<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin><link rel="stylesheet" href="${fontUrl}">`
+                        : "";
+                    const injection = `${fontHtml}<style id="akeezo-dynamic-admin-theme">\n${themeCss}\n</style>`;
+                    html = html.replace("</head>", `${injection}\n</head>`);
+                    if (adminTheme.mode === "dark" && !html.includes('class="dark"')) {
+                        html = html.replace("<html", '<html class="dark"');
+                    }
+                }
+            }
+            res.setHeader("Content-Type", "text/html; charset=utf-8");
+            res.send(html);
+        }
+        catch {
+            res.sendFile(indexPath);
+        }
     });
     // 3. Public Uploads Directory (safe static storage for media library assets)
     const uploadsDir = path.resolve(process.cwd(), "uploads");

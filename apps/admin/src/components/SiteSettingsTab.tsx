@@ -102,6 +102,24 @@ export const SiteSettingsTab: React.FC = () => {
         </div>
       )}
 
+      {/* Theme Studio Callout Banner */}
+      <div className="p-4 bg-gradient-to-r from-teal-900 to-[#061E1B] rounded-xl text-white flex items-center justify-between border border-[#00C7BE]/30 shadow-xs">
+        <div className="flex items-center gap-3">
+          <div className="p-2 rounded-lg bg-[#007A6C]/40 text-[#00C7BE]">
+            <Sparkles className="w-5 h-5" />
+          </div>
+          <div>
+            <div className="text-xs font-bold flex items-center gap-2">
+              <span>Full Branding & Theme Studio Active</span>
+              <span className="text-[10px] px-1.5 py-0.5 rounded-full bg-[#00C7BE]/20 text-[#00C7BE] border border-[#00C7BE]/30 font-extrabold uppercase">Architecture Verified</span>
+            </div>
+            <p className="text-[11px] text-teal-200/80">
+              Control full color swatches, button styles, typography, light/dark modes, and 1-click curated presets in the dedicated <strong>Branding & Theme Studio</strong> tab with zero hardcoding.
+            </p>
+          </div>
+        </div>
+      </div>
+
       {/* Grid Section 1: Brand & Colors */}
       <div className="bg-white p-5 rounded-xl border border-slate-200 shadow-xs space-y-4">
         <div className="flex items-center gap-2 text-xs font-bold text-slate-800 uppercase tracking-wider">
@@ -134,42 +152,152 @@ export const SiteSettingsTab: React.FC = () => {
           </div>
         </div>
 
-        <div className="grid grid-cols-2 gap-4">
+        <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
           <div>
             <label className="text-xs font-bold text-slate-700 block mb-1">
-              Primary Theme Color
+              Primary Brand Teal
             </label>
             <div className="flex items-center gap-2">
               <input
                 type="color"
                 value={settings.primaryColor || "#00C7BE"}
-                onChange={(e) => setSettings({ ...settings, primaryColor: e.target.value })}
+                onChange={(e) =>
+                  setSettings({
+                    ...settings,
+                    primaryColor: e.target.value,
+                    websiteTheme: {
+                      ...(settings.websiteTheme || {}),
+                      primaryColor: e.target.value,
+                    },
+                  })
+                }
                 className="w-9 h-9 rounded border cursor-pointer"
               />
               <input
                 type="text"
                 value={settings.primaryColor || ""}
-                onChange={(e) => setSettings({ ...settings, primaryColor: e.target.value })}
-                className="w-full text-xs p-2 bg-slate-50 border rounded-lg font-mono"
+                onChange={(e) =>
+                  setSettings({
+                    ...settings,
+                    primaryColor: e.target.value,
+                    websiteTheme: {
+                      ...(settings.websiteTheme || {}),
+                      primaryColor: e.target.value,
+                    },
+                  })
+                }
+                className="w-full text-xs p-2 bg-slate-50 border rounded-lg font-mono uppercase"
               />
             </div>
           </div>
           <div>
             <label className="text-xs font-bold text-slate-700 block mb-1">
-              Action / CTA Button Color
+              Action / CTA Button
             </label>
             <div className="flex items-center gap-2">
               <input
                 type="color"
                 value={settings.actionColor || "#007A6C"}
-                onChange={(e) => setSettings({ ...settings, actionColor: e.target.value })}
+                onChange={(e) =>
+                  setSettings({
+                    ...settings,
+                    actionColor: e.target.value,
+                    websiteTheme: {
+                      ...(settings.websiteTheme || {}),
+                      actionColor: e.target.value,
+                    },
+                  })
+                }
                 className="w-9 h-9 rounded border cursor-pointer"
               />
               <input
                 type="text"
                 value={settings.actionColor || ""}
-                onChange={(e) => setSettings({ ...settings, actionColor: e.target.value })}
-                className="w-full text-xs p-2 bg-slate-50 border rounded-lg font-mono"
+                onChange={(e) =>
+                  setSettings({
+                    ...settings,
+                    actionColor: e.target.value,
+                    websiteTheme: {
+                      ...(settings.websiteTheme || {}),
+                      actionColor: e.target.value,
+                    },
+                  })
+                }
+                className="w-full text-xs p-2 bg-slate-50 border rounded-lg font-mono uppercase"
+              />
+            </div>
+          </div>
+          <div>
+            <label className="text-xs font-bold text-slate-700 block mb-1">
+              Brand Orange Accent
+            </label>
+            <div className="flex items-center gap-2">
+              <input
+                type="color"
+                value={settings.secondaryColor || "#FF6B00"}
+                onChange={(e) =>
+                  setSettings({
+                    ...settings,
+                    secondaryColor: e.target.value,
+                    websiteTheme: {
+                      ...(settings.websiteTheme || {}),
+                      secondaryColor: e.target.value,
+                    },
+                  })
+                }
+                className="w-9 h-9 rounded border cursor-pointer"
+              />
+              <input
+                type="text"
+                value={settings.secondaryColor || ""}
+                onChange={(e) =>
+                  setSettings({
+                    ...settings,
+                    secondaryColor: e.target.value,
+                    websiteTheme: {
+                      ...(settings.websiteTheme || {}),
+                      secondaryColor: e.target.value,
+                    },
+                  })
+                }
+                className="w-full text-xs p-2 bg-slate-50 border rounded-lg font-mono uppercase"
+              />
+            </div>
+          </div>
+          <div>
+            <label className="text-xs font-bold text-slate-700 block mb-1">
+              Accent Orange Alt
+            </label>
+            <div className="flex items-center gap-2">
+              <input
+                type="color"
+                value={settings.accentColor || "#FF6D1B"}
+                onChange={(e) =>
+                  setSettings({
+                    ...settings,
+                    accentColor: e.target.value,
+                    websiteTheme: {
+                      ...(settings.websiteTheme || {}),
+                      accentColor: e.target.value,
+                    },
+                  })
+                }
+                className="w-9 h-9 rounded border cursor-pointer"
+              />
+              <input
+                type="text"
+                value={settings.accentColor || ""}
+                onChange={(e) =>
+                  setSettings({
+                    ...settings,
+                    accentColor: e.target.value,
+                    websiteTheme: {
+                      ...(settings.websiteTheme || {}),
+                      accentColor: e.target.value,
+                    },
+                  })
+                }
+                className="w-full text-xs p-2 bg-slate-50 border rounded-lg font-mono uppercase"
               />
             </div>
           </div>

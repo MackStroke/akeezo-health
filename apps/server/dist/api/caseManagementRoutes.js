@@ -528,11 +528,20 @@ caseManagementRouter.get("/cases/:id", async (req, res) => {
         let caseDoc = null;
         if (mongoose.connection.readyState === 1) {
             try {
-                caseDoc = await CaseModel.findById(req.params.id)
-                    .populate("patientId")
-                    .populate("partnerId")
-                    .populate("ownerId", "name email role")
-                    .lean();
+                if (mongoose.Types.ObjectId.isValid(req.params.id)) {
+                    caseDoc = await CaseModel.findById(req.params.id)
+                        .populate("patientId")
+                        .populate("partnerId")
+                        .populate("ownerId", "name email role")
+                        .lean();
+                }
+                if (!caseDoc) {
+                    caseDoc = await CaseModel.findOne({ caseCode: req.params.id })
+                        .populate("patientId")
+                        .populate("partnerId")
+                        .populate("ownerId", "name email role")
+                        .lean();
+                }
             }
             catch {
                 // Fall through

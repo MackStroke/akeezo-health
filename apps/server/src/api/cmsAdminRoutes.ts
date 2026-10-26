@@ -25,6 +25,13 @@ import {
   AuthenticatedRequest,
   FALLBACK_USERS,
 } from "../utils/auth.js";
+import {
+  DEFAULT_WEBSITE_THEME,
+  DEFAULT_ADMIN_THEME,
+  THEME_PRESETS,
+  sanitizeCssValue
+} from "@akeezo/contracts";
+import { env } from "../config/env.js";
 
 export const cmsAdminRouter = Router();
 
@@ -209,16 +216,42 @@ cmsAdminRouter.get("/overview-stats", async (_req: Request, res: Response) => {
 // 1. SITE & BRAND SETTINGS MANAGEMENT
 // ==========================================
 
+// Helper to find the active SiteSettings document
+async function getActiveSiteSettingsDoc() {
+  const targetEnv = env.NODE_ENV || "development";
+  let doc = await SiteSettings.findOne({ environment: targetEnv });
+  if (!doc && targetEnv !== "development") {
+    doc = await SiteSettings.findOne({ environment: "development" });
+  }
+  if (!doc) {
+    doc = await SiteSettings.findOne();
+  }
+  return doc;
+}
+
+// Helper to update active SiteSettings document
+async function updateActiveSiteSettings(updatePayload: Record<string, any>) {
+  const targetEnv = env.NODE_ENV || "development";
+  const existing = await getActiveSiteSettingsDoc();
+  const filter = existing ? { _id: existing._id } : { environment: targetEnv };
+  return SiteSettings.findOneAndUpdate(
+    filter,
+    { $set: updatePayload, $inc: { version: 1 } },
+    { upsert: true, new: true }
+  );
+}
+
 // GET /api/v1/admin/site-settings
 cmsAdminRouter.get("/site-settings", async (_req: Request, res: Response) => {
   try {
     let settings: any = null;
     if (mongoose.connection.readyState === 1) {
-      settings = await SiteSettings.findOne({ environment: "development" }).lean();
+      const doc = await getActiveSiteSettingsDoc();
+      if (doc) settings = doc.toObject ? doc.toObject() : doc;
     }
     if (!settings) {
       settings = {
-        environment: "development",
+        environment: env.NODE_ENV || "development",
         brandName: "AKEEZO",
         tagline: "Heal In India, Heal By Akeezo",
         legalEntityName: "AKEEZO Healthcare Platform Private Limited",
@@ -252,6 +285,18 @@ cmsAdminRouter.get("/site-settings", async (_req: Request, res: Response) => {
         },
       };
     } else {
+      if (!settings.websiteTheme) {
+        settings.websiteTheme = {
+          ...DEFAULT_WEBSITE_THEME,
+          primaryColor: settings.primaryColor || DEFAULT_WEBSITE_THEME.primaryColor,
+          secondaryColor: settings.secondaryColor || DEFAULT_WEBSITE_THEME.secondaryColor,
+          accentColor: settings.accentColor || DEFAULT_WEBSITE_THEME.accentColor,
+          actionColor: settings.actionColor || DEFAULT_WEBSITE_THEME.actionColor,
+        };
+      }
+      if (!settings.adminTheme) {
+        settings.adminTheme = { ...DEFAULT_ADMIN_THEME };
+      }
       if (!settings.integrations) {
         settings.integrations = {
           googleAnalyticsId: "",
@@ -278,24 +323,79 @@ cmsAdminRouter.get("/site-settings", async (_req: Request, res: Response) => {
   } catch {
     res.json({
       data: {
-        environment: "development",
+        environment: env.NODE_ENV || "development",
         brandName: "AKEEZO",
         tagline: "Heal In India, Heal By Akeezo",
+        websiteTheme: DEFAULT_WEBSITE_THEME,
+        adminTheme: DEFAULT_ADMIN_THEME,
       },
     });
   }
 });
 
+function sanitizeThemeObject(input: any): Record<string, any> {
+  if (!input || typeof input !== "object") return {};
+  const cleaned: Record<string, any> = {};
+  for (const [key, value] of Object.entries(input)) {
+    if (typeof value === "string") {
+      cleaned[key] = sanitizeCssValue(value);
+    } else {
+      cleaned[key] = value;
+    }
+  }
+  return cleaned;
+}
+
 // PUT /api/v1/admin/site-settings (and PUT /api/v1/admin/settings/:section)
 cmsAdminRouter.put(["/site-settings", "/settings/:section"], async (req: Request, res: Response) => {
   try {
+    const existingDoc = await getActiveSiteSettingsDoc();
+    const existingObj = existingDoc ? (existingDoc.toObject ? existingDoc.toObject() : existingDoc) : null;
     const updatePayload: Record<string, any> = {};
 
     if (req.body.brandName !== undefined) updatePayload.brandName = req.body.brandName;
     if (req.body.tagline !== undefined) updatePayload.tagline = req.body.tagline;
+    if (req.body.legalEntityName !== undefined) updatePayload.legalEntityName = req.body.legalEntityName;
     if (req.body.logoVariants !== undefined) updatePayload.logoVariants = req.body.logoVariants;
-    if (req.body.primaryColor !== undefined) updatePayload.primaryColor = req.body.primaryColor;
-    if (req.body.actionColor !== undefined) updatePayload.actionColor = req.body.actionColor;
+    if (req.body.primaryColor !== undefined) updatePayload.primaryColor = sanitizeCssValue(req.body.primaryColor);
+    if (req.body.secondaryColor !== undefined) updatePayload.secondaryColor = sanitizeCssValue(req.body.secondaryColor);
+    if (req.body.accentColor !== undefined) updatePayload.accentColor = sanitizeCssValue(req.body.accentColor);
+    if (req.body.actionColor !== undefined) updatePayload.actionColor = sanitizeCssValue(req.body.actionColor);
+
+    if (req.body.websiteTheme !== undefined) {
+      const existingWebsite = existingObj?.websiteTheme || {};
+      const sanitized = sanitizeThemeObject(req.body.websiteTheme);
+      updatePayload.websiteTheme = {
+        ...DEFAULT_WEBSITE_THEME,
+        ...existingWebsite,
+        ...sanitized,
+      };
+      if (updatePayload.websiteTheme.primaryColor) updatePayload.primaryColor = updatePayload.websiteTheme.primaryColor;
+      if (updatePayload.websiteTheme.secondaryColor) updatePayload.secondaryColor = updatePayload.websiteTheme.secondaryColor;
+      if (updatePayload.websiteTheme.accentColor) updatePayload.accentColor = updatePayload.websiteTheme.accentColor;
+      if (updatePayload.websiteTheme.actionColor) updatePayload.actionColor = updatePayload.websiteTheme.actionColor;
+    } else if (updatePayload.primaryColor || updatePayload.secondaryColor || updatePayload.accentColor || updatePayload.actionColor) {
+      const existingWebsite = existingObj?.websiteTheme || {};
+      updatePayload.websiteTheme = {
+        ...DEFAULT_WEBSITE_THEME,
+        ...existingWebsite,
+        ...(updatePayload.primaryColor ? { primaryColor: updatePayload.primaryColor } : {}),
+        ...(updatePayload.secondaryColor ? { secondaryColor: updatePayload.secondaryColor } : {}),
+        ...(updatePayload.accentColor ? { accentColor: updatePayload.accentColor } : {}),
+        ...(updatePayload.actionColor ? { actionColor: updatePayload.actionColor } : {}),
+      };
+    }
+
+    if (req.body.adminTheme !== undefined) {
+      const existingAdmin = existingObj?.adminTheme || {};
+      const sanitized = sanitizeThemeObject(req.body.adminTheme);
+      updatePayload.adminTheme = {
+        ...DEFAULT_ADMIN_THEME,
+        ...existingAdmin,
+        ...sanitized,
+      };
+    }
+
     if (req.body.contactEmail !== undefined) updatePayload.contactEmail = req.body.contactEmail;
     if (req.body.careEmail !== undefined) updatePayload.careEmail = req.body.careEmail;
     if (req.body.medicalEmail !== undefined) updatePayload.medicalEmail = req.body.medicalEmail;
@@ -311,14 +411,7 @@ cmsAdminRouter.put(["/site-settings", "/settings/:section"], async (req: Request
     if (req.body.defaultTimezone !== undefined) updatePayload.defaultTimezone = req.body.defaultTimezone;
     if (req.body.integrations !== undefined) updatePayload.integrations = req.body.integrations;
 
-    const updated = await SiteSettings.findOneAndUpdate(
-      { environment: "development" },
-      {
-        $set: updatePayload,
-        $inc: { version: 1 },
-      },
-      { upsert: true, new: true }
-    );
+    const updated = await updateActiveSiteSettings(updatePayload);
 
     await logAdminActivity(
       (req as any).user?._id,
@@ -334,6 +427,95 @@ cmsAdminRouter.put(["/site-settings", "/settings/:section"], async (req: Request
     res.status(400).json({ error: { code: "UPDATE_SETTINGS_FAILED", message: err.message } });
   }
 });
+
+// POST /api/v1/admin/theme/preset
+cmsAdminRouter.post("/theme/preset", async (req: Request, res: Response) => {
+  try {
+    const { presetId, target = "both" } = req.body;
+    const preset = THEME_PRESETS[presetId];
+    if (!preset) {
+      res.status(400).json({ error: { code: "INVALID_PRESET", message: `Preset "${presetId}" does not exist.` } });
+      return;
+    }
+
+    const existingDoc = await getActiveSiteSettingsDoc();
+    const existingObj = existingDoc ? (existingDoc.toObject ? existingDoc.toObject() : existingDoc) : null;
+    const updatePayload: Record<string, any> = {};
+
+    if (target === "website" || target === "both") {
+      updatePayload.websiteTheme = {
+        ...DEFAULT_WEBSITE_THEME,
+        ...(existingObj?.websiteTheme || {}),
+        ...preset.websiteTheme,
+        activePreset: presetId
+      };
+      if (preset.websiteTheme.primaryColor) updatePayload.primaryColor = preset.websiteTheme.primaryColor;
+      if (preset.websiteTheme.secondaryColor) updatePayload.secondaryColor = preset.websiteTheme.secondaryColor;
+      if (preset.websiteTheme.accentColor) updatePayload.accentColor = preset.websiteTheme.accentColor;
+      if (preset.websiteTheme.actionColor) updatePayload.actionColor = preset.websiteTheme.actionColor;
+    }
+
+    if (target === "admin" || target === "both") {
+      updatePayload.adminTheme = {
+        ...DEFAULT_ADMIN_THEME,
+        ...(existingObj?.adminTheme || {}),
+        ...preset.adminTheme,
+        activePreset: presetId
+      };
+    }
+
+    const updated = await updateActiveSiteSettings(updatePayload);
+
+    await logAdminActivity(
+      (req as any).user?._id,
+      "SiteSettings",
+      updated._id,
+      "update",
+      { section: ["theme", `preset:${presetId}`], target },
+      req
+    );
+
+    res.json({ data: updated });
+  } catch (err: any) {
+    res.status(400).json({ error: { code: "APPLY_PRESET_FAILED", message: err.message } });
+  }
+});
+
+// POST /api/v1/admin/theme/reset
+cmsAdminRouter.post("/theme/reset", async (req: Request, res: Response) => {
+  try {
+    const { target = "both" } = req.body;
+    const updatePayload: Record<string, any> = {};
+
+    if (target === "website" || target === "both") {
+      updatePayload.websiteTheme = { ...DEFAULT_WEBSITE_THEME };
+      updatePayload.primaryColor = DEFAULT_WEBSITE_THEME.primaryColor;
+      updatePayload.secondaryColor = DEFAULT_WEBSITE_THEME.secondaryColor;
+      updatePayload.accentColor = DEFAULT_WEBSITE_THEME.accentColor;
+      updatePayload.actionColor = DEFAULT_WEBSITE_THEME.actionColor;
+    }
+
+    if (target === "admin" || target === "both") {
+      updatePayload.adminTheme = { ...DEFAULT_ADMIN_THEME };
+    }
+
+    const updated = await updateActiveSiteSettings(updatePayload);
+
+    await logAdminActivity(
+      (req as any).user?._id,
+      "SiteSettings",
+      updated._id,
+      "update",
+      { section: ["theme", "reset"], target },
+      req
+    );
+
+    res.json({ data: updated });
+  } catch (err: any) {
+    res.status(400).json({ error: { code: "RESET_THEME_FAILED", message: err.message } });
+  }
+});
+
 
 // GET /api/v1/admin/system-health
 cmsAdminRouter.get("/system-health", async (_req: Request, res: Response) => {
@@ -720,7 +902,7 @@ cmsAdminRouter.post("/pages/:slug/restore/:revisionId", async (req: Request, res
 // GET /api/v1/admin/navigation
 cmsAdminRouter.get("/navigation", async (_req: Request, res: Response) => {
   try {
-    const settings = await SiteSettings.findOne({ environment: "development" }).lean();
+    const settings = await getActiveSiteSettingsDoc();
     const nav = settings?.navigation || {
       headerMenu: [
         { id: "nav-1", label: "Surgeries & Treatments", destination: "/#treatments", isExternal: false, order: 1, isVisible: true },
@@ -775,18 +957,12 @@ cmsAdminRouter.put("/navigation", async (req: Request, res: Response) => {
   try {
     const { headerMenu, footerGroups } = req.body;
 
-    const updated = await SiteSettings.findOneAndUpdate(
-      { environment: "development" },
-      {
-        $set: {
-          navigation: {
-            headerMenu: headerMenu || [],
-            footerGroups: footerGroups || [],
-          },
-        },
+    const updated = await updateActiveSiteSettings({
+      navigation: {
+        headerMenu: headerMenu || [],
+        footerGroups: footerGroups || [],
       },
-      { upsert: true, new: true }
-    );
+    });
 
     await logAdminActivity(
       (req as any).user?._id,

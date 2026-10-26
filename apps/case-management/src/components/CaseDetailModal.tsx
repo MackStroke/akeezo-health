@@ -78,12 +78,14 @@ export const CaseDetailModal: React.FC<CaseDetailModalProps> = ({
     }
   };
 
+  const targetId = caseData?._id || caseId;
+
   const handleCheckReadiness = async (toStage: CaseStage) => {
     try {
       setTargetStage(toStage);
       setGuardLoading(true);
       setStageError(null);
-      const res = await fetch(`/api/v1/cases/${caseId}/readiness?toStage=${toStage}`);
+      const res = await fetch(`/api/v1/cases/${targetId}/readiness?toStage=${toStage}`);
       const json = await res.json();
       setReadiness(json.data);
     } catch (err: any) {
@@ -97,7 +99,7 @@ export const CaseDetailModal: React.FC<CaseDetailModalProps> = ({
     if (!targetStage) return;
     try {
       setStageError(null);
-      const res = await fetch(`/api/v1/cases/${caseId}/stage-transitions`, {
+      const res = await fetch(`/api/v1/cases/${targetId}/stage-transitions`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ toStage: targetStage }),
@@ -123,7 +125,7 @@ export const CaseDetailModal: React.FC<CaseDetailModalProps> = ({
     }
     try {
       setStageError(null);
-      const res = await fetch(`/api/v1/cases/${caseId}/stage-transitions`, {
+      const res = await fetch(`/api/v1/cases/${targetId}/stage-transitions`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ toStage: backwardTargetStage, reason: backwardReason.trim() }),
@@ -146,7 +148,7 @@ export const CaseDetailModal: React.FC<CaseDetailModalProps> = ({
   const handleConfirmClosure = async () => {
     try {
       setStageError(null);
-      const res = await fetch(`/api/v1/cases/${caseId}/stage-transitions`, {
+      const res = await fetch(`/api/v1/cases/${targetId}/stage-transitions`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
@@ -227,7 +229,7 @@ export const CaseDetailModal: React.FC<CaseDetailModalProps> = ({
   const handleCreateSeries = async () => {
     if (!caseData) return;
     try {
-      const res = await fetch(`/api/v1/cases/${caseId}/episode-series`, {
+      const res = await fetch(`/api/v1/cases/${targetId}/episode-series`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({

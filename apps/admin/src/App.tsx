@@ -1,5 +1,6 @@
 import React, { useState, useEffect, useCallback } from "react";
 import { AuthProvider, useAuth } from "./context/AuthContext.js";
+import { ThemeProvider } from "./context/ThemeContext.js";
 import { AdminLoginView } from "./components/AdminLoginView.js";
 import { SuperAdminHeader } from "./components/SuperAdminHeader.js";
 import { SuperAdminSidebar, AdminTab } from "./components/SuperAdminSidebar.js";
@@ -48,8 +49,7 @@ const SuperAdminDashboard: React.FC = () => {
   const [searchQuery, setSearchQuery] = useState("");
   const [leadsCount, setLeadsCount] = useState<number>(0);
 
-  // Layout States
-  const [isSidebarCollapsed, setIsSidebarCollapsed] = useState(false);
+  // Layout State (Sidebar is locked on desktop; drawer for mobile)
   const [isMobileSidebarOpen, setIsMobileSidebarOpen] = useState(false);
 
   // Profile & Security Modal State
@@ -105,14 +105,20 @@ const SuperAdminDashboard: React.FC = () => {
   }
 
   return (
-    <div className="min-h-screen bg-slate-50 flex flex-col font-sans text-slate-800">
-      {/* 1. Shared Top Bar Header */}
+    <div
+      className="h-screen w-screen overflow-hidden flex flex-col font-sans"
+      style={{
+        backgroundColor: "var(--admin-content-bg, #F8FAFC)",
+        color: "var(--admin-text, #1E293B)",
+        fontFamily: "var(--admin-font, Lato)",
+      }}
+    >
+      {/* 1. Shared Top Bar Header (Pinned top) */}
       <SuperAdminHeader
         activeTab={activeTab}
         onSelectTab={selectTab}
         searchQuery={searchQuery}
         onSearchChange={setSearchQuery}
-        onToggleSidebarCollapse={() => setIsSidebarCollapsed(!isSidebarCollapsed)}
         onOpenMobileSidebar={() => setIsMobileSidebarOpen(true)}
         onOpenProfile={() => {
           setProfileModalInitialTab("profile");
@@ -127,20 +133,25 @@ const SuperAdminDashboard: React.FC = () => {
         onInviteUser={() => selectTab("users")}
       />
 
-      <div className="flex-1 flex overflow-hidden">
-        {/* 2. Shared Left Navigation Sidebar (Desktop + Mobile Drawer) */}
+      {/* 2. Main Workspace Shell: Locked Sidebar + Scrollable Viewport */}
+      <div className="flex-1 flex overflow-hidden min-h-0 min-w-0">
+        {/* Left Navigation Sidebar (Locked on Desktop, Drawer on Mobile) */}
         <SuperAdminSidebar
           activeTab={activeTab}
           onSelectTab={selectTab}
           leadsCount={leadsCount}
-          isCollapsed={isSidebarCollapsed}
-          onToggleCollapse={() => setIsSidebarCollapsed(!isSidebarCollapsed)}
           isMobileOpen={isMobileSidebarOpen}
           onCloseMobile={() => setIsMobileSidebarOpen(false)}
         />
 
-        {/* 3. Main Content Workspace */}
-        <main className="flex-1 overflow-y-auto p-4 md:p-6">
+        {/* Main Content Workspace (Scrolls independently while sidebar remains locked) */}
+        <main
+          className="flex-1 min-w-0 h-full overflow-y-auto p-4 md:p-6"
+          style={{
+            backgroundColor: "var(--admin-content-bg, #F8FAFC)",
+            color: "var(--admin-text, #1E293B)",
+          }}
+        >
           {/* Module 1: Dashboard Overview */}
           {activeTab === "overview" && (
             <DashboardView
@@ -188,7 +199,9 @@ const SuperAdminDashboard: React.FC = () => {
 export const App: React.FC = () => {
   return (
     <AuthProvider>
-      <SuperAdminDashboard />
+      <ThemeProvider>
+        <SuperAdminDashboard />
+      </ThemeProvider>
     </AuthProvider>
   );
 };

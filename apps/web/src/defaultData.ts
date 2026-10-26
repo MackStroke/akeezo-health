@@ -1,4 +1,9 @@
-import type { PublicRouteResponseDTO, SiteSettings } from "@akeezo/contracts";
+import {
+  type PublicRouteResponseDTO,
+  type SiteSettings,
+  DEFAULT_WEBSITE_THEME,
+  DEFAULT_ADMIN_THEME
+} from "@akeezo/contracts";
 
 export const DEFAULT_SITE_SETTINGS: SiteSettings = {
   brandName: "AKEEZO",
@@ -25,6 +30,8 @@ export const DEFAULT_SITE_SETTINGS: SiteSettings = {
   secondaryColor: "#FF6B00",
   accentColor: "#FF6D1B",
   actionColor: "#007A6C",
+  websiteTheme: DEFAULT_WEBSITE_THEME,
+  adminTheme: DEFAULT_ADMIN_THEME,
   logoVariants: {
     light: "/logo/logo with tagline-light.svg",
     dark: "/logo/logo with tagline-dark.svg",

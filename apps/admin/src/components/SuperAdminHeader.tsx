@@ -28,7 +28,6 @@ interface HeaderProps {
   onSelectTab: (tab: AdminTab) => void;
   searchQuery: string;
   onSearchChange: (q: string) => void;
-  onToggleSidebarCollapse: () => void;
   onOpenMobileSidebar: () => void;
   onOpenProfile: () => void;
   onOpenSecurity: () => void;
@@ -42,7 +41,6 @@ export const SuperAdminHeader: React.FC<HeaderProps> = ({
   onSelectTab,
   searchQuery,
   onSearchChange,
-  onToggleSidebarCollapse,
   onOpenMobileSidebar,
   onOpenProfile,
   onOpenSecurity,
@@ -117,7 +115,13 @@ export const SuperAdminHeader: React.FC<HeaderProps> = ({
     : "SA";
 
   return (
-    <header className="h-16 bg-white border-b border-slate-200 px-4 md:px-6 flex items-center justify-between sticky top-0 z-30 shadow-xs font-sans">
+    <header
+      className="h-16 border-b px-4 md:px-6 flex items-center justify-between sticky top-0 z-30 shadow-xs font-sans"
+      style={{
+        backgroundColor: "var(--admin-header-bg, #FFFFFF)",
+        borderColor: "var(--admin-border, #E2E8F0)",
+      }}
+    >
       <div className="flex items-center gap-3 md:gap-5">
         {/* Mobile Hamburger Drawer Toggle */}
         <button
@@ -137,24 +141,35 @@ export const SuperAdminHeader: React.FC<HeaderProps> = ({
           />
           <div className="hidden lg:block">
             <div className="flex items-center gap-2">
-              <span className="font-black text-lg tracking-tight text-slate-900 leading-none">
+              <span
+                className="font-black text-lg tracking-tight leading-none"
+                style={{ color: "var(--admin-header-text, #1E293B)" }}
+              >
                 AKEEZO
               </span>
               <span className="text-[10px] font-bold bg-[#FF6B00] text-white px-2 py-0.5 rounded-full uppercase tracking-wider shadow-2xs">
                 Admin Panel
               </span>
             </div>
-            <span className="text-[10px] font-semibold text-slate-500 block leading-tight">
+            <span
+              className="text-[10px] font-semibold block leading-tight opacity-75"
+              style={{ color: "var(--admin-header-text, #1E293B)" }}
+            >
               Website CMS & Enterprise Super Admin
             </span>
           </div>
         </div>
 
         {/* Breadcrumb / Current Page Indicator */}
-        <div className="hidden sm:flex items-center gap-2 pl-2 border-l border-slate-200 text-xs">
-          <span className="text-slate-400">Admin</span>
-          <span className="text-slate-300">/</span>
-          <span className="font-bold text-slate-800">{tabTitles[activeTab]?.title}</span>
+        <div
+          className="hidden sm:flex items-center gap-2 pl-2 border-l text-xs"
+          style={{ borderColor: "var(--admin-border, #E2E8F0)" }}
+        >
+          <span className="opacity-60" style={{ color: "var(--admin-header-text, #1E293B)" }}>Admin</span>
+          <span className="opacity-40" style={{ color: "var(--admin-header-text, #1E293B)" }}>/</span>
+          <span className="font-bold" style={{ color: "var(--admin-header-text, #1E293B)" }}>
+            {tabTitles[activeTab]?.title}
+          </span>
         </div>
 
         {/* Global Search Bar */}

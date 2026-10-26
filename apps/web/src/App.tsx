@@ -1,5 +1,5 @@
 import React from "react";
-import type { PublicRouteResponseDTO } from "@akeezo/contracts";
+import { type PublicRouteResponseDTO, websiteThemeToCssVariables, getGoogleFontUrl } from "@akeezo/contracts";
 import { HomeTemplate } from "./templates/HomeTemplate.js";
 import { LegalTemplate } from "./templates/LegalTemplate.js";
 import { NotFoundTemplate } from "./templates/NotFoundTemplate.js";
@@ -62,6 +62,37 @@ export function App({ data }: AppProps) {
           document.head.appendChild(metaDesc);
         }
         metaDesc.setAttribute("content", currentData.seo.description);
+      }
+
+      // Apply dynamic theme tokens
+      const theme = currentData.siteSettings?.websiteTheme;
+      if (theme) {
+        if (theme.mode === "dark") {
+          document.documentElement.classList.add("dark");
+        } else if (theme.mode === "light") {
+          document.documentElement.classList.remove("dark");
+        }
+
+        const fontUrl =
+          getGoogleFontUrl(theme.fontFamily) ||
+          getGoogleFontUrl(theme.headingFontFamily);
+        if (fontUrl) {
+          let fontLink = document.getElementById("akeezo-dynamic-font") as HTMLLinkElement | null;
+          if (!fontLink) {
+            fontLink = document.createElement("link");
+            fontLink.id = "akeezo-dynamic-font";
+            fontLink.rel = "stylesheet";
+            document.head.appendChild(fontLink);
+          }
+          if (fontLink.href !== fontUrl) {
+            fontLink.href = fontUrl;
+          }
+        }
+
+        const cssVars = websiteThemeToCssVariables(theme);
+        for (const [prop, val] of Object.entries(cssVars)) {
+          document.documentElement.style.setProperty(prop, val);
+        }
       }
     }
   }, [currentData]);
