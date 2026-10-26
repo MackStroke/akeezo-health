@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useMemo } from "react";
 import {
   Inbox,
   Search,
@@ -11,8 +11,19 @@ import {
   Phone,
   Globe,
   CheckCircle2,
+  Calendar,
+  X,
 } from "lucide-react";
 import { useToast } from "@akeezo/ui";
+import {
+  TablePagination,
+  SortHeader,
+  sortItems,
+  getNextSortDirection,
+  SortDirection,
+  ViewToggle,
+  ViewMode,
+} from "./TablePagination";
 
 interface EnquiryItem {
   _id: string;
@@ -40,10 +51,30 @@ export const LeadCollectorView: React.FC = () => {
   const [selectedEnquiry, setSelectedEnquiry] = useState<EnquiryItem | null>(null);
   const [convertingId, setConvertingId] = useState<string | null>(null);
   const [conversionSuccess, setConversionSuccess] = useState<{ caseCode: string; receiptId: string } | null>(null);
+  const [viewMode, setViewMode] = useState<ViewMode>("table");
+
+  // Sorting State
+  const [sortField, setSortField] = useState<string | null>("createdAt");
+  const [sortDirection, setSortDirection] = useState<SortDirection>("desc");
+
+  const handleSort = (field: string) => {
+    const next = getNextSortDirection(sortField, field, sortDirection);
+    setSortField(next.field);
+    setSortDirection(next.direction);
+  };
+
+  // Pagination State
+  const [currentPage, setCurrentPage] = useState(1);
+  const [pageSize, setPageSize] = useState(10);
 
   useEffect(() => {
     fetchEnquiries();
   }, []);
+
+  // Reset page when filters change
+  useEffect(() => {
+    setCurrentPage(1);
+  }, [search, statusFilter, sortField, sortDirection]);
 
   const fetchEnquiries = async () => {
     try {
@@ -128,19 +159,33 @@ export const LeadCollectorView: React.FC = () => {
     }
   };
 
-  const filtered = enquiries.filter((e) => {
-    const name = e.requesterName || e.name || "";
-    const matchesSearch =
-      !search ||
-      name.toLowerCase().includes(search.toLowerCase()) ||
-      e.receiptId.toLowerCase().includes(search.toLowerCase()) ||
-      (e.email && e.email.toLowerCase().includes(search.toLowerCase())) ||
-      (e.phone && e.phone.toLowerCase().includes(search.toLowerCase()));
+  const filtered = useMemo(() => {
+    let result = enquiries.filter((e) => {
+      const name = e.requesterName || e.name || "";
+      const matchesSearch =
+        !search ||
+        name.toLowerCase().includes(search.toLowerCase()) ||
+        e.receiptId.toLowerCase().includes(search.toLowerCase()) ||
+        (e.email && e.email.toLowerCase().includes(search.toLowerCase())) ||
+        (e.phone && e.phone.toLowerCase().includes(search.toLowerCase())) ||
+        (e.country && e.country.toLowerCase().includes(search.toLowerCase())) ||
+        (e.serviceType && e.serviceType.toLowerCase().includes(search.toLowerCase()));
 
-    const matchesStatus = statusFilter === "all" || e.status === statusFilter;
+      const matchesStatus = statusFilter === "all" || e.status === statusFilter;
 
-    return matchesSearch && matchesStatus;
-  });
+      return matchesSearch && matchesStatus;
+    });
+
+    return sortItems(result, sortField, sortDirection);
+  }, [enquiries, search, statusFilter, sortField, sortDirection]);
+
+  const totalPages = Math.max(1, Math.ceil(filtered.length / pageSize));
+  const safeCurrentPage = Math.min(Math.max(1, currentPage), totalPages);
+
+  const paginatedLeads = useMemo(() => {
+    const start = (safeCurrentPage - 1) * pageSize;
+    return filtered.slice(start, start + pageSize);
+  }, [filtered, safeCurrentPage, pageSize]);
 
   const getStatusBadge = (status: string) => {
     switch (status) {
@@ -262,64 +307,113 @@ export const LeadCollectorView: React.FC = () => {
       </div>
 
       {/* Filter and Search Bar */}
-      <div className="flex flex-col md:flex-row items-center justify-between gap-3 bg-white p-3 rounded-xl border border-slate-200 shadow-xs">
-        <div className="relative w-full md:w-80">
+      <div className="flex flex-col lg:flex-row items-stretch lg:items-center justify-between gap-3 bg-white p-3 rounded-2xl border border-slate-200 shadow-xs">
+        <div className="relative w-full lg:w-80">
           <Search className="w-4 h-4 text-slate-400 absolute left-3 top-1/2 -translate-y-1/2" />
           <input
             type="text"
             value={search}
             onChange={(e) => setSearch(e.target.value)}
             placeholder="Search by receipt ID, name, email, or phone..."
-            className="w-full pl-9 pr-3 py-1.5 text-xs rounded-lg border border-slate-200 focus:border-[#007A6C] focus:ring-1 focus:ring-[#00C7BE] focus:outline-none transition"
+            className="w-full pl-9 pr-8 py-2 text-xs rounded-xl bg-slate-50 border border-slate-200 focus:bg-white focus:border-[#007A6C] focus:outline-none transition"
           />
+          {search && (
+            <button
+              onClick={() => setSearch("")}
+              className="absolute right-2.5 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600"
+              title="Clear search"
+            >
+              <X className="w-3.5 h-3.5" />
+            </button>
+          )}
         </div>
 
-        <div className="flex items-center gap-2 w-full md:w-auto overflow-x-auto pb-1 md:pb-0">
-          <span className="text-[11px] font-semibold text-slate-400 uppercase tracking-wider shrink-0">
-            Filter Status:
-          </span>
-          {(["all", "received", "triage", "contacted", "converted", "closed"] as const).map((st) => (
-            <button
-              key={st}
-              onClick={() => setStatusFilter(st)}
-              className={`px-3 py-1 rounded-lg text-xs font-bold capitalize transition shrink-0 ${
-                statusFilter === st
-                  ? "bg-[#007A6C] text-white shadow-xs"
-                  : "bg-slate-100 text-slate-600 hover:bg-slate-200"
-              }`}
-            >
-              {st}
-            </button>
-          ))}
+        <div className="flex flex-wrap items-center gap-2.5">
+          <div className="flex items-center gap-1.5 overflow-x-auto pb-1 sm:pb-0">
+            <span className="text-[11px] font-semibold text-slate-400 uppercase tracking-wider shrink-0">
+              Status:
+            </span>
+            {(["all", "received", "triage", "contacted", "converted", "closed"] as const).map((st) => (
+              <button
+                key={st}
+                onClick={() => setStatusFilter(st)}
+                className={`px-2.5 py-1 rounded-xl text-xs font-bold capitalize transition shrink-0 ${
+                  statusFilter === st
+                    ? "bg-[#007A6C] text-white shadow-xs"
+                    : "bg-slate-100 text-slate-600 hover:bg-slate-200"
+                }`}
+              >
+                {st}
+              </button>
+            ))}
+          </div>
+
+          <ViewToggle mode={viewMode} onChange={setViewMode} />
         </div>
       </div>
 
-      {/* Leads Table */}
+      {/* Main Content Area (Table or Grid) */}
       {loading ? (
-        <div className="p-12 text-center text-xs text-slate-400 bg-white rounded-xl border border-slate-200">
+        <div className="p-12 text-center text-xs text-slate-400 bg-white rounded-2xl border border-slate-200">
           Loading incoming leads...
         </div>
       ) : filtered.length === 0 ? (
-        <div className="p-12 text-center text-xs text-slate-500 bg-white rounded-xl border border-slate-200 space-y-2">
+        <div className="p-12 text-center text-xs text-slate-500 bg-white rounded-2xl border border-slate-200 space-y-2">
           <Inbox className="w-8 h-8 text-slate-300 mx-auto" />
           <p className="font-semibold text-slate-700">No leads match the current filters.</p>
         </div>
-      ) : (
-        <div className="bg-white rounded-xl border border-slate-200 shadow-xs overflow-hidden">
+      ) : viewMode === "table" ? (
+        <div className="bg-white rounded-2xl border border-slate-200 shadow-xs overflow-hidden">
           <table className="w-full text-left text-xs">
             <thead className="bg-[#F4F6F9] border-b border-slate-200 text-slate-700 font-bold uppercase tracking-wider text-[10px]">
               <tr>
-                <th className="py-3 px-4">Receipt ID</th>
-                <th className="py-3 px-4">Lead / Requester</th>
-                <th className="py-3 px-4">Service</th>
-                <th className="py-3 px-4">Origin / Country</th>
-                <th className="py-3 px-4">Status</th>
-                <th className="py-3 px-4">Date</th>
+                <SortHeader
+                  field="receiptId"
+                  label="Receipt ID"
+                  currentSortField={sortField}
+                  currentSortDirection={sortDirection}
+                  onSort={handleSort}
+                />
+                <SortHeader
+                  field="requesterName"
+                  label="Lead / Requester"
+                  currentSortField={sortField}
+                  currentSortDirection={sortDirection}
+                  onSort={handleSort}
+                />
+                <SortHeader
+                  field="serviceType"
+                  label="Service"
+                  currentSortField={sortField}
+                  currentSortDirection={sortDirection}
+                  onSort={handleSort}
+                />
+                <SortHeader
+                  field="country"
+                  label="Origin / Country"
+                  currentSortField={sortField}
+                  currentSortDirection={sortDirection}
+                  onSort={handleSort}
+                />
+                <SortHeader
+                  field="status"
+                  label="Status"
+                  currentSortField={sortField}
+                  currentSortDirection={sortDirection}
+                  onSort={handleSort}
+                />
+                <SortHeader
+                  field="createdAt"
+                  label="Date"
+                  currentSortField={sortField}
+                  currentSortDirection={sortDirection}
+                  onSort={handleSort}
+                />
                 <th className="py-3 px-4 text-right">Actions</th>
               </tr>
             </thead>
             <tbody className="divide-y divide-slate-100">
-              {filtered.map((item) => (
+              {paginatedLeads.map((item) => (
                 <tr key={item._id} className="hover:bg-[#E6F8F6]/40 transition">
                   <td className="py-3 px-4 font-mono font-bold text-[#007A6C]">
                     {item.receiptId}
@@ -343,7 +437,7 @@ export const LeadCollectorView: React.FC = () => {
                     <select
                       value={item.status}
                       onChange={(e) => handleStatusChange(item._id, e.target.value)}
-                      className="bg-slate-100 border border-slate-200 text-[11px] font-bold rounded-md px-2 py-1 text-slate-700 focus:outline-none focus:border-[#007A6C] cursor-pointer"
+                      className="bg-slate-100 border border-slate-200 text-[11px] font-bold rounded-lg px-2 py-1 text-slate-700 focus:outline-none focus:border-[#007A6C] cursor-pointer"
                     >
                       <option value="received">Received (New)</option>
                       <option value="triage">In Triage</option>
@@ -390,6 +484,137 @@ export const LeadCollectorView: React.FC = () => {
               ))}
             </tbody>
           </table>
+
+          {/* Table Pagination */}
+          <TablePagination
+            currentPage={safeCurrentPage}
+            totalItems={filtered.length}
+            pageSize={pageSize}
+            onPageChange={setCurrentPage}
+            onPageSizeChange={setPageSize}
+            pageSizeOptions={[10, 25, 50, 100]}
+            itemLabel="leads"
+          />
+        </div>
+      ) : (
+        <div className="space-y-4">
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+            {paginatedLeads.map((item) => {
+              const name = item.requesterName || item.name || "Website Lead";
+              const initials = name
+                .split(" ")
+                .map((n) => n[0])
+                .join("")
+                .substring(0, 2)
+                .toUpperCase();
+
+              return (
+                <div
+                  key={item._id}
+                  className="bg-white rounded-2xl border border-slate-200 p-5 shadow-xs hover:border-[#007A6C] hover:shadow-sm transition flex flex-col justify-between space-y-4"
+                >
+                  <div className="space-y-3">
+                    {/* Card Header */}
+                    <div className="flex items-center justify-between gap-2">
+                      <span className="font-mono text-xs font-bold text-[#007A6C] bg-[#E6F8F6] border border-[#00C7BE]/30 px-2.5 py-0.5 rounded-lg">
+                        {item.receiptId}
+                      </span>
+                      <select
+                        value={item.status}
+                        onChange={(e) => handleStatusChange(item._id, e.target.value)}
+                        className="bg-slate-100 border border-slate-200 text-[11px] font-bold rounded-lg px-2 py-1 text-slate-700 focus:outline-none focus:border-[#007A6C] cursor-pointer"
+                      >
+                        <option value="received">Received (New)</option>
+                        <option value="triage">In Triage</option>
+                        <option value="contacted">Contacted</option>
+                        <option value="converted">Converted to Case</option>
+                        <option value="closed">Closed</option>
+                      </select>
+                    </div>
+
+                    {/* Requester Identity */}
+                    <div className="flex items-center gap-3">
+                      <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-[#061E1B] to-[#007A6C] text-[#00C7BE] flex items-center justify-center font-bold text-xs shrink-0 shadow-xs">
+                        {initials}
+                      </div>
+                      <div className="min-w-0">
+                        <h4 className="font-bold text-xs text-slate-900 truncate">{name}</h4>
+                        <p className="text-[11px] text-slate-500 truncate">
+                          {item.email || item.phone || "No contact info"}
+                        </p>
+                      </div>
+                    </div>
+
+                    {/* Details Box */}
+                    <div className="bg-slate-50 p-2.5 rounded-xl border border-slate-100 space-y-1.5 text-[11px]">
+                      <div className="flex items-center justify-between">
+                        <span className="text-slate-400">Service:</span>
+                        <span className="font-semibold text-slate-800 capitalize">
+                          {item.serviceType.replace(/_/g, " ")}
+                        </span>
+                      </div>
+                      <div className="flex items-center justify-between">
+                        <span className="text-slate-400">Country:</span>
+                        <span className="font-medium text-slate-700">{item.country || "International"}</span>
+                      </div>
+                      <div className="flex items-center justify-between">
+                        <span className="text-slate-400">Source:</span>
+                        <span className="font-mono text-[10px] text-slate-500 truncate max-w-[140px]">
+                          {item.sourcePath || "/"}
+                        </span>
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* Card Footer */}
+                  <div className="pt-3 border-t border-slate-100 flex items-center justify-between gap-2">
+                    <span className="text-[10px] text-slate-400">
+                      {new Date(item.createdAt).toLocaleDateString([], { month: "short", day: "numeric" })}
+                    </span>
+
+                    <div className="flex items-center gap-1.5">
+                      <button
+                        onClick={() => setSelectedEnquiry(item)}
+                        className="text-xs font-bold text-slate-700 hover:text-slate-900 border border-slate-200 hover:bg-slate-100 px-2.5 py-1 rounded-lg transition"
+                      >
+                        View
+                      </button>
+                      {item.status !== "converted" ? (
+                        <button
+                          onClick={() => handleConvertToCase(item)}
+                          disabled={convertingId === item._id}
+                          className="text-xs font-bold text-white bg-[#FF6B00] hover:bg-[#FF6D1B] active:scale-98 px-2.5 py-1 rounded-lg shadow-xs transition"
+                        >
+                          {convertingId === item._id ? "..." : "Convert"}
+                        </button>
+                      ) : (
+                        <a
+                          href="/case-management/"
+                          className="inline-flex items-center gap-1 text-[11px] font-bold text-[#007A6C] hover:text-[#005F54] bg-[#E6F8F6] border border-[#B2EBE4] px-2 py-0.5 rounded-md"
+                        >
+                          <span>Case CMS</span>
+                          <ExternalLink className="w-3 h-3" />
+                        </a>
+                      )}
+                    </div>
+                  </div>
+                </div>
+              );
+            })}
+          </div>
+
+          {/* Grid Pagination */}
+          <div className="bg-white rounded-2xl border border-slate-200 shadow-xs overflow-hidden">
+            <TablePagination
+              currentPage={safeCurrentPage}
+              totalItems={filtered.length}
+              pageSize={pageSize}
+              onPageChange={setCurrentPage}
+              onPageSizeChange={setPageSize}
+              pageSizeOptions={[9, 18, 36, 72]}
+              itemLabel="leads"
+            />
+          </div>
         </div>
       )}
 

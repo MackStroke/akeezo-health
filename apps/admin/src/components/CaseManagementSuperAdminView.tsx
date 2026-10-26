@@ -8,7 +8,10 @@ import {
   TrendingUp,
   FolderKanban,
   ArrowRight,
+  Clock,
+  CheckCircle2,
 } from "lucide-react";
+import { ViewToggle, ViewMode } from "./TablePagination";
 
 interface CaseStats {
   caseManagement: {
@@ -29,6 +32,7 @@ interface CaseStats {
 export const CaseManagementSuperAdminView: React.FC = () => {
   const [stats, setStats] = useState<CaseStats | null>(null);
   const [loading, setLoading] = useState(true);
+  const [viewMode, setViewMode] = useState<ViewMode>("grid");
 
   useEffect(() => {
     fetchStats();
@@ -140,35 +144,95 @@ export const CaseManagementSuperAdminView: React.FC = () => {
 
       {/* Pipeline Stage Breakdown */}
       <div className="bg-white rounded-2xl border border-slate-200 p-6 shadow-xs space-y-4">
-        <div className="flex items-center justify-between border-b border-slate-100 pb-3">
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-b border-slate-100 pb-3">
           <div>
             <h3 className="text-sm font-bold text-slate-800">Operational Pipeline Stages</h3>
             <p className="text-xs text-slate-500">Live distribution of patient journeys across all operational checkpoints.</p>
           </div>
-          <a
-            href="/case-management/"
-            className="text-xs font-bold text-[#007A6C] hover:text-[#005F54] flex items-center gap-1 border border-[#B2EBE4] bg-[#E6F8F6] px-3 py-1.5 rounded-lg transition"
-          >
-            <span>Open Pipeline Board</span>
-            <ArrowRight className="w-3.5 h-3.5" />
-          </a>
+          <div className="flex items-center gap-2.5">
+            <ViewToggle mode={viewMode} onChange={setViewMode} />
+            <a
+              href="/case-management/"
+              className="text-xs font-bold text-[#007A6C] hover:text-[#005F54] flex items-center gap-1 border border-[#B2EBE4] bg-[#E6F8F6] px-3 py-1.5 rounded-xl transition"
+            >
+              <span>Open Pipeline Board</span>
+              <ArrowRight className="w-3.5 h-3.5" />
+            </a>
+          </div>
         </div>
 
-        <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-8 gap-3">
-          {stages.map((st) => {
-            const count = stats?.caseManagement.stageBreakdown[st.id] || 0;
-            return (
-              <div key={st.id} className="bg-slate-50 p-3.5 rounded-xl border border-slate-200 space-y-2 hover:border-[#00C7BE] transition">
-                <div className="flex items-center gap-2">
-                  <div className={`w-2.5 h-2.5 rounded-full ${st.color}`} />
-                  <span className="text-[11px] font-bold text-slate-700 truncate">{st.label}</span>
+        {viewMode === "grid" ? (
+          <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-8 gap-3">
+            {stages.map((st) => {
+              const count = stats?.caseManagement.stageBreakdown[st.id] || 0;
+              return (
+                <div key={st.id} className="bg-slate-50 p-3.5 rounded-xl border border-slate-200 space-y-2 hover:border-[#00C7BE] transition">
+                  <div className="flex items-center gap-2">
+                    <div className={`w-2.5 h-2.5 rounded-full ${st.color}`} />
+                    <span className="text-[11px] font-bold text-slate-700 truncate">{st.label}</span>
+                  </div>
+                  <p className="text-xl font-black text-slate-900">{count}</p>
+                  <div className="text-[10px] text-slate-400">Cases in stage</div>
                 </div>
-                <p className="text-xl font-black text-slate-900">{count}</p>
-                <div className="text-[10px] text-slate-400">Cases in stage</div>
-              </div>
-            );
-          })}
-        </div>
+              );
+            })}
+          </div>
+        ) : (
+          <div className="border border-slate-200 rounded-xl overflow-hidden shadow-2xs">
+            <table className="w-full text-left text-xs">
+              <thead className="bg-slate-50 border-b border-slate-200 text-slate-500 font-bold uppercase tracking-wider text-[10px]">
+                <tr>
+                  <th className="py-3 px-4 w-12">#</th>
+                  <th className="py-3 px-4">Stage Name</th>
+                  <th className="py-3 px-4">Key Identifier</th>
+                  <th className="py-3 px-4">Active Cases</th>
+                  <th className="py-3 px-4">Pipeline Share</th>
+                  <th className="py-3 px-4 text-right">Action</th>
+                </tr>
+              </thead>
+              <tbody className="divide-y divide-slate-100 font-medium">
+                {stages.map((st, idx) => {
+                  const count = stats?.caseManagement.stageBreakdown[st.id] || 0;
+                  const total = stats?.caseManagement.totalCases || 1;
+                  const pct = Math.round((count / Math.max(1, total)) * 100);
+                  return (
+                    <tr key={st.id} className="hover:bg-slate-50 transition">
+                      <td className="py-3 px-4 text-slate-400 font-mono text-[11px]">{idx + 1}</td>
+                      <td className="py-3 px-4 font-bold text-slate-900 flex items-center gap-2">
+                        <span className={`w-2.5 h-2.5 rounded-full ${st.color}`} />
+                        <span>{st.label}</span>
+                      </td>
+                      <td className="py-3 px-4 font-mono text-[11px] text-slate-500">{st.id}</td>
+                      <td className="py-3 px-4">
+                        <span className="font-bold text-slate-900 text-sm">{count}</span>
+                        <span className="text-[10px] text-slate-400 ml-1">cases</span>
+                      </td>
+                      <td className="py-3 px-4">
+                        <div className="flex items-center gap-2">
+                          <div className="w-24 bg-slate-100 rounded-full h-2 overflow-hidden">
+                            <div
+                              className="bg-[#007A6C] h-full rounded-full transition-all duration-300"
+                              style={{ width: `${Math.min(100, pct)}%` }}
+                            />
+                          </div>
+                          <span className="text-[10px] font-bold text-slate-600">{pct}%</span>
+                        </div>
+                      </td>
+                      <td className="py-3 px-4 text-right">
+                        <a
+                          href={`/case-management/?stage=${st.id}`}
+                          className="text-[11px] font-bold text-[#007A6C] hover:text-[#005F54] hover:underline"
+                        >
+                          View Cases →
+                        </a>
+                      </td>
+                    </tr>
+                  );
+                })}
+              </tbody>
+            </table>
+          </div>
+        )}
       </div>
 
       {/* Cross-System Quick Launch */}

@@ -18,6 +18,7 @@ import {
   Share2,
 } from "lucide-react";
 import { AdminTab } from "./SuperAdminSidebar.js";
+import { ViewToggle, ViewMode } from "./TablePagination";
 
 interface DashboardProps {
   onSelectTab: (tab: AdminTab) => void;
@@ -28,6 +29,8 @@ export const DashboardView: React.FC<DashboardProps> = ({ onSelectTab, onCreateP
   const [stats, setStats] = useState<any>(null);
   const [loading, setLoading] = useState(true);
   const [refreshing, setRefreshing] = useState(false);
+  const [enquiryViewMode, setEnquiryViewMode] = useState<ViewMode>("grid");
+  const [activityViewMode, setActivityViewMode] = useState<ViewMode>("grid");
 
   useEffect(() => {
     fetchStats();
@@ -260,53 +263,103 @@ export const DashboardView: React.FC<DashboardProps> = ({ onSelectTab, onCreateP
               <Inbox className="w-4 h-4 text-[#FF6B00]" />
               <h2 className="text-sm font-bold text-slate-900">Recent Website Enquiries</h2>
             </div>
-            <button
-              onClick={() => onSelectTab("enquiries")}
-              className="text-xs text-[#007A6C] hover:underline font-bold flex items-center gap-1"
-            >
-              <span>View All</span>
-              <ArrowRight className="w-3 h-3" />
-            </button>
+            <div className="flex items-center gap-2">
+              <ViewToggle mode={enquiryViewMode} onChange={setEnquiryViewMode} />
+              <button
+                onClick={() => onSelectTab("enquiries")}
+                className="text-xs text-[#007A6C] hover:underline font-bold flex items-center gap-1"
+              >
+                <span>View All</span>
+                <ArrowRight className="w-3 h-3" />
+              </button>
+            </div>
           </div>
 
-          <div className="space-y-2.5">
+          <div>
             {(!stats?.recentEnquiries || stats.recentEnquiries.length === 0) ? (
               <div className="py-8 text-center text-slate-400 text-xs">
                 No customer enquiries received yet. Submissions from website forms will appear here.
               </div>
-            ) : (
-              stats.recentEnquiries.slice(0, 5).map((e: any) => (
-                <div
-                  key={e._id}
-                  onClick={() => onSelectTab("enquiries")}
-                  className="p-3 rounded-xl border border-slate-100 hover:border-slate-200 bg-slate-50/50 hover:bg-slate-50 transition cursor-pointer flex items-center justify-between"
-                >
-                  <div className="space-y-0.5">
-                    <div className="flex items-center gap-2">
-                      <span className="font-bold text-xs text-slate-900">
-                        {e.requesterName || "Anonymous Inquirer"}
-                      </span>
-                      <span
-                        className={`text-[9px] px-2 py-0.5 rounded-full font-bold uppercase ${
-                          e.status === "received" || e.status === "triage"
-                            ? "bg-[#FFF4EC] text-[#FF6B00]"
-                            : e.status === "contacted"
-                            ? "bg-amber-100 text-amber-800"
-                            : "bg-[#E6F8F6] text-[#007A6C]"
-                        }`}
-                      >
-                        {e.status}
-                      </span>
+            ) : enquiryViewMode === "grid" ? (
+              <div className="space-y-2.5">
+                {stats.recentEnquiries.slice(0, 5).map((e: any) => (
+                  <div
+                    key={e._id}
+                    onClick={() => onSelectTab("enquiries")}
+                    className="p-3 rounded-xl border border-slate-100 hover:border-slate-200 bg-slate-50/50 hover:bg-slate-50 transition cursor-pointer flex items-center justify-between"
+                  >
+                    <div className="space-y-0.5">
+                      <div className="flex items-center gap-2">
+                        <span className="font-bold text-xs text-slate-900">
+                          {e.requesterName || "Anonymous Inquirer"}
+                        </span>
+                        <span
+                          className={`text-[9px] px-2 py-0.5 rounded-full font-bold uppercase ${
+                            e.status === "received" || e.status === "triage"
+                              ? "bg-[#FFF4EC] text-[#FF6B00]"
+                              : e.status === "contacted"
+                              ? "bg-amber-100 text-amber-800"
+                              : "bg-[#E6F8F6] text-[#007A6C]"
+                          }`}
+                        >
+                          {e.status}
+                        </span>
+                      </div>
+                      <div className="text-[11px] text-slate-500 truncate max-w-xs">
+                        {e.serviceType?.replace(/_/g, " ")} • {e.email || e.phone || "No contact"}
+                      </div>
                     </div>
-                    <div className="text-[11px] text-slate-500 truncate max-w-xs">
-                      {e.serviceType?.replace(/_/g, " ")} • {e.email || e.phone || "No contact"}
-                    </div>
+                    <span className="text-[10px] text-slate-400 shrink-0">
+                      {new Date(e.createdAt).toLocaleDateString()}
+                    </span>
                   </div>
-                  <span className="text-[10px] text-slate-400 shrink-0">
-                    {new Date(e.createdAt).toLocaleDateString()}
-                  </span>
-                </div>
-              ))
+                ))}
+              </div>
+            ) : (
+              <div className="border border-slate-100 rounded-xl overflow-hidden shadow-2xs">
+                <table className="w-full text-left text-xs">
+                  <thead className="bg-slate-50 border-b border-slate-200 text-slate-500 font-bold uppercase tracking-wider text-[10px]">
+                    <tr>
+                      <th className="py-2 px-3">Requester</th>
+                      <th className="py-2 px-3">Service</th>
+                      <th className="py-2 px-3">Status</th>
+                      <th className="py-2 px-3 text-right">Date</th>
+                    </tr>
+                  </thead>
+                  <tbody className="divide-y divide-slate-100 font-medium">
+                    {stats.recentEnquiries.slice(0, 5).map((e: any) => (
+                      <tr
+                        key={e._id}
+                        onClick={() => onSelectTab("enquiries")}
+                        className="hover:bg-[#E6F8F6]/30 cursor-pointer transition"
+                      >
+                        <td className="py-2.5 px-3 font-bold text-slate-900 truncate max-w-[120px]">
+                          {e.requesterName || "Anonymous Inquirer"}
+                        </td>
+                        <td className="py-2.5 px-3 capitalize text-slate-600 text-[11px]">
+                          {e.serviceType?.replace(/_/g, " ")}
+                        </td>
+                        <td className="py-2.5 px-3">
+                          <span
+                            className={`text-[9px] px-2 py-0.5 rounded-full font-bold uppercase ${
+                              e.status === "received" || e.status === "triage"
+                                ? "bg-[#FFF4EC] text-[#FF6B00]"
+                                : e.status === "contacted"
+                                ? "bg-amber-100 text-amber-800"
+                                : "bg-[#E6F8F6] text-[#007A6C]"
+                            }`}
+                          >
+                            {e.status}
+                          </span>
+                        </td>
+                        <td className="py-2.5 px-3 text-right text-slate-400 text-[10px]">
+                          {new Date(e.createdAt).toLocaleDateString()}
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
             )}
           </div>
         </div>
@@ -318,44 +371,80 @@ export const DashboardView: React.FC<DashboardProps> = ({ onSelectTab, onCreateP
               <History className="w-4 h-4 text-[#007A6C]" />
               <h2 className="text-sm font-bold text-slate-900">Recent Admin Audit Activity</h2>
             </div>
-            <button
-              onClick={() => onSelectTab("activity")}
-              className="text-xs text-[#007A6C] hover:underline font-bold flex items-center gap-1"
-            >
-              <span>Full Log</span>
-              <ArrowRight className="w-3 h-3" />
-            </button>
+            <div className="flex items-center gap-2">
+              <ViewToggle mode={activityViewMode} onChange={setActivityViewMode} />
+              <button
+                onClick={() => onSelectTab("activity")}
+                className="text-xs text-[#007A6C] hover:underline font-bold flex items-center gap-1"
+              >
+                <span>Full Log</span>
+                <ArrowRight className="w-3 h-3" />
+              </button>
+            </div>
           </div>
 
-          <div className="space-y-2.5">
+          <div>
             {(!stats?.recentActivities || stats.recentActivities.length === 0) ? (
               <div className="py-8 text-center text-slate-400 text-xs">
                 No activity logs recorded yet. All administrative actions are automatically tracked here.
               </div>
-            ) : (
-              stats.recentActivities.slice(0, 5).map((act: any) => (
-                <div
-                  key={act._id}
-                  className="p-3 rounded-xl border border-slate-100 bg-slate-50/50 flex items-center justify-between text-xs"
-                >
-                  <div className="space-y-0.5">
-                    <div className="flex items-center gap-2">
-                      <span className="font-bold text-slate-800 capitalize">
-                        {act.action} {act.module}
-                      </span>
-                      <span className="text-[10px] px-2 py-0.5 rounded-full bg-slate-200 text-slate-700 font-semibold">
-                        {act.actorRole || "admin"}
-                      </span>
+            ) : activityViewMode === "grid" ? (
+              <div className="space-y-2.5">
+                {stats.recentActivities.slice(0, 5).map((act: any) => (
+                  <div
+                    key={act._id}
+                    className="p-3 rounded-xl border border-slate-100 bg-slate-50/50 flex items-center justify-between text-xs"
+                  >
+                    <div className="space-y-0.5">
+                      <div className="flex items-center gap-2">
+                        <span className="font-bold text-slate-800 capitalize">
+                          {act.action} {act.module}
+                        </span>
+                        <span className="text-[10px] px-2 py-0.5 rounded-full bg-slate-200 text-slate-700 font-semibold">
+                          {act.actorRole || "admin"}
+                        </span>
+                      </div>
+                      <div className="text-[11px] text-slate-500 truncate max-w-xs">
+                        By {act.actorId?.name || act.actorId?.email || "System"}
+                      </div>
                     </div>
-                    <div className="text-[11px] text-slate-500 truncate max-w-xs">
-                      By {act.actorId?.name || act.actorId?.email || "System"}
-                    </div>
+                    <span className="text-[10px] text-slate-400 shrink-0">
+                      {new Date(act.createdAt).toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" })}
+                    </span>
                   </div>
-                  <span className="text-[10px] text-slate-400 shrink-0">
-                    {new Date(act.createdAt).toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" })}
-                  </span>
-                </div>
-              ))
+                ))}
+              </div>
+            ) : (
+              <div className="border border-slate-100 rounded-xl overflow-hidden shadow-2xs">
+                <table className="w-full text-left text-xs">
+                  <thead className="bg-slate-50 border-b border-slate-200 text-slate-500 font-bold uppercase tracking-wider text-[10px]">
+                    <tr>
+                      <th className="py-2 px-3">Action</th>
+                      <th className="py-2 px-3">Module</th>
+                      <th className="py-2 px-3">Actor Role</th>
+                      <th className="py-2 px-3 text-right">Time</th>
+                    </tr>
+                  </thead>
+                  <tbody className="divide-y divide-slate-100 font-medium">
+                    {stats.recentActivities.slice(0, 5).map((act: any) => (
+                      <tr key={act._id} className="hover:bg-slate-50 transition">
+                        <td className="py-2.5 px-3 font-bold capitalize text-slate-800">
+                          {act.action}
+                        </td>
+                        <td className="py-2.5 px-3 uppercase text-[10px] font-bold text-slate-500">
+                          {act.module}
+                        </td>
+                        <td className="py-2.5 px-3 text-[11px] text-slate-600">
+                          {act.actorRole || "admin"}
+                        </td>
+                        <td className="py-2.5 px-3 text-right text-slate-400 text-[10px] font-mono">
+                          {new Date(act.createdAt).toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" })}
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
             )}
           </div>
         </div>

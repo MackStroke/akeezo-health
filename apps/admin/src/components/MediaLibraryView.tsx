@@ -5,6 +5,8 @@ import {
   sortItems,
   getNextSortDirection,
   SortDirection,
+  ViewToggle,
+  ViewMode,
 } from "./TablePagination";
 import {
   Image as ImageIcon,
@@ -417,26 +419,10 @@ export const MediaLibraryView: React.FC = () => {
             </button>
           )}
 
-          <div className="flex items-center gap-1 border border-slate-200 rounded-xl p-1 bg-slate-50">
-            <button
-              onClick={() => setViewMode("grid")}
-              className={`p-1.5 rounded-lg transition ${
-                viewMode === "grid" ? "bg-white text-[#007A6C] shadow-2xs" : "text-slate-400 hover:text-slate-700"
-              }`}
-              title="Grid View"
-            >
-              <Grid className="w-4 h-4" />
-            </button>
-            <button
-              onClick={() => setViewMode("list")}
-              className={`p-1.5 rounded-lg transition ${
-                viewMode === "list" ? "bg-white text-[#007A6C] shadow-2xs" : "text-slate-400 hover:text-slate-700"
-              }`}
-              title="List View"
-            >
-              <List className="w-4 h-4" />
-            </button>
-          </div>
+          <ViewToggle
+            mode={viewMode === "grid" ? "grid" : "table"}
+            onChange={(m) => setViewMode(m === "grid" ? "grid" : "list")}
+          />
         </div>
       </div>
 

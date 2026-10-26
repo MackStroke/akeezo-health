@@ -7,6 +7,8 @@ import {
   SortDirection,
   DateRangePreset,
   filterByDatePreset,
+  ViewToggle,
+  ViewMode,
 } from "./TablePagination";
 import {
   History,
@@ -48,6 +50,7 @@ export const ActivityLogView: React.FC = () => {
   const [actionFilter, setActionFilter] = useState("all");
   const [datePreset, setDatePreset] = useState<DateRangePreset>("all");
   const [selectedActivity, setSelectedActivity] = useState<ActivityItem | null>(null);
+  const [viewMode, setViewMode] = useState<ViewMode>("table");
 
   // Sorting State
   const [sortField, setSortField] = useState<string | null>("createdAt");
@@ -240,6 +243,8 @@ export const ActivityLogView: React.FC = () => {
                 <span>Reset ({activeFiltersCount})</span>
               </button>
             )}
+
+            <ViewToggle mode={viewMode} onChange={setViewMode} />
           </div>
         </div>
 
@@ -253,122 +258,216 @@ export const ActivityLogView: React.FC = () => {
         </div>
       </div>
 
-      {/* 3. Main Stream Table & Diff Drawer */}
+      {/* 3. Main Stream Table / Grid & Diff Drawer */}
       <div className="flex flex-col lg:flex-row gap-6">
         <div className={`flex-1 ${selectedActivity ? "lg:w-2/3" : "w-full"}`}>
           <div className="bg-white rounded-2xl border border-slate-200 shadow-xs overflow-hidden">
-            <table className="w-full text-left text-xs">
-              <thead className="bg-slate-50 border-b border-slate-200 text-slate-500 font-bold uppercase tracking-wider">
-                <tr>
-                  <SortHeader
-                    field="createdAt"
-                    label="Timestamp"
-                    currentSortField={sortField}
-                    currentSortDirection={sortDirection}
-                    onSort={handleSort}
-                  />
-                  <SortHeader
-                    field="actorId.name"
-                    label="Actor"
-                    currentSortField={sortField}
-                    currentSortDirection={sortDirection}
-                    onSort={handleSort}
-                  />
-                  <SortHeader
-                    field="module"
-                    label="Module"
-                    currentSortField={sortField}
-                    currentSortDirection={sortDirection}
-                    onSort={handleSort}
-                  />
-                  <SortHeader
-                    field="action"
-                    label="Action"
-                    currentSortField={sortField}
-                    currentSortDirection={sortDirection}
-                    onSort={handleSort}
-                  />
-                  <SortHeader
-                    field="ipAddress"
-                    label="IP Address"
-                    currentSortField={sortField}
-                    currentSortDirection={sortDirection}
-                    onSort={handleSort}
-                  />
-                  <th className="py-3 px-4 text-right">Details</th>
-                </tr>
-              </thead>
-              <tbody className="divide-y divide-slate-100">
+            {viewMode === "table" ? (
+              <table className="w-full text-left text-xs">
+                <thead className="bg-slate-50 border-b border-slate-200 text-slate-500 font-bold uppercase tracking-wider">
+                  <tr>
+                    <SortHeader
+                      field="createdAt"
+                      label="Timestamp"
+                      currentSortField={sortField}
+                      currentSortDirection={sortDirection}
+                      onSort={handleSort}
+                    />
+                    <SortHeader
+                      field="actorId.name"
+                      label="Actor"
+                      currentSortField={sortField}
+                      currentSortDirection={sortDirection}
+                      onSort={handleSort}
+                    />
+                    <SortHeader
+                      field="module"
+                      label="Module"
+                      currentSortField={sortField}
+                      currentSortDirection={sortDirection}
+                      onSort={handleSort}
+                    />
+                    <SortHeader
+                      field="action"
+                      label="Action"
+                      currentSortField={sortField}
+                      currentSortDirection={sortDirection}
+                      onSort={handleSort}
+                    />
+                    <SortHeader
+                      field="ipAddress"
+                      label="IP Address"
+                      currentSortField={sortField}
+                      currentSortDirection={sortDirection}
+                      onSort={handleSort}
+                    />
+                    <th className="py-3 px-4 text-right">Details</th>
+                  </tr>
+                </thead>
+                <tbody className="divide-y divide-slate-100">
+                  {loading ? (
+                    <tr>
+                      <td colSpan={6} className="py-8 text-center text-slate-400 font-semibold">
+                        Loading audit events...
+                      </td>
+                    </tr>
+                  ) : activities.length === 0 ? (
+                    <tr>
+                      <td colSpan={6} className="py-8 text-center text-slate-400 font-semibold">
+                        No audit events recorded for current filters.
+                      </td>
+                    </tr>
+                  ) : (
+                    paginatedActivities.map((act) => {
+                      const isSelected = selectedActivity?._id === act._id;
+                      return (
+                        <tr
+                          key={act._id}
+                          onClick={() => setSelectedActivity(act)}
+                          className={`hover:bg-slate-50 cursor-pointer transition ${
+                            isSelected ? "bg-[#E6F8F6]/40" : ""
+                          }`}
+                        >
+                          <td className="py-3.5 px-4 font-mono text-[11px] text-slate-500">
+                            {new Date(act.createdAt).toLocaleString()}
+                          </td>
+                          <td className="py-3.5 px-4">
+                            <div className="font-bold text-slate-900">
+                              {act.actorId?.name || act.actorId?.email || "System Operator"}
+                            </div>
+                            <div className="text-[10px] text-slate-400">{act.actorRole || "admin"}</div>
+                          </td>
+                          <td className="py-3.5 px-4 font-semibold text-slate-700 uppercase text-[10px]">
+                            {act.module}
+                          </td>
+                          <td className="py-3.5 px-4">
+                            <span
+                              className={`px-2 py-0.5 rounded-full text-[10px] font-bold uppercase ${
+                                act.action === "publish"
+                                  ? "bg-emerald-100 text-emerald-800"
+                                  : act.action === "create"
+                                  ? "bg-blue-100 text-blue-800"
+                                  : act.action === "delete"
+                                  ? "bg-rose-100 text-rose-800"
+                                  : "bg-slate-100 text-slate-700"
+                              }`}
+                            >
+                              {act.action}
+                            </span>
+                          </td>
+                          <td className="py-3.5 px-4 font-mono text-[10px] text-slate-400">
+                            {act.ipAddress || "127.0.0.1"}
+                          </td>
+                          <td className="py-3.5 px-4 text-right">
+                            <button
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                setSelectedActivity(act);
+                              }}
+                              className="px-2.5 py-1 text-xs font-bold text-[#007A6C] hover:bg-[#E6F8F6] border border-[#007A6C]/30 rounded-lg transition"
+                            >
+                              Inspect Diff
+                            </button>
+                          </td>
+                        </tr>
+                      );
+                    })
+                  )}
+                </tbody>
+              </table>
+            ) : (
+              <div className="p-4 bg-slate-50/50">
                 {loading ? (
-                  <tr>
-                    <td colSpan={6} className="py-8 text-center text-slate-400 font-semibold">
-                      Loading audit events...
-                    </td>
-                  </tr>
+                  <div className="py-12 text-center text-slate-400 font-semibold text-xs">
+                    Loading audit events...
+                  </div>
                 ) : activities.length === 0 ? (
-                  <tr>
-                    <td colSpan={6} className="py-8 text-center text-slate-400 font-semibold">
-                      No audit events recorded for current filters.
-                    </td>
-                  </tr>
+                  <div className="py-12 text-center text-slate-400 font-semibold text-xs">
+                    No audit events recorded for current filters.
+                  </div>
                 ) : (
-                  paginatedActivities.map((act) => {
-                    const isSelected = selectedActivity?._id === act._id;
-                    return (
-                      <tr
-                        key={act._id}
-                        onClick={() => setSelectedActivity(act)}
-                        className={`hover:bg-slate-50 cursor-pointer transition ${
-                          isSelected ? "bg-[#E6F8F6]/40" : ""
-                        }`}
-                      >
-                        <td className="py-3.5 px-4 font-mono text-[11px] text-slate-500">
-                          {new Date(act.createdAt).toLocaleString()}
-                        </td>
-                        <td className="py-3.5 px-4">
-                          <div className="font-bold text-slate-900">
-                            {act.actorId?.name || act.actorId?.email || "System Operator"}
+                  <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-3.5">
+                    {paginatedActivities.map((act) => {
+                      const isSelected = selectedActivity?._id === act._id;
+                      const changesCount = act.changes ? Object.keys(act.changes).length : 0;
+                      return (
+                        <div
+                          key={act._id}
+                          onClick={() => setSelectedActivity(act)}
+                          className={`p-4 rounded-xl border bg-white shadow-2xs hover:shadow-xs hover:border-[#007A6C] transition cursor-pointer flex flex-col justify-between space-y-3 ${
+                            isSelected ? "ring-2 ring-[#007A6C] border-[#007A6C] bg-[#E6F8F6]/20" : "border-slate-200"
+                          }`}
+                        >
+                          <div className="space-y-2">
+                            <div className="flex items-center justify-between gap-2">
+                              <span
+                                className={`px-2 py-0.5 rounded-full text-[10px] font-bold uppercase tracking-wider ${
+                                  act.action === "publish"
+                                    ? "bg-emerald-100 text-emerald-800"
+                                    : act.action === "create"
+                                    ? "bg-blue-100 text-blue-800"
+                                    : act.action === "delete"
+                                    ? "bg-rose-100 text-rose-800"
+                                    : "bg-slate-100 text-slate-700"
+                                }`}
+                              >
+                                {act.action}
+                              </span>
+                              <span className="text-[10px] font-bold text-slate-500 uppercase tracking-wider bg-slate-100 px-2 py-0.5 rounded-full">
+                                {act.module}
+                              </span>
+                            </div>
+
+                            <div>
+                              <h4 className="font-bold text-xs text-slate-900 truncate">
+                                {act.actorId?.name || act.actorId?.email || "System Operator"}
+                              </h4>
+                              <p className="text-[10px] text-slate-400 uppercase tracking-wider font-semibold">
+                                {act.actorRole || "admin"}
+                              </p>
+                            </div>
+
+                            <div className="text-[11px] text-slate-500 space-y-1 bg-slate-50 p-2.5 rounded-lg border border-slate-100">
+                              <div className="flex items-center justify-between text-[10px]">
+                                <span className="text-slate-400">IP Address:</span>
+                                <span className="font-mono text-slate-700">{act.ipAddress || "127.0.0.1"}</span>
+                              </div>
+                              {changesCount > 0 && (
+                                <div className="flex items-center justify-between text-[10px]">
+                                  <span className="text-slate-400">Modifications:</span>
+                                  <span className="font-bold text-[#007A6C]">{changesCount} field(s)</span>
+                                </div>
+                              )}
+                            </div>
                           </div>
-                          <div className="text-[10px] text-slate-400">{act.actorRole || "admin"}</div>
-                        </td>
-                        <td className="py-3.5 px-4 font-semibold text-slate-700 uppercase text-[10px]">
-                          {act.module}
-                        </td>
-                        <td className="py-3.5 px-4">
-                          <span
-                            className={`px-2 py-0.5 rounded-full text-[10px] font-bold uppercase ${
-                              act.action === "publish"
-                                ? "bg-emerald-100 text-emerald-800"
-                                : act.action === "create"
-                                ? "bg-blue-100 text-blue-800"
-                                : act.action === "delete"
-                                ? "bg-rose-100 text-rose-800"
-                                : "bg-slate-100 text-slate-700"
-                            }`}
-                          >
-                            {act.action}
-                          </span>
-                        </td>
-                        <td className="py-3.5 px-4 font-mono text-[10px] text-slate-400">
-                          {act.ipAddress || "127.0.0.1"}
-                        </td>
-                        <td className="py-3.5 px-4 text-right">
-                          <button
-                            onClick={(e) => {
-                              e.stopPropagation();
-                              setSelectedActivity(act);
-                            }}
-                            className="px-2.5 py-1 text-xs font-bold text-[#007A6C] hover:bg-[#E6F8F6] border border-[#007A6C]/30 rounded-lg transition"
-                          >
-                            Inspect Diff
-                          </button>
-                        </td>
-                      </tr>
-                    );
-                  })
+
+                          <div className="pt-2 border-t border-slate-100 flex items-center justify-between gap-2">
+                            <span className="font-mono text-[10px] text-slate-400">
+                              {new Date(act.createdAt).toLocaleString([], {
+                                month: "short",
+                                day: "numeric",
+                                hour: "2-digit",
+                                minute: "2-digit",
+                              })}
+                            </span>
+                            <button
+                              type="button"
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                setSelectedActivity(act);
+                              }}
+                              className="px-2 py-1 text-[11px] font-bold text-[#007A6C] hover:bg-[#E6F8F6] border border-[#007A6C]/30 rounded-lg transition"
+                            >
+                              Inspect Diff
+                            </button>
+                          </div>
+                        </div>
+                      );
+                    })}
+                  </div>
                 )}
-              </tbody>
-            </table>
+              </div>
+            )}
 
             {/* Pagination Controls */}
             <TablePagination
