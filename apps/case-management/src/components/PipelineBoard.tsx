@@ -193,7 +193,7 @@ export const PipelineBoard: React.FC<PipelineBoardProps> = ({
   return (
     <div data-tour="pipeline-board" className="h-full flex flex-col p-6 overflow-hidden">
       {/* Header and Controls */}
-      <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 pb-4">
+      <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-4 pb-4 mb-2 border-b border-slate-200">
         <div>
           <h1 className="text-xl font-black text-slate-800 tracking-tight">
             Case Lifecycle Pipeline
@@ -204,67 +204,74 @@ export const PipelineBoard: React.FC<PipelineBoardProps> = ({
         </div>
 
         <div className="flex flex-wrap items-center gap-2.5">
-          <div className="relative w-full sm:w-56">
-            <Search className="w-3.5 h-3.5 text-slate-400 absolute left-2.5 top-1/2 -translate-y-1/2" />
+          {/* Search Input */}
+          <div className="relative w-full sm:w-60">
+            <Search className="w-3.5 h-3.5 text-slate-400 absolute left-3 top-1/2 -translate-y-1/2" />
             <input
               type="text"
               value={search}
               onChange={(e) => setSearch(e.target.value)}
               placeholder="Search code, patient, diagnosis..."
-              className="w-full text-xs pl-8 pr-7 py-1.5 bg-white border border-slate-200 rounded-lg focus:outline-none focus:border-[#007A6C]"
+              className="w-full h-9 text-xs pl-8 pr-7 bg-white border border-slate-200 rounded-lg shadow-2xs focus:outline-none focus:border-[#007A6C] focus:ring-1 focus:ring-[#007A6C]"
             />
             {search && (
               <button
                 onClick={() => setSearch("")}
-                className="absolute right-2 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600"
+                className="absolute right-2.5 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600"
+                title="Clear search"
               >
-                <X className="w-3 h-3" />
+                <X className="w-3.5 h-3.5" />
               </button>
             )}
           </div>
 
-          <select
-            value={stageFilter}
-            onChange={(e) => setStageFilter(e.target.value)}
-            className="text-xs px-2.5 py-1.5 bg-white border border-slate-200 rounded-lg focus:outline-none font-medium capitalize"
-          >
-            <option value="all">All Stages</option>
-            {CASE_STAGES.map((st) => (
-              <option key={st} value={st}>
-                {STAGE_CONFIG[st]?.label || st}
-              </option>
-            ))}
-          </select>
-
-          <select
-            value={urgencyFilter}
-            onChange={(e) => setUrgencyFilter(e.target.value)}
-            className="text-xs px-2.5 py-1.5 bg-white border border-slate-200 rounded-lg focus:outline-none font-medium capitalize"
-          >
-            <option value="all">All Urgencies</option>
-            <option value="routine">Routine</option>
-            <option value="priority">Priority</option>
-            <option value="critical">Critical</option>
-          </select>
-
-          {activeFiltersCount > 0 && (
-            <button
-              onClick={clearFilters}
-              className="inline-flex items-center gap-1 px-2.5 py-1.5 rounded-lg text-xs font-semibold text-[#007A6C] bg-[#E6F8F6] hover:bg-[#d0f2ee] transition border border-[#00C7BE]/30"
-              title="Reset all filters"
+          {/* Filter Dropdowns Cluster */}
+          <div className="flex items-center gap-2">
+            <select
+              value={stageFilter}
+              onChange={(e) => setStageFilter(e.target.value)}
+              className="h-9 text-xs px-3 bg-white border border-slate-200 rounded-lg shadow-2xs focus:outline-none focus:border-[#007A6C] font-medium capitalize text-slate-700"
             >
-              <RefreshCw className="w-3 h-3" />
-              <span>Reset ({activeFiltersCount})</span>
-            </button>
-          )}
+              <option value="all">All Stages</option>
+              {CASE_STAGES.map((st) => (
+                <option key={st} value={st}>
+                  {STAGE_CONFIG[st]?.label || st}
+                </option>
+              ))}
+            </select>
 
-          {/* Layout Toggle: Board Grid vs Table */}
-          <ViewToggle
-            mode={viewMode}
-            onChange={setViewMode}
-            gridLabel="Board"
-            tableLabel="Table"
-          />
+            <select
+              value={urgencyFilter}
+              onChange={(e) => setUrgencyFilter(e.target.value)}
+              className="h-9 text-xs px-3 bg-white border border-slate-200 rounded-lg shadow-2xs focus:outline-none focus:border-[#007A6C] font-medium capitalize text-slate-700"
+            >
+              <option value="all">All Urgencies</option>
+              <option value="routine">Routine</option>
+              <option value="priority">Priority</option>
+              <option value="critical">Critical</option>
+            </select>
+
+            {activeFiltersCount > 0 && (
+              <button
+                onClick={clearFilters}
+                className="h-9 inline-flex items-center gap-1.5 px-3 rounded-lg text-xs font-semibold text-[#007A6C] bg-[#E6F8F6] hover:bg-[#d0f2ee] transition border border-[#00C7BE]/30 shadow-2xs"
+                title="Reset all filters"
+              >
+                <RefreshCw className="w-3 h-3" />
+                <span>Reset ({activeFiltersCount})</span>
+              </button>
+            )}
+          </div>
+
+          {/* View Toggle Cluster with Visual Separator */}
+          <div className="shrink-0 flex items-center pl-1 border-l border-slate-200">
+            <ViewToggle
+              mode={viewMode}
+              onChange={setViewMode}
+              gridLabel="Board"
+              tableLabel="Table"
+            />
+          </div>
         </div>
       </div>
 

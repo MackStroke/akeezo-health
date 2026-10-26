@@ -509,15 +509,15 @@ const CaseManagementDashboard: React.FC = () => {
               </div>
 
               {/* Filter and Search Controls */}
-              <div className="bg-white p-4 rounded-xl border border-slate-200 shadow-xs mb-4 flex flex-col md:flex-row items-center justify-between gap-3">
-                <div className="relative w-full md:w-72">
-                  <Search className="w-4 h-4 text-slate-400 absolute left-3 top-1/2 -translate-y-1/2" />
+              <div className="bg-white p-3.5 rounded-xl border border-slate-200 shadow-2xs mb-4 flex flex-col lg:flex-row lg:items-center justify-between gap-3">
+                <div className="relative w-full lg:w-72">
+                  <Search className="w-3.5 h-3.5 text-slate-400 absolute left-3 top-1/2 -translate-y-1/2" />
                   <input
                     type="text"
                     value={searchQuery}
                     onChange={(e) => setSearchQuery(e.target.value)}
                     placeholder="Search code, patient, partner..."
-                    className="w-full text-xs pl-9 pr-8 py-2 bg-slate-50 border border-slate-200 rounded-lg focus:bg-white focus:border-[#007A6C] focus:outline-none"
+                    className="w-full h-9 text-xs pl-8 pr-7 bg-slate-50 border border-slate-200 rounded-lg shadow-2xs focus:bg-white focus:border-[#007A6C] focus:ring-1 focus:ring-[#007A6C] focus:outline-none"
                   />
                   {searchQuery && (
                     <button
@@ -530,13 +530,12 @@ const CaseManagementDashboard: React.FC = () => {
                   )}
                 </div>
 
-                <div className="flex flex-wrap items-center gap-2.5 w-full md:w-auto justify-between md:justify-end">
-                  <div className="flex items-center gap-1.5">
-                    <span className="text-[11px] text-slate-500 font-semibold">Stage:</span>
+                <div className="flex flex-wrap items-center gap-2.5 w-full lg:w-auto justify-between lg:justify-end">
+                  <div className="flex items-center gap-2">
                     <select
                       value={stageFilter}
                       onChange={(e) => setStageFilter(e.target.value)}
-                      className="text-xs px-2.5 py-1.5 bg-slate-50 border border-slate-200 rounded-lg focus:outline-none font-medium capitalize"
+                      className="h-9 text-xs px-3 bg-slate-50 border border-slate-200 rounded-lg shadow-2xs focus:bg-white focus:outline-none focus:border-[#007A6C] font-medium capitalize text-slate-700"
                     >
                       <option value="all">All Stages</option>
                       {availableStages.map((s) => (
@@ -545,28 +544,22 @@ const CaseManagementDashboard: React.FC = () => {
                         </option>
                       ))}
                     </select>
-                  </div>
 
-                  <div className="flex items-center gap-1.5">
-                    <span className="text-[11px] text-slate-500 font-semibold">Urgency:</span>
                     <select
                       value={urgencyFilter}
                       onChange={(e) => setUrgencyFilter(e.target.value)}
-                      className="text-xs px-2.5 py-1.5 bg-slate-50 border border-slate-200 rounded-lg focus:outline-none font-medium capitalize"
+                      className="h-9 text-xs px-3 bg-slate-50 border border-slate-200 rounded-lg shadow-2xs focus:bg-white focus:outline-none focus:border-[#007A6C] font-medium capitalize text-slate-700"
                     >
                       <option value="all">All Urgencies</option>
                       <option value="routine">Routine</option>
                       <option value="urgent">Urgent</option>
                       <option value="emergency">Emergency</option>
                     </select>
-                  </div>
 
-                  <div className="flex items-center gap-1.5">
-                    <span className="text-[11px] text-slate-500 font-semibold">Specialty:</span>
                     <select
                       value={specialtyFilter}
                       onChange={(e) => setSpecialtyFilter(e.target.value)}
-                      className="text-xs px-2.5 py-1.5 bg-slate-50 border border-slate-200 rounded-lg focus:outline-none font-medium capitalize"
+                      className="h-9 text-xs px-3 bg-slate-50 border border-slate-200 rounded-lg shadow-2xs focus:bg-white focus:outline-none focus:border-[#007A6C] font-medium capitalize text-slate-700"
                     >
                       <option value="all">All Specialties</option>
                       {availableSpecialties.map((sp) => (
@@ -575,24 +568,26 @@ const CaseManagementDashboard: React.FC = () => {
                         </option>
                       ))}
                     </select>
+
+                    {activeCaseFiltersCount > 0 && (
+                      <button
+                        onClick={clearAllCaseFilters}
+                        className="h-9 inline-flex items-center gap-1.5 px-3 rounded-lg text-xs font-semibold text-[#007A6C] bg-[#E6F8F6] hover:bg-[#d0f2ee] transition border border-[#00C7BE]/30 shadow-2xs"
+                        title="Reset all filters and sorting"
+                      >
+                        <RefreshCw className="w-3 h-3" />
+                        <span>Reset ({activeCaseFiltersCount})</span>
+                      </button>
+                    )}
                   </div>
 
-                  {activeCaseFiltersCount > 0 && (
-                    <button
-                      onClick={clearAllCaseFilters}
-                      className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-semibold text-[#007A6C] bg-[#E6F8F6] hover:bg-[#d0f2ee] transition border border-[#00C7BE]/30"
-                      title="Reset all filters and sorting"
-                    >
-                      <RefreshCw className="w-3 h-3" />
-                      <span>Reset ({activeCaseFiltersCount})</span>
-                    </button>
-                  )}
-
                   {/* Layout Toggle */}
-                  <ViewToggle
-                    mode={caseViewMode}
-                    onChange={setCaseViewMode}
-                  />
+                  <div className="shrink-0 pl-1 border-l border-slate-200">
+                    <ViewToggle
+                      mode={caseViewMode}
+                      onChange={setCaseViewMode}
+                    />
+                  </div>
                 </div>
               </div>
 
@@ -776,15 +771,15 @@ const CaseManagementDashboard: React.FC = () => {
               </div>
 
               {/* Partners Filter and Search Toolbar */}
-              <div className="bg-white p-4 rounded-xl border border-slate-200 shadow-xs mb-4 flex flex-col md:flex-row items-center justify-between gap-3">
-                <div className="relative w-full md:w-72">
-                  <Search className="w-4 h-4 text-slate-400 absolute left-3 top-1/2 -translate-y-1/2" />
+              <div className="bg-white p-3.5 rounded-xl border border-slate-200 shadow-2xs mb-4 flex flex-col lg:flex-row lg:items-center justify-between gap-3">
+                <div className="relative w-full lg:w-72">
+                  <Search className="w-3.5 h-3.5 text-slate-400 absolute left-3 top-1/2 -translate-y-1/2" />
                   <input
                     type="text"
                     value={partnerSearchQuery}
                     onChange={(e) => setPartnerSearchQuery(e.target.value)}
                     placeholder="Search partner name, code, country..."
-                    className="w-full text-xs pl-9 pr-8 py-2 bg-slate-50 border border-slate-200 rounded-lg focus:bg-white focus:border-[#007A6C] focus:outline-none"
+                    className="w-full h-9 text-xs pl-8 pr-7 bg-slate-50 border border-slate-200 rounded-lg shadow-2xs focus:bg-white focus:border-[#007A6C] focus:ring-1 focus:ring-[#007A6C] focus:outline-none"
                   />
                   {partnerSearchQuery && (
                     <button
@@ -797,13 +792,12 @@ const CaseManagementDashboard: React.FC = () => {
                   )}
                 </div>
 
-                <div className="flex flex-wrap items-center gap-2.5 w-full md:w-auto justify-between md:justify-end">
-                  <div className="flex items-center gap-1.5">
-                    <span className="text-[11px] text-slate-500 font-semibold">Type:</span>
+                <div className="flex flex-wrap items-center gap-2.5 w-full lg:w-auto justify-between lg:justify-end">
+                  <div className="flex items-center gap-2">
                     <select
                       value={partnerTypeFilter}
                       onChange={(e) => setPartnerTypeFilter(e.target.value)}
-                      className="text-xs px-2.5 py-1.5 bg-slate-50 border border-slate-200 rounded-lg focus:outline-none font-medium capitalize"
+                      className="h-9 text-xs px-3 bg-slate-50 border border-slate-200 rounded-lg shadow-2xs focus:bg-white focus:outline-none focus:border-[#007A6C] font-medium capitalize text-slate-700"
                     >
                       <option value="all">All Types</option>
                       <option value="facilitator">Facilitator</option>
@@ -811,24 +805,26 @@ const CaseManagementDashboard: React.FC = () => {
                       <option value="hospital_affiliate">Hospital Affiliate</option>
                       <option value="independent">Independent</option>
                     </select>
+
+                    {activePartnerFiltersCount > 0 && (
+                      <button
+                        onClick={clearAllPartnerFilters}
+                        className="h-9 inline-flex items-center gap-1.5 px-3 rounded-lg text-xs font-semibold text-[#007A6C] bg-[#E6F8F6] hover:bg-[#d0f2ee] transition border border-[#00C7BE]/30 shadow-2xs"
+                        title="Reset all filters and sorting"
+                      >
+                        <RefreshCw className="w-3 h-3" />
+                        <span>Reset ({activePartnerFiltersCount})</span>
+                      </button>
+                    )}
                   </div>
 
-                  {activePartnerFiltersCount > 0 && (
-                    <button
-                      onClick={clearAllPartnerFilters}
-                      className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-semibold text-[#007A6C] bg-[#E6F8F6] hover:bg-[#d0f2ee] transition border border-[#00C7BE]/30"
-                      title="Reset all filters and sorting"
-                    >
-                      <RefreshCw className="w-3 h-3" />
-                      <span>Reset ({activePartnerFiltersCount})</span>
-                    </button>
-                  )}
-
                   {/* Layout Toggle */}
-                  <ViewToggle
-                    mode={partnerViewMode}
-                    onChange={setPartnerViewMode}
-                  />
+                  <div className="shrink-0 pl-1 border-l border-slate-200">
+                    <ViewToggle
+                      mode={partnerViewMode}
+                      onChange={setPartnerViewMode}
+                    />
+                  </div>
                 </div>
               </div>
 
@@ -959,15 +955,15 @@ const CaseManagementDashboard: React.FC = () => {
               </div>
 
               {/* Hospitals Filter and Search Toolbar */}
-              <div className="bg-white p-4 rounded-xl border border-slate-200 shadow-xs mb-4 flex flex-col md:flex-row items-center justify-between gap-3">
-                <div className="relative w-full md:w-72">
-                  <Search className="w-4 h-4 text-slate-400 absolute left-3 top-1/2 -translate-y-1/2" />
+              <div className="bg-white p-3.5 rounded-xl border border-slate-200 shadow-2xs mb-4 flex flex-col lg:flex-row lg:items-center justify-between gap-3">
+                <div className="relative w-full lg:w-72">
+                  <Search className="w-3.5 h-3.5 text-slate-400 absolute left-3 top-1/2 -translate-y-1/2" />
                   <input
                     type="text"
                     value={hospitalSearchQuery}
                     onChange={(e) => setHospitalSearchQuery(e.target.value)}
                     placeholder="Search hospital name, code, city..."
-                    className="w-full text-xs pl-9 pr-8 py-2 bg-slate-50 border border-slate-200 rounded-lg focus:bg-white focus:border-[#007A6C] focus:outline-none"
+                    className="w-full h-9 text-xs pl-8 pr-7 bg-slate-50 border border-slate-200 rounded-lg shadow-2xs focus:bg-white focus:border-[#007A6C] focus:ring-1 focus:ring-[#007A6C] focus:outline-none"
                   />
                   {hospitalSearchQuery && (
                     <button
@@ -980,37 +976,38 @@ const CaseManagementDashboard: React.FC = () => {
                   )}
                 </div>
 
-                <div className="flex flex-wrap items-center gap-2.5 w-full md:w-auto justify-between md:justify-end">
-                  <div className="flex items-center gap-1.5">
-                    <span className="text-[11px] text-slate-500 font-semibold">Accreditation:</span>
+                <div className="flex flex-wrap items-center gap-2.5 w-full lg:w-auto justify-between lg:justify-end">
+                  <div className="flex items-center gap-2">
                     <select
                       value={hospitalAccreditationFilter}
                       onChange={(e) => setHospitalAccreditationFilter(e.target.value)}
-                      className="text-xs px-2.5 py-1.5 bg-slate-50 border border-slate-200 rounded-lg focus:outline-none font-medium capitalize"
+                      className="h-9 text-xs px-3 bg-slate-50 border border-slate-200 rounded-lg shadow-2xs focus:bg-white focus:outline-none focus:border-[#007A6C] font-medium capitalize text-slate-700"
                     >
                       <option value="all">All Accreditations</option>
                       <option value="JCI">JCI Accredited</option>
                       <option value="NABH">NABH Accredited</option>
                       <option value="NABL">NABL Accredited</option>
                     </select>
+
+                    {activeHospitalFiltersCount > 0 && (
+                      <button
+                        onClick={clearAllHospitalFilters}
+                        className="h-9 inline-flex items-center gap-1.5 px-3 rounded-lg text-xs font-semibold text-[#007A6C] bg-[#E6F8F6] hover:bg-[#d0f2ee] transition border border-[#00C7BE]/30 shadow-2xs"
+                        title="Reset all filters and sorting"
+                      >
+                        <RefreshCw className="w-3 h-3" />
+                        <span>Reset ({activeHospitalFiltersCount})</span>
+                      </button>
+                    )}
                   </div>
 
-                  {activeHospitalFiltersCount > 0 && (
-                    <button
-                      onClick={clearAllHospitalFilters}
-                      className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-semibold text-[#007A6C] bg-[#E6F8F6] hover:bg-[#d0f2ee] transition border border-[#00C7BE]/30"
-                      title="Reset all filters and sorting"
-                    >
-                      <RefreshCw className="w-3 h-3" />
-                      <span>Reset ({activeHospitalFiltersCount})</span>
-                    </button>
-                  )}
-
                   {/* Layout Toggle */}
-                  <ViewToggle
-                    mode={hospitalViewMode}
-                    onChange={setHospitalViewMode}
-                  />
+                  <div className="shrink-0 pl-1 border-l border-slate-200">
+                    <ViewToggle
+                      mode={hospitalViewMode}
+                      onChange={setHospitalViewMode}
+                    />
+                  </div>
                 </div>
               </div>
 

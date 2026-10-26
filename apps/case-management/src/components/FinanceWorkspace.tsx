@@ -285,32 +285,31 @@ export const FinanceWorkspace: React.FC<FinanceWorkspaceProps> = () => {
           </div>
 
           <div className="flex flex-wrap items-center gap-2.5">
-            <div className="relative w-full sm:w-56">
-              <Search className="w-3.5 h-3.5 text-slate-400 absolute left-2.5 top-1/2 -translate-y-1/2" />
+            <div className="relative w-full sm:w-60">
+              <Search className="w-3.5 h-3.5 text-slate-400 absolute left-3 top-1/2 -translate-y-1/2" />
               <input
                 type="text"
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
                 placeholder="Search case code..."
-                className="w-full text-xs pl-8 pr-7 py-1.5 bg-slate-50 border border-slate-200 rounded-lg focus:bg-white focus:border-[#007A6C] focus:outline-none"
+                className="w-full h-9 text-xs pl-8 pr-7 bg-slate-50 border border-slate-200 rounded-lg shadow-2xs focus:bg-white focus:border-[#007A6C] focus:ring-1 focus:ring-[#007A6C] focus:outline-none"
               />
               {searchQuery && (
                 <button
                   onClick={() => setSearchQuery("")}
-                  className="absolute right-2 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600"
+                  className="absolute right-2.5 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600"
                   title="Clear search"
                 >
-                  <X className="w-3 h-3" />
+                  <X className="w-3.5 h-3.5" />
                 </button>
               )}
             </div>
 
-            <div className="flex items-center gap-1.5">
-              <span className="text-[11px] text-slate-500 font-semibold">Status:</span>
+            <div className="flex items-center gap-2">
               <select
                 value={statusFilter}
                 onChange={(e) => setStatusFilter(e.target.value)}
-                className="text-xs px-2.5 py-1.5 bg-slate-50 border border-slate-200 rounded-lg focus:outline-none font-medium capitalize"
+                className="h-9 text-xs px-3 bg-slate-50 border border-slate-200 rounded-lg shadow-2xs focus:bg-white focus:outline-none focus:border-[#007A6C] font-medium capitalize text-slate-700"
               >
                 <option value="all">All Statuses</option>
                 <option value="draft">Draft</option>
@@ -319,24 +318,26 @@ export const FinanceWorkspace: React.FC<FinanceWorkspaceProps> = () => {
                 <option value="settled">Settled</option>
                 <option value="clawback">Clawback</option>
               </select>
+
+              {activeFiltersCount > 0 && (
+                <button
+                  onClick={clearAllFilters}
+                  className="h-9 inline-flex items-center gap-1.5 px-3 rounded-lg text-xs font-semibold text-[#007A6C] bg-[#E6F8F6] hover:bg-[#d0f2ee] transition border border-[#00C7BE]/30 shadow-2xs"
+                  title="Reset all filters and sorting"
+                >
+                  <RefreshCw className="w-3 h-3" />
+                  <span>Reset ({activeFiltersCount})</span>
+                </button>
+              )}
             </div>
 
-            {activeFiltersCount > 0 && (
-              <button
-                onClick={clearAllFilters}
-                className="inline-flex items-center gap-1 px-2.5 py-1.5 rounded-lg text-xs font-semibold text-[#007A6C] bg-[#E6F8F6] hover:bg-[#d0f2ee] transition border border-[#00C7BE]/30"
-                title="Reset all filters and sorting"
-              >
-                <RefreshCw className="w-3 h-3" />
-                <span>Reset ({activeFiltersCount})</span>
-              </button>
-            )}
-
             {/* Layout Toggle */}
-            <ViewToggle
-              mode={viewMode}
-              onChange={setViewMode}
-            />
+            <div className="shrink-0 pl-1 border-l border-slate-200">
+              <ViewToggle
+                mode={viewMode}
+                onChange={setViewMode}
+              />
+            </div>
           </div>
         </div>
 
