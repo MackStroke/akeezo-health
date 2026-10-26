@@ -4,10 +4,15 @@ import crypto from "node:crypto";
 import { Router } from "express";
 import mongoose from "mongoose";
 import { SiteSettings, Page, ContentRevision, RouteEntry, EnquiryModel, PatientModel, CaseModel, CaseAuditLogModel, HospitalModel, PartnerModel, UserModel, MediaAssetModel, RedirectModel, } from "../db/models/index.js";
-import { hashPassword, verifyPassword, FALLBACK_USERS, } from "../utils/auth.js";
+import { hashPassword, verifyPassword, requireAuth, requireRole, FALLBACK_USERS, } from "../utils/auth.js";
 import { DEFAULT_WEBSITE_THEME, DEFAULT_ADMIN_THEME, THEME_PRESETS, sanitizeCssValue } from "@akeezo/contracts";
 import { env } from "../config/env.js";
 export const cmsAdminRouter = Router();
+// ==========================================
+// STRICT SUPER ADMIN AUTH & RBAC ENFORCEMENT
+// ==========================================
+cmsAdminRouter.use(requireAuth);
+cmsAdminRouter.use(requireRole("admin"));
 // ==========================================
 // AUDIT LOG HELPER
 // ==========================================

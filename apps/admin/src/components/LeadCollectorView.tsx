@@ -12,6 +12,7 @@ import {
   Globe,
   CheckCircle2,
 } from "lucide-react";
+import { useToast } from "@akeezo/ui";
 
 interface EnquiryItem {
   _id: string;
@@ -31,6 +32,7 @@ interface EnquiryItem {
 }
 
 export const LeadCollectorView: React.FC = () => {
+  const toast = useToast();
   const [enquiries, setEnquiries] = useState<EnquiryItem[]>([]);
   const [loading, setLoading] = useState<boolean>(true);
   const [search, setSearch] = useState<string>("");
@@ -67,15 +69,19 @@ export const LeadCollectorView: React.FC = () => {
       });
 
       if (res.ok) {
+        toast.success(`Enquiry status changed to "${newStatus}"`, { title: "Status Updated" });
         setEnquiries((prev) =>
           prev.map((e) => (e._id === id ? { ...e, status: newStatus as any } : e))
         );
         if (selectedEnquiry?._id === id) {
           setSelectedEnquiry((prev) => (prev ? { ...prev, status: newStatus as any } : null));
         }
+      } else {
+        const errJson = await res.json().catch(() => ({}));
+        toast.error(errJson.error?.message || "Failed to update enquiry", { title: "Update Failed" });
       }
     } catch (err: any) {
-      alert(`Error updating enquiry: ${err.message}`);
+      toast.error(err.message, { title: "Network Error" });
     }
   };
 
@@ -89,11 +95,16 @@ export const LeadCollectorView: React.FC = () => {
 
       const json = await res.json();
       if (!res.ok) {
-        alert(json.error?.message || "Failed to convert lead to case");
+        toast.error(json.error?.message || "Failed to convert lead to case", { title: "Conversion Blocked" });
         return;
       }
 
       const caseCode = json.data?.caseCode;
+      toast.instruction(`Enquiry converted into Case CMS (#${caseCode}).`, {
+        title: "Lead Converted",
+        steps: ["Case record registered", "Transferred to Intake Pipeline"],
+      });
+
       setConversionSuccess({ caseCode, receiptId: enquiry.receiptId });
       setEnquiries((prev) =>
         prev.map((e) =>
@@ -111,7 +122,7 @@ export const LeadCollectorView: React.FC = () => {
         );
       }
     } catch (err: any) {
-      alert(`Conversion error: ${err.message}`);
+      toast.error(err.message, { title: "Conversion Error" });
     } finally {
       setConvertingId(null);
     }

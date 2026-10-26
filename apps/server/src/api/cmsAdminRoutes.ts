@@ -22,6 +22,7 @@ import {
   hashPassword,
   verifyPassword,
   requireAuth,
+  requireRole,
   AuthenticatedRequest,
   FALLBACK_USERS,
 } from "../utils/auth.js";
@@ -34,6 +35,12 @@ import {
 import { env } from "../config/env.js";
 
 export const cmsAdminRouter = Router();
+
+// ==========================================
+// STRICT SUPER ADMIN AUTH & RBAC ENFORCEMENT
+// ==========================================
+cmsAdminRouter.use(requireAuth);
+cmsAdminRouter.use(requireRole("admin"));
 
 // ==========================================
 // AUDIT LOG HELPER

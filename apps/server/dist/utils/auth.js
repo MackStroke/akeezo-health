@@ -255,3 +255,23 @@ export function requirePermission(permission) {
         });
     };
 }
+// Role-based Access Control Middleware
+export function requireRole(allowedRoles) {
+    const roles = Array.isArray(allowedRoles) ? allowedRoles : [allowedRoles];
+    return (req, res, next) => {
+        if (!req.user) {
+            res.status(401).json({ error: { code: "UNAUTHORIZED", message: "Sign in required." } });
+            return;
+        }
+        if (!roles.includes(req.user.role)) {
+            res.status(403).json({
+                error: {
+                    code: "FORBIDDEN",
+                    message: `Access denied. Role '${req.user.role}' is not authorized. Required: ${roles.join(", ")}.`,
+                },
+            });
+            return;
+        }
+        next();
+    };
+}

@@ -16,6 +16,7 @@ import {
   Award,
 } from "lucide-react";
 import { CASE_STAGES, CASE_CLOSURE_REASONS, CaseStage } from "@akeezo/contracts";
+import { useToast, DisabledGuideButton } from "@akeezo/ui";
 import { STAGE_CONFIG } from "./PipelineBoard.js";
 
 interface CaseDetailModalProps {
@@ -29,6 +30,7 @@ export const CaseDetailModal: React.FC<CaseDetailModalProps> = ({
   onClose,
   onRefresh,
 }) => {
+  const toast = useToast();
   const [caseData, setCaseData] = useState<any>(null);
   const [loading, setLoading] = useState(true);
   const [activeTab, setActiveTab] = useState<
@@ -106,21 +108,30 @@ export const CaseDetailModal: React.FC<CaseDetailModalProps> = ({
       });
       const json = await res.json();
       if (res.ok) {
+        toast.success(
+          `Case successfully advanced to ${STAGE_CONFIG[targetStage as CaseStage]?.label || targetStage}!`,
+          { title: "Stage Transition Completed" }
+        );
         setReadiness(null);
         setTargetStage("");
         fetchCase();
         onRefresh();
       } else {
-        setStageError(json.error?.message || "Stage transition blocked by guard criteria.");
+        const errorMsg = json.error?.message || "Stage transition blocked by guard criteria.";
+        setStageError(errorMsg);
+        toast.error(errorMsg, { title: "Transition Blocked" });
       }
     } catch (err: any) {
       setStageError(err.message);
+      toast.error(err.message, { title: "Network Error" });
     }
   };
 
   const handleConfirmBackwardMove = async () => {
     if (!backwardTargetStage || !backwardReason.trim()) {
-      alert("Please select a target stage and provide an explanatory reason.");
+      toast.warning("Please select a target stage and provide an explanatory reason.", {
+        title: "Reason Required",
+      });
       return;
     }
     try {
@@ -132,16 +143,20 @@ export const CaseDetailModal: React.FC<CaseDetailModalProps> = ({
       });
       const json = await res.json();
       if (res.ok) {
+        toast.success(
+          `Case reverted to ${STAGE_CONFIG[backwardTargetStage as CaseStage]?.label || backwardTargetStage}`,
+          { title: "Backward Move Completed" }
+        );
         setShowBackwardModal(false);
         setBackwardTargetStage("");
         setBackwardReason("");
         fetchCase();
         onRefresh();
       } else {
-        alert(json.error?.message || "Backward move failed.");
+        toast.error(json.error?.message || "Backward move failed.", { title: "Revert Blocked" });
       }
     } catch (err: any) {
-      alert(err.message);
+      toast.error(err.message, { title: "Network Error" });
     }
   };
 
@@ -159,14 +174,15 @@ export const CaseDetailModal: React.FC<CaseDetailModalProps> = ({
       });
       const json = await res.json();
       if (res.ok) {
+        toast.success("Case successfully closed.", { title: "Case Closed" });
         setShowCloseModal(false);
         fetchCase();
         onRefresh();
       } else {
-        alert(json.error?.message || "Closure failed.");
+        toast.error(json.error?.message || "Closure failed.", { title: "Closure Blocked" });
       }
     } catch (err: any) {
-      alert(err.message);
+      toast.error(err.message, { title: "Closure Error" });
     }
   };
 
@@ -178,13 +194,14 @@ export const CaseDetailModal: React.FC<CaseDetailModalProps> = ({
       });
       const json = await res.json();
       if (res.ok) {
+        toast.success("Treatment episode activated successfully.", { title: "Episode Active" });
         fetchCase();
         onRefresh();
       } else {
-        alert(json.error?.message || "Failed to activate episode");
+        toast.error(json.error?.message || "Failed to activate episode", { title: "Episode Error" });
       }
     } catch (err: any) {
-      alert(err.message);
+      toast.error(err.message, { title: "Network Error" });
     }
   };
 
@@ -194,11 +211,15 @@ export const CaseDetailModal: React.FC<CaseDetailModalProps> = ({
         method: "POST",
       });
       if (res.ok) {
+        toast.success("Treatment episode completed.", { title: "Episode Complete" });
         fetchCase();
         onRefresh();
+      } else {
+        const errJson = await res.json().catch(() => ({}));
+        toast.error(errJson.error?.message || "Failed to complete episode", { title: "Error" });
       }
     } catch (err: any) {
-      alert(err.message);
+      toast.error(err.message, { title: "Network Error" });
     }
   };
 
@@ -216,13 +237,20 @@ export const CaseDetailModal: React.FC<CaseDetailModalProps> = ({
         }),
       });
       if (res.ok) {
+        toast.instruction("Billing snapshot finalized. Finance team notified for hospital invoice.", {
+          title: "Billing Finalized",
+          steps: ["Rate card snapshot locked", "Commission calculated", "Partner share queued"],
+        });
         setBillingEpisodeId(null);
         setBilledAmount("");
         fetchCase();
         onRefresh();
+      } else {
+        const errJson = await res.json().catch(() => ({}));
+        toast.error(errJson.error?.message || "Failed to finalise billing", { title: "Billing Error" });
       }
     } catch (err: any) {
-      alert(err.message);
+      toast.error(err.message, { title: "Billing Error" });
     }
   };
 
@@ -242,12 +270,19 @@ export const CaseDetailModal: React.FC<CaseDetailModalProps> = ({
         }),
       });
       if (res.ok) {
+        toast.instruction("Sequential chemotherapy series initialized with 21-day cycles.", {
+          title: "Protocol Series Created",
+          steps: ["Cycle 1 scheduled", "Sequential series guard enabled"],
+        });
         setShowSeriesModal(false);
         fetchCase();
         onRefresh();
+      } else {
+        const errJson = await res.json().catch(() => ({}));
+        toast.error(errJson.error?.message || "Failed to create series", { title: "Series Error" });
       }
     } catch (err: any) {
-      alert(err.message);
+      toast.error(err.message, { title: "Series Error" });
     }
   };
 
@@ -259,11 +294,15 @@ export const CaseDetailModal: React.FC<CaseDetailModalProps> = ({
         body: JSON.stringify({ selectedVia: "whatsapp" }),
       });
       if (res.ok) {
+        toast.success("Hospital RFQ quotation selected.", { title: "Quote Selected" });
         fetchCase();
         onRefresh();
+      } else {
+        const errJson = await res.json().catch(() => ({}));
+        toast.error(errJson.error?.message || "Failed to select quote", { title: "Quote Error" });
       }
     } catch (err: any) {
-      alert(err.message);
+      toast.error(err.message, { title: "Quote Error" });
     }
   };
 
@@ -439,8 +478,21 @@ export const CaseDetailModal: React.FC<CaseDetailModalProps> = ({
               >
                 Cancel
               </button>
-              <button
+              <DisabledGuideButton
                 disabled={!readiness.isReady}
+                reasonTitle={`Stage Transition Blocked: ${STAGE_CONFIG[targetStage as CaseStage]?.label || targetStage}`}
+                reasonMessage="Patient case does not meet clinical stage exit guards. All required clinical, RFQ quotes, or consent checks must pass before moving forward."
+                requirements={readiness.guards?.map((g: any) => ({
+                  label: g.guard.replace(/_/g, " ").toUpperCase(),
+                  fulfilled: g.passed,
+                  tip: g.message,
+                }))}
+                stepsToEnable={[
+                  "Review the failing checks marked in red in the prerequisite checklist.",
+                  "Fulfill missing data (e.g. RFQ quotes, medical documents, or patient consent).",
+                  "Re-verify stage exit readiness to unlock this transition.",
+                ]}
+                placement="top"
                 onClick={handleConfirmStageMove}
                 className={`text-xs px-4 py-1.5 rounded-lg font-bold text-white transition ${
                   readiness.isReady
@@ -449,7 +501,7 @@ export const CaseDetailModal: React.FC<CaseDetailModalProps> = ({
                 }`}
               >
                 Confirm Move to {STAGE_CONFIG[targetStage as CaseStage]?.label}
-              </button>
+              </DisabledGuideButton>
             </div>
           </div>
         )}

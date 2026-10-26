@@ -127,7 +127,10 @@ describe("Comprehensive Admin Panel Backend Suite", async () => {
         // Create malicious formula enquiry
         const enqRes = await fetch(`${baseUrl}/api/v1/admin/enquiries`, {
             method: "POST",
-            headers: { "Content-Type": "application/json" },
+            headers: {
+                "Content-Type": "application/json",
+                Authorization: `Bearer ${adminToken}`,
+            },
             body: JSON.stringify({
                 requesterName: "=cmd|' /C calc'!A0", // Formula injection attack vector
                 email: "attacker@example.com",

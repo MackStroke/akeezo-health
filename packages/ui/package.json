@@ -16,7 +16,8 @@
     "dev": "tsc --watch"
   },
   "dependencies": {
-    "@akeezo/contracts": "workspace:*"
+    "@akeezo/contracts": "workspace:*",
+    "lucide-react": "^1.61.0"
   },
   "peerDependencies": {
     "react": ">=18.0.0",

@@ -1,14 +1,57 @@
-import React, { useState, useEffect } from "react";
-import { DollarSign, ArrowDownLeft, ArrowUpRight, Plus, AlertCircle, CheckCircle2 } from "lucide-react";
+import React, { useState, useEffect, useMemo } from "react";
+import {
+  DollarSign,
+  ArrowDownLeft,
+  ArrowUpRight,
+  Plus,
+  AlertCircle,
+  CheckCircle2,
+  Search,
+  X,
+  RefreshCw,
+} from "lucide-react";
+import {
+  useToast,
+  DisabledGuideButton,
+  TablePagination,
+  SortHeader,
+  sortItems,
+  getNextSortDirection,
+  SortDirection,
+  ViewToggle,
+  ViewMode,
+} from "@akeezo/ui";
 
 interface FinanceWorkspaceProps {
   onRefresh: () => void;
 }
 
 export const FinanceWorkspace: React.FC<FinanceWorkspaceProps> = () => {
+  const toast = useToast();
   const [commissions, setCommissions] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
   const [showPaymentModal, setShowPaymentModal] = useState(false);
+  const [viewMode, setViewMode] = useState<ViewMode>("table");
+
+  // Sorting & Filtering State
+  const [searchQuery, setSearchQuery] = useState("");
+  const [statusFilter, setStatusFilter] = useState("all");
+  const [sortField, setSortField] = useState<string | null>("billedAmountMinor");
+  const [sortDirection, setSortDirection] = useState<SortDirection>("desc");
+
+  const handleSort = (field: string) => {
+    const next = getNextSortDirection(sortField, field, sortDirection);
+    setSortField(next.field);
+    setSortDirection(next.direction);
+  };
+
+  // Pagination State
+  const [currentPage, setCurrentPage] = useState(1);
+  const [pageSize, setPageSize] = useState(10);
+
+  useEffect(() => {
+    setCurrentPage(1);
+  }, [searchQuery, statusFilter, sortField, sortDirection]);
 
   // Payment Form state
   const [paymentForm, setPaymentForm] = useState({
@@ -71,14 +114,17 @@ export const FinanceWorkspace: React.FC<FinanceWorkspaceProps> = () => {
       });
 
       if (res.ok) {
+        toast.success(`Payment of ₹${parseFloat(paymentForm.amount).toLocaleString("en-IN")} recorded & allocated successfully!`, {
+          title: "Payment Recorded",
+        });
         setShowPaymentModal(false);
         fetchCommissions();
       } else {
         const err = await res.json();
-        alert(err.error?.message || "Failed to record payment");
+        toast.error(err.error?.message || "Failed to record payment", { title: "Payment Error" });
       }
     } catch (err: any) {
-      alert(err.message);
+      toast.error(err.message, { title: "Network Error" });
     }
   };
 
@@ -103,6 +149,48 @@ export const FinanceWorkspace: React.FC<FinanceWorkspaceProps> = () => {
     (sum, c) => sum + Math.max(0, c.partnerPayableMinor || 0),
     0
   );
+
+  const filteredCommissions = useMemo(() => {
+    let result = commissions;
+
+    // 1. Search query
+    if (searchQuery.trim()) {
+      const q = searchQuery.toLowerCase();
+      result = result.filter(
+        (c) =>
+          c.caseId?.caseCode?.toLowerCase().includes(q) ||
+          c.status?.toLowerCase().includes(q)
+      );
+    }
+
+    // 2. Status filter
+    if (statusFilter !== "all") {
+      result = result.filter((c) => c.status === statusFilter);
+    }
+
+    // 3. Sorting
+    return sortItems(result, sortField, sortDirection);
+  }, [commissions, searchQuery, statusFilter, sortField, sortDirection]);
+
+  const activeFiltersCount =
+    (searchQuery ? 1 : 0) +
+    (statusFilter !== "all" ? 1 : 0) +
+    (sortField !== "billedAmountMinor" || sortDirection !== "desc" ? 1 : 0);
+
+  const clearAllFilters = () => {
+    setSearchQuery("");
+    setStatusFilter("all");
+    setSortField("billedAmountMinor");
+    setSortDirection("desc");
+  };
+
+  const totalPages = Math.max(1, Math.ceil(filteredCommissions.length / pageSize));
+  const safeCurrentPage = Math.min(Math.max(1, currentPage), totalPages);
+
+  const paginatedCommissions = useMemo(() => {
+    const start = (safeCurrentPage - 1) * pageSize;
+    return filteredCommissions.slice(start, start + pageSize);
+  }, [filteredCommissions, safeCurrentPage, pageSize]);
 
   return (
     <div className="h-full flex flex-col p-6 overflow-y-auto">
@@ -185,77 +273,271 @@ export const FinanceWorkspace: React.FC<FinanceWorkspaceProps> = () => {
 
       {/* Commission Records Table */}
       <div className="bg-white rounded-xl border border-slate-200 shadow-xs overflow-hidden">
-        <div className="p-4 border-b border-slate-100 flex items-center justify-between">
-          <h3 className="text-xs font-bold text-slate-800 uppercase tracking-wider">
-            Episode Commission Records
-          </h3>
+        <div className="p-4 border-b border-slate-100 flex flex-col md:flex-row md:items-center justify-between gap-3">
+          <div className="flex items-center gap-3">
+            <h3 className="text-xs font-bold text-slate-800 uppercase tracking-wider">
+              Episode Commission Records
+            </h3>
+            <span className="text-[11px] text-slate-400 font-medium">
+              ({filteredCommissions.length} records)
+            </span>
+          </div>
+
+          <div className="flex flex-wrap items-center gap-2.5">
+            <div className="relative w-full sm:w-56">
+              <Search className="w-3.5 h-3.5 text-slate-400 absolute left-2.5 top-1/2 -translate-y-1/2" />
+              <input
+                type="text"
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
+                placeholder="Search case code..."
+                className="w-full text-xs pl-8 pr-7 py-1.5 bg-slate-50 border border-slate-200 rounded-lg focus:bg-white focus:border-[#007A6C] focus:outline-none"
+              />
+              {searchQuery && (
+                <button
+                  onClick={() => setSearchQuery("")}
+                  className="absolute right-2 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600"
+                  title="Clear search"
+                >
+                  <X className="w-3 h-3" />
+                </button>
+              )}
+            </div>
+
+            <div className="flex items-center gap-1.5">
+              <span className="text-[11px] text-slate-500 font-semibold">Status:</span>
+              <select
+                value={statusFilter}
+                onChange={(e) => setStatusFilter(e.target.value)}
+                className="text-xs px-2.5 py-1.5 bg-slate-50 border border-slate-200 rounded-lg focus:outline-none font-medium capitalize"
+              >
+                <option value="all">All Statuses</option>
+                <option value="draft">Draft</option>
+                <option value="provisional">Provisional</option>
+                <option value="invoiced">Invoiced</option>
+                <option value="settled">Settled</option>
+                <option value="clawback">Clawback</option>
+              </select>
+            </div>
+
+            {activeFiltersCount > 0 && (
+              <button
+                onClick={clearAllFilters}
+                className="inline-flex items-center gap-1 px-2.5 py-1.5 rounded-lg text-xs font-semibold text-[#007A6C] bg-[#E6F8F6] hover:bg-[#d0f2ee] transition border border-[#00C7BE]/30"
+                title="Reset all filters and sorting"
+              >
+                <RefreshCw className="w-3 h-3" />
+                <span>Reset ({activeFiltersCount})</span>
+              </button>
+            )}
+
+            {/* Layout Toggle */}
+            <ViewToggle
+              mode={viewMode}
+              onChange={setViewMode}
+            />
+          </div>
         </div>
 
-        <div className="overflow-x-auto">
-          <table className="w-full text-left text-xs">
-            <thead className="bg-slate-50 border-b border-slate-200 text-slate-500 font-bold">
-              <tr>
-                <th className="p-3">Case Code</th>
-                <th className="p-3">Billed (INR)</th>
-                <th className="p-3">Akeezo Commission</th>
-                <th className="p-3">Partner Share</th>
-                <th className="p-3">Hospital Recd</th>
-                <th className="p-3">Partner Paid</th>
-                <th className="p-3">Payable Due</th>
-                <th className="p-3">Status</th>
-              </tr>
-            </thead>
-            <tbody className="divide-y divide-slate-100 text-slate-700">
-              {commissions.length === 0 ? (
+        {viewMode === "table" ? (
+          <div className="overflow-x-auto">
+            <table className="w-full text-left text-xs">
+              <thead className="bg-slate-50 border-b border-slate-200 text-slate-500 font-bold uppercase tracking-wider">
                 <tr>
-                  <td colSpan={8} className="p-8 text-center text-slate-400">
-                    No commission records found.
-                  </td>
+                  <SortHeader
+                    label="Case Code"
+                    field="caseId.caseCode"
+                    currentField={sortField}
+                    currentDirection={sortDirection}
+                    onSort={handleSort}
+                    className="p-3"
+                  />
+                  <SortHeader
+                    label="Billed (INR)"
+                    field="billedAmountMinor"
+                    currentField={sortField}
+                    currentDirection={sortDirection}
+                    onSort={handleSort}
+                    className="p-3"
+                  />
+                  <SortHeader
+                    label="Akeezo Commission"
+                    field="akeezoCommissionMinor"
+                    currentField={sortField}
+                    currentDirection={sortDirection}
+                    onSort={handleSort}
+                    className="p-3"
+                  />
+                  <SortHeader
+                    label="Partner Share"
+                    field="partnerShareMinor"
+                    currentField={sortField}
+                    currentDirection={sortDirection}
+                    onSort={handleSort}
+                    className="p-3"
+                  />
+                  <SortHeader
+                    label="Hospital Recd"
+                    field="hospitalReceivedMinor"
+                    currentField={sortField}
+                    currentDirection={sortDirection}
+                    onSort={handleSort}
+                    className="p-3"
+                  />
+                  <SortHeader
+                    label="Partner Paid"
+                    field="partnerPaidMinor"
+                    currentField={sortField}
+                    currentDirection={sortDirection}
+                    onSort={handleSort}
+                    className="p-3"
+                  />
+                  <SortHeader
+                    label="Payable Due"
+                    field="partnerPayableMinor"
+                    currentField={sortField}
+                    currentDirection={sortDirection}
+                    onSort={handleSort}
+                    className="p-3"
+                  />
+                  <SortHeader
+                    label="Status"
+                    field="status"
+                    currentField={sortField}
+                    currentDirection={sortDirection}
+                    onSort={handleSort}
+                    className="p-3"
+                  />
                 </tr>
-              ) : (
-                commissions.map((cr) => (
-                  <tr key={cr._id} className="hover:bg-slate-50/70">
-                    <td className="p-3 font-mono font-bold text-[#007A6C]">
-                      {cr.caseId?.caseCode || "AKZ"}
-                    </td>
-                    <td className="p-3 font-semibold text-slate-900">
-                      ₹{(cr.billedAmountMinor / 100).toLocaleString("en-IN")}
-                    </td>
-                    <td className="p-3 font-bold text-slate-800">
-                      ₹{(cr.akeezoCommissionMinor / 100).toLocaleString("en-IN")}
-                    </td>
-                    <td className="p-3 font-bold text-[#007A6C]">
-                      ₹{(cr.partnerShareMinor / 100).toLocaleString("en-IN")}
-                    </td>
-                    <td className="p-3 text-emerald-700 font-semibold">
-                      ₹{(cr.hospitalReceivedMinor / 100).toLocaleString("en-IN")}
-                    </td>
-                    <td className="p-3 font-semibold">
-                      ₹{(cr.partnerPaidMinor / 100).toLocaleString("en-IN")}
-                    </td>
-                    <td className="p-3">
-                      {cr.recoveryDueMinor > 0 ? (
-                        <span className="text-red-700 font-bold bg-red-50 px-1.5 py-0.5 rounded">
-                          Recovery ₹{(cr.recoveryDueMinor / 100).toLocaleString("en-IN")}
-                        </span>
-                      ) : (
-                        <span className="text-orange-700 font-bold">
-                          ₹{(Math.max(0, cr.partnerPayableMinor || 0) / 100).toLocaleString("en-IN")}
-                        </span>
-                      )}
-                    </td>
-                    <td className="p-3">
-                      <span className="text-[10px] uppercase font-bold px-2 py-0.5 rounded bg-slate-100 text-slate-700">
-                        {cr.status}
-                      </span>
+              </thead>
+              <tbody className="divide-y divide-slate-100 text-slate-700">
+                {filteredCommissions.length === 0 ? (
+                  <tr>
+                    <td colSpan={8} className="p-8 text-center text-slate-400">
+                      No commission records found.
                     </td>
                   </tr>
-                ))
-              )}
-            </tbody>
-          </table>
+                ) : (
+                  paginatedCommissions.map((cr) => (
+                    <tr key={cr._id} className="hover:bg-slate-50/70">
+                      <td className="p-3 font-mono font-bold text-[#007A6C]">
+                        {cr.caseId?.caseCode || "AKZ"}
+                      </td>
+                      <td className="p-3 font-semibold text-slate-900">
+                        ₹{(cr.billedAmountMinor / 100).toLocaleString("en-IN")}
+                      </td>
+                      <td className="p-3 font-bold text-slate-800">
+                        ₹{(cr.akeezoCommissionMinor / 100).toLocaleString("en-IN")}
+                      </td>
+                      <td className="p-3 font-bold text-[#007A6C]">
+                        ₹{(cr.partnerShareMinor / 100).toLocaleString("en-IN")}
+                      </td>
+                      <td className="p-3 text-emerald-700 font-semibold">
+                        ₹{(cr.hospitalReceivedMinor / 100).toLocaleString("en-IN")}
+                      </td>
+                      <td className="p-3 font-semibold">
+                        ₹{(cr.partnerPaidMinor / 100).toLocaleString("en-IN")}
+                      </td>
+                      <td className="p-3">
+                        {cr.recoveryDueMinor > 0 ? (
+                          <span className="text-red-700 font-bold bg-red-50 px-1.5 py-0.5 rounded">
+                            Recovery ₹{(cr.recoveryDueMinor / 100).toLocaleString("en-IN")}
+                          </span>
+                        ) : (
+                          <span className="text-orange-700 font-bold">
+                            ₹{(Math.max(0, cr.partnerPayableMinor || 0) / 100).toLocaleString("en-IN")}
+                          </span>
+                        )}
+                      </td>
+                      <td className="p-3">
+                        <span className="text-[10px] uppercase font-bold px-2 py-0.5 rounded bg-slate-100 text-slate-700">
+                          {cr.status}
+                        </span>
+                      </td>
+                    </tr>
+                  ))
+                )}
+              </tbody>
+            </table>
+          </div>
+        ) : (
+          /* Grid Card View */
+          <div className="p-4 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+            {filteredCommissions.length === 0 ? (
+              <div className="col-span-full p-8 text-center text-slate-400">
+                No commission records found.
+              </div>
+            ) : (
+              paginatedCommissions.map((cr) => (
+                <div
+                  key={cr._id}
+                  className="p-4 bg-white rounded-xl border border-slate-200 hover:border-[#00C7BE] hover:shadow-md transition-all space-y-3"
+                >
+                  <div className="flex items-center justify-between">
+                    <span className="font-mono text-xs font-bold text-[#007A6C] bg-[#E6F8F6] px-2 py-0.5 rounded border border-[#00C7BE]/30">
+                      {cr.caseId?.caseCode || "AKZ"}
+                    </span>
+                    <span className="text-[10px] uppercase font-bold px-2 py-0.5 rounded bg-slate-100 text-slate-700">
+                      {cr.status}
+                    </span>
+                  </div>
+
+                  <div className="grid grid-cols-2 gap-2 text-xs border-y border-slate-100 py-2.5">
+                    <div>
+                      <span className="text-[10px] text-slate-400 block font-medium">Billed Amount</span>
+                      <strong className="text-slate-900 font-bold">
+                        ₹{(cr.billedAmountMinor / 100).toLocaleString("en-IN")}
+                      </strong>
+                    </div>
+                    <div>
+                      <span className="text-[10px] text-slate-400 block font-medium">Akeezo Comm (15%)</span>
+                      <strong className="text-slate-800 font-bold">
+                        ₹{(cr.akeezoCommissionMinor / 100).toLocaleString("en-IN")}
+                      </strong>
+                    </div>
+                    <div>
+                      <span className="text-[10px] text-slate-400 block font-medium">Partner Share</span>
+                      <strong className="text-[#007A6C] font-bold">
+                        ₹{(cr.partnerShareMinor / 100).toLocaleString("en-IN")}
+                      </strong>
+                    </div>
+                    <div>
+                      <span className="text-[10px] text-slate-400 block font-medium">Hospital Received</span>
+                      <strong className="text-emerald-700 font-bold">
+                        ₹{(cr.hospitalReceivedMinor / 100).toLocaleString("en-IN")}
+                      </strong>
+                    </div>
+                  </div>
+
+                  <div className="flex items-center justify-between text-xs pt-1">
+                    <span className="text-slate-500 text-[11px]">Due Status:</span>
+                    {cr.recoveryDueMinor > 0 ? (
+                      <span className="text-red-700 font-bold bg-red-50 px-2 py-0.5 rounded text-xs">
+                        Clawback ₹{(cr.recoveryDueMinor / 100).toLocaleString("en-IN")}
+                      </span>
+                    ) : (
+                      <span className="text-orange-700 font-bold text-xs">
+                        Payable ₹{(Math.max(0, cr.partnerPayableMinor || 0) / 100).toLocaleString("en-IN")}
+                      </span>
+                    )}
+                  </div>
+                </div>
+              ))
+            )}
+          </div>
+        )}
+
+          {/* Table Pagination */}
+          <TablePagination
+            currentPage={safeCurrentPage}
+            totalItems={filteredCommissions.length}
+            pageSize={pageSize}
+            onPageChange={setCurrentPage}
+            onPageSizeChange={setPageSize}
+            pageSizeOptions={[10, 25, 50, 100]}
+            itemLabel="commission records"
+          />
         </div>
-      </div>
 
       {/* Record Payment Dialog */}
       {showPaymentModal && (
@@ -333,12 +615,49 @@ export const FinanceWorkspace: React.FC<FinanceWorkspaceProps> = () => {
                 >
                   Cancel
                 </button>
-                <button
+                <DisabledGuideButton
                   type="submit"
-                  className="text-xs px-4 py-2 bg-[#FF6B00] hover:bg-[#FF6D1B] active:bg-[#E05E00] text-white font-bold rounded-lg shadow-xs transition"
+                  disabled={
+                    !paymentForm.amount ||
+                    parseFloat(paymentForm.amount) <= 0 ||
+                    !paymentForm.reference.trim() ||
+                    !paymentForm.targetCommissionRecordId
+                  }
+                  reasonTitle="Payment Details Incomplete"
+                  reasonMessage="A valid positive amount, banking reference UTR number, and target commission ledger are required."
+                  requirements={[
+                    {
+                      label: "Positive Payment Amount (INR)",
+                      fulfilled: Boolean(parseFloat(paymentForm.amount) > 0),
+                      tip: "Must be greater than 0",
+                    },
+                    {
+                      label: "Bank Transaction Reference (UTR / Cheque)",
+                      fulfilled: Boolean(paymentForm.reference.trim()),
+                      tip: "Required for bank audit reconciliation",
+                    },
+                    {
+                      label: "Target Commission Allocation Case",
+                      fulfilled: Boolean(paymentForm.targetCommissionRecordId),
+                      tip: "Must select a billable case record",
+                    },
+                  ]}
+                  stepsToEnable={[
+                    "Enter the received or disbursed INR amount.",
+                    "Fill in the bank UTR or remittance reference.",
+                    "Select the target case billing record to allocate funds.",
+                  ]}
+                  placement="top"
+                  className={`text-xs px-4 py-2 font-bold rounded-lg shadow-xs transition ${
+                    parseFloat(paymentForm.amount) > 0 &&
+                    paymentForm.reference.trim() &&
+                    paymentForm.targetCommissionRecordId
+                      ? "bg-[#FF6B00] hover:bg-[#FF6D1B] active:bg-[#E05E00] text-white"
+                      : "bg-slate-300 text-slate-500 cursor-not-allowed"
+                  }`}
                 >
                   Record & Allocate
-                </button>
+                </DisabledGuideButton>
               </div>
             </form>
           </div>

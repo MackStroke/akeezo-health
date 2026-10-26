@@ -30,7 +30,7 @@ export const Sidebar: React.FC<SidebarProps> = ({
   ];
 
   return (
-    <aside className="w-60 bg-[#061E1B] text-slate-300 flex flex-col justify-between shrink-0 h-[calc(100vh-4rem)] sticky top-16 select-none border-r border-teal-950/80 font-sans">
+    <aside data-tour="nav-tabs" className="w-60 bg-[#061E1B] text-slate-300 flex flex-col justify-between shrink-0 h-[calc(100vh-4rem)] sticky top-16 select-none border-r border-teal-950/80 font-sans">
       <div className="py-4 px-3 space-y-4 overflow-y-auto">
         {/* Section 1: Case ERP */}
         <div className="space-y-1">

@@ -1,4 +1,13 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useMemo } from "react";
+import {
+  TablePagination,
+  SortHeader,
+  sortItems,
+  getNextSortDirection,
+  SortDirection,
+  ViewToggle,
+  ViewMode,
+} from "./TablePagination";
 import {
   FileText,
   Search,
@@ -24,7 +33,9 @@ import {
   Sliders,
   Check,
   Save,
+  X,
 } from "lucide-react";
+import { useToast, DisabledGuideButton } from "@akeezo/ui";
 
 interface PageItem {
   id: string;
@@ -59,6 +70,7 @@ interface FooterGroup {
 }
 
 export const ContentView: React.FC = () => {
+  const toast = useToast();
   const [activeSubTab, setActiveSubTab] = useState<"pages" | "navigation">("pages");
 
   // --- Pages State ---
@@ -205,12 +217,16 @@ export const ContentView: React.FC = () => {
       });
       const json = await res.json();
       if (!res.ok) {
-        alert(json.error?.message || "Failed to update page status.");
+        toast.error("Status Update Failed", json.error?.message || "Failed to update page status.");
         return;
       }
       await fetchPages();
+      toast.success(
+        newStatus === "published" ? "Page Published" : "Page Unpublished",
+        `Page "${page.title}" status changed to ${newStatus}.`
+      );
     } catch (err: any) {
-      alert(`Error updating status: ${err.message}`);
+      toast.error("Status Update Error", err.message);
     }
   };
 
@@ -226,19 +242,19 @@ export const ContentView: React.FC = () => {
       });
       const json = await res.json();
       if (!res.ok) {
-        alert(json.error?.message || "Failed to duplicate page.");
+        toast.error("Duplicate Failed", json.error?.message || "Failed to duplicate page.");
         return;
       }
       await fetchPages();
-      alert(`Page duplicated successfully as /${suggestedSlug}`);
+      toast.success("Page Duplicated", `Page duplicated successfully as /${suggestedSlug}`);
     } catch (err: any) {
-      alert(`Duplicate failed: ${err.message}`);
+      toast.error("Duplicate Error", err.message);
     }
   };
 
   const handleArchivePage = async (page: PageItem) => {
     if (page.slug === "home") {
-      alert("The homepage cannot be archived.");
+      toast.warning("Protected Page", "The homepage cannot be archived as it serves as the root route.");
       return;
     }
     if (!confirm(`Are you sure you want to archive page "${page.title}" (/ ${page.slug})?`)) return;
@@ -251,9 +267,13 @@ export const ContentView: React.FC = () => {
       });
       if (res.ok) {
         await fetchPages();
+        toast.success("Page Archived", `Page "${page.title}" has been moved to archived state.`);
+      } else {
+        const json = await res.json();
+        toast.error("Archive Failed", json.error?.message || "Failed to archive page.");
       }
     } catch (err: any) {
-      alert(`Archive failed: ${err.message}`);
+      toast.error("Archive Error", err.message);
     }
   };
 
@@ -267,14 +287,15 @@ export const ContentView: React.FC = () => {
       });
       const json = await res.json();
       if (!res.ok) {
-        alert(json.error?.message || "Failed to restore revision");
+        toast.error("Restore Failed", json.error?.message || "Failed to restore revision");
         return;
       }
       setPayload(json.data.payload || {});
       setSeo(json.data.seo || {});
       setSavePageSuccess("Historical revision restored to draft.");
+      toast.success("Revision Restored", "Historical revision loaded into editor as active draft.");
     } catch (err: any) {
-      alert(`Restore failed: ${err.message}`);
+      toast.error("Restore Error", err.message);
     }
   };
 
@@ -304,7 +325,7 @@ export const ContentView: React.FC = () => {
 
       const json = await res.json();
       if (!res.ok) {
-        alert(json.error?.message || "Failed to create page");
+        toast.error("Create Page Failed", json.error?.message || "Failed to create page");
         return;
       }
 
@@ -312,8 +333,9 @@ export const ContentView: React.FC = () => {
       setNewTitle("");
       setNewSlug("");
       await fetchPages();
+      toast.success("Page Created", `New draft page "/${newSlug}" created successfully.`);
     } catch (err: any) {
-      alert(`Create page failed: ${err.message}`);
+      toast.error("Create Page Error", err.message);
     } finally {
       setCreatingPage(false);
     }
@@ -334,21 +356,70 @@ export const ContentView: React.FC = () => {
       if (res.ok) {
         setNavSuccess(true);
         setTimeout(() => setNavSuccess(false), 3000);
+        toast.success("Navigation Saved", "Public website header and footer menus updated.");
+      } else {
+        const json = await res.json();
+        toast.error("Navigation Save Failed", json.error?.message || "Failed to save navigation.");
       }
     } catch (err: any) {
-      alert(`Error saving navigation: ${err.message}`);
+      toast.error("Navigation Error", `Error saving navigation: ${err.message}`);
     } finally {
       setSavingNav(false);
     }
   };
 
-  const filteredPages = pages.filter((p) => {
-    const matchesSearch =
-      p.title?.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      p.slug?.toLowerCase().includes(searchQuery.toLowerCase());
-    const matchesStatus = statusFilter === "all" || p.status === statusFilter;
-    return matchesSearch && matchesStatus;
-  });
+  // Sorting & Filtering State
+  const [viewMode, setViewMode] = useState<ViewMode>("table");
+  const [sortField, setSortField] = useState<string | null>("title");
+  const [sortDirection, setSortDirection] = useState<SortDirection>("asc");
+
+  const handleSort = (field: string) => {
+    const next = getNextSortDirection(sortField, field, sortDirection);
+    setSortField(next.field);
+    setSortDirection(next.direction);
+  };
+
+  // Pagination State
+  const [currentPage, setCurrentPage] = useState(1);
+  const [pageSize, setPageSize] = useState(10);
+
+  useEffect(() => {
+    setCurrentPage(1);
+  }, [searchQuery, statusFilter, sortField, sortDirection]);
+
+  const filteredPages = useMemo(() => {
+    let result = pages.filter((p) => {
+      const matchesSearch =
+        !searchQuery.trim() ||
+        p.title?.toLowerCase().includes(searchQuery.toLowerCase()) ||
+        p.slug?.toLowerCase().includes(searchQuery.toLowerCase()) ||
+        p.path?.toLowerCase().includes(searchQuery.toLowerCase());
+      const matchesStatus = statusFilter === "all" || p.status === statusFilter;
+      return matchesSearch && matchesStatus;
+    });
+
+    return sortItems(result, sortField, sortDirection);
+  }, [pages, searchQuery, statusFilter, sortField, sortDirection]);
+
+  const activeFiltersCount =
+    (searchQuery ? 1 : 0) +
+    (statusFilter !== "all" ? 1 : 0) +
+    (sortField !== "title" || sortDirection !== "asc" ? 1 : 0);
+
+  const clearAllFilters = () => {
+    setSearchQuery("");
+    setStatusFilter("all");
+    setSortField("title");
+    setSortDirection("asc");
+  };
+
+  const totalPages = Math.max(1, Math.ceil(filteredPages.length / pageSize));
+  const safeCurrentPage = Math.min(Math.max(1, currentPage), totalPages);
+
+  const paginatedPages = useMemo(() => {
+    const start = (safeCurrentPage - 1) * pageSize;
+    return filteredPages.slice(start, start + pageSize);
+  }, [filteredPages, safeCurrentPage, pageSize]);
 
   return (
     <div className="space-y-6 font-sans">
@@ -414,37 +485,98 @@ export const ContentView: React.FC = () => {
                 type="text"
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
-                placeholder="Search page title or slug..."
-                className="w-full text-xs pl-9 pr-3 py-2 bg-slate-50 border border-slate-200 rounded-xl focus:bg-white focus:border-[#007A6C] focus:ring-1 focus:ring-[#00C7BE] focus:outline-none"
+                placeholder="Search page title, slug, or path..."
+                className="w-full text-xs pl-9 pr-8 py-2 bg-slate-50 border border-slate-200 rounded-xl focus:bg-white focus:border-[#007A6C] focus:ring-1 focus:ring-[#00C7BE] focus:outline-none"
               />
+              {searchQuery && (
+                <button
+                  type="button"
+                  onClick={() => setSearchQuery("")}
+                  className="absolute right-2.5 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600"
+                  title="Clear search"
+                >
+                  <X className="w-3.5 h-3.5" />
+                </button>
+              )}
             </div>
 
-            <div className="flex items-center gap-2 w-full sm:w-auto">
-              <span className="text-xs text-slate-500 font-semibold whitespace-nowrap">Status:</span>
-              <select
-                value={statusFilter}
-                onChange={(e) => setStatusFilter(e.target.value)}
-                className="text-xs px-3 py-2 bg-slate-50 border border-slate-200 rounded-xl focus:bg-white focus:outline-none font-medium"
-              >
-                <option value="all">All Pages</option>
-                <option value="published">Published Live</option>
-                <option value="draft">Draft Only</option>
-                <option value="archived">Archived</option>
-              </select>
+            <div className="flex items-center gap-2.5 w-full sm:w-auto justify-between sm:justify-end">
+              <div className="flex items-center gap-1.5">
+                <span className="text-xs text-slate-500 font-semibold whitespace-nowrap">Status:</span>
+                <select
+                  value={statusFilter}
+                  onChange={(e) => setStatusFilter(e.target.value)}
+                  className="text-xs px-2.5 py-1.5 bg-slate-50 border border-slate-200 rounded-xl focus:bg-white focus:outline-none font-medium text-slate-700"
+                >
+                  <option value="all">All Statuses</option>
+                  <option value="published">Published Live</option>
+                  <option value="draft">Draft Only</option>
+                  <option value="archived">Archived</option>
+                </select>
+              </div>
+
+              {activeFiltersCount > 0 && (
+                <button
+                  type="button"
+                  onClick={clearAllFilters}
+                  className="px-2.5 py-1.5 text-xs font-bold text-rose-600 hover:bg-rose-50 border border-rose-200 rounded-xl transition flex items-center gap-1"
+                  title="Reset all filters and sorting"
+                >
+                  <X className="w-3.5 h-3.5" />
+                  <span>Reset ({activeFiltersCount})</span>
+                </button>
+              )}
+
+              {/* Layout Toggle */}
+              <ViewToggle
+                mode={viewMode}
+                onChange={setViewMode}
+              />
             </div>
           </div>
 
-          {/* Pages Table */}
+          {/* Pages View Container */}
           <div className="bg-white rounded-2xl border border-slate-200 shadow-xs overflow-hidden">
-            <div className="overflow-x-auto">
+            {viewMode === "table" ? (
+              <div className="overflow-x-auto">
               <table className="w-full text-left text-xs">
                 <thead className="bg-slate-50 border-b border-slate-200 text-slate-500 font-bold uppercase tracking-wider">
                   <tr>
-                    <th className="py-3 px-4">Page Title & Path</th>
-                    <th className="py-3 px-4">Slug</th>
-                    <th className="py-3 px-4">Status</th>
-                    <th className="py-3 px-4">Version</th>
-                    <th className="py-3 px-4">Last Updated</th>
+                    <SortHeader
+                      field="title"
+                      label="Page Title & Path"
+                      currentSortField={sortField}
+                      currentSortDirection={sortDirection}
+                      onSort={handleSort}
+                    />
+                    <SortHeader
+                      field="slug"
+                      label="Slug"
+                      currentSortField={sortField}
+                      currentSortDirection={sortDirection}
+                      onSort={handleSort}
+                    />
+                    <SortHeader
+                      field="status"
+                      label="Status"
+                      currentSortField={sortField}
+                      currentSortDirection={sortDirection}
+                      onSort={handleSort}
+                    />
+                    <SortHeader
+                      field="version"
+                      label="Version"
+                      currentSortField={sortField}
+                      currentSortDirection={sortDirection}
+                      onSort={handleSort}
+                    />
+                    <SortHeader
+                      field="updatedAt"
+                      label="Last Updated"
+                      currentSortField={sortField}
+                      currentSortDirection={sortDirection}
+                      onSort={handleSort}
+                    />
                     <th className="py-3 px-4 text-right">Actions</th>
                   </tr>
                 </thead>
@@ -462,7 +594,7 @@ export const ContentView: React.FC = () => {
                       </td>
                     </tr>
                   ) : (
-                    filteredPages.map((page) => (
+                    paginatedPages.map((page) => (
                       <tr key={page.id} className="hover:bg-slate-50/80 transition">
                         <td className="py-3.5 px-4">
                           <div className="font-bold text-slate-900">{page.title}</div>
@@ -542,6 +674,101 @@ export const ContentView: React.FC = () => {
                 </tbody>
               </table>
             </div>
+          ) : (
+            /* Grid Card View */
+            <div className="p-4 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+              {loadingPages ? (
+                <div className="col-span-full py-8 text-center text-slate-400 font-semibold">
+                  Loading published and draft pages...
+                </div>
+              ) : filteredPages.length === 0 ? (
+                <div className="col-span-full py-8 text-center text-slate-400 font-semibold">
+                  No pages match the search query or status filter.
+                </div>
+              ) : (
+                paginatedPages.map((page) => (
+                  <div
+                    key={page.id}
+                    className="p-4 bg-white rounded-xl border border-slate-200 hover:border-[#00C7BE] hover:shadow-md transition-all flex flex-col justify-between space-y-3"
+                  >
+                    <div className="flex items-center justify-between">
+                      <span className="font-mono text-xs font-bold text-[#007A6C] bg-[#E6F8F6] px-2 py-0.5 rounded border border-[#00C7BE]/30">
+                        /{page.slug}
+                      </span>
+                      <span
+                        className={`px-2 py-0.5 rounded-full text-[10px] font-bold uppercase tracking-wider ${
+                          page.status === "published"
+                            ? "bg-emerald-100 text-emerald-800"
+                            : page.status === "draft"
+                            ? "bg-amber-100 text-amber-800"
+                            : "bg-slate-200 text-slate-600"
+                        }`}
+                      >
+                        {page.status}
+                      </span>
+                    </div>
+
+                    <div>
+                      <h3 className="font-bold text-sm text-slate-900">{page.title}</h3>
+                      <p className="text-[11px] text-slate-500 font-mono truncate">{page.path}</p>
+                    </div>
+
+                    <div className="text-xs text-slate-500 flex items-center justify-between border-t border-slate-100 pt-2.5">
+                      <span className="text-[11px] text-slate-400 font-medium">
+                        v{page.version || 1} · {page.updatedAt ? new Date(page.updatedAt).toLocaleDateString() : "Active"}
+                      </span>
+                      <div className="flex items-center gap-1">
+                        <button
+                          onClick={() => openEditor(page)}
+                          className="px-2.5 py-1 text-xs font-bold text-white bg-[#007A6C] hover:bg-[#005F54] rounded-lg transition"
+                        >
+                          Edit
+                        </button>
+                        <a
+                          href={page.path}
+                          target="_blank"
+                          rel="noreferrer"
+                          className="p-1 text-slate-500 hover:text-slate-800 hover:bg-slate-100 rounded-lg transition"
+                          title="Preview on live site"
+                        >
+                          <ExternalLink className="w-3.5 h-3.5" />
+                        </a>
+                        <button
+                          onClick={() => handleTogglePublish(page)}
+                          className={`p-1 rounded-lg transition ${
+                            page.status === "published"
+                              ? "text-amber-600 hover:bg-amber-50"
+                              : "text-emerald-600 hover:bg-emerald-50"
+                          }`}
+                          title={page.status === "published" ? "Unpublish to draft" : "Publish to live site"}
+                        >
+                          <Globe className="w-3.5 h-3.5" />
+                        </button>
+                        <button
+                          onClick={() => handleDuplicatePage(page)}
+                          className="p-1 text-slate-500 hover:text-slate-800 hover:bg-slate-100 rounded-lg transition"
+                          title="Duplicate page"
+                        >
+                          <Copy className="w-3.5 h-3.5" />
+                        </button>
+                      </div>
+                    </div>
+                  </div>
+                ))
+              )}
+            </div>
+          )}
+
+          {/* Pagination Controls */}
+            <TablePagination
+              currentPage={safeCurrentPage}
+              totalItems={filteredPages.length}
+              pageSize={pageSize}
+              onPageChange={setCurrentPage}
+              onPageSizeChange={setPageSize}
+              pageSizeOptions={[10, 25, 50, 100]}
+              itemLabel="pages"
+            />
           </div>
         </div>
       )}
@@ -1059,13 +1286,23 @@ export const ContentView: React.FC = () => {
                 >
                   Cancel
                 </button>
-                <button
+                <DisabledGuideButton
                   type="submit"
-                  disabled={creatingPage}
-                  className="px-4 py-2 text-xs font-bold text-white bg-[#FF6B00] hover:bg-[#FF6D1B] rounded-xl shadow-xs disabled:opacity-60"
+                  disabled={creatingPage || !newTitle.trim() || !newSlug.trim()}
+                  guideTitle="Cannot Create Draft Page"
+                  guideReason="A unique alphanumeric URL slug and page title are required before registering a new CMS page in MongoDB."
+                  prerequisites={[
+                    { label: "Page title provided", fulfilled: !!newTitle.trim() },
+                    { label: "URL slug defined (e.g. robotic-surgery)", fulfilled: !!newSlug.trim() },
+                  ]}
+                  actionSteps={[
+                    "Enter a descriptive title for the webpage.",
+                    "Define a clean lowercase hyphenated URL slug.",
+                  ]}
+                  className="px-4 py-2 text-xs font-bold text-white bg-[#FF6B00] hover:bg-[#FF6D1B] rounded-xl shadow-xs"
                 >
                   {creatingPage ? "Creating..." : "Create Draft Page"}
-                </button>
+                </DisabledGuideButton>
               </div>
             </form>
           </div>

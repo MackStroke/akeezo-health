@@ -1,6 +1,8 @@
 import React, { useState, useEffect, useCallback } from "react";
+import { ShieldAlert, ArrowRight, LogOut } from "lucide-react";
 import { AuthProvider, useAuth } from "./context/AuthContext.js";
 import { ThemeProvider } from "./context/ThemeContext.js";
+import { FeedbackProvider, TourProvider, useTour, TourStep } from "@akeezo/ui";
 import { AdminLoginView } from "./components/AdminLoginView.js";
 import { SuperAdminHeader } from "./components/SuperAdminHeader.js";
 import { SuperAdminSidebar, AdminTab } from "./components/SuperAdminSidebar.js";
@@ -14,6 +16,53 @@ import { ActivityLogView } from "./components/ActivityLogView.js";
 import { SettingsView } from "./components/SettingsView.js";
 import { CaseManagementSuperAdminView } from "./components/CaseManagementSuperAdminView.js";
 import { ProfileSecurityModal } from "./components/ProfileSecurityModal.js";
+
+const ADMIN_TOUR_STEPS: TourStep[] = [
+  {
+    id: "tour-admin-overview",
+    targetSelector: '[data-tour="admin-kpis"]',
+    title: "Executive Super Admin Overview",
+    description: "Real-time KPI telemetry tracking website traffic, published pages, incoming patient enquiries, and case conversion rates across all services.",
+    badge: "Operations Dashboard",
+    placement: "bottom",
+    tip: "Counters and attention items reflect live production MongoDB data.",
+  },
+  {
+    id: "tour-admin-search",
+    targetSelector: '[data-tour="admin-search"]',
+    title: "Global Command Search",
+    description: "Quickly locate content pages, media assets, patient leads, or RBAC user roles across the platform.",
+    badge: "Quick Search",
+    placement: "bottom",
+    tip: "Click or search to navigate directly to any administrative record.",
+  },
+  {
+    id: "tour-admin-actions",
+    targetSelector: '[data-tour="quick-actions"]',
+    title: "Quick Creation Actions",
+    description: "Launch new CMS pages, record manual website inquiries, or invite team members with granular RBAC permissions in a single click.",
+    badge: "Quick Actions",
+    placement: "bottom",
+  },
+  {
+    id: "tour-admin-sidebar",
+    targetSelector: '[data-tour="admin-sidebar"]',
+    title: "Enterprise Management Modules",
+    description: "Switch seamlessly between Content Management, Media Library, Website Enquiries, SEO & 301 Redirects, Users & RBAC, Activity Audit, and System Theme Studio.",
+    badge: "Sidebar Navigation",
+    placement: "right",
+    tip: "Public drafts and revisions are staged securely and require explicit publishing before going live.",
+  },
+  {
+    id: "tour-admin-tour-btn",
+    targetSelector: '[data-tour="tour-btn"]',
+    title: "Platform Tour & Interactive Guidance",
+    description: "Revisit this interactive onboarding guide whenever needed. Blocked or protected buttons throughout the admin suite feature contextual guide popups with prerequisite checklists.",
+    badge: "Help & Guidance",
+    placement: "bottom",
+    tip: "Hover or click on any disabled button to inspect why the action is blocked.",
+  },
+];
 
 const tabPathMap: Record<AdminTab, string> = {
   overview: "/admin",
@@ -42,12 +91,23 @@ function getTabFromPath(pathname: string): AdminTab {
 }
 
 const SuperAdminDashboard: React.FC = () => {
-  const { user, isLoading } = useAuth();
+  const { user, isLoading, logout } = useAuth();
+  const { startTour } = useTour();
   const [activeTab, setActiveTabState] = useState<AdminTab>(() =>
     getTabFromPath(window.location.pathname)
   );
   const [searchQuery, setSearchQuery] = useState("");
   const [leadsCount, setLeadsCount] = useState<number>(0);
+
+  // Auto-launch walkthrough for first-time admin users
+  useEffect(() => {
+    if (user) {
+      const timer = setTimeout(() => {
+        startTour("akeezo_admin_tour", ADMIN_TOUR_STEPS, false);
+      }, 700);
+      return () => clearTimeout(timer);
+    }
+  }, [user, startTour]);
 
   // Layout State (Sidebar is locked on desktop; drawer for mobile)
   const [isMobileSidebarOpen, setIsMobileSidebarOpen] = useState(false);
@@ -104,6 +164,59 @@ const SuperAdminDashboard: React.FC = () => {
     return <AdminLoginView />;
   }
 
+  // Strict Super Admin Access Guard: Non-admin users (e.g. coordinators, finance) cannot access Website Admin
+  const userRole = (user as any).role;
+  const isSuperAdmin = userRole === "admin";
+  if (!isSuperAdmin) {
+    return (
+      <div className="min-h-screen bg-[#061E1B] flex items-center justify-center p-4 selection:bg-[#007A6C] selection:text-white font-sans">
+        <div className="w-full max-w-md bg-white rounded-2xl shadow-2xl p-8 border border-teal-900/40 text-center space-y-5">
+          <div className="w-14 h-14 mx-auto rounded-full bg-rose-50 border border-rose-200 flex items-center justify-center text-rose-600 shadow-sm">
+            <ShieldAlert className="w-7 h-7" />
+          </div>
+
+          <div className="space-y-2">
+            <span className="text-[10px] font-bold uppercase tracking-widest text-rose-600 bg-rose-50 px-2.5 py-1 rounded-full border border-rose-200">
+              HTTP 403 · Access Restricted
+            </span>
+            <h2 className="text-lg font-black text-slate-900 tracking-tight">
+              Super Admin Authorization Required
+            </h2>
+            <p className="text-xs text-slate-500 leading-relaxed">
+              You are signed in as <strong className="text-slate-800">{user.name}</strong> (<code className="text-[#007A6C] font-mono">{user.email}</code>) with role <span className="font-semibold uppercase text-slate-700">[{userRole || "User"}]</span>.
+            </p>
+            <p className="text-xs text-slate-600 bg-slate-50 p-3 rounded-xl border border-slate-200 leading-normal">
+              Website Content, Theme Studio, Media Assets, and System Settings require <strong>Super Admin (`admin`)</strong> credentials. Your account is authorized for Case Management operations.
+            </p>
+          </div>
+
+          <div className="space-y-2 pt-2">
+            <a
+              href="/case-management"
+              className="w-full py-2.5 bg-[#007A6C] hover:bg-[#005F54] text-white font-bold text-xs rounded-xl shadow-sm transition flex items-center justify-center gap-1.5"
+            >
+              <span>Go to Case Management Workspace</span>
+              <ArrowRight className="w-4 h-4" />
+            </a>
+
+            <button
+              type="button"
+              onClick={logout}
+              className="w-full py-2 bg-slate-100 hover:bg-slate-200 text-slate-700 font-semibold text-xs rounded-xl transition flex items-center justify-center gap-1.5"
+            >
+              <LogOut className="w-3.5 h-3.5" />
+              <span>Sign Out / Switch Account</span>
+            </button>
+          </div>
+
+          <div className="pt-2 text-[10px] text-slate-400 border-t border-slate-100">
+            Protected by DPDP Act 2023 & Enterprise RBAC Multi-Portal Isolation
+          </div>
+        </div>
+      </div>
+    );
+  }
+
   return (
     <div
       className="h-screen w-screen overflow-hidden flex flex-col font-sans"
@@ -128,6 +241,7 @@ const SuperAdminDashboard: React.FC = () => {
           setProfileModalInitialTab("security");
           setProfileModalOpen(true);
         }}
+        onStartTour={() => startTour("akeezo_admin_tour", ADMIN_TOUR_STEPS, true)}
         onCreatePage={() => selectTab("content")}
         onCreateEnquiry={() => selectTab("enquiries")}
         onInviteUser={() => selectTab("users")}
@@ -200,7 +314,11 @@ export const App: React.FC = () => {
   return (
     <AuthProvider>
       <ThemeProvider>
-        <SuperAdminDashboard />
+        <FeedbackProvider>
+          <TourProvider>
+            <SuperAdminDashboard />
+          </TourProvider>
+        </FeedbackProvider>
       </ThemeProvider>
     </AuthProvider>
   );

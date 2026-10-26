@@ -116,7 +116,7 @@ export const PipelineBoard: React.FC<PipelineBoardProps> = ({
   }, [cases]);
 
   return (
-    <div className="h-full flex flex-col p-6 overflow-hidden">
+    <div data-tour="pipeline-board" className="h-full flex flex-col p-6 overflow-hidden">
       <div className="flex items-center justify-between pb-4">
         <div>
           <h1 className="text-xl font-black text-slate-800 tracking-tight">

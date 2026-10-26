@@ -2,7 +2,7 @@ import crypto from "crypto";
 import mongoose from "mongoose";
 import type { Request, Response, NextFunction } from "express";
 import { UserModel, IUser } from "../db/models/User.js";
-import { PermissionKey } from "@akeezo/contracts";
+import { PermissionKey, RoleKey } from "@akeezo/contracts";
 
 const JWT_SECRET = process.env.JWT_SECRET || "akeezo_super_secure_jwt_secret_token_2026";
 const TOKEN_EXPIRY_SECONDS = 60 * 60 * 12; // 12 hours absolute limit per PRD Section 27
@@ -283,5 +283,28 @@ export function requirePermission(permission: PermissionKey) {
         message: `You do not have the required permission: ${permission}`,
       },
     });
+  };
+}
+
+// Role-based Access Control Middleware
+export function requireRole(allowedRoles: RoleKey | RoleKey[]) {
+  const roles = Array.isArray(allowedRoles) ? allowedRoles : [allowedRoles];
+  return (req: AuthenticatedRequest, res: Response, next: NextFunction): void => {
+    if (!req.user) {
+      res.status(401).json({ error: { code: "UNAUTHORIZED", message: "Sign in required." } });
+      return;
+    }
+
+    if (!roles.includes(req.user.role as RoleKey)) {
+      res.status(403).json({
+        error: {
+          code: "FORBIDDEN",
+          message: `Access denied. Role '${req.user.role}' is not authorized. Required: ${roles.join(", ")}.`,
+        },
+      });
+      return;
+    }
+
+    next();
   };
 }

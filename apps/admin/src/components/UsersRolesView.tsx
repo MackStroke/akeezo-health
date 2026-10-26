@@ -1,4 +1,13 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useMemo } from "react";
+import {
+  TablePagination,
+  SortHeader,
+  sortItems,
+  getNextSortDirection,
+  SortDirection,
+  ViewToggle,
+  ViewMode,
+} from "./TablePagination";
 import {
   Users,
   ShieldCheck,
@@ -15,7 +24,9 @@ import {
   X,
   Edit2,
   ShieldAlert,
+  RefreshCw,
 } from "lucide-react";
+import { useToast, DisabledGuideButton } from "@akeezo/ui";
 
 interface AdminUser {
   _id: string;
@@ -38,14 +49,36 @@ interface RoleDefinition {
 }
 
 export const UsersRolesView: React.FC = () => {
+  const toast = useToast();
   const [activeTab, setActiveTab] = useState<"users" | "roles">("users");
 
   // Users State
+  const [viewMode, setViewMode] = useState<ViewMode>("table");
   const [users, setUsers] = useState<AdminUser[]>([]);
   const [roles, setRoles] = useState<RoleDefinition[]>([]);
   const [loading, setLoading] = useState(true);
   const [search, setSearch] = useState("");
   const [statusFilter, setStatusFilter] = useState("all");
+  const [roleFilter, setRoleFilter] = useState("all");
+
+  // Sorting State
+  const [sortField, setSortField] = useState<string | null>("createdAt");
+  const [sortDirection, setSortDirection] = useState<SortDirection>("desc");
+
+  const handleSort = (field: string) => {
+    const next = getNextSortDirection(sortField, field, sortDirection);
+    setSortField(next.field);
+    setSortDirection(next.direction);
+  };
+
+  // Pagination State
+  const [currentPage, setCurrentPage] = useState(1);
+  const [pageSize, setPageSize] = useState(10);
+
+  // Reset to page 1 on filter/search/sort change
+  useEffect(() => {
+    setCurrentPage(1);
+  }, [search, statusFilter, roleFilter, sortField, sortDirection]);
 
   // Invite Modal State
   const [inviteModalOpen, setInviteModalOpen] = useState(false);
@@ -179,24 +212,76 @@ export const UsersRolesView: React.FC = () => {
       });
       const json = await res.json();
       if (!res.ok) {
-        alert(json.error?.message || "Action not allowed.");
+        toast.error(json.error?.message || "Action not allowed.", { title: "User Status Locked" });
         return;
       }
+      toast.success(`User "${u.name}" account status changed to ${nextStatus}.`, {
+        title: "Account Status Updated",
+      });
       await fetchUsersAndRoles();
     } catch (err: any) {
-      alert(`Toggle failed: ${err.message}`);
+      toast.error(err.message, { title: "Network Error" });
     }
   };
 
-  const filteredUsers = users.filter((u) => {
-    const q = search.toLowerCase();
-    const matchesSearch =
-      u.name?.toLowerCase().includes(q) ||
-      u.email?.toLowerCase().includes(q) ||
-      u.role?.toLowerCase().includes(q);
-    const matchesStatus = statusFilter === "all" || u.status === statusFilter;
-    return matchesSearch && matchesStatus;
-  });
+  const filteredUsers = useMemo(() => {
+    let result = users;
+
+    // 1. Text search
+    if (search.trim()) {
+      const q = search.toLowerCase();
+      result = result.filter(
+        (u) =>
+          u.name?.toLowerCase().includes(q) ||
+          u.email?.toLowerCase().includes(q) ||
+          u.role?.toLowerCase().includes(q) ||
+          u.phone?.toLowerCase().includes(q)
+      );
+    }
+
+    // 2. Status filter
+    if (statusFilter !== "all") {
+      result = result.filter((u) => u.status === statusFilter);
+    }
+
+    // 3. Role filter
+    if (roleFilter !== "all") {
+      result = result.filter((u) => u.role === roleFilter);
+    }
+
+    // 4. Sorting
+    return sortItems(result, sortField, sortDirection);
+  }, [users, search, statusFilter, roleFilter, sortField, sortDirection]);
+
+  const activeFiltersCount =
+    (search ? 1 : 0) +
+    (statusFilter !== "all" ? 1 : 0) +
+    (roleFilter !== "all" ? 1 : 0) +
+    (sortField !== "createdAt" || sortDirection !== "desc" ? 1 : 0);
+
+  const clearAllFilters = () => {
+    setSearch("");
+    setStatusFilter("all");
+    setRoleFilter("all");
+    setSortField("createdAt");
+    setSortDirection("desc");
+  };
+
+  const availableRoles = useMemo(() => {
+    const set = new Set<string>();
+    users.forEach((u) => {
+      if (u.role) set.add(u.role);
+    });
+    return Array.from(set);
+  }, [users]);
+
+  const totalPages = Math.max(1, Math.ceil(filteredUsers.length / pageSize));
+  const safeCurrentPage = Math.min(Math.max(1, currentPage), totalPages);
+
+  const paginatedUsers = useMemo(() => {
+    const start = (safeCurrentPage - 1) * pageSize;
+    return filteredUsers.slice(start, start + pageSize);
+  }, [filteredUsers, safeCurrentPage, pageSize]);
 
   const modulesList = [
     { key: "dashboard", label: "Dashboard Overview" },
@@ -265,59 +350,257 @@ export const UsersRolesView: React.FC = () => {
       {/* TAB 1: USERS LIST */}
       {activeTab === "users" && (
         <div className="space-y-4">
-          <div className="bg-white p-4 rounded-2xl border border-slate-200 shadow-xs flex flex-col sm:flex-row items-center justify-between gap-3">
-            <div className="relative w-full sm:w-80">
+          <div className="bg-white p-4 rounded-2xl border border-slate-200 shadow-xs flex flex-col md:flex-row items-center justify-between gap-3">
+            <div className="relative w-full md:w-80">
               <Search className="w-4 h-4 text-slate-400 absolute left-3 top-1/2 -translate-y-1/2" />
               <input
                 type="text"
                 value={search}
                 onChange={(e) => setSearch(e.target.value)}
                 placeholder="Search user by name, email, or role..."
-                className="w-full text-xs pl-9 pr-3 py-2 bg-slate-50 border border-slate-200 rounded-xl focus:bg-white focus:border-[#007A6C] focus:outline-none"
+                className="w-full text-xs pl-9 pr-8 py-2 bg-slate-50 border border-slate-200 rounded-xl focus:bg-white focus:border-[#007A6C] focus:outline-none"
               />
+              {search && (
+                <button
+                  onClick={() => setSearch("")}
+                  className="absolute right-2.5 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600"
+                  title="Clear search"
+                >
+                  <X className="w-3.5 h-3.5" />
+                </button>
+              )}
             </div>
 
-            <div className="flex items-center gap-2">
-              <span className="text-xs text-slate-500 font-semibold">Status:</span>
-              <select
-                value={statusFilter}
-                onChange={(e) => setStatusFilter(e.target.value)}
-                className="text-xs px-3 py-2 bg-slate-50 border border-slate-200 rounded-xl focus:outline-none font-medium"
-              >
-                <option value="all">All Accounts</option>
-                <option value="active">Active Only</option>
-                <option value="disabled">Disabled</option>
-              </select>
+            <div className="flex flex-wrap items-center gap-3 w-full md:w-auto justify-between md:justify-end">
+              <div className="flex items-center gap-2">
+                <span className="text-xs text-slate-500 font-semibold">Role:</span>
+                <select
+                  value={roleFilter}
+                  onChange={(e) => setRoleFilter(e.target.value)}
+                  className="text-xs px-3 py-2 bg-slate-50 border border-slate-200 rounded-xl focus:outline-none font-medium"
+                >
+                  <option value="all">All Roles</option>
+                  {availableRoles.map((r) => (
+                    <option key={r} value={r}>
+                      {r.replace("_", " ").toUpperCase()}
+                    </option>
+                  ))}
+                </select>
+              </div>
+
+              <div className="flex items-center gap-2">
+                <span className="text-xs text-slate-500 font-semibold">Status:</span>
+                <select
+                  value={statusFilter}
+                  onChange={(e) => setStatusFilter(e.target.value)}
+                  className="text-xs px-3 py-2 bg-slate-50 border border-slate-200 rounded-xl focus:outline-none font-medium"
+                >
+                  <option value="all">All Accounts</option>
+                  <option value="active">Active Only</option>
+                  <option value="disabled">Disabled</option>
+                </select>
+              </div>
+
+              {activeFiltersCount > 0 && (
+                <button
+                  onClick={clearAllFilters}
+                  className="inline-flex items-center gap-1.5 px-3 py-2 rounded-xl text-xs font-semibold text-[#007A6C] bg-[#E6F8F6] hover:bg-[#d0f2ee] transition border border-[#00C7BE]/30"
+                  title="Reset all filters and sorting"
+                >
+                  <RefreshCw className="w-3.5 h-3.5" />
+                  <span>Reset ({activeFiltersCount})</span>
+                </button>
+              )}
+
+              {/* Layout Toggle */}
+              <ViewToggle
+                mode={viewMode}
+                onChange={setViewMode}
+              />
             </div>
           </div>
 
           <div className="bg-white rounded-2xl border border-slate-200 shadow-xs overflow-hidden">
-            <table className="w-full text-left text-xs">
-              <thead className="bg-slate-50 border-b border-slate-200 text-slate-500 font-bold uppercase tracking-wider">
-                <tr>
-                  <th className="py-3 px-4">User</th>
-                  <th className="py-3 px-4">Role</th>
-                  <th className="py-3 px-4">Contact</th>
-                  <th className="py-3 px-4">Account Status</th>
-                  <th className="py-3 px-4">Created Date</th>
-                  <th className="py-3 px-4 text-right">Actions</th>
-                </tr>
-              </thead>
-              <tbody className="divide-y divide-slate-100">
+            {viewMode === "table" ? (
+              <div className="overflow-x-auto">
+                <table className="w-full text-left text-xs">
+                  <thead className="bg-slate-50 border-b border-slate-200 text-slate-500 font-bold uppercase tracking-wider">
+                    <tr>
+                      <SortHeader
+                        label="User"
+                        field="name"
+                        currentField={sortField}
+                        currentDirection={sortDirection}
+                        onSort={handleSort}
+                        className="py-3 px-4"
+                      />
+                      <SortHeader
+                        label="Role"
+                        field="role"
+                        currentField={sortField}
+                        currentDirection={sortDirection}
+                        onSort={handleSort}
+                        className="py-3 px-4"
+                      />
+                      <SortHeader
+                        label="Contact"
+                        field="phone"
+                        currentField={sortField}
+                        currentDirection={sortDirection}
+                        onSort={handleSort}
+                        className="py-3 px-4"
+                      />
+                      <SortHeader
+                        label="Account Status"
+                        field="status"
+                        currentField={sortField}
+                        currentDirection={sortDirection}
+                        onSort={handleSort}
+                        className="py-3 px-4"
+                      />
+                      <SortHeader
+                        label="Created Date"
+                        field="createdAt"
+                        currentField={sortField}
+                        currentDirection={sortDirection}
+                        onSort={handleSort}
+                        className="py-3 px-4"
+                      />
+                      <th className="py-3 px-4 text-right">Actions</th>
+                    </tr>
+                  </thead>
+                  <tbody className="divide-y divide-slate-100">
+                    {loading ? (
+                      <tr>
+                        <td colSpan={6} className="py-8 text-center text-slate-400 font-semibold">
+                          Loading users...
+                        </td>
+                      </tr>
+                    ) : filteredUsers.length === 0 ? (
+                      <tr>
+                        <td colSpan={6} className="py-8 text-center text-slate-400 font-semibold">
+                          No users match the search filter.
+                        </td>
+                      </tr>
+                    ) : (
+                      paginatedUsers.map((u) => {
+                        const initials = u.name
+                          ? u.name
+                              .split(" ")
+                              .map((n) => n[0])
+                              .join("")
+                              .toUpperCase()
+                              .slice(0, 2)
+                          : "U";
+                        return (
+                          <tr key={u._id} className="hover:bg-slate-50 transition">
+                            <td className="py-3.5 px-4">
+                              <div className="flex items-center gap-3">
+                                <div className="w-8 h-8 rounded-full bg-[#061E1B] text-[#00C7BE] border border-[#00C7BE]/30 font-bold flex items-center justify-center text-xs shrink-0">
+                                  {initials}
+                                </div>
+                                <div>
+                                  <div className="font-bold text-slate-900">{u.name}</div>
+                                  <div className="text-[11px] text-slate-400">{u.email}</div>
+                                </div>
+                              </div>
+                            </td>
+                            <td className="py-3.5 px-4">
+                              <span
+                                className={`px-2 py-0.5 rounded-full text-[10px] font-bold uppercase ${
+                                  u.role === "admin"
+                                    ? "bg-[#061E1B] text-[#00C7BE] border border-[#00C7BE]/30"
+                                    : u.role === "editor"
+                                    ? "bg-[#E6F8F6] text-[#007A6C]"
+                                    : "bg-slate-100 text-slate-700"
+                                }`}
+                              >
+                                {u.role}
+                              </span>
+                            </td>
+                            <td className="py-3.5 px-4 text-slate-600">
+                              {u.phone || "No phone registered"}
+                            </td>
+                            <td className="py-3.5 px-4">
+                              <span
+                                className={`px-2 py-0.5 rounded-full text-[10px] font-bold uppercase ${
+                                  u.status === "active"
+                                    ? "bg-emerald-100 text-emerald-800"
+                                    : "bg-rose-100 text-rose-800"
+                                }`}
+                              >
+                                {u.status}
+                              </span>
+                            </td>
+                            <td className="py-3.5 px-4 text-slate-400 text-[11px]">
+                              {new Date(u.createdAt).toLocaleDateString()}
+                            </td>
+                            <td className="py-3.5 px-4 text-right">
+                              <div className="inline-flex items-center gap-1.5">
+                                <button
+                                  onClick={() => openEditUser(u)}
+                                  className="p-1 text-slate-500 hover:text-slate-800 hover:bg-slate-100 rounded-lg transition"
+                                  title="Edit user"
+                                >
+                                  <Edit2 className="w-3.5 h-3.5" />
+                                </button>
+                                {(() => {
+                                  const activeAdmins = users.filter((x) => x.role === "super_admin" && x.status === "active");
+                                  const isSoleSuperAdmin = u.role === "super_admin" && u.status === "active" && activeAdmins.length <= 1;
+
+                                  return (
+                                    <DisabledGuideButton
+                                      disabled={isSoleSuperAdmin}
+                                      reasonTitle="Super Admin Account Protected"
+                                      reasonMessage="At least one active Super Admin account must remain active in the system to maintain platform security governance."
+                                      requirements={[
+                                        {
+                                          label: "Multiple Active Super Admins Exist",
+                                          fulfilled: !isSoleSuperAdmin,
+                                          tip: "Invite or promote another Super Admin first",
+                                        },
+                                      ]}
+                                      stepsToEnable={[
+                                        "Invite or promote another team member to the Super Admin role.",
+                                        "Verify the new Super Admin account is active.",
+                                        "Return here to disable this account if necessary.",
+                                      ]}
+                                      placement="left"
+                                      onClick={() => handleToggleUserStatus(u)}
+                                      className={`px-2 py-1 text-[11px] font-bold rounded-lg transition ${
+                                        isSoleSuperAdmin
+                                          ? "text-slate-400 bg-slate-100 cursor-not-allowed"
+                                          : u.status === "active"
+                                          ? "text-rose-600 hover:bg-rose-50"
+                                          : "text-emerald-600 hover:bg-emerald-50"
+                                      }`}
+                                    >
+                                      {u.status === "active" ? "Disable" : "Activate"}
+                                    </DisabledGuideButton>
+                                  );
+                                })()}
+                              </div>
+                            </td>
+                          </tr>
+                        );
+                      })
+                    )}
+                  </tbody>
+                </table>
+              </div>
+            ) : (
+              /* Grid Card View */
+              <div className="p-4 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
                 {loading ? (
-                  <tr>
-                    <td colSpan={6} className="py-8 text-center text-slate-400 font-semibold">
-                      Loading users...
-                    </td>
-                  </tr>
+                  <div className="col-span-full py-8 text-center text-slate-400 font-semibold">
+                    Loading users...
+                  </div>
                 ) : filteredUsers.length === 0 ? (
-                  <tr>
-                    <td colSpan={6} className="py-8 text-center text-slate-400 font-semibold">
-                      No users match the search filter.
-                    </td>
-                  </tr>
+                  <div className="col-span-full py-8 text-center text-slate-400 font-semibold">
+                    No users match the search filter.
+                  </div>
                 ) : (
-                  filteredUsers.map((u) => {
+                  paginatedUsers.map((u) => {
                     const initials = u.name
                       ? u.name
                           .split(" ")
@@ -326,20 +609,15 @@ export const UsersRolesView: React.FC = () => {
                           .toUpperCase()
                           .slice(0, 2)
                       : "U";
+                    const activeAdmins = users.filter((x) => x.role === "super_admin" && x.status === "active");
+                    const isSoleSuperAdmin = u.role === "super_admin" && u.status === "active" && activeAdmins.length <= 1;
+
                     return (
-                      <tr key={u._id} className="hover:bg-slate-50 transition">
-                        <td className="py-3.5 px-4">
-                          <div className="flex items-center gap-3">
-                            <div className="w-8 h-8 rounded-full bg-[#061E1B] text-[#00C7BE] border border-[#00C7BE]/30 font-bold flex items-center justify-center text-xs shrink-0">
-                              {initials}
-                            </div>
-                            <div>
-                              <div className="font-bold text-slate-900">{u.name}</div>
-                              <div className="text-[11px] text-slate-400">{u.email}</div>
-                            </div>
-                          </div>
-                        </td>
-                        <td className="py-3.5 px-4">
+                      <div
+                        key={u._id}
+                        className="p-4 bg-white rounded-xl border border-slate-200 hover:border-[#00C7BE] hover:shadow-md transition-all flex flex-col justify-between space-y-3"
+                      >
+                        <div className="flex items-center justify-between">
                           <span
                             className={`px-2 py-0.5 rounded-full text-[10px] font-bold uppercase ${
                               u.role === "admin"
@@ -351,11 +629,6 @@ export const UsersRolesView: React.FC = () => {
                           >
                             {u.role}
                           </span>
-                        </td>
-                        <td className="py-3.5 px-4 text-slate-600">
-                          {u.phone || "No phone registered"}
-                        </td>
-                        <td className="py-3.5 px-4">
                           <span
                             className={`px-2 py-0.5 rounded-full text-[10px] font-bold uppercase ${
                               u.status === "active"
@@ -365,11 +638,22 @@ export const UsersRolesView: React.FC = () => {
                           >
                             {u.status}
                           </span>
-                        </td>
-                        <td className="py-3.5 px-4 text-slate-400 text-[11px]">
-                          {new Date(u.createdAt).toLocaleDateString()}
-                        </td>
-                        <td className="py-3.5 px-4 text-right">
+                        </div>
+
+                        <div className="flex items-center gap-3">
+                          <div className="w-10 h-10 rounded-full bg-[#061E1B] text-[#00C7BE] border border-[#00C7BE]/30 font-bold flex items-center justify-center text-sm shrink-0">
+                            {initials}
+                          </div>
+                          <div className="overflow-hidden">
+                            <h3 className="font-bold text-sm text-slate-900 truncate">{u.name}</h3>
+                            <p className="text-xs text-slate-400 truncate">{u.email}</p>
+                          </div>
+                        </div>
+
+                        <div className="text-xs text-slate-500 border-t border-slate-100 pt-2.5 flex items-center justify-between">
+                          <span className="text-[11px] text-slate-400">
+                            {u.phone || "No phone"}
+                          </span>
                           <div className="inline-flex items-center gap-1.5">
                             <button
                               onClick={() => openEditUser(u)}
@@ -378,24 +662,53 @@ export const UsersRolesView: React.FC = () => {
                             >
                               <Edit2 className="w-3.5 h-3.5" />
                             </button>
-                            <button
+                            <DisabledGuideButton
+                              disabled={isSoleSuperAdmin}
+                              reasonTitle="Super Admin Account Protected"
+                              reasonMessage="At least one active Super Admin account must remain active in the system to maintain platform security governance."
+                              requirements={[
+                                {
+                                  label: "Multiple Active Super Admins Exist",
+                                  fulfilled: !isSoleSuperAdmin,
+                                  tip: "Invite or promote another Super Admin first",
+                                },
+                              ]}
+                              stepsToEnable={[
+                                "Invite or promote another team member to the Super Admin role.",
+                                "Verify the new Super Admin account is active.",
+                                "Return here to disable this account if necessary.",
+                              ]}
+                              placement="left"
                               onClick={() => handleToggleUserStatus(u)}
                               className={`px-2 py-1 text-[11px] font-bold rounded-lg transition ${
-                                u.status === "active"
+                                isSoleSuperAdmin
+                                  ? "text-slate-400 bg-slate-100 cursor-not-allowed"
+                                  : u.status === "active"
                                   ? "text-rose-600 hover:bg-rose-50"
                                   : "text-emerald-600 hover:bg-emerald-50"
                               }`}
                             >
                               {u.status === "active" ? "Disable" : "Activate"}
-                            </button>
+                            </DisabledGuideButton>
                           </div>
-                        </td>
-                      </tr>
+                        </div>
+                      </div>
                     );
                   })
                 )}
-              </tbody>
-            </table>
+              </div>
+            )}
+
+            {/* Pagination Controls */}
+            <TablePagination
+              currentPage={safeCurrentPage}
+              totalItems={filteredUsers.length}
+              pageSize={pageSize}
+              onPageChange={setCurrentPage}
+              onPageSizeChange={setPageSize}
+              pageSizeOptions={[10, 25, 50, 100]}
+              itemLabel="users"
+            />
           </div>
         </div>
       )}

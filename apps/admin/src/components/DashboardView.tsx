@@ -137,7 +137,7 @@ export const DashboardView: React.FC<DashboardProps> = ({ onSelectTab, onCreateP
       </div>
 
       {/* 2. Key Metrics Grid (All 4 cards link to their module) */}
-      <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
+      <div data-tour="admin-kpis" className="grid grid-cols-2 lg:grid-cols-4 gap-4">
         {/* Card 1: Published Pages */}
         <div
           onClick={() => onSelectTab("content")}

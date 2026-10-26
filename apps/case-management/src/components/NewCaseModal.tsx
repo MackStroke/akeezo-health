@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { X, AlertTriangle, Check, UserPlus, Link2 } from "lucide-react";
 import { SPECIALTIES } from "@akeezo/contracts";
+import { useToast, DisabledGuideButton } from "@akeezo/ui";
 
 interface NewCaseModalProps {
   onClose: () => void;
@@ -13,6 +14,7 @@ export const NewCaseModal: React.FC<NewCaseModalProps> = ({
   onSuccess,
   partners,
 }) => {
+  const toast = useToast();
   const [formData, setFormData] = useState({
     fullName: "",
     dateOfBirth: "",
@@ -40,6 +42,13 @@ export const NewCaseModal: React.FC<NewCaseModalProps> = ({
   const [checkingDuplicates, setCheckingDuplicates] = useState(false);
   const [selectedExistingPatientId, setSelectedExistingPatientId] = useState<string | null>(null);
   const [submitting, setSubmitting] = useState(false);
+
+  const isFormValid = Boolean(
+    formData.fullName.trim().length >= 2 &&
+      formData.dateOfBirth &&
+      (formData.phone.trim().length >= 5 || formData.email.trim().length >= 5) &&
+      formData.consentShareWithHospitals
+  );
 
   // Live duplicate detection effect
   useEffect(() => {
@@ -113,13 +122,18 @@ export const NewCaseModal: React.FC<NewCaseModalProps> = ({
       });
 
       if (res.ok) {
+        const json = await res.json().catch(() => ({}));
+        toast.success(
+          `Patient case ${json.data?.caseCode || ""} registered into pipeline successfully!`,
+          { title: "Intake Complete" }
+        );
         onSuccess();
       } else {
         const err = await res.json();
-        alert(err.error?.message || "Failed to create case");
+        toast.error(err.error?.message || "Failed to create case", { title: "Intake Failed" });
       }
     } catch (err: any) {
-      alert(err.message);
+      toast.error(err.message, { title: "Network Error" });
     } finally {
       setSubmitting(false);
     }
@@ -354,13 +368,50 @@ export const NewCaseModal: React.FC<NewCaseModalProps> = ({
             >
               Cancel
             </button>
-            <button
+            <DisabledGuideButton
               type="submit"
-              disabled={submitting}
-              className="text-xs px-5 py-2 bg-[#FF6B00] hover:bg-[#FF6D1B] active:bg-[#E05E00] text-white font-bold rounded-lg shadow-sm transition"
+              disabled={!isFormValid || submitting}
+              reasonTitle="Case Intake Incomplete"
+              reasonMessage="Essential patient identification and contact details are required to initialize a compliant DPDP healthcare case."
+              requirements={[
+                {
+                  label: "Patient Full Legal Name",
+                  fulfilled: formData.fullName.trim().length >= 2,
+                  tip: "Must match passport identity",
+                },
+                {
+                  label: "Date of Birth",
+                  fulfilled: Boolean(formData.dateOfBirth),
+                  tip: "Required for clinical identification",
+                },
+                {
+                  label: "Contact Phone or Email",
+                  fulfilled: Boolean(
+                    formData.phone.trim().length >= 5 || formData.email.trim().length >= 5
+                  ),
+                  tip: "Needed for clinical triage and WhatsApp notifications",
+                },
+                {
+                  label: "DPDP Hospital Record Consent",
+                  fulfilled: formData.consentShareWithHospitals,
+                  tip: "Consent required under India DPDP Act 2023",
+                },
+              ]}
+              stepsToEnable={[
+                "Enter the patient's full legal name as shown on their passport.",
+                "Select their date of birth.",
+                "Provide a reachable phone number or email address.",
+                "Confirm that the patient consented to share medical records with hospitals.",
+              ]}
+              placement="top"
+              className={`text-xs px-5 py-2 font-bold rounded-lg shadow-sm transition ${
+                isFormValid && !submitting
+                  ? "bg-[#FF6B00] hover:bg-[#FF6D1B] active:bg-[#E05E00] text-white"
+                  : "bg-slate-300 text-slate-500 cursor-not-allowed"
+              }`}
             >
               {submitting ? "Creating..." : "Create Case & Enter Pipeline"}
-            </button>
+            </DisabledGuideButton>
           </div>
         </form>
       </div>

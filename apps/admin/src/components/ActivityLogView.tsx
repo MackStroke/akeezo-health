@@ -1,4 +1,13 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useMemo } from "react";
+import {
+  TablePagination,
+  SortHeader,
+  sortItems,
+  getNextSortDirection,
+  SortDirection,
+  DateRangePreset,
+  filterByDatePreset,
+} from "./TablePagination";
 import {
   History,
   Search,
@@ -34,13 +43,82 @@ interface ActivityItem {
 export const ActivityLogView: React.FC = () => {
   const [activities, setActivities] = useState<ActivityItem[]>([]);
   const [loading, setLoading] = useState(true);
+  const [searchQuery, setSearchQuery] = useState("");
   const [moduleFilter, setModuleFilter] = useState("all");
   const [actionFilter, setActionFilter] = useState("all");
+  const [datePreset, setDatePreset] = useState<DateRangePreset>("all");
   const [selectedActivity, setSelectedActivity] = useState<ActivityItem | null>(null);
+
+  // Sorting State
+  const [sortField, setSortField] = useState<string | null>("createdAt");
+  const [sortDirection, setSortDirection] = useState<SortDirection>("desc");
+
+  const handleSort = (field: string) => {
+    const next = getNextSortDirection(sortField, field, sortDirection);
+    setSortField(next.field);
+    setSortDirection(next.direction);
+  };
+
+  // Pagination State
+  const [currentPage, setCurrentPage] = useState(1);
+  const [pageSize, setPageSize] = useState(10);
 
   useEffect(() => {
     fetchActivity();
   }, [moduleFilter, actionFilter]);
+
+  // Reset to page 1 on filter or sort changes
+  useEffect(() => {
+    setCurrentPage(1);
+  }, [searchQuery, moduleFilter, actionFilter, datePreset, sortField, sortDirection]);
+
+  // Multi-dimensional filtering and sorting pipeline
+  const filteredActivities = useMemo(() => {
+    let result = activities;
+
+    if (searchQuery.trim()) {
+      const q = searchQuery.toLowerCase();
+      result = result.filter(
+        (a) =>
+          a.actorId?.name?.toLowerCase().includes(q) ||
+          a.actorId?.email?.toLowerCase().includes(q) ||
+          a.actorRole?.toLowerCase().includes(q) ||
+          a.module?.toLowerCase().includes(q) ||
+          a.action?.toLowerCase().includes(q) ||
+          a.ipAddress?.toLowerCase().includes(q)
+      );
+    }
+
+    if (datePreset !== "all") {
+      result = filterByDatePreset(result, "createdAt", datePreset);
+    }
+
+    return sortItems(result, sortField, sortDirection);
+  }, [activities, searchQuery, datePreset, sortField, sortDirection]);
+
+  const totalPages = Math.max(1, Math.ceil(filteredActivities.length / pageSize));
+  const safeCurrentPage = Math.min(Math.max(1, currentPage), totalPages);
+
+  const paginatedActivities = useMemo(() => {
+    const start = (safeCurrentPage - 1) * pageSize;
+    return filteredActivities.slice(start, start + pageSize);
+  }, [filteredActivities, safeCurrentPage, pageSize]);
+
+  const activeFiltersCount =
+    (searchQuery ? 1 : 0) +
+    (moduleFilter !== "all" ? 1 : 0) +
+    (actionFilter !== "all" ? 1 : 0) +
+    (datePreset !== "all" ? 1 : 0) +
+    (sortField !== "createdAt" || sortDirection !== "desc" ? 1 : 0);
+
+  const clearAllFilters = () => {
+    setSearchQuery("");
+    setModuleFilter("all");
+    setActionFilter("all");
+    setDatePreset("all");
+    setSortField("createdAt");
+    setSortDirection("desc");
+  };
 
   const fetchActivity = async () => {
     try {
@@ -77,44 +155,101 @@ export const ActivityLogView: React.FC = () => {
         </div>
       </div>
 
-      {/* 2. Filter Bar */}
-      <div className="bg-white p-4 rounded-2xl border border-slate-200 shadow-xs flex flex-col sm:flex-row items-center justify-between gap-3">
-        <div className="flex items-center gap-3 w-full sm:w-auto">
-          <div className="flex items-center gap-2">
-            <span className="text-xs text-slate-500 font-semibold">Module:</span>
-            <select
-              value={moduleFilter}
-              onChange={(e) => setModuleFilter(e.target.value)}
-              className="text-xs px-3 py-2 bg-slate-50 border border-slate-200 rounded-xl focus:outline-none font-medium text-slate-700"
-            >
-              <option value="all">All Modules</option>
-              <option value="page">Content & Pages</option>
-              <option value="media">Media Library</option>
-              <option value="enquiry">Enquiries & Leads</option>
-              <option value="redirect">SEO & Redirects</option>
-              <option value="settings">Site Settings</option>
-              <option value="user">Users & RBAC</option>
-            </select>
+      {/* 2. Filter & Search Bar */}
+      <div className="bg-white p-4 rounded-2xl border border-slate-200 shadow-xs space-y-3">
+        <div className="flex flex-col lg:flex-row items-stretch lg:items-center justify-between gap-3">
+          {/* Search Box */}
+          <div className="relative flex-1 max-w-md">
+            <Search className="w-4 h-4 text-slate-400 absolute left-3 top-1/2 -translate-y-1/2" />
+            <input
+              type="text"
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+              placeholder="Search by actor, role, module, action, IP..."
+              className="w-full text-xs pl-9 pr-8 py-2 bg-slate-50 border border-slate-200 rounded-xl focus:bg-white focus:border-[#007A6C] focus:outline-none"
+            />
+            {searchQuery && (
+              <button
+                type="button"
+                onClick={() => setSearchQuery("")}
+                className="absolute right-2.5 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600"
+                title="Clear search"
+              >
+                <X className="w-3.5 h-3.5" />
+              </button>
+            )}
           </div>
 
-          <div className="flex items-center gap-2">
-            <span className="text-xs text-slate-500 font-semibold">Action:</span>
-            <select
-              value={actionFilter}
-              onChange={(e) => setActionFilter(e.target.value)}
-              className="text-xs px-3 py-2 bg-slate-50 border border-slate-200 rounded-xl focus:outline-none font-medium text-slate-700"
-            >
-              <option value="all">All Actions</option>
-              <option value="create">Create</option>
-              <option value="update">Update</option>
-              <option value="publish">Publish</option>
-              <option value="delete">Delete</option>
-            </select>
+          {/* Filter Dropdowns */}
+          <div className="flex flex-wrap items-center gap-2.5">
+            <div className="flex items-center gap-1.5">
+              <span className="text-xs text-slate-500 font-semibold whitespace-nowrap">Module:</span>
+              <select
+                value={moduleFilter}
+                onChange={(e) => setModuleFilter(e.target.value)}
+                className="text-xs px-2.5 py-1.5 bg-slate-50 border border-slate-200 rounded-xl focus:outline-none font-medium text-slate-700"
+              >
+                <option value="all">All Modules</option>
+                <option value="page">Content & Pages</option>
+                <option value="media">Media Library</option>
+                <option value="enquiry">Enquiries & Leads</option>
+                <option value="redirect">SEO & Redirects</option>
+                <option value="settings">Site Settings</option>
+                <option value="user">Users & RBAC</option>
+              </select>
+            </div>
+
+            <div className="flex items-center gap-1.5">
+              <span className="text-xs text-slate-500 font-semibold whitespace-nowrap">Action:</span>
+              <select
+                value={actionFilter}
+                onChange={(e) => setActionFilter(e.target.value)}
+                className="text-xs px-2.5 py-1.5 bg-slate-50 border border-slate-200 rounded-xl focus:outline-none font-medium text-slate-700"
+              >
+                <option value="all">All Actions</option>
+                <option value="create">Create</option>
+                <option value="update">Update</option>
+                <option value="publish">Publish</option>
+                <option value="delete">Delete</option>
+              </select>
+            </div>
+
+            <div className="flex items-center gap-1.5">
+              <span className="text-xs text-slate-500 font-semibold whitespace-nowrap">Date:</span>
+              <select
+                value={datePreset}
+                onChange={(e) => setDatePreset(e.target.value as DateRangePreset)}
+                className="text-xs px-2.5 py-1.5 bg-slate-50 border border-slate-200 rounded-xl focus:outline-none font-medium text-slate-700"
+              >
+                <option value="all">All Time</option>
+                <option value="today">Today</option>
+                <option value="last_7_days">Last 7 Days</option>
+                <option value="last_30_days">Last 30 Days</option>
+                <option value="this_year">This Year</option>
+              </select>
+            </div>
+
+            {activeFiltersCount > 0 && (
+              <button
+                type="button"
+                onClick={clearAllFilters}
+                className="px-2.5 py-1.5 text-xs font-bold text-rose-600 hover:bg-rose-50 border border-rose-200 rounded-xl transition flex items-center gap-1"
+                title="Reset all filters and sorting"
+              >
+                <X className="w-3.5 h-3.5" />
+                <span>Reset ({activeFiltersCount})</span>
+              </button>
+            )}
           </div>
         </div>
 
-        <div className="text-xs text-slate-400 font-medium">
-          Showing {activities.length} immutable events
+        <div className="text-[11px] text-slate-400 font-medium flex items-center justify-between pt-1 border-t border-slate-100">
+          <span>Showing {filteredActivities.length} of {activities.length} immutable events</span>
+          {sortField && (
+            <span className="text-slate-500">
+              Sorted by: <strong className="text-slate-700">{sortField}</strong> ({sortDirection})
+            </span>
+          )}
         </div>
       </div>
 
@@ -125,11 +260,41 @@ export const ActivityLogView: React.FC = () => {
             <table className="w-full text-left text-xs">
               <thead className="bg-slate-50 border-b border-slate-200 text-slate-500 font-bold uppercase tracking-wider">
                 <tr>
-                  <th className="py-3 px-4">Timestamp</th>
-                  <th className="py-3 px-4">Actor</th>
-                  <th className="py-3 px-4">Module</th>
-                  <th className="py-3 px-4">Action</th>
-                  <th className="py-3 px-4">IP Address</th>
+                  <SortHeader
+                    field="createdAt"
+                    label="Timestamp"
+                    currentSortField={sortField}
+                    currentSortDirection={sortDirection}
+                    onSort={handleSort}
+                  />
+                  <SortHeader
+                    field="actorId.name"
+                    label="Actor"
+                    currentSortField={sortField}
+                    currentSortDirection={sortDirection}
+                    onSort={handleSort}
+                  />
+                  <SortHeader
+                    field="module"
+                    label="Module"
+                    currentSortField={sortField}
+                    currentSortDirection={sortDirection}
+                    onSort={handleSort}
+                  />
+                  <SortHeader
+                    field="action"
+                    label="Action"
+                    currentSortField={sortField}
+                    currentSortDirection={sortDirection}
+                    onSort={handleSort}
+                  />
+                  <SortHeader
+                    field="ipAddress"
+                    label="IP Address"
+                    currentSortField={sortField}
+                    currentSortDirection={sortDirection}
+                    onSort={handleSort}
+                  />
                   <th className="py-3 px-4 text-right">Details</th>
                 </tr>
               </thead>
@@ -147,7 +312,7 @@ export const ActivityLogView: React.FC = () => {
                     </td>
                   </tr>
                 ) : (
-                  activities.map((act) => {
+                  paginatedActivities.map((act) => {
                     const isSelected = selectedActivity?._id === act._id;
                     return (
                       <tr
@@ -204,6 +369,17 @@ export const ActivityLogView: React.FC = () => {
                 )}
               </tbody>
             </table>
+
+            {/* Pagination Controls */}
+            <TablePagination
+              currentPage={safeCurrentPage}
+              totalItems={filteredActivities.length}
+              pageSize={pageSize}
+              onPageChange={setCurrentPage}
+              onPageSizeChange={setPageSize}
+              pageSizeOptions={[10, 25, 50, 100]}
+              itemLabel="audit events"
+            />
           </div>
         </div>
 

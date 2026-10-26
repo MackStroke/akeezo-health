@@ -9,6 +9,7 @@ import {
   CaseModel,
   CaseAuditLogModel,
 } from "../db/models/index.js";
+import { signToken } from "../utils/auth.js";
 
 describe("Dual Portal Architecture Verification: Website Admin & Case Management CMS", () => {
   let server: any;
@@ -35,9 +36,25 @@ describe("Dual Portal Architecture Verification: Website Admin & Case Management
     await disconnectDB();
   });
 
-  it("1. Super Admin Overview Stats: GET /api/v1/admin/overview-stats returns unified KPIs", async () => {
-    const res = await fetch(`${baseUrl}/api/v1/admin/overview-stats`);
-    assert.equal(res.status, 200, "Overview stats must return HTTP 200");
+  it("1. Super Admin Overview Stats: Enforces strict RBAC and returns unified KPIs for Admin", async () => {
+    const adminToken = signToken({ userId: "660000000000000000000001", role: "admin" });
+    const coordinatorToken = signToken({ userId: "660000000000000000000002", role: "coordinator" });
+
+    // A. Unauthenticated request must be rejected (401)
+    const unauthRes = await fetch(`${baseUrl}/api/v1/admin/overview-stats`);
+    assert.equal(unauthRes.status, 401, "Unauthenticated request to /admin/* must be rejected with 401");
+
+    // B. Non-admin user (e.g. coordinator) must be forbidden (403)
+    const nonAdminRes = await fetch(`${baseUrl}/api/v1/admin/overview-stats`, {
+      headers: { Authorization: `Bearer ${coordinatorToken}` },
+    });
+    assert.equal(nonAdminRes.status, 403, "Non-admin user accessing /admin/* must be rejected with 403");
+
+    // C. Super Admin request must succeed (200)
+    const res = await fetch(`${baseUrl}/api/v1/admin/overview-stats`, {
+      headers: { Authorization: `Bearer ${adminToken}` },
+    });
+    assert.equal(res.status, 200, "Overview stats must return HTTP 200 for Super Admin");
 
     const json = await res.json();
     assert.ok(json.data, "Response must contain data object");
@@ -62,6 +79,8 @@ describe("Dual Portal Architecture Verification: Website Admin & Case Management
   });
 
   it("2. Website Lead Collector to Case Conversion: POST /api/v1/admin/enquiries/:id/convert-to-case", async () => {
+    const adminToken = signToken({ userId: "660000000000000000000001", role: "admin" });
+
     // A. Create test inbound website lead
     const timestamp = Date.now();
     const receiptId = `TEST-LEAD-${timestamp}`;
@@ -81,7 +100,10 @@ describe("Dual Portal Architecture Verification: Website Admin & Case Management
     // B. Trigger convert-to-case from Website Super Admin Lead Collector
     const convertRes = await fetch(`${baseUrl}/api/v1/admin/enquiries/${testLead._id}/convert-to-case`, {
       method: "POST",
-      headers: { "Content-Type": "application/json" },
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${adminToken}`,
+      },
     });
 
     const json = await convertRes.json();

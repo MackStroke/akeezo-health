@@ -225,6 +225,7 @@ export const SuperAdminSidebar: React.FC<SidebarProps> = ({
     <>
       {/* 1. Desktop Locked Persistent Sidebar */}
       <aside
+        data-tour="admin-sidebar"
         className="hidden md:flex flex-col text-slate-300 w-64 shrink-0 h-full border-r border-teal-950/80 z-20"
         style={{ backgroundColor: "var(--admin-sidebar-bg, #061E1B)" }}
       >

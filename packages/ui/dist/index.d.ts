@@ -4,4 +4,10 @@ export * from "./BrandLogo.js";
 export * from "./Header.js";
 export * from "./Footer.js";
 export * from "./LegalLayout.js";
+export * from "./TablePagination.js";
+export * from "./TableSorting.js";
+export * from "./ViewToggle.js";
+export * from "./Feedback.js";
+export * from "./DisabledGuide.js";
+export * from "./PlatformTour.js";
 //# sourceMappingURL=index.d.ts.map

@@ -19,6 +19,7 @@ import {
   Clock,
   Sparkles,
   Settings,
+  Compass,
 } from "lucide-react";
 import { useAuth } from "../context/AuthContext.js";
 import { AdminTab } from "./SuperAdminSidebar.js";
@@ -31,6 +32,7 @@ interface HeaderProps {
   onOpenMobileSidebar: () => void;
   onOpenProfile: () => void;
   onOpenSecurity: () => void;
+  onStartTour?: () => void;
   onCreatePage?: () => void;
   onCreateEnquiry?: () => void;
   onInviteUser?: () => void;
@@ -44,6 +46,7 @@ export const SuperAdminHeader: React.FC<HeaderProps> = ({
   onOpenMobileSidebar,
   onOpenProfile,
   onOpenSecurity,
+  onStartTour,
   onCreatePage,
   onCreateEnquiry,
   onInviteUser,
@@ -173,7 +176,7 @@ export const SuperAdminHeader: React.FC<HeaderProps> = ({
         </div>
 
         {/* Global Search Bar */}
-        <div className="relative w-44 sm:w-64 md:w-72 lg:w-80">
+        <div data-tour="admin-search" className="relative w-44 sm:w-64 md:w-72 lg:w-80">
           <Search className="w-4 h-4 text-slate-400 absolute left-3 top-1/2 -translate-y-1/2" />
           <input
             type="text"
@@ -226,8 +229,21 @@ export const SuperAdminHeader: React.FC<HeaderProps> = ({
 
       {/* Right Controls */}
       <div className="flex items-center gap-2 md:gap-3">
+        {/* Platform Tour Guide Button */}
+        {onStartTour && (
+          <button
+            data-tour="tour-btn"
+            onClick={onStartTour}
+            title="Start Interactive Super Admin Walkthrough"
+            className="flex items-center gap-1.5 bg-[#E6F8F6] hover:bg-[#d0f4f0] active:bg-[#b2ebe4] text-[#007A6C] border border-[#00C7BE]/30 text-xs font-bold px-3 py-1.5 rounded-xl shadow-2xs transition-all"
+          >
+            <Compass className="w-4 h-4 text-[#007A6C]" />
+            <span className="hidden md:inline">Platform Tour</span>
+          </button>
+        )}
+
         {/* Create New Action Menu */}
-        <div className="relative" ref={createRef}>
+        <div data-tour="quick-actions" className="relative" ref={createRef}>
           <button
             onClick={() => setCreateDropdownOpen(!createDropdownOpen)}
             className="flex items-center gap-1.5 text-xs text-white font-bold bg-[#007A6C] hover:bg-[#005F54] active:scale-98 px-3 py-1.5 rounded-xl shadow-xs transition border border-[#007A6C]/30 focus:outline-none focus:ring-2 focus:ring-[#00C7BE]"
