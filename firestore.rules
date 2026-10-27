@@ -1,0 +1,201 @@
+rules_version = '2';
+
+// ===============================================================
+// Assumed Data Model for Akeezo Healthcare Case Management
+// ===============================================================
+//
+// Collection: users/{userId}
+// Document ID: Firebase Auth UID
+// Fields:
+//   - uid: string (required) - Firebase Auth UID
+//   - email: string (required, valid email) - Staff/Partner email
+//   - name: string (required, max 100 chars) - Full name
+//   - role: string (required, enum: admin, coordinator, finance, partner)
+//   - partnerId: string (optional, for partner role) - Scoped partner ID
+//   - status: string (required, enum: active, disabled)
+//   - createdAt: timestamp (required, immutable)
+//
+// Collection: patients/{patientId}
+// Document ID: Unique Patient ID
+// Fields:
+//   - patientId: string (required) - Patient record ID
+//   - fullName: string (required, max 150 chars) - Patient name
+//   - dateOfBirth: string (required, ISO date) - DOB
+//   - gender: string (required, enum: male, female, other)
+//   - country: string (required, max 60 chars) - Country of origin
+//   - passportHash: string (optional, max 128 chars) - One-way hash for duplicate detection
+//   - phone: string (optional, max 30 chars) - Contact number
+//   - createdBy: string (required) - Staff UID
+//   - createdAt: timestamp (required, immutable)
+//   - updatedAt: timestamp (required)
+//
+// Collection: cases/{caseId}
+// Document ID: Unique Case Reference (e.g. CAS-2026-001)
+// Fields:
+//   - caseCode: string (required, max 30 chars) - Case code
+//   - patientId: string (required) - Reference to patients collection
+//   - partnerId: string (optional, max 50 chars) - Partner organization ID
+//   - coordinatorId: string (optional) - Assigned staff coordinator UID
+//   - stage: string (required, enum of 12 lifecycle stages)
+//   - priority: string (required, enum: routine, priority, urgent)
+//   - primaryDiagnosis: string (required, max 500 chars)
+//   - targetHospitalId: string (optional, max 60 chars)
+//   - status: string (required, enum: active, completed, cancelled, on_hold)
+//   - createdAt: timestamp (required, immutable)
+//   - updatedAt: timestamp (required)
+//
+// Collection: episodes/{episodeId}
+// Document ID: Unique Episode Reference
+// Fields:
+//   - caseId: string (required) - Parent case ID
+//   - cycleNumber: number (required, >= 1)
+//   - hospitalId: string (required)
+//   - status: string (required, enum: draft, active, completed, cancelled)
+//   - createdAt: timestamp (required, immutable)
+//
+// ===============================================================
+
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    // Helper functions
+    function isAuthenticated() {
+      return request.auth != null;
+    }
+
+    function isOwner(userId) {
+      return isAuthenticated() && request.auth.uid == userId;
+    }
+
+    function getUserData() {
+      return get(/databases/$(database)/documents/users/$(request.auth.uid)).data;
+    }
+
+    function userExists() {
+      return exists(/databases/$(database)/documents/users/$(request.auth.uid));
+    }
+
+    function isAdmin() {
+      return isAuthenticated() && (
+        (userExists() && getUserData().role == 'admin') ||
+        request.auth.token.admin == true
+      );
+    }
+
+    function isCoordinator() {
+      return isAuthenticated() && userExists() && (
+        getUserData().role == 'coordinator' || getUserData().role == 'admin'
+      );
+    }
+
+    function isStaff() {
+      return isAuthenticated() && userExists() && (
+        getUserData().role in ['admin', 'coordinator', 'finance']
+      );
+    }
+
+    function isAssignedPartner(partnerId) {
+      return isAuthenticated() && userExists() &&
+        getUserData().role == 'partner' &&
+        getUserData().partnerId == partnerId;
+    }
+
+    // Default deny for all unmatched paths
+    match /{document=**} {
+      allow read, write: if false;
+    }
+
+    // Users Collection (Strict PII and RBAC protection)
+    match /users/{userId} {
+      // Owners can read their own profile; Admins can read all users
+      allow read: if isOwner(userId) || isAdmin();
+
+      // Creation allowed on first signup or by Super Admin; users cannot self-assign 'admin' role
+      allow create: if isAuthenticated() &&
+        request.resource.data.uid == request.auth.uid &&
+        (isAdmin() || request.resource.data.role in ['coordinator', 'partner']) &&
+        request.resource.data.keys().hasAll(['uid', 'email', 'name', 'role', 'status', 'createdAt']) &&
+        request.resource.data.name.size() > 0 && request.resource.data.name.size() <= 100;
+
+      // Only Super Admin can change roles or status
+      allow update: if isAdmin() || (
+        isOwner(userId) &&
+        request.resource.data.role == resource.data.role &&
+        request.resource.data.status == resource.data.status &&
+        request.resource.data.uid == resource.data.uid
+      );
+
+      allow delete: if isAdmin();
+    }
+
+    // Patients Collection (Protected Medical Patient Data - DPDP / HIPAA Compliant)
+    match /patients/{patientId} {
+      // Only authorized staff (coordinators/admins) can read patient records; no public reads
+      allow read: if isStaff();
+
+      // Coordinators and admins can register patients
+      allow create: if isCoordinator() &&
+        request.resource.data.keys().hasAll(['patientId', 'fullName', 'dateOfBirth', 'gender', 'country', 'createdBy', 'createdAt']) &&
+        request.resource.data.fullName.size() > 0 && request.resource.data.fullName.size() <= 150 &&
+        request.resource.data.gender in ['male', 'female', 'other'] &&
+        request.resource.data.createdBy == request.auth.uid;
+
+      // Staff can update patient records; patientId and createdAt remain immutable
+      allow update: if isCoordinator() &&
+        request.resource.data.patientId == resource.data.patientId &&
+        request.resource.data.createdAt == resource.data.createdAt &&
+        request.resource.data.fullName.size() > 0 && request.resource.data.fullName.size() <= 150;
+
+      allow delete: if isAdmin();
+    }
+
+    // Cases Collection (Medical Case Management Pipeline)
+    match /cases/{caseId} {
+      // Staff can read all cases; Partners can read cases referred by them
+      allow read: if isStaff() || (
+        resource.data.partnerId != null && isAssignedPartner(resource.data.partnerId)
+      );
+
+      // Coordinators and admins can create new cases
+      allow create: if isCoordinator() &&
+        request.resource.data.keys().hasAll(['caseCode', 'patientId', 'stage', 'priority', 'status', 'createdAt']) &&
+        request.resource.data.caseCode.size() > 0 && request.resource.data.caseCode.size() <= 30 &&
+        request.resource.data.priority in ['routine', 'priority', 'urgent'] &&
+        request.resource.data.status in ['active', 'completed', 'cancelled', 'on_hold'];
+
+      // Coordinators and admins can update case stage and details; caseCode and patientId immutable
+      allow update: if isCoordinator() &&
+        request.resource.data.caseCode == resource.data.caseCode &&
+        request.resource.data.patientId == resource.data.patientId &&
+        request.resource.data.createdAt == resource.data.createdAt;
+
+      allow delete: if isAdmin();
+    }
+
+    // Episodes Collection (Hospital Episodes & Cycle Management)
+    match /episodes/{episodeId} {
+      allow read: if isStaff();
+
+      allow create: if isCoordinator() &&
+        request.resource.data.keys().hasAll(['caseId', 'cycleNumber', 'hospitalId', 'status', 'createdAt']) &&
+        request.resource.data.cycleNumber >= 1 &&
+        request.resource.data.status in ['draft', 'active', 'completed', 'cancelled'];
+
+      allow update: if isCoordinator() &&
+        request.resource.data.caseId == resource.data.caseId &&
+        request.resource.data.createdAt == resource.data.createdAt;
+
+      allow delete: if isAdmin();
+    }
+
+    // Activity Logs Collection (Immutable Audit Trail)
+    match /activity_logs/{logId} {
+      allow read: if isStaff();
+      // Audit logs are append-only; updates and deletes strictly forbidden
+      allow create: if isAuthenticated() &&
+        request.resource.data.keys().hasAll(['action', 'entityType', 'entityId', 'performedBy', 'timestamp']) &&
+        request.resource.data.performedBy == request.auth.uid;
+      allow update, delete: if false;
+    }
+  }
+}

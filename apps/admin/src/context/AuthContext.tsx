@@ -1,6 +1,13 @@
 import React, { createContext, useContext, useState, useEffect } from "react";
 import { UserDTO } from "@akeezo/contracts";
-import { auth, RecaptchaVerifier, signInWithPhoneNumber, type ConfirmationResult } from "../firebase.js";
+import {
+  auth,
+  RecaptchaVerifier,
+  signInWithPhoneNumber,
+  signInWithEmailAndPassword,
+  signOut,
+  type ConfirmationResult,
+} from "../firebase.js";
 
 declare global {
   interface Window {
@@ -139,6 +146,10 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       setUser(json.data.user);
       setRequiresPhoneOtp(false);
       setTempToken(null);
+
+      // Authenticate client-side Firebase session in background
+      signInWithEmailAndPassword(auth, email, password).catch(() => {});
+
       return true;
     } catch (err: any) {
       setError(err.message || "Network error. Please try again.");
@@ -343,6 +354,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   };
 
   const logout = () => {
+    signOut(auth).catch(() => {});
     if (token) {
       fetch("/api/v1/auth/logout", {
         method: "POST",

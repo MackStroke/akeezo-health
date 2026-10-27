@@ -25,6 +25,7 @@ import {
   AuthenticatedRequest,
 } from "../utils/auth.js";
 import { generateAndStoreOtp, verifyStoredOtp, getActiveOtpForSession } from "../utils/otpManager.js";
+import { verifyFirebaseToken } from "../firebase.js";
 
 export const authRouter = Router();
 
@@ -443,6 +444,15 @@ authRouter.post("/2fa/verify", handleOtpVerify);
 authRouter.post("/firebase", async (req: AuthenticatedRequest, res: Response) => {
   try {
     const parsed = FirebaseVerifySchema.parse(req.body);
+
+    if (parsed.firebaseIdToken && !parsed.firebaseIdToken.startsWith("mock-")) {
+      const decoded = await verifyFirebaseToken(parsed.firebaseIdToken);
+      if (decoded) {
+        if (!parsed.email && decoded.email) parsed.email = decoded.email;
+        if (!parsed.phone && decoded.phone_number) parsed.phone = decoded.phone_number;
+      }
+    }
+
     let user: any = null;
 
     if (parsed.phone) {

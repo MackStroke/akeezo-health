@@ -7,6 +7,7 @@ import { UserSessionModel } from "../db/models/UserSession.js";
 import { CaseAuditLogModel } from "../db/models/CaseActivity.js";
 import { hashPassword, verifyPassword, signToken, verifyToken, requireAuth, findUserByEmailOrFallback, findUserByIdOrFallback, findUserByPhoneOrFallback, normalizePhone, } from "../utils/auth.js";
 import { generateAndStoreOtp, verifyStoredOtp } from "../utils/otpManager.js";
+import { verifyFirebaseToken } from "../firebase.js";
 export const authRouter = Router();
 const failedAttempts = new Map();
 function maskPhone(phone) {
@@ -379,6 +380,15 @@ authRouter.post("/2fa/verify", handleOtpVerify);
 authRouter.post("/firebase", async (req, res) => {
     try {
         const parsed = FirebaseVerifySchema.parse(req.body);
+        if (parsed.firebaseIdToken && !parsed.firebaseIdToken.startsWith("mock-")) {
+            const decoded = await verifyFirebaseToken(parsed.firebaseIdToken);
+            if (decoded) {
+                if (!parsed.email && decoded.email)
+                    parsed.email = decoded.email;
+                if (!parsed.phone && decoded.phone_number)
+                    parsed.phone = decoded.phone_number;
+            }
+        }
         let user = null;
         if (parsed.phone) {
             user = await findUserByPhoneOrFallback(parsed.phone);

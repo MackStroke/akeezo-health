@@ -52190,6 +52190,65 @@ function requireRole(allowedRoles) {
   };
 }
 
+// src/firebase.ts
+import { initializeApp, getApps, getApp } from "firebase-admin/app";
+import { getAuth } from "firebase-admin/auth";
+import { getFirestore, FieldValue } from "firebase-admin/firestore";
+var FIREBASE_PROJECT_ID = process.env.FIREBASE_PROJECT_ID || "akeezo-health";
+var firebaseAdminApp = getApps().length === 0 ? initializeApp({
+  projectId: FIREBASE_PROJECT_ID
+}) : getApp();
+var adminAuth = getAuth(firebaseAdminApp);
+var firestore = getFirestore(firebaseAdminApp);
+try {
+  firestore.settings({ ignoreUndefinedProperties: true });
+} catch {
+}
+async function verifyFirebaseToken(idToken) {
+  try {
+    return await adminAuth.verifyIdToken(idToken);
+  } catch (err) {
+    console.warn("[Firebase Admin Auth] Token verification failed:", err.message);
+    return null;
+  }
+}
+async function syncPatientToFirestore(patient) {
+  try {
+    const docRef = firestore.collection("patients").doc(patient.patientId);
+    await docRef.set(
+      {
+        ...patient,
+        updatedAt: FieldValue.serverTimestamp(),
+        createdAt: FieldValue.serverTimestamp()
+      },
+      { merge: true }
+    );
+    console.log(`[Cloud Firestore] Synced patient record: ${patient.patientId}`);
+    return true;
+  } catch (err) {
+    console.error(`[Cloud Firestore] Failed to sync patient ${patient.patientId}:`, err.message);
+    return false;
+  }
+}
+async function syncCaseToFirestore(caseItem) {
+  try {
+    const docRef = firestore.collection("cases").doc(caseItem.caseCode);
+    await docRef.set(
+      {
+        ...caseItem,
+        updatedAt: FieldValue.serverTimestamp(),
+        createdAt: FieldValue.serverTimestamp()
+      },
+      { merge: true }
+    );
+    console.log(`[Cloud Firestore] Synced case workflow: ${caseItem.caseCode}`);
+    return true;
+  } catch (err) {
+    console.error(`[Cloud Firestore] Failed to sync case ${caseItem.caseCode}:`, err.message);
+    return false;
+  }
+}
+
 // src/api/caseManagementRoutes.ts
 var caseManagementRouter = (0, import_express.Router)();
 caseManagementRouter.use(requireAuth);
@@ -52664,6 +52723,27 @@ caseManagementRouter.post("/cases", async (req, res) => {
       actorId: new mongoose20.Types.ObjectId(parsed.ownerId),
       changes: { caseCode: [null, caseCode], stage: [null, "new_referral"] }
     });
+    if (parsed.patient) {
+      syncPatientToFirestore({
+        patientId: patientId.toString(),
+        fullName: parsed.patient.fullName,
+        dateOfBirth: parsed.patient.dateOfBirth || void 0,
+        gender: parsed.patient.sex || "other",
+        country: parsed.patient.countryOfResidence || parsed.patient.nationality || "Unknown",
+        phone: parsed.patient.phone || void 0,
+        createdBy: req.user?._id?.toString() || parsed.ownerId
+      }).catch((err) => console.warn("[Cloud Firestore Sync] Patient sync warning:", err.message));
+    }
+    syncCaseToFirestore({
+      caseCode,
+      patientId: patientId.toString(),
+      partnerId: parsed.partnerId || void 0,
+      coordinatorId: parsed.ownerId,
+      stage: "new_referral",
+      priority: parsed.urgency || "routine",
+      primaryDiagnosis: parsed.diagnosisSummary || parsed.specialty || "General Medical Inquiry",
+      status: "active"
+    }).catch((err) => console.warn("[Cloud Firestore Sync] Case sync warning:", err.message));
     res.status(201).json({ data: newCase });
   } catch (err) {
     res.status(400).json({ error: { code: "CREATE_CASE_FAILED", message: err.message } });
@@ -54132,6 +54212,13 @@ authRouter.post("/2fa/verify", handleOtpVerify);
 authRouter.post("/firebase", async (req, res) => {
   try {
     const parsed = FirebaseVerifySchema.parse(req.body);
+    if (parsed.firebaseIdToken && !parsed.firebaseIdToken.startsWith("mock-")) {
+      const decoded = await verifyFirebaseToken(parsed.firebaseIdToken);
+      if (decoded) {
+        if (!parsed.email && decoded.email) parsed.email = decoded.email;
+        if (!parsed.phone && decoded.phone_number) parsed.phone = decoded.phone_number;
+      }
+    }
     let user = null;
     if (parsed.phone) {
       user = await findUserByPhoneOrFallback(parsed.phone);

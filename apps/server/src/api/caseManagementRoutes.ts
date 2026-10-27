@@ -56,6 +56,7 @@ import {
   AuthenticatedRequest,
   escapeRegex,
 } from "../utils/auth.js";
+import { syncPatientToFirestore, syncCaseToFirestore } from "../firebase.js";
 
 export const caseManagementRouter = Router();
 
@@ -631,6 +632,30 @@ caseManagementRouter.post("/cases", async (req: Request, res: Response) => {
       actorId: new mongoose.Types.ObjectId(parsed.ownerId),
       changes: { caseCode: [null, caseCode], stage: [null, "new_referral"] },
     });
+
+    // Asynchronously synchronize patient and case records to Cloud Firestore
+    if (parsed.patient) {
+      syncPatientToFirestore({
+        patientId: patientId.toString(),
+        fullName: parsed.patient.fullName,
+        dateOfBirth: parsed.patient.dateOfBirth || undefined,
+        gender: parsed.patient.sex || "other",
+        country: parsed.patient.countryOfResidence || parsed.patient.nationality || "Unknown",
+        phone: parsed.patient.phone || undefined,
+        createdBy: (req as any).user?._id?.toString() || parsed.ownerId,
+      }).catch((err) => console.warn("[Cloud Firestore Sync] Patient sync warning:", err.message));
+    }
+
+    syncCaseToFirestore({
+      caseCode,
+      patientId: patientId.toString(),
+      partnerId: parsed.partnerId || undefined,
+      coordinatorId: parsed.ownerId,
+      stage: "new_referral",
+      priority: parsed.urgency || "routine",
+      primaryDiagnosis: parsed.diagnosisSummary || parsed.specialty || "General Medical Inquiry",
+      status: "active",
+    }).catch((err) => console.warn("[Cloud Firestore Sync] Case sync warning:", err.message));
 
     res.status(201).json({ data: newCase });
   } catch (err: any) {
