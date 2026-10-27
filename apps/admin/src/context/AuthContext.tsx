@@ -285,7 +285,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       }
 
       if (!res.ok) {
-        setError(json.error?.message || "Invalid OTP code. Please check your SMS or try 123456.");
+        setError(json.error?.message || "Invalid OTP code. Please check your SMS and try again.");
         return false;
       }
 

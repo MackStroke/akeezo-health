@@ -330,7 +330,9 @@ describe("Dual Portal Architecture Verification: Website Admin & Case Management
         });
         const loginJson = await loginRes.json();
         const tempToken = loginJson.data?.tempToken;
+        const realOtp = loginJson.data?.devOtp;
         assert.ok(tempToken, "Login must yield temporary OTP token");
+        assert.ok(realOtp, "Login must generate real dynamic 6-digit OTP code");
         const invalidOtpRes = await fetch(`${baseUrl}/api/v1/auth/otp/verify`, {
             method: "POST",
             headers: { "Content-Type": "application/json" },
@@ -339,11 +341,11 @@ describe("Dual Portal Architecture Verification: Website Admin & Case Management
         assert.equal(invalidOtpRes.status, 422, "Arbitrary 6-digit code must be rejected with 422");
         const invalidJson = await invalidOtpRes.json();
         assert.equal(invalidJson.error?.code, "INVALID_OTP_CODE");
-        // D. OTP: Valid test code succeeds
+        // D. OTP: Valid dynamically generated cryptographic OTP succeeds
         const validOtpRes = await fetch(`${baseUrl}/api/v1/auth/otp/verify`, {
             method: "POST",
             headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({ tempToken, code: "123456" }),
+            body: JSON.stringify({ tempToken, code: realOtp }),
         });
         assert.equal(validOtpRes.status, 200, "Valid OTP code must succeed");
         const validJson = await validOtpRes.json();
@@ -358,14 +360,15 @@ describe("Dual Portal Architecture Verification: Website Admin & Case Management
         const phoneOtpJson = await phoneOtpRes.json();
         assert.ok(phoneOtpJson.data?.tempToken, "Phone OTP must return temporary session token");
         assert.ok(phoneOtpJson.data?.maskedPhone, "Phone OTP must return masked phone number");
-        // Verify OTP from Phone flow
+        const phoneRealOtp = phoneOtpJson.data?.devOtp;
+        assert.ok(phoneRealOtp, "Phone OTP must generate real dynamic OTP");
+        // Verify OTP from Phone flow with dynamically generated OTP
         const phoneVerifyRes = await fetch(`${baseUrl}/api/v1/auth/otp/verify`, {
             method: "POST",
             headers: { "Content-Type": "application/json" },
             body: JSON.stringify({
                 tempToken: phoneOtpJson.data.tempToken,
-                code: "123456",
-                firebaseIdToken: "test-firebase-id-token",
+                code: phoneRealOtp,
             }),
         });
         assert.equal(phoneVerifyRes.status, 200, "Verifying Phone OTP must return 200");
@@ -380,6 +383,20 @@ describe("Dual Portal Architecture Verification: Website Admin & Case Management
         assert.equal(emailOtpRes.status, 200, "Requesting OTP via email must return 200");
         const emailOtpJson = await emailOtpRes.json();
         assert.ok(emailOtpJson.data?.tempToken, "Email OTP must return temporary session token");
+        const emailRealOtp = emailOtpJson.data?.devOtp;
+        assert.ok(emailRealOtp, "Email OTP must generate real dynamic OTP");
+        // Verify OTP from Email flow with dynamically generated OTP
+        const emailVerifyRes = await fetch(`${baseUrl}/api/v1/auth/otp/verify`, {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({
+                tempToken: emailOtpJson.data.tempToken,
+                code: emailRealOtp,
+            }),
+        });
+        assert.equal(emailVerifyRes.status, 200, "Verifying Email OTP must return 200");
+        const emailVerifyJson = await emailVerifyRes.json();
+        assert.equal(emailVerifyJson.data?.user?.email, "priya@akeezo.com");
         // G. Direct Firebase token login endpoint
         const firebaseDirectRes = await fetch(`${baseUrl}/api/v1/auth/firebase`, {
             method: "POST",

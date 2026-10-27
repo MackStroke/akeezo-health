@@ -11,7 +11,6 @@ import {
   ShieldCheck,
   ArrowLeft,
   Send,
-  Sparkles,
 } from "lucide-react";
 import { useAuth } from "../context/AuthContext.js";
 
@@ -33,10 +32,10 @@ export const AdminLoginView: React.FC = () => {
   } = useAuth();
 
   const [loginMethod, setLoginMethod] = useState<LoginMethod>("email");
-  const [email, setEmail] = useState("priti@akeezo.com");
-  const [password, setPassword] = useState("Akeezo@2026!");
-  const [phone, setPhone] = useState("+91 98765 43210");
-  const [otpCode, setOtpCode] = useState("123456");
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
+  const [phone, setPhone] = useState("");
+  const [otpCode, setOtpCode] = useState("");
   const [resendCooldown, setResendCooldown] = useState(0);
   const [resendNotice, setResendNotice] = useState<string | null>(null);
 
@@ -90,14 +89,6 @@ export const AdminLoginView: React.FC = () => {
       setResendNotice("A new 6-digit verification code has been dispatched via Firebase SMS.");
       setResendCooldown(30);
     }
-  };
-
-  const handleQuickFill = (userEmail: string, userPhone: string) => {
-    clearError();
-    setResendNotice(null);
-    setEmail(userEmail);
-    setPhone(userPhone);
-    setPassword("Akeezo@2026!");
   };
 
   return (
@@ -341,13 +332,10 @@ export const AdminLoginView: React.FC = () => {
                   autoFocus
                   value={otpCode}
                   onChange={(e) => setOtpCode(e.target.value.replace(/\D/g, ""))}
-                  placeholder="123456"
+                  placeholder="••••••"
                   className="w-full text-center tracking-[0.5em] font-mono font-bold text-lg py-2.5 rounded-xl border border-slate-200 focus:border-[#007A6C] focus:ring-1 focus:ring-[#007A6C] focus:outline-none transition"
                 />
-                <div className="flex items-center justify-between mt-1 text-[10px]">
-                  <span className="text-slate-400">
-                    Demo bypass code: <strong className="text-slate-600">123456</strong>
-                  </span>
+                <div className="flex items-center justify-end mt-1 text-[10px]">
                   <button
                     type="button"
                     onClick={handleResend}
@@ -381,34 +369,6 @@ export const AdminLoginView: React.FC = () => {
               </div>
             </form>
           )}
-
-          {/* Quick Demo Credentials */}
-          <div className="mt-6 pt-5 border-t border-slate-100">
-            <div className="flex items-center gap-1 text-[10px] font-bold text-slate-400 uppercase tracking-wider mb-2">
-              <Sparkles className="w-3 h-3 text-[#FF6B00]" />
-              <span>Quick Login (Demo Staff)</span>
-            </div>
-            <div className="grid grid-cols-2 gap-2 text-[11px]">
-              <button
-                type="button"
-                onClick={() => handleQuickFill("priti@akeezo.com", "+91 98765 43210")}
-                className="p-2 text-left rounded-xl border border-amber-300 bg-amber-50/40 hover:border-amber-500 hover:bg-amber-50 transition"
-              >
-                <div className="font-bold text-slate-800">Priti (Executive)</div>
-                <div className="text-[10px] text-amber-800 font-bold">Role: Super Admin</div>
-                <div className="text-[10px] text-slate-400 font-mono">📱 +91 98765 43210</div>
-              </button>
-              <button
-                type="button"
-                onClick={() => handleQuickFill("priya@akeezo.com", "+91 98765 43211")}
-                className="p-2 text-left rounded-xl border border-slate-200 hover:border-[#007A6C] hover:bg-[#E6F8F6] transition"
-              >
-                <div className="font-bold text-slate-800">Priya Sharma</div>
-                <div className="text-[10px] text-teal-700 font-semibold">Coordinator (Staff)</div>
-                <div className="text-[10px] text-slate-400 font-mono">📱 +91 98765 43211</div>
-              </button>
-            </div>
-          </div>
         </div>
 
         {/* Security Compliance Footer */}

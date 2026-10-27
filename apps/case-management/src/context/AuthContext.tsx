@@ -266,7 +266,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
           const cred = await confirmationResult.confirm(code);
           firebaseIdToken = await cred.user.getIdToken();
         } catch (firebaseErr: any) {
-          // If code is demo fallback (e.g. 123456) or carrier SMS delayed, continue to server validation
+          // If carrier SMS or client Firebase verification has network delay, continue to server validation
           console.warn("Firebase confirmation notice:", firebaseErr?.message || firebaseErr);
         }
       }
@@ -292,7 +292,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       }
 
       if (!res.ok) {
-        setError(json.error?.message || "Invalid OTP code. Please check your SMS or try 123456.");
+        setError(json.error?.message || "Invalid OTP code. Please check your SMS and try again.");
         return false;
       }
 
