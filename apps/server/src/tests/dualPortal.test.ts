@@ -423,5 +423,53 @@ describe("Dual Portal Architecture Verification: Website Admin & Case Management
     assert.equal(validOtpRes.status, 200, "Valid OTP code must succeed");
     const validJson = await validOtpRes.json();
     assert.ok(validJson.data?.token, "Must return active session token");
+
+    // E. Phone Number OTP flow (Firebase SMS option)
+    const phoneOtpRes = await fetch(`${baseUrl}/api/v1/auth/phone/otp`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ phone: "+91 98765 43211" }),
+    });
+    assert.equal(phoneOtpRes.status, 200, "Requesting OTP via phone number must return 200");
+    const phoneOtpJson = await phoneOtpRes.json();
+    assert.ok(phoneOtpJson.data?.tempToken, "Phone OTP must return temporary session token");
+    assert.ok(phoneOtpJson.data?.maskedPhone, "Phone OTP must return masked phone number");
+
+    // Verify OTP from Phone flow
+    const phoneVerifyRes = await fetch(`${baseUrl}/api/v1/auth/otp/verify`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        tempToken: phoneOtpJson.data.tempToken,
+        code: "123456",
+        firebaseIdToken: "test-firebase-id-token",
+      }),
+    });
+    assert.equal(phoneVerifyRes.status, 200, "Verifying Phone OTP must return 200");
+    const phoneVerifyJson = await phoneVerifyRes.json();
+    assert.equal(phoneVerifyJson.data?.user?.email, "priya@akeezo.com");
+
+    // F. Email OTP flow (Firebase One-Time Code option)
+    const emailOtpRes = await fetch(`${baseUrl}/api/v1/auth/email/otp`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ email: "priya@akeezo.com" }),
+    });
+    assert.equal(emailOtpRes.status, 200, "Requesting OTP via email must return 200");
+    const emailOtpJson = await emailOtpRes.json();
+    assert.ok(emailOtpJson.data?.tempToken, "Email OTP must return temporary session token");
+
+    // G. Direct Firebase token login endpoint
+    const firebaseDirectRes = await fetch(`${baseUrl}/api/v1/auth/firebase`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        firebaseIdToken: "mock-verified-firebase-jwt-token-abcdef1234567890",
+        phone: "+91 98765 43211",
+      }),
+    });
+    assert.equal(firebaseDirectRes.status, 200, "Direct Firebase ID token login must return 200");
+    const firebaseDirectJson = await firebaseDirectRes.json();
+    assert.equal(firebaseDirectJson.data?.user?.email, "priya@akeezo.com");
   });
 });

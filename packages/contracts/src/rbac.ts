@@ -127,6 +127,26 @@ export const LoginRequestSchema = z.object({
 
 export type LoginRequestDTO = z.infer<typeof LoginRequestSchema>;
 
+export const RequestPhoneOtpSchema = z.object({
+  phone: z.string().min(8),
+});
+
+export type RequestPhoneOtpDTO = z.infer<typeof RequestPhoneOtpSchema>;
+
+export const RequestEmailOtpSchema = z.object({
+  email: z.string().email(),
+});
+
+export type RequestEmailOtpDTO = z.infer<typeof RequestEmailOtpSchema>;
+
+export const FirebaseVerifySchema = z.object({
+  firebaseIdToken: z.string().min(10),
+  phone: z.string().optional(),
+  email: z.string().optional(),
+});
+
+export type FirebaseVerifyDTO = z.infer<typeof FirebaseVerifySchema>;
+
 export const VerifyPhoneOtpRequestSchema = z.object({
   tempToken: z.string().optional(),
   email: z.string().email().optional(),

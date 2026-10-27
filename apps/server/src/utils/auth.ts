@@ -167,6 +167,46 @@ export const FALLBACK_USERS: any[] = [
   }
 ];
 
+export function normalizePhone(rawPhone: string): string {
+  const digits = rawPhone.replace(/\D/g, "");
+  if (digits.length === 12 && digits.startsWith("91")) {
+    return `+${digits}`;
+  }
+  if (digits.length === 10) {
+    return `+91${digits}`;
+  }
+  return rawPhone.startsWith("+") ? rawPhone.trim() : `+${digits}`;
+}
+
+export async function findUserByPhoneOrFallback(phone: string): Promise<any> {
+  const digits = phone.replace(/\D/g, "");
+  if (!digits || digits.length < 8) return null;
+  const last10 = digits.slice(-10);
+
+  if (mongoose.connection.readyState === 1) {
+    try {
+      const user = await UserModel.findOne({
+        $or: [
+          { phone: phone.trim() },
+          { phone: normalizePhone(phone) },
+          { phone: { $regex: `${last10}$` } },
+        ],
+      });
+      if (user) return user;
+    } catch {
+      // Fall through to fallback
+    }
+  }
+
+  return (
+    FALLBACK_USERS.find((u) => {
+      if (!u.phone) return false;
+      const uDigits = u.phone.replace(/\D/g, "");
+      return uDigits.slice(-10) === last10 || u.phone.trim() === phone.trim();
+    }) || null
+  );
+}
+
 export async function findUserByEmailOrFallback(email: string): Promise<any> {
   const normalized = email.toLowerCase().trim();
   if (mongoose.connection.readyState === 1) {

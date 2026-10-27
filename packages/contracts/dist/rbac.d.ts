@@ -56,6 +56,36 @@ export declare const LoginRequestSchema: z.ZodObject<{
     password: string;
 }>;
 export type LoginRequestDTO = z.infer<typeof LoginRequestSchema>;
+export declare const RequestPhoneOtpSchema: z.ZodObject<{
+    phone: z.ZodString;
+}, "strip", z.ZodTypeAny, {
+    phone: string;
+}, {
+    phone: string;
+}>;
+export type RequestPhoneOtpDTO = z.infer<typeof RequestPhoneOtpSchema>;
+export declare const RequestEmailOtpSchema: z.ZodObject<{
+    email: z.ZodString;
+}, "strip", z.ZodTypeAny, {
+    email: string;
+}, {
+    email: string;
+}>;
+export type RequestEmailOtpDTO = z.infer<typeof RequestEmailOtpSchema>;
+export declare const FirebaseVerifySchema: z.ZodObject<{
+    firebaseIdToken: z.ZodString;
+    phone: z.ZodOptional<z.ZodString>;
+    email: z.ZodOptional<z.ZodString>;
+}, "strip", z.ZodTypeAny, {
+    firebaseIdToken: string;
+    phone?: string | undefined;
+    email?: string | undefined;
+}, {
+    firebaseIdToken: string;
+    phone?: string | undefined;
+    email?: string | undefined;
+}>;
+export type FirebaseVerifyDTO = z.infer<typeof FirebaseVerifySchema>;
 export declare const VerifyPhoneOtpRequestSchema: z.ZodObject<{
     tempToken: z.ZodOptional<z.ZodString>;
     email: z.ZodOptional<z.ZodString>;
@@ -66,14 +96,14 @@ export declare const VerifyPhoneOtpRequestSchema: z.ZodObject<{
     code: string;
     phone?: string | undefined;
     email?: string | undefined;
-    tempToken?: string | undefined;
     firebaseIdToken?: string | undefined;
+    tempToken?: string | undefined;
 }, {
     code: string;
     phone?: string | undefined;
     email?: string | undefined;
-    tempToken?: string | undefined;
     firebaseIdToken?: string | undefined;
+    tempToken?: string | undefined;
 }>;
 export type VerifyPhoneOtpRequestDTO = z.infer<typeof VerifyPhoneOtpRequestSchema>;
 export declare const Verify2FARequestSchema: z.ZodObject<{
@@ -86,14 +116,14 @@ export declare const Verify2FARequestSchema: z.ZodObject<{
     code: string;
     phone?: string | undefined;
     email?: string | undefined;
-    tempToken?: string | undefined;
     firebaseIdToken?: string | undefined;
+    tempToken?: string | undefined;
 }, {
     code: string;
     phone?: string | undefined;
     email?: string | undefined;
-    tempToken?: string | undefined;
     firebaseIdToken?: string | undefined;
+    tempToken?: string | undefined;
 }>;
 export type Verify2FARequestDTO = VerifyPhoneOtpRequestDTO;
 export declare const AuthResponseSchema: z.ZodObject<{

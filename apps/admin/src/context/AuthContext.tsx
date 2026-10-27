@@ -20,9 +20,12 @@ interface AuthContextType {
   isLoading: boolean;
   error: string | null;
   login: (email: string, password: string) => Promise<boolean>;
+  loginWithPhoneOtp: (phoneNumber: string) => Promise<boolean>;
+  loginWithEmailOtp: (emailAddress: string) => Promise<boolean>;
   verifyOtp: (code: string) => Promise<boolean>;
   verify2FA: (code: string) => Promise<boolean>;
   resendOtp: () => Promise<boolean>;
+  cancelOtp: () => void;
   logout: () => void;
   clearError: () => void;
 }
@@ -143,6 +146,103 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     } finally {
       setIsLoading(false);
     }
+  };
+
+  const loginWithPhoneOtp = async (phoneNumber: string): Promise<boolean> => {
+    try {
+      setError(null);
+      setIsLoading(true);
+
+      const res = await fetch("/api/v1/auth/phone/otp", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        credentials: "same-origin",
+        body: JSON.stringify({ phone: phoneNumber }),
+      });
+
+      const text = await res.text();
+      let json: any = {};
+      try {
+        json = JSON.parse(text);
+      } catch {
+        json = { error: { message: `API response (${res.status}): ${text.slice(0, 100)}` } };
+      }
+
+      if (!res.ok) {
+        setError(json.error?.message || "Failed to dispatch phone OTP.");
+        return false;
+      }
+
+      const sessionToken = json.data.tempToken;
+      const userPhone = json.data.phone || phoneNumber;
+      const masked = json.data.maskedPhone || userPhone;
+
+      setTempToken(sessionToken);
+      setPhone(userPhone);
+      setMaskedPhone(masked);
+      setRequiresPhoneOtp(true);
+
+      // Trigger Firebase Phone Auth SMS
+      triggerFirebasePhoneAuth(userPhone);
+      return true;
+    } catch (err: any) {
+      setError(err.message || "Network error while requesting phone OTP.");
+      return false;
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  const loginWithEmailOtp = async (emailAddress: string): Promise<boolean> => {
+    try {
+      setError(null);
+      setIsLoading(true);
+
+      const res = await fetch("/api/v1/auth/email/otp", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        credentials: "same-origin",
+        body: JSON.stringify({ email: emailAddress }),
+      });
+
+      const text = await res.text();
+      let json: any = {};
+      try {
+        json = JSON.parse(text);
+      } catch {
+        json = { error: { message: `API response (${res.status}): ${text.slice(0, 100)}` } };
+      }
+
+      if (!res.ok) {
+        setError(json.error?.message || "Failed to dispatch email OTP.");
+        return false;
+      }
+
+      const sessionToken = json.data.tempToken;
+      const userPhone = json.data.phone || "+918287639443";
+      const masked = json.data.maskedPhone || userPhone;
+
+      setTempToken(sessionToken);
+      setPhone(userPhone);
+      setMaskedPhone(masked);
+      setRequiresPhoneOtp(true);
+
+      // Trigger Firebase Phone Auth SMS
+      triggerFirebasePhoneAuth(userPhone);
+      return true;
+    } catch (err: any) {
+      setError(err.message || "Network error while requesting email OTP.");
+      return false;
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  const cancelOtp = () => {
+    setRequiresPhoneOtp(false);
+    setTempToken(null);
+    setConfirmationResult(null);
+    setError(null);
   };
 
   const verifyOtp = async (code: string): Promise<boolean> => {
@@ -271,9 +371,12 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         isLoading,
         error,
         login,
+        loginWithPhoneOtp,
+        loginWithEmailOtp,
         verifyOtp,
         verify2FA: verifyOtp,
         resendOtp,
+        cancelOtp,
         logout,
         clearError: () => setError(null),
       }}

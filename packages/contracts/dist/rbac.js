@@ -113,6 +113,17 @@ export const LoginRequestSchema = z.object({
     email: z.string().email(),
     password: z.string().min(6),
 });
+export const RequestPhoneOtpSchema = z.object({
+    phone: z.string().min(8),
+});
+export const RequestEmailOtpSchema = z.object({
+    email: z.string().email(),
+});
+export const FirebaseVerifySchema = z.object({
+    firebaseIdToken: z.string().min(10),
+    phone: z.string().optional(),
+    email: z.string().optional(),
+});
 export const VerifyPhoneOtpRequestSchema = z.object({
     tempToken: z.string().optional(),
     email: z.string().email().optional(),

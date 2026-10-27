@@ -1,12 +1,41 @@
 import React, { useState, useEffect } from "react";
-import { Lock, Mail, ArrowRight, AlertCircle, KeyRound, ShieldAlert, Smartphone, RotateCcw, ShieldCheck } from "lucide-react";
+import {
+  Lock,
+  Mail,
+  ArrowRight,
+  AlertCircle,
+  KeyRound,
+  ShieldAlert,
+  Smartphone,
+  RotateCcw,
+  ShieldCheck,
+  ArrowLeft,
+  Send,
+  Sparkles,
+} from "lucide-react";
 import { useAuth } from "../context/AuthContext.js";
 
-export const AdminLoginView: React.FC = () => {
-  const { login, verifyOtp, requiresPhoneOtp, maskedPhone, error, isLoading, clearError, resendOtp } = useAuth();
+type LoginMethod = "email" | "phone";
 
+export const AdminLoginView: React.FC = () => {
+  const {
+    login,
+    loginWithPhoneOtp,
+    loginWithEmailOtp,
+    verifyOtp,
+    requiresPhoneOtp,
+    maskedPhone,
+    error,
+    isLoading,
+    clearError,
+    resendOtp,
+    cancelOtp,
+  } = useAuth();
+
+  const [loginMethod, setLoginMethod] = useState<LoginMethod>("email");
   const [email, setEmail] = useState("priti@akeezo.com");
   const [password, setPassword] = useState("Akeezo@2026!");
+  const [phone, setPhone] = useState("+91 98765 43210");
   const [otpCode, setOtpCode] = useState("123456");
   const [resendCooldown, setResendCooldown] = useState(0);
   const [resendNotice, setResendNotice] = useState<string | null>(null);
@@ -19,10 +48,31 @@ export const AdminLoginView: React.FC = () => {
     return () => clearInterval(timer);
   }, [resendCooldown]);
 
-  const handleSubmitLogin = async (e: React.FormEvent) => {
+  const handleSubmitPasswordLogin = async (e: React.FormEvent) => {
     e.preventDefault();
     setResendNotice(null);
     await login(email, password);
+  };
+
+  const handleSendEmailOtp = async () => {
+    setResendNotice(null);
+    clearError();
+    const success = await loginWithEmailOtp(email);
+    if (success) {
+      setResendNotice("Verification code sent to your registered mobile via Firebase SMS.");
+      setResendCooldown(30);
+    }
+  };
+
+  const handleSubmitPhoneOtpLogin = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setResendNotice(null);
+    clearError();
+    const success = await loginWithPhoneOtp(phone);
+    if (success) {
+      setResendNotice("Firebase SMS dispatched with your 6-digit OTP code.");
+      setResendCooldown(30);
+    }
   };
 
   const handleSubmitOtp = async (e: React.FormEvent) => {
@@ -37,15 +87,16 @@ export const AdminLoginView: React.FC = () => {
     setResendNotice(null);
     const success = await resendOtp();
     if (success) {
-      setResendNotice("A new 6-digit verification code has been dispatched via SMS.");
+      setResendNotice("A new 6-digit verification code has been dispatched via Firebase SMS.");
       setResendCooldown(30);
     }
   };
 
-  const handleQuickFill = (userEmail: string) => {
+  const handleQuickFill = (userEmail: string, userPhone: string) => {
     clearError();
     setResendNotice(null);
     setEmail(userEmail);
+    setPhone(userPhone);
     setPassword("Akeezo@2026!");
   };
 
@@ -56,7 +107,7 @@ export const AdminLoginView: React.FC = () => {
 
       <div className="w-full max-w-md">
         {/* Logo & Brand Header */}
-        <div className="text-center pb-8">
+        <div className="text-center pb-6">
           <div className="flex justify-center mb-4">
             <img
               src="/logo/logo with tagline-dark.svg"
@@ -71,99 +122,182 @@ export const AdminLoginView: React.FC = () => {
         </div>
 
         {/* Card Body */}
-        <div className="bg-white rounded-2xl shadow-2xl p-8 border border-teal-900/40">
+        <div className="bg-white rounded-2xl shadow-2xl p-7 border border-teal-900/40">
           {!requiresPhoneOtp ? (
-            /* STEP 1: Email & Password */
-            <form onSubmit={handleSubmitLogin} className="space-y-4">
-              <div className="flex items-center justify-between pb-2">
-                <div>
-                  <h2 className="text-base font-bold text-slate-900">
-                    Super Admin Sign In
-                  </h2>
-                  <p className="text-xs text-slate-500">
-                    Restricted Website & System Administration
-                  </p>
-                </div>
-                <Lock className="w-5 h-5 text-slate-400" />
+            <div>
+              {/* Login Method Tabs */}
+              <div className="flex border-b border-slate-200 mb-5">
+                <button
+                  type="button"
+                  onClick={() => {
+                    setLoginMethod("email");
+                    clearError();
+                    setResendNotice(null);
+                  }}
+                  className={`flex-1 pb-2.5 text-xs font-bold flex items-center justify-center gap-2 border-b-2 transition ${
+                    loginMethod === "email"
+                      ? "border-[#007A6C] text-[#007A6C]"
+                      : "border-transparent text-slate-400 hover:text-slate-700"
+                  }`}
+                >
+                  <Mail className="w-3.5 h-3.5" />
+                  <span>Email Login</span>
+                </button>
+                <button
+                  type="button"
+                  onClick={() => {
+                    setLoginMethod("phone");
+                    clearError();
+                    setResendNotice(null);
+                  }}
+                  className={`flex-1 pb-2.5 text-xs font-bold flex items-center justify-center gap-2 border-b-2 transition ${
+                    loginMethod === "phone"
+                      ? "border-[#007A6C] text-[#007A6C]"
+                      : "border-transparent text-slate-400 hover:text-slate-700"
+                  }`}
+                >
+                  <Smartphone className="w-3.5 h-3.5" />
+                  <span>Phone OTP</span>
+                </button>
               </div>
 
               {error && (
-                <div className="p-3 bg-rose-50 border border-rose-200 rounded-xl text-xs text-rose-700 flex items-center gap-2">
+                <div className="p-3 mb-4 bg-rose-50 border border-rose-200 rounded-xl text-xs text-rose-700 flex items-center gap-2">
                   <AlertCircle className="w-4 h-4 shrink-0 text-rose-500" />
                   <span>{error}</span>
                 </div>
               )}
 
-              <div className="space-y-1">
-                <label className="text-[11px] font-bold text-slate-700 uppercase">
-                  Staff Email
-                </label>
-                <div className="relative">
-                  <Mail className="w-4 h-4 text-slate-400 absolute left-3 top-1/2 -translate-y-1/2" />
-                  <input
-                    type="email"
-                    required
-                    value={email}
-                    onChange={(e) => setEmail(e.target.value)}
-                    placeholder="priti@akeezo.com"
-                    className="w-full pl-9 pr-3 py-2 text-xs rounded-xl border border-slate-200 focus:border-[#007A6C] focus:ring-1 focus:ring-[#007A6C] focus:outline-none transition"
-                  />
-                </div>
-              </div>
+              {loginMethod === "email" ? (
+                /* OPTION 1: Email + Password & OTP Verification */
+                <form onSubmit={handleSubmitPasswordLogin} className="space-y-4">
+                  <div className="flex items-center justify-between pb-1">
+                    <div>
+                      <h2 className="text-sm font-bold text-slate-900">
+                        Super Admin Sign In
+                      </h2>
+                      <p className="text-[11px] text-slate-500">
+                        Restricted Website & System Administration
+                      </p>
+                    </div>
+                    <Lock className="w-4 h-4 text-slate-400" />
+                  </div>
 
-              <div className="space-y-1">
-                <label className="text-[11px] font-bold text-slate-700 uppercase">
-                  Password
-                </label>
-                <div className="relative">
-                  <KeyRound className="w-4 h-4 text-slate-400 absolute left-3 top-1/2 -translate-y-1/2" />
-                  <input
-                    type="password"
-                    required
-                    value={password}
-                    onChange={(e) => setPassword(e.target.value)}
-                    placeholder="••••••••••••"
-                    className="w-full pl-9 pr-3 py-2 text-xs rounded-xl border border-slate-200 focus:border-[#007A6C] focus:ring-1 focus:ring-[#007A6C] focus:outline-none transition"
-                  />
-                </div>
-              </div>
+                  <div className="space-y-1">
+                    <label className="text-[11px] font-bold text-slate-700 uppercase">
+                      Staff Email
+                    </label>
+                    <div className="relative">
+                      <Mail className="w-4 h-4 text-slate-400 absolute left-3 top-1/2 -translate-y-1/2" />
+                      <input
+                        type="email"
+                        required
+                        value={email}
+                        onChange={(e) => setEmail(e.target.value)}
+                        placeholder="priti@akeezo.com"
+                        className="w-full pl-9 pr-3 py-2 text-xs rounded-xl border border-slate-200 focus:border-[#007A6C] focus:ring-1 focus:ring-[#007A6C] focus:outline-none transition"
+                      />
+                    </div>
+                  </div>
 
-              <button
-                type="submit"
-                disabled={isLoading}
-                className="w-full bg-[#FF6B00] hover:bg-[#FF6D1B] active:bg-[#E05E00] text-white text-xs font-bold py-2.5 rounded-xl shadow-md transition flex items-center justify-center gap-2 mt-2"
-              >
-                <span>{isLoading ? "Verifying..." : "Continue to Verification"}</span>
-                <ArrowRight className="w-3.5 h-3.5" />
-              </button>
+                  <div className="space-y-1">
+                    <label className="text-[11px] font-bold text-slate-700 uppercase">
+                      Password
+                    </label>
+                    <div className="relative">
+                      <KeyRound className="w-4 h-4 text-slate-400 absolute left-3 top-1/2 -translate-y-1/2" />
+                      <input
+                        type="password"
+                        required
+                        value={password}
+                        onChange={(e) => setPassword(e.target.value)}
+                        placeholder="••••••••••••"
+                        className="w-full pl-9 pr-3 py-2 text-xs rounded-xl border border-slate-200 focus:border-[#007A6C] focus:ring-1 focus:ring-[#007A6C] focus:outline-none transition"
+                      />
+                    </div>
+                  </div>
 
-              {/* Quick Fill Credentials */}
-              <div className="pt-4 border-t border-slate-100">
-                <p className="text-[10px] font-bold text-slate-400 uppercase tracking-wider mb-2">
-                  Quick Demo Accounts
-                </p>
-                <div className="flex flex-wrap gap-1.5">
+                  <div className="space-y-2 pt-1">
+                    <button
+                      type="submit"
+                      disabled={isLoading}
+                      className="w-full bg-[#FF6B00] hover:bg-[#FF6D1B] active:bg-[#E05E00] text-white text-xs font-bold py-2.5 rounded-xl shadow-md transition flex items-center justify-center gap-2"
+                    >
+                      <span>{isLoading ? "Authenticating..." : "Continue to Verification"}</span>
+                      <ArrowRight className="w-3.5 h-3.5" />
+                    </button>
+
+                    <button
+                      type="button"
+                      onClick={handleSendEmailOtp}
+                      disabled={isLoading || !email}
+                      className="w-full py-2 bg-slate-100 hover:bg-slate-200 text-slate-700 font-semibold text-xs rounded-xl transition flex items-center justify-center gap-1.5"
+                    >
+                      <Send className="w-3.5 h-3.5 text-[#007A6C]" />
+                      <span>Direct OTP via Firebase (Passwordless)</span>
+                    </button>
+                  </div>
+                </form>
+              ) : (
+                /* OPTION 2: Direct Phone Number Login via Firebase OTP */
+                <form onSubmit={handleSubmitPhoneOtpLogin} className="space-y-4">
+                  <div className="flex items-center justify-between pb-1">
+                    <div>
+                      <h2 className="text-sm font-bold text-slate-900">
+                        Phone OTP Authentication
+                      </h2>
+                      <p className="text-[11px] text-slate-500">
+                        Firebase SMS verification code will be sent to your mobile.
+                      </p>
+                    </div>
+                    <Smartphone className="w-4 h-4 text-[#007A6C]" />
+                  </div>
+
+                  <div>
+                    <label className="text-[11px] font-bold text-slate-700 uppercase block mb-1">
+                      Registered Mobile Number
+                    </label>
+                    <div className="relative">
+                      <Smartphone className="w-4 h-4 text-slate-400 absolute left-3 top-1/2 -translate-y-1/2" />
+                      <input
+                        type="tel"
+                        required
+                        value={phone}
+                        onChange={(e) => setPhone(e.target.value)}
+                        placeholder="+91 98765 43210"
+                        className="w-full pl-9 pr-3 py-2 text-xs rounded-xl border border-slate-200 focus:border-[#007A6C] focus:ring-1 focus:ring-[#007A6C] focus:outline-none font-mono transition"
+                      />
+                    </div>
+                    <p className="text-[10px] text-slate-400 mt-1">
+                      Include country code (e.g. <strong className="text-slate-600">+91</strong> for India)
+                    </p>
+                  </div>
+
+                  <div className="p-3 bg-teal-50/70 border border-teal-200/60 rounded-xl text-[11px] text-teal-900 space-y-1">
+                    <div className="font-bold flex items-center gap-1 text-[#007A6C]">
+                      <ShieldCheck className="w-3.5 h-3.5" />
+                      <span>Firebase Phone Authentication</span>
+                    </div>
+                    <p className="text-slate-600 text-[10px] leading-relaxed">
+                      Secured via Firebase invisible reCAPTCHA. You will receive a 6-digit one-time password on your mobile.
+                    </p>
+                  </div>
+
                   <button
-                    type="button"
-                    onClick={() => handleQuickFill("priti@akeezo.com")}
-                    className="text-[10px] bg-slate-100 hover:bg-[#E6F8F6] hover:text-[#007A6C] font-semibold text-slate-600 px-2.5 py-1 rounded-md transition"
+                    type="submit"
+                    disabled={isLoading || !phone}
+                    className="w-full bg-[#007A6C] hover:bg-[#005F54] active:bg-[#061E1B] text-white text-xs font-bold py-2.5 rounded-xl shadow-md transition flex items-center justify-center gap-2"
                   >
-                    Super Admin (Priti)
+                    <span>{isLoading ? "Sending Firebase OTP..." : "Send Verification Code"}</span>
+                    <ArrowRight className="w-3.5 h-3.5" />
                   </button>
-                  <button
-                    type="button"
-                    onClick={() => handleQuickFill("amit@akeezo.com")}
-                    className="text-[10px] bg-slate-100 hover:bg-[#E6F8F6] hover:text-[#007A6C] font-semibold text-slate-600 px-2.5 py-1 rounded-md transition"
-                  >
-                    Coordinator (Amit)
-                  </button>
-                </div>
-              </div>
-            </form>
+                </form>
+              )}
+            </div>
           ) : (
             /* STEP 2: Phone OTP Verification */
             <form onSubmit={handleSubmitOtp} className="space-y-4">
-              <div className="flex items-center justify-between pb-2">
+              <div className="flex items-center justify-between pb-1">
                 <div>
                   <h2 className="text-base font-bold text-slate-900">
                     Phone OTP Verification
@@ -179,7 +313,7 @@ export const AdminLoginView: React.FC = () => {
               <div className="px-3 py-2 bg-teal-50/80 border border-teal-200/60 rounded-xl flex items-center justify-between text-xs text-teal-900">
                 <span className="font-medium text-slate-600">SMS sent to:</span>
                 <span className="font-mono font-bold text-[#007A6C]">
-                  {maskedPhone || "+91 82876 39443"}
+                  {maskedPhone || phone || "+91 82876 39443"}
                 </span>
               </div>
 
@@ -226,16 +360,60 @@ export const AdminLoginView: React.FC = () => {
                 </div>
               </div>
 
-              <button
-                type="submit"
-                disabled={isLoading || otpCode.length !== 6}
-                className="w-full bg-[#007A6C] hover:bg-[#005F54] active:bg-[#061E1B] text-white text-xs font-bold py-2.5 rounded-xl shadow-md transition flex items-center justify-center gap-2"
-              >
-                <span>{isLoading ? "Verifying..." : "Verify & Sign In"}</span>
-                <ShieldCheck className="w-4 h-4" />
-              </button>
+              <div className="space-y-2 pt-1">
+                <button
+                  type="submit"
+                  disabled={isLoading || otpCode.length !== 6}
+                  className="w-full bg-[#007A6C] hover:bg-[#005F54] active:bg-[#061E1B] text-white text-xs font-bold py-2.5 rounded-xl shadow-md transition flex items-center justify-center gap-2"
+                >
+                  <span>{isLoading ? "Verifying..." : "Verify & Sign In"}</span>
+                  <ShieldCheck className="w-4 h-4" />
+                </button>
+
+                <button
+                  type="button"
+                  onClick={cancelOtp}
+                  className="w-full py-2 text-slate-500 hover:text-slate-800 text-xs font-semibold flex items-center justify-center gap-1 transition"
+                >
+                  <ArrowLeft className="w-3.5 h-3.5" />
+                  <span>Change Email / Phone Number</span>
+                </button>
+              </div>
             </form>
           )}
+
+          {/* Quick Demo Credentials */}
+          <div className="mt-6 pt-5 border-t border-slate-100">
+            <div className="flex items-center gap-1 text-[10px] font-bold text-slate-400 uppercase tracking-wider mb-2">
+              <Sparkles className="w-3 h-3 text-[#FF6B00]" />
+              <span>Quick Login (Demo Staff)</span>
+            </div>
+            <div className="grid grid-cols-2 gap-2 text-[11px]">
+              <button
+                type="button"
+                onClick={() => handleQuickFill("priti@akeezo.com", "+91 98765 43210")}
+                className="p-2 text-left rounded-xl border border-amber-300 bg-amber-50/40 hover:border-amber-500 hover:bg-amber-50 transition"
+              >
+                <div className="font-bold text-slate-800">Priti (Executive)</div>
+                <div className="text-[10px] text-amber-800 font-bold">Role: Super Admin</div>
+                <div className="text-[10px] text-slate-400 font-mono">📱 +91 98765 43210</div>
+              </button>
+              <button
+                type="button"
+                onClick={() => handleQuickFill("priya@akeezo.com", "+91 98765 43211")}
+                className="p-2 text-left rounded-xl border border-slate-200 hover:border-[#007A6C] hover:bg-[#E6F8F6] transition"
+              >
+                <div className="font-bold text-slate-800">Priya Sharma</div>
+                <div className="text-[10px] text-teal-700 font-semibold">Coordinator (Staff)</div>
+                <div className="text-[10px] text-slate-400 font-mono">📱 +91 98765 43211</div>
+              </button>
+            </div>
+          </div>
+        </div>
+
+        {/* Security Compliance Footer */}
+        <div className="text-center pt-4 text-[11px] text-teal-400/80">
+          Protected by Firebase Phone Authentication & DPDP Act 2023 Access Governance
         </div>
       </div>
     </div>

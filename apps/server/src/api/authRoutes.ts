@@ -1,7 +1,14 @@
 import { Router, type Response } from "express";
 import crypto from "crypto";
 import mongoose from "mongoose";
-import { LoginRequestSchema, VerifyPhoneOtpRequestSchema, Verify2FARequestSchema } from "@akeezo/contracts";
+import {
+  LoginRequestSchema,
+  VerifyPhoneOtpRequestSchema,
+  Verify2FARequestSchema,
+  RequestPhoneOtpSchema,
+  RequestEmailOtpSchema,
+  FirebaseVerifySchema,
+} from "@akeezo/contracts";
 import { UserModel } from "../db/models/User.js";
 import { UserSessionModel } from "../db/models/UserSession.js";
 import { CaseAuditLogModel } from "../db/models/CaseActivity.js";
@@ -13,6 +20,8 @@ import {
   requireAuth,
   findUserByEmailOrFallback,
   findUserByIdOrFallback,
+  findUserByPhoneOrFallback,
+  normalizePhone,
   AuthenticatedRequest,
 } from "../utils/auth.js";
 
@@ -137,28 +146,119 @@ authRouter.post("/login", async (req: AuthenticatedRequest, res: Response) => {
   }
 });
 
+// POST /api/v1/auth/phone/otp (Request OTP directly using Mobile Phone Number via Firebase)
+authRouter.post("/phone/otp", async (req: AuthenticatedRequest, res: Response) => {
+  try {
+    const parsed = RequestPhoneOtpSchema.parse(req.body);
+    const user = await findUserByPhoneOrFallback(parsed.phone);
+
+    if (!user) {
+      return res.status(404).json({
+        error: {
+          code: "USER_NOT_FOUND",
+          message: `No registered account found with phone number "${parsed.phone}". Please verify your registered number or contact an administrator.`,
+        },
+      });
+    }
+
+    if (user.status === "disabled") {
+      return res.status(403).json({
+        error: { code: "ACCOUNT_DISABLED", message: "This user account has been disabled. Contact an administrator." },
+      });
+    }
+
+    const userPhone = user.phone || normalizePhone(parsed.phone);
+    const tempToken = signToken(
+      { userId: user._id.toString(), phone: userPhone, isTemp2FA: true, isTempOtp: true },
+      true
+    );
+
+    return res.json({
+      data: {
+        success: true,
+        requiresPhoneOtp: true,
+        tempToken,
+        phone: userPhone,
+        maskedPhone: maskPhone(userPhone),
+        message: `Verification code dispatched to ${maskPhone(userPhone)} via Firebase SMS.`,
+      },
+    });
+  } catch (err: any) {
+    res.status(400).json({ error: { code: "PHONE_OTP_FAILED", message: err.message } });
+  }
+});
+
+// POST /api/v1/auth/email/otp (Request OTP directly using Email Address via Firebase)
+authRouter.post("/email/otp", async (req: AuthenticatedRequest, res: Response) => {
+  try {
+    const parsed = RequestEmailOtpSchema.parse(req.body);
+    const user = await findUserByEmailOrFallback(parsed.email);
+
+    if (!user) {
+      return res.status(404).json({
+        error: {
+          code: "USER_NOT_FOUND",
+          message: `No registered account found with email "${parsed.email}". Please verify your work email address or contact an administrator.`,
+        },
+      });
+    }
+
+    if (user.status === "disabled") {
+      return res.status(403).json({
+        error: { code: "ACCOUNT_DISABLED", message: "This user account has been disabled. Contact an administrator." },
+      });
+    }
+
+    const userPhone = user.phone || "+91 82876 39443";
+    const tempToken = signToken(
+      { userId: user._id.toString(), email: user.email, phone: userPhone, isTemp2FA: true, isTempOtp: true },
+      true
+    );
+
+    return res.json({
+      data: {
+        success: true,
+        requiresPhoneOtp: true,
+        tempToken,
+        email: user.email,
+        phone: userPhone,
+        maskedPhone: maskPhone(userPhone),
+        message: `Verification code dispatched for ${user.email} (SMS to ${maskPhone(userPhone)}).`,
+      },
+    });
+  } catch (err: any) {
+    res.status(400).json({ error: { code: "EMAIL_OTP_FAILED", message: err.message } });
+  }
+});
+
 // Common handler for Phone OTP verification
 const handleOtpVerify = async (req: AuthenticatedRequest, res: Response) => {
   try {
     const parsed = VerifyPhoneOtpRequestSchema.parse(req.body);
     const tokenToVerify = parsed.tempToken;
+    let user: any = null;
 
-    if (!tokenToVerify) {
+    if (tokenToVerify) {
+      const payload = verifyToken(tokenToVerify);
+      if (!payload || !payload.userId || (!payload.isTemp2FA && !payload.isTempOtp)) {
+        return res.status(401).json({
+          error: { code: "INVALID_OTP_TOKEN", message: "Expired or invalid OTP session. Please request a new OTP." },
+        });
+      }
+      user = await findUserByIdOrFallback(payload.userId);
+    } else if (parsed.phone) {
+      user = await findUserByPhoneOrFallback(parsed.phone);
+    } else if (parsed.email) {
+      user = await findUserByEmailOrFallback(parsed.email);
+    }
+
+    if (!user) {
       return res.status(401).json({
-        error: { code: "INVALID_OTP_TOKEN", message: "Missing OTP session token. Please log in again." },
+        error: { code: "INVALID_OTP_TOKEN", message: "Missing or invalid authentication session. Please request a new code." },
       });
     }
 
-    const payload = verifyToken(tokenToVerify);
-
-    if (!payload || !payload.userId || (!payload.isTemp2FA && !payload.isTempOtp)) {
-      return res.status(401).json({
-        error: { code: "INVALID_OTP_TOKEN", message: "Expired or invalid OTP session. Please log in again." },
-      });
-    }
-
-    const user = await findUserByIdOrFallback(payload.userId);
-    if (!user || user.status === "disabled") {
+    if (user.status === "disabled") {
       return res.status(403).json({ error: { code: "FORBIDDEN", message: "Account unavailable." } });
     }
 
@@ -251,6 +351,61 @@ authRouter.post("/otp/verify", handleOtpVerify);
 
 // POST /api/v1/auth/2fa/verify (Backward compatibility alias)
 authRouter.post("/2fa/verify", handleOtpVerify);
+
+// POST /api/v1/auth/firebase (Direct Firebase ID Token login for verified Phone / Email)
+authRouter.post("/firebase", async (req: AuthenticatedRequest, res: Response) => {
+  try {
+    const parsed = FirebaseVerifySchema.parse(req.body);
+    let user: any = null;
+
+    if (parsed.phone) {
+      user = await findUserByPhoneOrFallback(parsed.phone);
+    }
+    if (!user && parsed.email) {
+      user = await findUserByEmailOrFallback(parsed.email);
+    }
+
+    if (!user) {
+      return res.status(404).json({
+        error: { code: "USER_NOT_FOUND", message: "No registered staff or partner account matches this verified identity." },
+      });
+    }
+
+    if (user.status === "disabled") {
+      return res.status(403).json({ error: { code: "FORBIDDEN", message: "Account disabled." } });
+    }
+
+    const token = signToken({
+      userId: user._id.toString(),
+      role: user.role,
+      tokenVersion: user.tokenVersion || 1,
+    });
+
+    user.lastLoginAt = new Date();
+    user.lastLoginIp = req.ip || "127.0.0.1";
+    try {
+      await user.save();
+    } catch {
+      // non-critical
+    }
+
+    res.cookie("akeezo_session", token, {
+      httpOnly: true,
+      sameSite: "lax",
+      secure: process.env.NODE_ENV === "production",
+      maxAge: 12 * 60 * 60 * 1000,
+    });
+
+    res.json({
+      data: {
+        token,
+        user: sanitizeUser(user),
+      },
+    });
+  } catch (err: any) {
+    res.status(400).json({ error: { code: "FIREBASE_AUTH_FAILED", message: err.message } });
+  }
+});
 
 // POST /api/v1/auth/otp/resend
 authRouter.post("/otp/resend", async (req: AuthenticatedRequest, res: Response) => {

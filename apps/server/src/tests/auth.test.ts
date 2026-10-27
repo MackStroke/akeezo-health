@@ -95,4 +95,24 @@ describe("Authentication & RBAC Security Verification", () => {
     const verifiedV2 = verifyToken(tokenV2);
     assert.equal(verifiedV2?.tokenVersion, 2);
   });
+
+  it("Phone number lookup & normalization matches multiple formats", async () => {
+    const { findUserByPhoneOrFallback, normalizePhone } = await import("../utils/auth.js");
+    assert.equal(normalizePhone("9876543211"), "+919876543211");
+    assert.equal(normalizePhone("+91 98765 43211"), "+919876543211");
+
+    // Match Priya Sharma (Coordinator) by 10-digit number
+    const userA = await findUserByPhoneOrFallback("9876543211");
+    assert.ok(userA);
+    assert.equal(userA.email, "priya@akeezo.com");
+
+    // Match Priti (Admin) by formatted number
+    const userB = await findUserByPhoneOrFallback("+91 98765 43210");
+    assert.ok(userB);
+    assert.equal(userB.email, "priti@akeezo.com");
+
+    // Unknown phone returns null
+    const userNull = await findUserByPhoneOrFallback("+91 11111 22222");
+    assert.equal(userNull, null);
+  });
 });

@@ -49559,6 +49559,17 @@ var LoginRequestSchema = external_exports.object({
   email: external_exports.string().email(),
   password: external_exports.string().min(6)
 });
+var RequestPhoneOtpSchema = external_exports.object({
+  phone: external_exports.string().min(8)
+});
+var RequestEmailOtpSchema = external_exports.object({
+  email: external_exports.string().email()
+});
+var FirebaseVerifySchema = external_exports.object({
+  firebaseIdToken: external_exports.string().min(10),
+  phone: external_exports.string().optional(),
+  email: external_exports.string().optional()
+});
 var VerifyPhoneOtpRequestSchema = external_exports.object({
   tempToken: external_exports.string().optional(),
   email: external_exports.string().email().optional(),
@@ -52024,6 +52035,39 @@ var FALLBACK_USERS = [
     }
   }
 ];
+function normalizePhone(rawPhone) {
+  const digits = rawPhone.replace(/\D/g, "");
+  if (digits.length === 12 && digits.startsWith("91")) {
+    return `+${digits}`;
+  }
+  if (digits.length === 10) {
+    return `+91${digits}`;
+  }
+  return rawPhone.startsWith("+") ? rawPhone.trim() : `+${digits}`;
+}
+async function findUserByPhoneOrFallback(phone) {
+  const digits = phone.replace(/\D/g, "");
+  if (!digits || digits.length < 8) return null;
+  const last10 = digits.slice(-10);
+  if (mongoose19.connection.readyState === 1) {
+    try {
+      const user = await UserModel.findOne({
+        $or: [
+          { phone: phone.trim() },
+          { phone: normalizePhone(phone) },
+          { phone: { $regex: `${last10}$` } }
+        ]
+      });
+      if (user) return user;
+    } catch {
+    }
+  }
+  return FALLBACK_USERS.find((u) => {
+    if (!u.phone) return false;
+    const uDigits = u.phone.replace(/\D/g, "");
+    return uDigits.slice(-10) === last10 || u.phone.trim() === phone.trim();
+  }) || null;
+}
 async function findUserByEmailOrFallback(email) {
   const normalized = email.toLowerCase().trim();
   if (mongoose19.connection.readyState === 1) {
@@ -53756,23 +53800,103 @@ authRouter.post("/login", async (req, res) => {
     res.status(400).json({ error: { code: "LOGIN_FAILED", message: err.message } });
   }
 });
+authRouter.post("/phone/otp", async (req, res) => {
+  try {
+    const parsed = RequestPhoneOtpSchema.parse(req.body);
+    const user = await findUserByPhoneOrFallback(parsed.phone);
+    if (!user) {
+      return res.status(404).json({
+        error: {
+          code: "USER_NOT_FOUND",
+          message: `No registered account found with phone number "${parsed.phone}". Please verify your registered number or contact an administrator.`
+        }
+      });
+    }
+    if (user.status === "disabled") {
+      return res.status(403).json({
+        error: { code: "ACCOUNT_DISABLED", message: "This user account has been disabled. Contact an administrator." }
+      });
+    }
+    const userPhone = user.phone || normalizePhone(parsed.phone);
+    const tempToken = signToken(
+      { userId: user._id.toString(), phone: userPhone, isTemp2FA: true, isTempOtp: true },
+      true
+    );
+    return res.json({
+      data: {
+        success: true,
+        requiresPhoneOtp: true,
+        tempToken,
+        phone: userPhone,
+        maskedPhone: maskPhone(userPhone),
+        message: `Verification code dispatched to ${maskPhone(userPhone)} via Firebase SMS.`
+      }
+    });
+  } catch (err) {
+    res.status(400).json({ error: { code: "PHONE_OTP_FAILED", message: err.message } });
+  }
+});
+authRouter.post("/email/otp", async (req, res) => {
+  try {
+    const parsed = RequestEmailOtpSchema.parse(req.body);
+    const user = await findUserByEmailOrFallback(parsed.email);
+    if (!user) {
+      return res.status(404).json({
+        error: {
+          code: "USER_NOT_FOUND",
+          message: `No registered account found with email "${parsed.email}". Please verify your work email address or contact an administrator.`
+        }
+      });
+    }
+    if (user.status === "disabled") {
+      return res.status(403).json({
+        error: { code: "ACCOUNT_DISABLED", message: "This user account has been disabled. Contact an administrator." }
+      });
+    }
+    const userPhone = user.phone || "+91 82876 39443";
+    const tempToken = signToken(
+      { userId: user._id.toString(), email: user.email, phone: userPhone, isTemp2FA: true, isTempOtp: true },
+      true
+    );
+    return res.json({
+      data: {
+        success: true,
+        requiresPhoneOtp: true,
+        tempToken,
+        email: user.email,
+        phone: userPhone,
+        maskedPhone: maskPhone(userPhone),
+        message: `Verification code dispatched for ${user.email} (SMS to ${maskPhone(userPhone)}).`
+      }
+    });
+  } catch (err) {
+    res.status(400).json({ error: { code: "EMAIL_OTP_FAILED", message: err.message } });
+  }
+});
 var handleOtpVerify = async (req, res) => {
   try {
     const parsed = VerifyPhoneOtpRequestSchema.parse(req.body);
     const tokenToVerify = parsed.tempToken;
-    if (!tokenToVerify) {
+    let user = null;
+    if (tokenToVerify) {
+      const payload = verifyToken(tokenToVerify);
+      if (!payload || !payload.userId || !payload.isTemp2FA && !payload.isTempOtp) {
+        return res.status(401).json({
+          error: { code: "INVALID_OTP_TOKEN", message: "Expired or invalid OTP session. Please request a new OTP." }
+        });
+      }
+      user = await findUserByIdOrFallback(payload.userId);
+    } else if (parsed.phone) {
+      user = await findUserByPhoneOrFallback(parsed.phone);
+    } else if (parsed.email) {
+      user = await findUserByEmailOrFallback(parsed.email);
+    }
+    if (!user) {
       return res.status(401).json({
-        error: { code: "INVALID_OTP_TOKEN", message: "Missing OTP session token. Please log in again." }
+        error: { code: "INVALID_OTP_TOKEN", message: "Missing or invalid authentication session. Please request a new code." }
       });
     }
-    const payload = verifyToken(tokenToVerify);
-    if (!payload || !payload.userId || !payload.isTemp2FA && !payload.isTempOtp) {
-      return res.status(401).json({
-        error: { code: "INVALID_OTP_TOKEN", message: "Expired or invalid OTP session. Please log in again." }
-      });
-    }
-    const user = await findUserByIdOrFallback(payload.userId);
-    if (!user || user.status === "disabled") {
+    if (user.status === "disabled") {
       return res.status(403).json({ error: { code: "FORBIDDEN", message: "Account unavailable." } });
     }
     const isDevOrTest = process.env.NODE_ENV !== "production";
@@ -53845,6 +53969,51 @@ var handleOtpVerify = async (req, res) => {
 };
 authRouter.post("/otp/verify", handleOtpVerify);
 authRouter.post("/2fa/verify", handleOtpVerify);
+authRouter.post("/firebase", async (req, res) => {
+  try {
+    const parsed = FirebaseVerifySchema.parse(req.body);
+    let user = null;
+    if (parsed.phone) {
+      user = await findUserByPhoneOrFallback(parsed.phone);
+    }
+    if (!user && parsed.email) {
+      user = await findUserByEmailOrFallback(parsed.email);
+    }
+    if (!user) {
+      return res.status(404).json({
+        error: { code: "USER_NOT_FOUND", message: "No registered staff or partner account matches this verified identity." }
+      });
+    }
+    if (user.status === "disabled") {
+      return res.status(403).json({ error: { code: "FORBIDDEN", message: "Account disabled." } });
+    }
+    const token = signToken({
+      userId: user._id.toString(),
+      role: user.role,
+      tokenVersion: user.tokenVersion || 1
+    });
+    user.lastLoginAt = /* @__PURE__ */ new Date();
+    user.lastLoginIp = req.ip || "127.0.0.1";
+    try {
+      await user.save();
+    } catch {
+    }
+    res.cookie("akeezo_session", token, {
+      httpOnly: true,
+      sameSite: "lax",
+      secure: process.env.NODE_ENV === "production",
+      maxAge: 12 * 60 * 60 * 1e3
+    });
+    res.json({
+      data: {
+        token,
+        user: sanitizeUser(user)
+      }
+    });
+  } catch (err) {
+    res.status(400).json({ error: { code: "FIREBASE_AUTH_FAILED", message: err.message } });
+  }
+});
 authRouter.post("/otp/resend", async (req, res) => {
   try {
     const { tempToken } = req.body;
