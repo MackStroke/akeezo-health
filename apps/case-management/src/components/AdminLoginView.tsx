@@ -167,7 +167,7 @@ export const AdminLoginView: React.FC = () => {
                         Staff & Coordinator Sign In
                       </h2>
                       <p className="text-[11px] text-slate-500">
-                        Enter work email and password. Protected by Firebase OTP.
+                        Direct Firebase Email & Password Authentication (Unlimited & Free)
                       </p>
                     </div>
                     <Lock className="w-4 h-4 text-slate-400" />
@@ -213,7 +213,7 @@ export const AdminLoginView: React.FC = () => {
                       disabled={isLoading}
                       className="w-full py-2.5 bg-[#FF6B00] hover:bg-[#FF6D1B] active:bg-[#E05E00] text-white font-bold text-xs rounded-lg shadow-sm transition flex items-center justify-center gap-1.5"
                     >
-                      <span>{isLoading ? "Authenticating..." : "Continue to OTP Verification"}</span>
+                      <span>{isLoading ? "Signing In with Firebase..." : "Sign In with Email & Password"}</span>
                       <ArrowRight className="w-4 h-4" />
                     </button>
 

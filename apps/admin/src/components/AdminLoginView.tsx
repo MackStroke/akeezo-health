@@ -214,7 +214,7 @@ export const AdminLoginView: React.FC = () => {
                       disabled={isLoading}
                       className="w-full bg-[#FF6B00] hover:bg-[#FF6D1B] active:bg-[#E05E00] text-white text-xs font-bold py-2.5 rounded-xl shadow-md transition flex items-center justify-center gap-2"
                     >
-                      <span>{isLoading ? "Authenticating..." : "Continue to Verification"}</span>
+                      <span>{isLoading ? "Signing In with Firebase..." : "Sign In with Email & Password"}</span>
                       <ArrowRight className="w-3.5 h-3.5" />
                     </button>
 

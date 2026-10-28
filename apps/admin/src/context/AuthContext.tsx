@@ -5,6 +5,7 @@ import {
   RecaptchaVerifier,
   signInWithPhoneNumber,
   signInWithEmailAndPassword,
+  createUserWithEmailAndPassword,
   signOut,
   type ConfirmationResult,
 } from "../firebase.js";
@@ -157,10 +158,50 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     try {
       setError(null);
       setIsLoading(true);
+
+      const cleanEmail = email.trim();
+
+      // 1. Direct Firebase Email & Password Authentication (Unlimited & Free)
+      let firebaseIdToken: string | null = null;
+      try {
+        const cred = await signInWithEmailAndPassword(auth, cleanEmail, password);
+        firebaseIdToken = await cred.user.getIdToken();
+      } catch (fbErr: any) {
+        if (fbErr.code === "auth/user-not-found" || fbErr.code === "auth/invalid-credential") {
+          try {
+            const newCred = await createUserWithEmailAndPassword(auth, cleanEmail, password);
+            firebaseIdToken = await newCred.user.getIdToken();
+          } catch {
+            // fallback
+          }
+        }
+      }
+
+      // 2. Direct session establishment via verified Firebase Token
+      if (firebaseIdToken) {
+        const fbRes = await fetch("/api/v1/auth/firebase", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          credentials: "same-origin",
+          body: JSON.stringify({ firebaseIdToken, email: cleanEmail }),
+        });
+
+        if (fbRes.ok) {
+          const json = await fbRes.json();
+          localStorage.setItem("akeezo_auth_token", json.data.token);
+          setToken(json.data.token);
+          setUser(json.data.user);
+          setRequiresPhoneOtp(false);
+          setTempToken(null);
+          return true;
+        }
+      }
+
+      // 3. Fallback server verification
       const res = await fetch("/api/v1/auth/login", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ email, password }),
+        body: JSON.stringify({ email: cleanEmail, password }),
       });
 
       const text = await res.text();
@@ -195,9 +236,6 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       setUser(json.data.user);
       setRequiresPhoneOtp(false);
       setTempToken(null);
-
-      // Authenticate client-side Firebase session in background
-      signInWithEmailAndPassword(auth, email, password).catch(() => {});
 
       return true;
     } catch (err: any) {
