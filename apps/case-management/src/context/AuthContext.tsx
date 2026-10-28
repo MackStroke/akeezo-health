@@ -221,6 +221,15 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         return false;
       }
 
+      if (json.data?.token && !json.data?.requiresPhoneOtp) {
+        localStorage.setItem("akeezo_auth_token", json.data.token);
+        setToken(json.data.token);
+        setUser(json.data.user);
+        setRequiresPhoneOtp(false);
+        setTempToken(null);
+        return true;
+      }
+
       if (json.data?.requiresPhoneOtp || json.data?.requires2FA) {
         const sessionToken = json.data.tempToken;
         const userPhone = json.data.phone || "+918287639443";
@@ -237,11 +246,14 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       }
 
       // Successful direct login
-      localStorage.setItem("akeezo_auth_token", json.data.token);
-      setToken(json.data.token);
-      setUser(json.data.user);
-      setRequiresPhoneOtp(false);
-      setTempToken(null);
+      if (json.data?.token) {
+        localStorage.setItem("akeezo_auth_token", json.data.token);
+        setToken(json.data.token);
+        setUser(json.data.user);
+        setRequiresPhoneOtp(false);
+        setTempToken(null);
+        return true;
+      }
 
       return true;
     } catch (err: any) {
@@ -273,8 +285,18 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       }
 
       if (!res.ok) {
-        setError(json.error?.message || "Failed to dispatch phone OTP.");
+        setError(json.error?.message || "Failed to sign in with phone number.");
         return false;
+      }
+
+      // If server returned direct session token (OTP verification disabled)
+      if (json.data?.token && !json.data?.requiresPhoneOtp) {
+        localStorage.setItem("akeezo_auth_token", json.data.token);
+        setToken(json.data.token);
+        setUser(json.data.user);
+        setRequiresPhoneOtp(false);
+        setTempToken(null);
+        return true;
       }
 
       const sessionToken = json.data.tempToken;
@@ -285,16 +307,18 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       setPhone(userPhone);
       setMaskedPhone(masked);
 
-      // Trigger Firebase Phone Auth SMS
-      const smsSent = await triggerFirebasePhoneAuth(userPhone);
-      if (!smsSent) {
-        return false;
+      if (json.data?.requiresPhoneOtp) {
+        const smsSent = await triggerFirebasePhoneAuth(userPhone);
+        if (!smsSent) {
+          return false;
+        }
+        setRequiresPhoneOtp(true);
+        return true;
       }
 
-      setRequiresPhoneOtp(true);
       return true;
     } catch (err: any) {
-      setError(err.message || "Network error while requesting phone OTP.");
+      setError(err.message || "Network error while signing in with phone.");
       return false;
     } finally {
       setIsLoading(false);
@@ -322,8 +346,18 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       }
 
       if (!res.ok) {
-        setError(json.error?.message || "Failed to dispatch email OTP.");
+        setError(json.error?.message || "Failed to sign in with email.");
         return false;
+      }
+
+      // If server returned direct session token (OTP verification disabled)
+      if (json.data?.token && !json.data?.requiresPhoneOtp) {
+        localStorage.setItem("akeezo_auth_token", json.data.token);
+        setToken(json.data.token);
+        setUser(json.data.user);
+        setRequiresPhoneOtp(false);
+        setTempToken(null);
+        return true;
       }
 
       const sessionToken = json.data.tempToken;
@@ -334,13 +368,15 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       setPhone(userPhone);
       setMaskedPhone(masked);
 
-      // Trigger Firebase Phone Auth SMS
-      const smsSent = await triggerFirebasePhoneAuth(userPhone);
-      if (!smsSent) {
-        return false;
+      if (json.data?.requiresPhoneOtp) {
+        const smsSent = await triggerFirebasePhoneAuth(userPhone);
+        if (!smsSent) {
+          return false;
+        }
+        setRequiresPhoneOtp(true);
+        return true;
       }
 
-      setRequiresPhoneOtp(true);
       return true;
     } catch (err: any) {
       setError(err.message || "Network error while requesting email OTP.");

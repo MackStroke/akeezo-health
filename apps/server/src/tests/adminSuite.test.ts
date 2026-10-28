@@ -40,7 +40,7 @@ describe("Comprehensive Admin Panel Backend Suite", async () => {
       });
     }
 
-    adminToken = signToken({ userId: adminUser._id.toString(), role: "admin" });
+    adminToken = signToken({ userId: adminUser._id.toString(), role: "admin", tokenVersion: adminUser.tokenVersion || 1 });
 
     // 3. Start local test server
     await new Promise<void>((resolve) => {

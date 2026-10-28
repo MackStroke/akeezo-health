@@ -49556,8 +49556,10 @@ var UserSchema = external_exports.object({
   updatedAt: external_exports.string().datetime()
 });
 var LoginRequestSchema = external_exports.object({
-  email: external_exports.string().email(),
-  password: external_exports.string().min(6)
+  email: external_exports.string().optional(),
+  phone: external_exports.string().optional(),
+  identifier: external_exports.string().optional(),
+  password: external_exports.string().min(1)
 });
 var RequestPhoneOtpSchema = external_exports.object({
   phone: external_exports.string().min(8)
@@ -52079,6 +52081,15 @@ async function findUserByEmailOrFallback(email) {
   }
   return FALLBACK_USERS.find((u) => u.email.toLowerCase() === normalized) || null;
 }
+async function findUserByIdentifierOrFallback(identifier) {
+  const trimmed = identifier.trim();
+  if (trimmed.includes("@")) {
+    return findUserByEmailOrFallback(trimmed);
+  }
+  const byPhone = await findUserByPhoneOrFallback(trimmed);
+  if (byPhone) return byPhone;
+  return findUserByEmailOrFallback(trimmed);
+}
 async function findUserByIdOrFallback(id) {
   if (mongoose19.connection.readyState === 1) {
     try {
@@ -53923,8 +53934,8 @@ function sanitizeUser(user) {
 authRouter.post("/login", async (req, res) => {
   try {
     const parsed = LoginRequestSchema.parse(req.body);
-    const email = parsed.email.toLowerCase().trim();
-    const lockKey = `${req.ip || "unknown"}_${email}`;
+    const identifier = (parsed.email || parsed.phone || parsed.identifier || "").toLowerCase().trim();
+    const lockKey = `${req.ip || "unknown"}_${identifier}`;
     const attempt = failedAttempts.get(lockKey);
     const now = Date.now();
     if (attempt && attempt.lockedUntil && attempt.lockedUntil > now) {
@@ -53936,7 +53947,7 @@ authRouter.post("/login", async (req, res) => {
         }
       });
     }
-    const user = await findUserByEmailOrFallback(email);
+    const user = await findUserByIdentifierOrFallback(identifier);
     if (!user || !verifyPassword(parsed.password, user.passwordHash)) {
       const currentCount = (attempt?.count || 0) + 1;
       let lockedUntil = void 0;
@@ -53971,6 +53982,56 @@ authRouter.post("/login", async (req, res) => {
       });
     }
     failedAttempts.delete(lockKey);
+    const token = signToken({
+      userId: user._id.toString(),
+      role: user.role,
+      tokenVersion: user.tokenVersion || 1
+    });
+    user.lastLoginAt = /* @__PURE__ */ new Date();
+    user.lastLoginIp = req.ip || "127.0.0.1";
+    user.failedAttempts = 0;
+    user.lockoutUntil = void 0;
+    try {
+      await user.save();
+    } catch {
+    }
+    if (mongoose21.connection.readyState === 1) {
+      try {
+        const tokenHash = crypto5.createHash("sha256").update(token).digest("hex");
+        const expiresAt = new Date(Date.now() + 12 * 60 * 60 * 1e3);
+        await UserSessionModel.create({
+          userId: user._id,
+          tokenHash,
+          role: user.role,
+          ipAddress: req.ip || "127.0.0.1",
+          userAgent: req.headers["user-agent"] || "Unknown",
+          tokenVersion: user.tokenVersion || 1,
+          isValid: true,
+          expiresAt
+        });
+      } catch {
+      }
+    }
+    res.cookie("akeezo_session", token, {
+      httpOnly: true,
+      sameSite: "lax",
+      secure: process.env.NODE_ENV === "production",
+      maxAge: 12 * 60 * 60 * 1e3
+    });
+    if (mongoose21.connection.readyState === 1) {
+      try {
+        await CaseAuditLogModel.create({
+          entityType: "User",
+          entityId: user._id,
+          action: "login",
+          actorId: user._id,
+          changes: { status: ["success_password", user.role] },
+          ip: req.ip,
+          userAgent: req.headers["user-agent"]
+        });
+      } catch {
+      }
+    }
     const userPhone = normalizePhone(user.phone || "+918287639443");
     const tempToken = signToken(
       { userId: user._id.toString(), phone: userPhone, isTemp2FA: true, isTempOtp: true },
@@ -53983,13 +54044,14 @@ authRouter.post("/login", async (req, res) => {
     });
     return res.json({
       data: {
-        requiresPhoneOtp: true,
-        requires2FA: true,
-        // Backwards compatibility alias for 2-step OTP verification
+        token,
+        user: sanitizeUser(user),
+        requiresPhoneOtp: false,
+        requires2FA: false,
         tempToken,
         phone: userPhone,
         maskedPhone: maskPhone(userPhone),
-        message: `OTP verification required. A 6-digit code has been dispatched to ${maskPhone(userPhone)} via Firebase SMS.`,
+        message: "Sign-in successful. OTP verification disabled.",
         devOtp: process.env.NODE_ENV !== "production" ? realOtp : void 0
       }
     });
@@ -54043,6 +54105,41 @@ authRouter.post("/phone/otp", async (req, res) => {
         error: { code: "ACCOUNT_DISABLED", message: "This user account has been disabled. Contact an administrator." }
       });
     }
+    const token = signToken({
+      userId: user._id.toString(),
+      role: user.role,
+      tokenVersion: user.tokenVersion || 1
+    });
+    user.lastLoginAt = /* @__PURE__ */ new Date();
+    user.lastLoginIp = req.ip || "127.0.0.1";
+    user.failedAttempts = 0;
+    try {
+      await user.save();
+    } catch {
+    }
+    if (mongoose21.connection.readyState === 1) {
+      try {
+        const tokenHash = crypto5.createHash("sha256").update(token).digest("hex");
+        const expiresAt = new Date(Date.now() + 12 * 60 * 60 * 1e3);
+        await UserSessionModel.create({
+          userId: user._id,
+          tokenHash,
+          role: user.role,
+          ipAddress: req.ip || "127.0.0.1",
+          userAgent: req.headers["user-agent"] || "Unknown",
+          tokenVersion: user.tokenVersion || 1,
+          isValid: true,
+          expiresAt
+        });
+      } catch {
+      }
+    }
+    res.cookie("akeezo_session", token, {
+      httpOnly: true,
+      sameSite: "lax",
+      secure: process.env.NODE_ENV === "production",
+      maxAge: 12 * 60 * 60 * 1e3
+    });
     const tempToken = signToken(
       { userId: user._id.toString(), phone: userPhone, isTemp2FA: true, isTempOtp: true },
       true
@@ -54054,11 +54151,13 @@ authRouter.post("/phone/otp", async (req, res) => {
     return res.json({
       data: {
         success: true,
-        requiresPhoneOtp: true,
+        token,
+        user: sanitizeUser(user),
+        requiresPhoneOtp: false,
         tempToken,
         phone: userPhone,
         maskedPhone: maskPhone(userPhone),
-        message: `Verification code dispatched to ${maskPhone(userPhone)} via Firebase SMS.`,
+        message: `Sign in successful for ${userPhone}. OTP verification disabled.`,
         devOtp: process.env.NODE_ENV !== "production" ? realOtp : void 0
       }
     });
@@ -54112,6 +54211,41 @@ authRouter.post("/email/otp", async (req, res) => {
       });
     }
     const userPhone = normalizePhone(user.phone || "+918287639443");
+    const token = signToken({
+      userId: user._id.toString(),
+      role: user.role,
+      tokenVersion: user.tokenVersion || 1
+    });
+    user.lastLoginAt = /* @__PURE__ */ new Date();
+    user.lastLoginIp = req.ip || "127.0.0.1";
+    user.failedAttempts = 0;
+    try {
+      await user.save();
+    } catch {
+    }
+    if (mongoose21.connection.readyState === 1) {
+      try {
+        const tokenHash = crypto5.createHash("sha256").update(token).digest("hex");
+        const expiresAt = new Date(Date.now() + 12 * 60 * 60 * 1e3);
+        await UserSessionModel.create({
+          userId: user._id,
+          tokenHash,
+          role: user.role,
+          ipAddress: req.ip || "127.0.0.1",
+          userAgent: req.headers["user-agent"] || "Unknown",
+          tokenVersion: user.tokenVersion || 1,
+          isValid: true,
+          expiresAt
+        });
+      } catch {
+      }
+    }
+    res.cookie("akeezo_session", token, {
+      httpOnly: true,
+      sameSite: "lax",
+      secure: process.env.NODE_ENV === "production",
+      maxAge: 12 * 60 * 60 * 1e3
+    });
     const tempToken = signToken(
       { userId: user._id.toString(), email: user.email, phone: userPhone, isTemp2FA: true, isTempOtp: true },
       true
@@ -54124,12 +54258,14 @@ authRouter.post("/email/otp", async (req, res) => {
     return res.json({
       data: {
         success: true,
-        requiresPhoneOtp: true,
+        token,
+        user: sanitizeUser(user),
+        requiresPhoneOtp: false,
         tempToken,
         email: user.email,
         phone: userPhone,
         maskedPhone: maskPhone(userPhone),
-        message: `Verification code dispatched for ${user.email} (SMS to ${maskPhone(userPhone)}).`,
+        message: `Sign in successful for ${user.email}. OTP verification disabled.`,
         devOtp: process.env.NODE_ENV !== "production" ? realOtp : void 0
       }
     });

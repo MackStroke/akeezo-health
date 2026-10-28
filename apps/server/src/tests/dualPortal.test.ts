@@ -404,7 +404,9 @@ describe("Dual Portal Architecture Verification: Website Admin & Case Management
     const loginJson = await loginRes.json();
     const tempToken = loginJson.data?.tempToken;
     const realOtp = loginJson.data?.devOtp;
-    assert.ok(tempToken, "Login must yield temporary OTP token");
+    assert.ok(loginJson.data?.token, "Login must yield immediate active session token without OTP");
+    assert.equal(loginJson.data?.requiresPhoneOtp, false, "Login must not require OTP verification");
+    assert.ok(tempToken, "Login must yield temporary OTP token for backwards compatibility");
     assert.ok(realOtp, "Login must generate real dynamic 6-digit OTP code");
 
     const invalidOtpRes = await fetch(`${baseUrl}/api/v1/auth/otp/verify`, {

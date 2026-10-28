@@ -220,6 +220,16 @@ export async function findUserByEmailOrFallback(email: string): Promise<any> {
   return FALLBACK_USERS.find((u) => u.email.toLowerCase() === normalized) || null;
 }
 
+export async function findUserByIdentifierOrFallback(identifier: string): Promise<any> {
+  const trimmed = identifier.trim();
+  if (trimmed.includes("@")) {
+    return findUserByEmailOrFallback(trimmed);
+  }
+  const byPhone = await findUserByPhoneOrFallback(trimmed);
+  if (byPhone) return byPhone;
+  return findUserByEmailOrFallback(trimmed);
+}
+
 export async function findUserByIdOrFallback(id: string): Promise<any> {
   if (mongoose.connection.readyState === 1) {
     try {

@@ -110,8 +110,10 @@ export const UserSchema = z.object({
     updatedAt: z.string().datetime(),
 });
 export const LoginRequestSchema = z.object({
-    email: z.string().email(),
-    password: z.string().min(6),
+    email: z.string().optional(),
+    phone: z.string().optional(),
+    identifier: z.string().optional(),
+    password: z.string().min(1),
 });
 export const RequestPhoneOtpSchema = z.object({
     phone: z.string().min(8),

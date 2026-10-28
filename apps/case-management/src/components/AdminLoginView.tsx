@@ -213,7 +213,7 @@ export const AdminLoginView: React.FC = () => {
                       disabled={isLoading}
                       className="w-full py-2.5 bg-[#FF6B00] hover:bg-[#FF6D1B] active:bg-[#E05E00] text-white font-bold text-xs rounded-lg shadow-sm transition flex items-center justify-center gap-1.5"
                     >
-                      <span>{isLoading ? "Signing In with Firebase..." : "Sign In with Email & Password"}</span>
+                      <span>{isLoading ? "Signing In..." : "Sign In with Email & Password"}</span>
                       <ArrowRight className="w-4 h-4" />
                     </button>
 
@@ -224,20 +224,20 @@ export const AdminLoginView: React.FC = () => {
                       className="w-full py-2 bg-slate-100 hover:bg-slate-200 text-slate-700 font-semibold text-xs rounded-lg transition flex items-center justify-center gap-1.5"
                     >
                       <Send className="w-3.5 h-3.5 text-[#007A6C]" />
-                      <span>Direct OTP via Firebase (Passwordless)</span>
+                      <span>Direct Email Sign In (Passwordless)</span>
                     </button>
                   </div>
                 </form>
               ) : (
-                /* OPTION 2: Direct Phone Number Login via Firebase OTP */
+                /* OPTION 2: Direct Phone Number Login without OTP */
                 <form onSubmit={handleSubmitPhoneOtpLogin} className="space-y-4">
                   <div className="flex items-center justify-between pb-1">
                     <div>
                       <h2 className="text-sm font-bold text-slate-900">
-                        Phone OTP Authentication
+                        Mobile Phone Sign In
                       </h2>
                       <p className="text-[11px] text-slate-500">
-                        Firebase SMS verification code will be sent to your mobile.
+                        Direct authentication for staff. No OTP verification required.
                       </p>
                     </div>
                     <Smartphone className="w-4 h-4 text-[#007A6C]" />
@@ -266,10 +266,10 @@ export const AdminLoginView: React.FC = () => {
                   <div className="p-3 bg-teal-50/70 border border-teal-200/60 rounded-lg text-[11px] text-teal-900 space-y-1">
                     <div className="font-bold flex items-center gap-1 text-[#007A6C]">
                       <ShieldCheck className="w-3.5 h-3.5" />
-                      <span>Firebase Phone Authentication</span>
+                      <span>Instant Access (OTP Disabled)</span>
                     </div>
                     <p className="text-slate-600 text-[10px] leading-relaxed">
-                      Secured via Firebase invisible reCAPTCHA. You will receive a 6-digit one-time password on your mobile.
+                      OTP verification has been disabled. Authorized registered mobile numbers can sign in directly.
                     </p>
                   </div>
 
@@ -278,7 +278,7 @@ export const AdminLoginView: React.FC = () => {
                     disabled={isLoading || !phone}
                     className="w-full py-2.5 bg-[#007A6C] hover:bg-[#005F54] active:bg-[#061E1B] text-white font-bold text-xs rounded-lg shadow-sm transition flex items-center justify-center gap-1.5"
                   >
-                    <span>{isLoading ? "Sending Firebase OTP..." : "Send Verification Code"}</span>
+                    <span>{isLoading ? "Signing In..." : "Sign In with Mobile"}</span>
                     <ArrowRight className="w-4 h-4" />
                   </button>
                 </form>

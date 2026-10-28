@@ -46,14 +46,20 @@ export declare const UserSchema: z.ZodObject<{
 }>;
 export type UserDTO = z.infer<typeof UserSchema>;
 export declare const LoginRequestSchema: z.ZodObject<{
-    email: z.ZodString;
+    email: z.ZodOptional<z.ZodString>;
+    phone: z.ZodOptional<z.ZodString>;
+    identifier: z.ZodOptional<z.ZodString>;
     password: z.ZodString;
 }, "strip", z.ZodTypeAny, {
-    email: string;
     password: string;
+    phone?: string | undefined;
+    email?: string | undefined;
+    identifier?: string | undefined;
 }, {
-    email: string;
     password: string;
+    phone?: string | undefined;
+    email?: string | undefined;
+    identifier?: string | undefined;
 }>;
 export type LoginRequestDTO = z.infer<typeof LoginRequestSchema>;
 export declare const RequestPhoneOtpSchema: z.ZodObject<{

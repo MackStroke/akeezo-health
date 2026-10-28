@@ -121,8 +121,10 @@ export const UserSchema = z.object({
 export type UserDTO = z.infer<typeof UserSchema>;
 
 export const LoginRequestSchema = z.object({
-  email: z.string().email(),
-  password: z.string().min(6),
+  email: z.string().optional(),
+  phone: z.string().optional(),
+  identifier: z.string().optional(),
+  password: z.string().min(1),
 });
 
 export type LoginRequestDTO = z.infer<typeof LoginRequestSchema>;
