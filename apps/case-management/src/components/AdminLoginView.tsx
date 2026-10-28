@@ -307,6 +307,13 @@ export const AdminLoginView: React.FC = () => {
                 </span>
               </div>
 
+              {Boolean((phone || "").replace(/\D/g, "").endsWith("9555970918")) && (
+                <div className="p-2.5 bg-amber-50 border border-amber-200 rounded-lg text-[11px] text-amber-800 space-y-0.5">
+                  <div className="font-bold">Firebase Test Phone Number:</div>
+                  <div>Google Firebase does not dispatch carrier SMS to registered test numbers to preserve quota. Enter verification code: <strong className="font-mono bg-amber-100 px-1 py-0.5 rounded text-amber-950">123456</strong></div>
+                </div>
+              )}
+
               {error && (
                 <div className="p-3 bg-red-50 border border-red-200 rounded-lg flex items-center gap-2 text-xs text-red-900">
                   <AlertCircle className="w-4 h-4 text-red-600 shrink-0" />

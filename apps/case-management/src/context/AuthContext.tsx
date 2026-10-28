@@ -82,27 +82,75 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     }
   };
 
-  const triggerFirebasePhoneAuth = async (phoneNumber: string) => {
+  const formatE164Phone = (raw: string): string => {
+    const trimmed = raw.trim();
+    const digits = trimmed.replace(/\D/g, "");
+    if (trimmed.startsWith("+")) {
+      return "+" + digits;
+    }
+    if (digits.length === 10) {
+      return "+91" + digits;
+    }
+    return "+" + digits;
+  };
+
+  const triggerFirebasePhoneAuth = async (phoneNumber: string): Promise<boolean> => {
     try {
-      if (typeof window === "undefined") return;
+      if (typeof window === "undefined") return false;
 
       const container = document.getElementById("recaptcha-container");
-      if (!container) return;
-
-      if (!window.recaptchaVerifier) {
-        window.recaptchaVerifier = new RecaptchaVerifier(auth, "recaptcha-container", {
-          size: "invisible",
-          callback: () => {
-            // reCAPTCHA solved
-          },
-        });
+      if (!container) {
+        console.warn("[Firebase Phone Auth] recaptcha-container element not found");
+        return false;
       }
 
-      const formattedPhone = phoneNumber.startsWith("+") ? phoneNumber : `+91${phoneNumber.replace(/\D/g, "")}`;
+      if (window.recaptchaVerifier) {
+        try {
+          window.recaptchaVerifier.clear();
+        } catch {
+          // ignore
+        }
+        window.recaptchaVerifier = undefined;
+      }
+
+      window.recaptchaVerifier = new RecaptchaVerifier(auth, container, {
+        size: "invisible",
+        callback: () => {
+          console.log("[Firebase Phone Auth] reCAPTCHA verified successfully");
+        },
+        "expired-callback": () => {
+          console.warn("[Firebase Phone Auth] reCAPTCHA expired");
+        },
+      });
+
+      const formattedPhone = formatE164Phone(phoneNumber);
+      console.log(`[Firebase Phone Auth] Dispatching carrier SMS to: ${formattedPhone}`);
       const conf = await signInWithPhoneNumber(auth, formattedPhone, window.recaptchaVerifier);
       setConfirmationResult(conf);
+      console.log("[Firebase Phone Auth] SMS successfully sent by Firebase Auth Gateway");
+      return true;
     } catch (err: any) {
-      console.warn("Firebase Phone Auth SMS trigger notice (fallback mode active):", err?.message || err);
+      console.error("[Firebase Phone Auth Error]", err);
+      if (window.recaptchaVerifier) {
+        try {
+          window.recaptchaVerifier.clear();
+        } catch {}
+        window.recaptchaVerifier = undefined;
+      }
+
+      let userMsg = err.message || "Failed to dispatch SMS verification code.";
+      if (err.code === "auth/invalid-phone-number") {
+        userMsg = "Invalid phone number format. Please ensure correct country code (e.g. +91 98765 43210).";
+      } else if (err.code === "auth/quota-exceeded" || err.code === "auth/too-many-requests") {
+        userMsg = "Firebase SMS daily limit reached on the Spark plan. Please use test phone numbers or email login.";
+      } else if (err.code === "auth/captcha-check-failed") {
+        userMsg = "reCAPTCHA verification failed. Please refresh the page and try again.";
+      } else if (err.code === "auth/billing-not-enabled") {
+        userMsg = "Firebase project requires billing or test phone numbers to dispatch SMS.";
+      }
+
+      setError(userMsg);
+      return false;
     }
   };
 
@@ -141,7 +189,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         setRequiresPhoneOtp(true);
 
         // Attempt Firebase Phone Auth SMS dispatch in background
-        triggerFirebasePhoneAuth(userPhone);
+        await triggerFirebasePhoneAuth(userPhone);
         return false;
       }
 
@@ -196,10 +244,14 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       setTempToken(sessionToken);
       setPhone(userPhone);
       setMaskedPhone(masked);
-      setRequiresPhoneOtp(true);
 
       // Trigger Firebase Phone Auth SMS
-      triggerFirebasePhoneAuth(userPhone);
+      const smsSent = await triggerFirebasePhoneAuth(userPhone);
+      if (!smsSent) {
+        return false;
+      }
+
+      setRequiresPhoneOtp(true);
       return true;
     } catch (err: any) {
       setError(err.message || "Network error while requesting phone OTP.");
@@ -241,10 +293,14 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       setTempToken(sessionToken);
       setPhone(userPhone);
       setMaskedPhone(masked);
-      setRequiresPhoneOtp(true);
 
       // Trigger Firebase Phone Auth SMS
-      triggerFirebasePhoneAuth(userPhone);
+      const smsSent = await triggerFirebasePhoneAuth(userPhone);
+      if (!smsSent) {
+        return false;
+      }
+
+      setRequiresPhoneOtp(true);
       return true;
     } catch (err: any) {
       setError(err.message || "Network error while requesting email OTP.");
@@ -333,7 +389,10 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       setIsLoading(true);
 
       if (phone) {
-        triggerFirebasePhoneAuth(phone);
+        const smsSent = await triggerFirebasePhoneAuth(phone);
+        if (!smsSent) {
+          return false;
+        }
       }
 
       const res = await fetch("/api/v1/auth/otp/resend", {

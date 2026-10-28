@@ -161,7 +161,7 @@ export function normalizePhone(rawPhone) {
     if (digits.length === 10) {
         return `+91${digits}`;
     }
-    return rawPhone.startsWith("+") ? rawPhone.trim() : `+${digits}`;
+    return `+${digits}`;
 }
 export async function findUserByPhoneOrFallback(phone) {
     const digits = phone.replace(/\D/g, "");

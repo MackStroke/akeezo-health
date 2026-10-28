@@ -175,7 +175,7 @@ export function normalizePhone(rawPhone: string): string {
   if (digits.length === 10) {
     return `+91${digits}`;
   }
-  return rawPhone.startsWith("+") ? rawPhone.trim() : `+${digits}`;
+  return `+${digits}`;
 }
 
 export async function findUserByPhoneOrFallback(phone: string): Promise<any> {

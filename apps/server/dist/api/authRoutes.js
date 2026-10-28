@@ -94,7 +94,7 @@ authRouter.post("/login", async (req, res) => {
         // Reset failed attempts on success
         failedAttempts.delete(lockKey);
         // Phone Number OTP Verification via Firebase
-        const userPhone = user.phone || "+91 82876 39443";
+        const userPhone = normalizePhone(user.phone || "+918287639443");
         const tempToken = signToken({ userId: user._id.toString(), phone: userPhone, isTemp2FA: true, isTempOtp: true }, true);
         // Generate real cryptographic 6-digit OTP
         const realOtp = generateAndStoreOtp(tempToken, {
@@ -237,7 +237,7 @@ authRouter.post("/email/otp", async (req, res) => {
                 error: { code: "ACCOUNT_DISABLED", message: "This user account has been disabled. Contact an administrator." },
             });
         }
-        const userPhone = user.phone || "+91 82876 39443";
+        const userPhone = normalizePhone(user.phone || "+918287639443");
         const tempToken = signToken({ userId: user._id.toString(), email: user.email, phone: userPhone, isTemp2FA: true, isTempOtp: true }, true);
         // Generate real cryptographic 6-digit OTP
         const realOtp = generateAndStoreOtp(tempToken, {
@@ -449,7 +449,7 @@ authRouter.post("/otp/resend", async (req, res) => {
         if (!user) {
             return res.status(404).json({ error: { code: "NOT_FOUND", message: "User not found." } });
         }
-        const userPhone = user.phone || "+91 82876 39443";
+        const userPhone = normalizePhone(user.phone || "+918287639443");
         const newTempToken = signToken({ userId: user._id.toString(), phone: userPhone, isTemp2FA: true, isTempOtp: true }, true);
         const realOtp = generateAndStoreOtp(newTempToken, {
             userId: user._id.toString(),

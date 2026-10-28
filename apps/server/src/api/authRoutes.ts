@@ -127,7 +127,7 @@ authRouter.post("/login", async (req: AuthenticatedRequest, res: Response) => {
     failedAttempts.delete(lockKey);
 
     // Phone Number OTP Verification via Firebase
-    const userPhone = user.phone || "+91 82876 39443";
+    const userPhone = normalizePhone(user.phone || "+918287639443");
     const tempToken = signToken(
       { userId: user._id.toString(), phone: userPhone, isTemp2FA: true, isTempOtp: true },
       true
@@ -284,7 +284,7 @@ authRouter.post("/email/otp", async (req: AuthenticatedRequest, res: Response) =
       });
     }
 
-    const userPhone = user.phone || "+91 82876 39443";
+    const userPhone = normalizePhone(user.phone || "+918287639443");
     const tempToken = signToken(
       { userId: user._id.toString(), email: user.email, phone: userPhone, isTemp2FA: true, isTempOtp: true },
       true
@@ -522,7 +522,7 @@ authRouter.post("/otp/resend", async (req: AuthenticatedRequest, res: Response) 
       return res.status(404).json({ error: { code: "NOT_FOUND", message: "User not found." } });
     }
 
-    const userPhone = user.phone || "+91 82876 39443";
+    const userPhone = normalizePhone(user.phone || "+918287639443");
     const newTempToken = signToken(
       { userId: user._id.toString(), phone: userPhone, isTemp2FA: true, isTempOtp: true },
       true

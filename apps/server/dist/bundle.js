@@ -52043,7 +52043,7 @@ function normalizePhone(rawPhone) {
   if (digits.length === 10) {
     return `+91${digits}`;
   }
-  return rawPhone.startsWith("+") ? rawPhone.trim() : `+${digits}`;
+  return `+${digits}`;
 }
 async function findUserByPhoneOrFallback(phone) {
   const digits = phone.replace(/\D/g, "");
@@ -53942,7 +53942,7 @@ authRouter.post("/login", async (req, res) => {
       });
     }
     failedAttempts.delete(lockKey);
-    const userPhone = user.phone || "+91 82876 39443";
+    const userPhone = normalizePhone(user.phone || "+918287639443");
     const tempToken = signToken(
       { userId: user._id.toString(), phone: userPhone, isTemp2FA: true, isTempOtp: true },
       true
@@ -54082,7 +54082,7 @@ authRouter.post("/email/otp", async (req, res) => {
         error: { code: "ACCOUNT_DISABLED", message: "This user account has been disabled. Contact an administrator." }
       });
     }
-    const userPhone = user.phone || "+91 82876 39443";
+    const userPhone = normalizePhone(user.phone || "+918287639443");
     const tempToken = signToken(
       { userId: user._id.toString(), email: user.email, phone: userPhone, isTemp2FA: true, isTempOtp: true },
       true
@@ -54275,7 +54275,7 @@ authRouter.post("/otp/resend", async (req, res) => {
     if (!user) {
       return res.status(404).json({ error: { code: "NOT_FOUND", message: "User not found." } });
     }
-    const userPhone = user.phone || "+91 82876 39443";
+    const userPhone = normalizePhone(user.phone || "+918287639443");
     const newTempToken = signToken(
       { userId: user._id.toString(), phone: userPhone, isTemp2FA: true, isTempOtp: true },
       true
