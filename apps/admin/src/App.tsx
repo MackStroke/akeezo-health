@@ -91,7 +91,7 @@ function getTabFromPath(pathname: string): AdminTab {
 }
 
 const SuperAdminDashboard: React.FC = () => {
-  const { user, isLoading, logout } = useAuth();
+  const { user, isLoading, token, logout } = useAuth();
   const { startTour } = useTour();
   const [activeTab, setActiveTabState] = useState<AdminTab>(() =>
     getTabFromPath(window.location.pathname)
@@ -152,7 +152,7 @@ const SuperAdminDashboard: React.FC = () => {
     }
   };
 
-  if (isLoading) {
+  if (isLoading && token && !user) {
     return (
       <div className="min-h-screen bg-slate-900 flex items-center justify-center text-white text-xs font-semibold">
         Verifying Super Admin security session...

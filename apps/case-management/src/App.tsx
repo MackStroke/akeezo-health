@@ -120,7 +120,7 @@ function parseCurrentRoute(): ParsedRoute {
 }
 
 const CaseManagementDashboard: React.FC = () => {
-  const { user, isLoading } = useAuth();
+  const { user, isLoading, token } = useAuth();
   const { startTour } = useTour();
   const initialRoute = parseCurrentRoute();
   const [activeTab, setActiveTabState] = useState<NavTab>(initialRoute.tab);
@@ -456,7 +456,7 @@ const CaseManagementDashboard: React.FC = () => {
     setHospitalSortDirection("asc");
   };
 
-  if (isLoading) {
+  if (isLoading && token && !user) {
     return (
       <div className="min-h-screen bg-[#061E1B] flex items-center justify-center text-[#00C7BE] text-xs font-bold tracking-wider uppercase font-sans">
         Verifying security session...

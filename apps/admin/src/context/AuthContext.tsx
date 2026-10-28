@@ -96,10 +96,11 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     try {
       if (typeof window === "undefined") return false;
 
-      const container = document.getElementById("admin-recaptcha-container");
+      let container = document.getElementById("admin-recaptcha-container");
       if (!container) {
-        console.warn("[Firebase Phone Auth Admin] admin-recaptcha-container element not found");
-        return false;
+        container = document.createElement("div");
+        container.id = "admin-recaptcha-container";
+        document.body.appendChild(container);
       }
 
       if (window.recaptchaVerifierAdmin) {
