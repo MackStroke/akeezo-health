@@ -18,15 +18,37 @@ const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 const webPublicDir = path.resolve(__dirname, "../../web/public");
 const webClientDistDir = path.resolve(__dirname, "../../web/dist/client");
+const isServerless = Boolean(process.env.VERCEL) ||
+    Boolean(process.env.VERCEL_ENV) ||
+    Boolean(process.env.VERCEL_REGION) ||
+    Boolean(process.env.NOW_REGION) ||
+    Boolean(process.env.AWS_LAMBDA_FUNCTION_NAME) ||
+    Boolean(process.env.LAMBDA_TASK_ROOT);
+const isTestEnv = process.env.NODE_ENV === "test" ||
+    process.execArgv.includes("--test") ||
+    process.argv.includes("--test") ||
+    process.argv[1]?.includes("test");
 export const app = express();
 // 1. Database Connection (non-blocking background connect so routes respond instantly)
-connectDB().catch((err) => {
-    console.warn("[Akeezo Server] Non-blocking initial DB connection notice:", err?.message);
-});
-app.use((_req, _res, next) => {
-    // If disconnected, attempt reconnect non-blockingly
-    if (mongoose.connection.readyState === 0) {
-        connectDB().catch(() => { });
+if (!isTestEnv) {
+    connectDB().catch((err) => {
+        console.warn("[Akeezo Server] Non-blocking initial DB connection notice:", err?.message);
+    });
+}
+app.use(async (req, _res, next) => {
+    // If disconnected, attempt reconnect; on API routes await so queries don't buffer-timeout on cold start
+    if (mongoose.connection.readyState === 0 && !isTestEnv) {
+        if (req.path.startsWith("/api") || req.path.startsWith("/v1")) {
+            try {
+                await connectDB();
+            }
+            catch {
+                // Continue and let individual route query handlers fail gracefully or buffer
+            }
+        }
+        else {
+            connectDB().catch(() => { });
+        }
     }
     next();
 });
@@ -71,7 +93,7 @@ app.use("/api/v1", apiRouter);
 app.use("/v1", apiRouter);
 app.use("/api", apiRouter);
 // 5. Environment-specific routing: Standalone SSR vs Vercel Serverless
-if (!process.env.VERCEL) {
+if (!isServerless) {
     // Static Assets (active when running standalone outside Vercel)
     app.use(express.static(webPublicDir));
     if (env.NODE_ENV === "production") {
@@ -221,12 +243,8 @@ process.on("unhandledRejection", (reason, promise) => {
 process.on("uncaughtException", (err) => {
     console.error("[Akeezo Server Uncaught Exception]:", err);
 });
-// 8. Start Listening if not running in Vercel Serverless environment or test runner
-const isTestEnv = process.env.NODE_ENV === "test" ||
-    process.execArgv.includes("--test") ||
-    process.argv.includes("--test") ||
-    process.argv[1]?.includes("test");
-if (!process.env.VERCEL && !isTestEnv) {
+// 8. Start Listening if not running in Serverless environment or test runner
+if (!isServerless && !isTestEnv) {
     connectDB()
         .then(() => {
         app.listen(env.PORT, () => {

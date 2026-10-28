@@ -1,3 +1,4 @@
+import { createRequire } from 'module'; const require = createRequire(import.meta.url);
 var __create = Object.create;
 var __defProp = Object.defineProperty;
 var __getOwnPropDesc = Object.getOwnPropertyDescriptor;
@@ -48755,7 +48756,8 @@ import mongoose24 from "mongoose";
 
 // src/db/connection.ts
 import mongoose from "mongoose";
-mongoose.set("bufferTimeoutMS", 2500);
+var isServerless = Boolean(process.env.VERCEL) || Boolean(process.env.VERCEL_ENV) || Boolean(process.env.VERCEL_REGION) || Boolean(process.env.NOW_REGION) || Boolean(process.env.AWS_LAMBDA_FUNCTION_NAME) || Boolean(process.env.LAMBDA_TASK_ROOT);
+mongoose.set("bufferTimeoutMS", isServerless ? 1e4 : 5e3);
 var cachedPromise = null;
 async function connectDB() {
   if (mongoose.connection.readyState >= 1) {
@@ -48763,12 +48765,12 @@ async function connectDB() {
   }
   if (!cachedPromise) {
     cachedPromise = mongoose.connect(env.MONGODB_URI, {
-      autoIndex: env.NODE_ENV !== "production",
-      serverSelectionTimeoutMS: 2500,
-      connectTimeoutMS: 2500,
-      socketTimeoutMS: 1e4,
-      maxPoolSize: 50,
-      minPoolSize: 5
+      autoIndex: env.NODE_ENV !== "production" && !isServerless,
+      serverSelectionTimeoutMS: isServerless ? 8e3 : 5e3,
+      connectTimeoutMS: isServerless ? 8e3 : 5e3,
+      socketTimeoutMS: 2e4,
+      maxPoolSize: isServerless ? 10 : 50,
+      minPoolSize: isServerless ? 0 : 2
     }).then((m) => {
       console.log(
         `[Akeezo MongoDB] Connected successfully to ${m.connection.host}:${m.connection.port}/${m.connection.name}`
@@ -56549,14 +56551,25 @@ var __filename2 = fileURLToPath2(import.meta.url);
 var __dirname2 = path3.dirname(__filename2);
 var webPublicDir = path3.resolve(__dirname2, "../../web/public");
 var webClientDistDir = path3.resolve(__dirname2, "../../web/dist/client");
+var isServerless2 = Boolean(process.env.VERCEL) || Boolean(process.env.VERCEL_ENV) || Boolean(process.env.VERCEL_REGION) || Boolean(process.env.NOW_REGION) || Boolean(process.env.AWS_LAMBDA_FUNCTION_NAME) || Boolean(process.env.LAMBDA_TASK_ROOT);
+var isTestEnv = process.env.NODE_ENV === "test" || process.execArgv.includes("--test") || process.argv.includes("--test") || process.argv[1]?.includes("test");
 var app = (0, import_express5.default)();
-connectDB().catch((err) => {
-  console.warn("[Akeezo Server] Non-blocking initial DB connection notice:", err?.message);
-});
-app.use((_req, _res, next) => {
-  if (mongoose24.connection.readyState === 0) {
-    connectDB().catch(() => {
-    });
+if (!isTestEnv) {
+  connectDB().catch((err) => {
+    console.warn("[Akeezo Server] Non-blocking initial DB connection notice:", err?.message);
+  });
+}
+app.use(async (req, _res, next) => {
+  if (mongoose24.connection.readyState === 0 && !isTestEnv) {
+    if (req.path.startsWith("/api") || req.path.startsWith("/v1")) {
+      try {
+        await connectDB();
+      } catch {
+      }
+    } else {
+      connectDB().catch(() => {
+      });
+    }
   }
   next();
 });
@@ -56598,7 +56611,7 @@ app.get(["/health", "/api/health", "/api/v1/health", "/v1/health"], (_req, res) 
 app.use("/api/v1", apiRouter);
 app.use("/v1", apiRouter);
 app.use("/api", apiRouter);
-if (!process.env.VERCEL) {
+if (!isServerless2) {
   app.use(import_express5.default.static(webPublicDir));
   if (env.NODE_ENV === "production") {
     app.use(import_express5.default.static(webClientDistDir, { index: false }));
@@ -56732,8 +56745,7 @@ process.on("unhandledRejection", (reason, promise) => {
 process.on("uncaughtException", (err) => {
   console.error("[Akeezo Server Uncaught Exception]:", err);
 });
-var isTestEnv = process.env.NODE_ENV === "test" || process.execArgv.includes("--test") || process.argv.includes("--test") || process.argv[1]?.includes("test");
-if (!process.env.VERCEL && !isTestEnv) {
+if (!isServerless2 && !isTestEnv) {
   connectDB().then(() => {
     app.listen(env.PORT, () => {
       console.log(`[Akeezo Server] Listening on http://localhost:${env.PORT} (${env.NODE_ENV})`);

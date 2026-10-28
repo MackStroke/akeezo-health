@@ -1,7 +1,13 @@
 import mongoose from "mongoose";
 import { env } from "../config/env.js";
-// Set buffer timeout to 2.5 seconds so disconnected queries fail fast without blocking index creation
-mongoose.set("bufferTimeoutMS", 2500);
+const isServerless = Boolean(process.env.VERCEL) ||
+    Boolean(process.env.VERCEL_ENV) ||
+    Boolean(process.env.VERCEL_REGION) ||
+    Boolean(process.env.NOW_REGION) ||
+    Boolean(process.env.AWS_LAMBDA_FUNCTION_NAME) ||
+    Boolean(process.env.LAMBDA_TASK_ROOT);
+// Serverless functions need adequate buffer timeout to handle TLS cold starts without failing fast
+mongoose.set("bufferTimeoutMS", isServerless ? 10000 : 5000);
 let cachedPromise = null;
 export async function connectDB() {
     if (mongoose.connection.readyState >= 1) {
@@ -10,12 +16,12 @@ export async function connectDB() {
     if (!cachedPromise) {
         cachedPromise = mongoose
             .connect(env.MONGODB_URI, {
-            autoIndex: env.NODE_ENV !== "production",
-            serverSelectionTimeoutMS: 2500,
-            connectTimeoutMS: 2500,
-            socketTimeoutMS: 10000,
-            maxPoolSize: 50,
-            minPoolSize: 5,
+            autoIndex: env.NODE_ENV !== "production" && !isServerless,
+            serverSelectionTimeoutMS: isServerless ? 8000 : 5000,
+            connectTimeoutMS: isServerless ? 8000 : 5000,
+            socketTimeoutMS: 20000,
+            maxPoolSize: isServerless ? 10 : 50,
+            minPoolSize: isServerless ? 0 : 2,
         })
             .then((m) => {
             console.log(`[Akeezo MongoDB] Connected successfully to ${m.connection.host}:${m.connection.port}/${m.connection.name}`);
