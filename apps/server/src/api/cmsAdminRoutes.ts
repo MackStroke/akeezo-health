@@ -34,6 +34,7 @@ import {
   THEME_PRESETS,
   sanitizeCssValue
 } from "@akeezo/contracts";
+import { syncUserToFirebase } from "../firebase.js";
 import { env } from "../config/env.js";
 
 export const cmsAdminRouter = Router();
@@ -1689,6 +1690,7 @@ cmsAdminRouter.get("/users", async (_req: Request, res: Response) => {
         email: u.email,
         phone: u.phone,
         role: u.role,
+        permissions: u.permissions || [],
         status: u.status,
         phoneVerified: u.phoneVerified,
         createdAt: u.createdAt,
@@ -1700,32 +1702,56 @@ cmsAdminRouter.get("/users", async (_req: Request, res: Response) => {
   }
 });
 
-// POST /api/v1/admin/users/invite
-cmsAdminRouter.post("/users/invite", async (req: Request, res: Response) => {
+// Common user creation & Firebase synchronization handler
+const handleCreateUser = async (req: Request, res: Response) => {
   try {
-    const { name, email, phone, role = "coordinator" } = req.body;
+    const { name, email, phone, role = "coordinator", password, permissions, status = "active" } = req.body;
     if (!name || !email) {
       return res.status(400).json({ error: { code: "MISSING_FIELDS", message: "Name and email are required." } });
     }
 
     const normalizedEmail = email.toLowerCase().trim();
-    const existing = await UserModel.findOne({ email: normalizedEmail });
-    if (existing) {
-      return res.status(409).json({ error: { code: "USER_EXISTS", message: `User with email '${normalizedEmail}' already exists.` } });
+    if (mongoose.connection.readyState === 1) {
+      const existing = await UserModel.findOne({ email: normalizedEmail });
+      if (existing) {
+        return res.status(409).json({ error: { code: "USER_EXISTS", message: `User with email '${normalizedEmail}' already exists.` } });
+      }
     }
 
-    const tempPassword = `Akeezo@${Math.floor(1000 + Math.random() * 9000)}!`;
-    const passwordHash = hashPassword(tempPassword);
+    const assignedPassword = password && password.trim().length >= 6 ? password.trim() : `Akeezo@${Math.floor(1000 + Math.random() * 9000)}!`;
+    const passwordHash = hashPassword(assignedPassword);
 
-    const newUser = await UserModel.create({
-      name,
+    let newUser: any = null;
+    if (mongoose.connection.readyState === 1) {
+      newUser = await UserModel.create({
+        name: name.trim(),
+        email: normalizedEmail,
+        phone: phone?.trim() || "+91 82876 39443",
+        role,
+        permissions: Array.isArray(permissions) && permissions.length > 0 ? permissions : undefined,
+        passwordHash,
+        status: status === "disabled" ? "disabled" : "active",
+        phoneVerified: true,
+      });
+    } else {
+      newUser = {
+        _id: new mongoose.Types.ObjectId().toString(),
+        name: name.trim(),
+        email: normalizedEmail,
+        phone: phone?.trim() || "+91 82876 39443",
+        role,
+        permissions: Array.isArray(permissions) ? permissions : [],
+        status: status === "disabled" ? "disabled" : "active",
+        createdAt: new Date(),
+      };
+    }
+
+    // Sync credentials to Firebase Authentication so user can immediately sign in with Email/Password
+    syncUserToFirebase({
       email: normalizedEmail,
-      phone: phone || "+91 82876 39443",
-      role,
-      passwordHash,
-      status: "active",
-      phoneVerified: true,
-    });
+      password: assignedPassword,
+      name: name.trim(),
+    }).catch(() => {});
 
     await logAdminActivity(
       (req as any).user?._id,
@@ -1742,20 +1768,28 @@ cmsAdminRouter.post("/users/invite", async (req: Request, res: Response) => {
           _id: newUser._id,
           name: newUser.name,
           email: newUser.email,
+          phone: newUser.phone,
           role: newUser.role,
+          permissions: newUser.permissions,
           status: newUser.status,
           createdAt: newUser.createdAt,
         },
-        temporaryPassword: tempPassword,
+        temporaryPassword: assignedPassword,
         message: `User '${normalizedEmail}' created with initial role '${role}'.`,
       },
     });
   } catch (err: any) {
-    res.status(400).json({ error: { code: "INVITE_USER_FAILED", message: err.message } });
+    res.status(400).json({ error: { code: "CREATE_USER_FAILED", message: err.message } });
   }
-});
+};
 
-// PATCH /api/v1/admin/users/:id (Update user role or active status with last owner protection)
+// POST /api/v1/admin/users (Direct User Creation)
+cmsAdminRouter.post("/users", handleCreateUser);
+
+// POST /api/v1/admin/users/invite (Legacy Invite Endpoint)
+cmsAdminRouter.post("/users/invite", handleCreateUser);
+
+// PATCH /api/v1/admin/users/:id (Update user profile, role, permissions, status, or password)
 cmsAdminRouter.patch("/users/:id", async (req: Request, res: Response) => {
   try {
     const userId = req.params.id;
@@ -1780,15 +1814,36 @@ cmsAdminRouter.patch("/users/:id", async (req: Request, res: Response) => {
       }
     }
 
-    if (req.body.name) userToChange.name = req.body.name;
+    if (req.body.name) userToChange.name = req.body.name.trim();
+    if (req.body.email && req.body.email !== userToChange.email) {
+      const normalizedEmail = req.body.email.toLowerCase().trim();
+      const existing = await UserModel.findOne({ email: normalizedEmail, _id: { $ne: userToChange._id } });
+      if (existing) {
+        return res.status(409).json({ error: { code: "EMAIL_TAKEN", message: "Email is already taken by another user." } });
+      }
+      userToChange.email = normalizedEmail;
+    }
+    if (req.body.phone) userToChange.phone = req.body.phone.trim();
     if (req.body.role && req.body.role !== userToChange.role) {
       userToChange.role = req.body.role;
       userToChange.tokenVersion = (userToChange.tokenVersion || 1) + 1;
     }
-    if (req.body.phone) userToChange.phone = req.body.phone;
+    if (Array.isArray(req.body.permissions)) {
+      userToChange.permissions = req.body.permissions;
+    }
     if (req.body.status && req.body.status !== userToChange.status) {
       userToChange.status = req.body.status;
       userToChange.tokenVersion = (userToChange.tokenVersion || 1) + 1;
+    }
+    if (req.body.password && req.body.password.trim().length >= 6) {
+      const newPass = req.body.password.trim();
+      userToChange.passwordHash = hashPassword(newPass);
+      userToChange.tokenVersion = (userToChange.tokenVersion || 1) + 1;
+      syncUserToFirebase({
+        email: userToChange.email,
+        password: newPass,
+        name: userToChange.name,
+      }).catch(() => {});
     }
 
     await userToChange.save();
@@ -1807,12 +1862,93 @@ cmsAdminRouter.patch("/users/:id", async (req: Request, res: Response) => {
         _id: userToChange._id,
         name: userToChange.name,
         email: userToChange.email,
+        phone: userToChange.phone,
         role: userToChange.role,
+        permissions: userToChange.permissions,
         status: userToChange.status,
       },
     });
   } catch (err: any) {
     res.status(400).json({ error: { code: "UPDATE_USER_FAILED", message: err.message } });
+  }
+});
+
+// POST /api/v1/admin/users/:id/reset-password
+cmsAdminRouter.post("/users/:id/reset-password", async (req: Request, res: Response) => {
+  try {
+    const userId = req.params.id;
+    const user = await UserModel.findById(userId);
+    if (!user) {
+      return res.status(404).json({ error: { code: "NOT_FOUND", message: "User not found." } });
+    }
+
+    const { newPassword } = req.body;
+    const assignedPassword = newPassword && newPassword.trim().length >= 6 ? newPassword.trim() : `Akeezo@${Math.floor(1000 + Math.random() * 9000)}!`;
+    user.passwordHash = hashPassword(assignedPassword);
+    user.tokenVersion = (user.tokenVersion || 1) + 1;
+    await user.save();
+
+    syncUserToFirebase({
+      email: user.email,
+      password: assignedPassword,
+      name: user.name,
+    }).catch(() => {});
+
+    await logAdminActivity(
+      (req as any).user?._id,
+      "user",
+      user._id,
+      "update",
+      { action: [null, "reset_password"] },
+      req
+    );
+
+    res.json({
+      data: {
+        message: `Password reset successfully for ${user.email}.`,
+        temporaryPassword: assignedPassword,
+      },
+    });
+  } catch (err: any) {
+    res.status(400).json({ error: { code: "RESET_PASSWORD_FAILED", message: err.message } });
+  }
+});
+
+// DELETE /api/v1/admin/users/:id (Remove user account with last admin protection)
+cmsAdminRouter.delete("/users/:id", async (req: Request, res: Response) => {
+  try {
+    const userId = req.params.id;
+    const userToDelete = await UserModel.findById(userId);
+    if (!userToDelete) {
+      return res.status(404).json({ error: { code: "NOT_FOUND", message: "User not found." } });
+    }
+
+    if (userToDelete.role === "admin") {
+      const activeAdminCount = await UserModel.countDocuments({ role: "admin", status: "active" });
+      if (activeAdminCount <= 1) {
+        return res.status(403).json({
+          error: {
+            code: "CANNOT_DELETE_LAST_OWNER",
+            message: "Cannot delete the last active Super Administrator / Owner of the platform.",
+          },
+        });
+      }
+    }
+
+    await UserModel.findByIdAndDelete(userId);
+
+    await logAdminActivity(
+      (req as any).user?._id,
+      "user",
+      userToDelete._id,
+      "delete",
+      { email: [userToDelete.email, ""] },
+      req
+    );
+
+    res.json({ data: { success: true, message: `User account '${userToDelete.email}' deleted successfully.` } });
+  } catch (err: any) {
+    res.status(400).json({ error: { code: "DELETE_USER_FAILED", message: err.message } });
   }
 });
 
