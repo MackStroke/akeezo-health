@@ -4,7 +4,7 @@
     "server": {
       "root": "apps/server",
       "framework": "express",
-      "entrypoint": "index.js"
+      "entrypoint": "main.js"
     },
     "case-management": {
       "root": "apps/case-management",
