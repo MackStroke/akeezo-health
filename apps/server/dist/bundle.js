@@ -1,4 +1,4 @@
-import { fileURLToPath as __fileURLToPath__ } from 'node:url'; import { dirname as __dirname__ } from 'node:path'; import { createRequire as __createRequire__ } from 'node:module'; var require = __createRequire__(import.meta.url); var __filename = __fileURLToPath__(import.meta.url); var __dirname = __dirname__(__filename);
+import { fileURLToPath as __f2p__ } from 'node:url'; import { dirname as __dn__ } from 'node:path'; import { createRequire as __cr__ } from 'node:module'; var __mu__ = typeof import.meta !== 'undefined' && import.meta && import.meta.url ? import.meta.url : null; var require = __mu__ ? __cr__(__mu__) : (typeof require !== 'undefined' ? require : __cr__(process.cwd() + '/')); var __filename = __mu__ && __mu__.startsWith('file:') ? __f2p__(__mu__) : (typeof __filename !== 'undefined' ? __filename : process.cwd() + '/index.js'); var __dirname = __mu__ && __mu__.startsWith('file:') ? __dn__(__filename) : (typeof __dirname !== 'undefined' ? __dirname : process.cwd());
 var __create = Object.create;
 var __defProp = Object.defineProperty;
 var __getOwnPropDesc = Object.getOwnPropertyDescriptor;
@@ -300021,8 +300021,20 @@ import fs2 from "node:fs/promises";
 import path from "node:path";
 import { fileURLToPath, pathToFileURL } from "node:url";
 import { PassThrough as PassThrough3 } from "node:stream";
-var __filename = fileURLToPath(import.meta.url);
-var __dirname2 = path.dirname(__filename);
+function getSafePaths() {
+  try {
+    if (typeof import.meta !== "undefined" && import.meta?.url && import.meta.url.startsWith("file:")) {
+      const fn = fileURLToPath(import.meta.url);
+      return { filename: fn, dirname: path.dirname(fn) };
+    }
+  } catch {
+  }
+  const cwd = typeof process !== "undefined" && process.cwd ? process.cwd() : "/";
+  return { filename: path.join(cwd, "index.js"), dirname: cwd };
+}
+var safePaths = getSafePaths();
+var __filename = safePaths.filename;
+var __dirname2 = safePaths.dirname;
 var webRoot = path.resolve(__dirname2, "../../../web");
 var viteDevServer = null;
 async function getViteServer() {
@@ -305600,8 +305612,20 @@ apiRouter.get("/route", async (req, res) => {
 apiRouter.use(caseManagementRouter);
 
 // src/main.ts
-var __filename2 = fileURLToPath2(import.meta.url);
-var __dirname3 = path3.dirname(__filename2);
+function getSafePaths2() {
+  try {
+    if (typeof import.meta !== "undefined" && import.meta?.url && import.meta.url.startsWith("file:")) {
+      const fn = fileURLToPath2(import.meta.url);
+      return { filename: fn, dirname: path3.dirname(fn) };
+    }
+  } catch {
+  }
+  const cwd = typeof process !== "undefined" && process.cwd ? process.cwd() : "/";
+  return { filename: path3.join(cwd, "index.js"), dirname: cwd };
+}
+var safePaths2 = getSafePaths2();
+var __filename2 = safePaths2.filename;
+var __dirname3 = safePaths2.dirname;
 var webPublicDir = path3.resolve(__dirname3, "../../web/public");
 var webClientDistDir = path3.resolve(__dirname3, "../../web/dist/client");
 var isServerless2 = Boolean(process.env.VERCEL) || Boolean(process.env.VERCEL_ENV) || Boolean(process.env.VERCEL_REGION) || Boolean(process.env.NOW_REGION) || Boolean(process.env.AWS_LAMBDA_FUNCTION_NAME) || Boolean(process.env.LAMBDA_TASK_ROOT) || process.env.NODE_ENV === "production";
@@ -305634,7 +305658,7 @@ app.use(
   })
 );
 app.use(import_express5.default.json());
-app.get(["/health", "/api/health", "/api/v1/health", "/v1/health", "/ping", "/api/ping"], (_req, res) => {
+app.get(["/api", "/health", "/api/health", "/api/v1/health", "/v1/health", "/ping", "/api/ping"], (_req, res) => {
   res.status(200).json({
     data: {
       status: "healthy",

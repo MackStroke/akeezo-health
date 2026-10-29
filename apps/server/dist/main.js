@@ -14,8 +14,20 @@ import { SiteSettings } from "./db/models/SiteSettings.js";
 import { generateAdminThemeCss, getGoogleFontUrl } from "@akeezo/contracts";
 import { handleSsr, getViteServer, renderFallback500Html, toSafeSiteSettings } from "./ssr/renderer.js";
 import { verifyToken } from "./utils/auth.js";
-const __filename = fileURLToPath(import.meta.url);
-const __dirname = path.dirname(__filename);
+function getSafePaths() {
+    try {
+        if (typeof import.meta !== "undefined" && import.meta?.url && import.meta.url.startsWith("file:")) {
+            const fn = fileURLToPath(import.meta.url);
+            return { filename: fn, dirname: path.dirname(fn) };
+        }
+    }
+    catch { }
+    const cwd = typeof process !== "undefined" && process.cwd ? process.cwd() : "/";
+    return { filename: path.join(cwd, "index.js"), dirname: cwd };
+}
+const safePaths = getSafePaths();
+const __filename = safePaths.filename;
+const __dirname = safePaths.dirname;
 const webPublicDir = path.resolve(__dirname, "../../web/public");
 const webClientDistDir = path.resolve(__dirname, "../../web/dist/client");
 const isServerless = Boolean(process.env.VERCEL) ||
@@ -59,7 +71,7 @@ app.use(helmet({
 }));
 app.use(express.json());
 // 3. Root & Health Probes (instant 200 responses placed before DB to guarantee zero cold-start delay)
-app.get(["/health", "/api/health", "/api/v1/health", "/v1/health", "/ping", "/api/ping"], (_req, res) => {
+app.get(["/api", "/health", "/api/health", "/api/v1/health", "/v1/health", "/ping", "/api/ping"], (_req, res) => {
     res.status(200).json({
         data: {
             status: "healthy",

@@ -14,8 +14,20 @@ import {
 } from "@akeezo/contracts";
 import { env } from "../config/env.js";
 
-const __filename = fileURLToPath(import.meta.url);
-const __dirname = path.dirname(__filename);
+function getSafePaths(): { filename: string; dirname: string } {
+  try {
+    if (typeof import.meta !== "undefined" && import.meta?.url && import.meta.url.startsWith("file:")) {
+      const fn = fileURLToPath(import.meta.url);
+      return { filename: fn, dirname: path.dirname(fn) };
+    }
+  } catch {}
+  const cwd = typeof process !== "undefined" && process.cwd ? process.cwd() : "/";
+  return { filename: path.join(cwd, "index.js"), dirname: cwd };
+}
+
+const safePaths = getSafePaths();
+const __filename: string = safePaths.filename;
+const __dirname: string = safePaths.dirname;
 const webRoot = path.resolve(__dirname, "../../../web");
 
 let viteDevServer: any = null;
