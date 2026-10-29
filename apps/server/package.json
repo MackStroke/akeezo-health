@@ -6,8 +6,8 @@
   "scripts": {
     "dev": "tsx watch src/main.ts",
     "prebuild": "pnpm --filter @akeezo/contracts build && pnpm --filter @akeezo/ui build",
-    "build": "pnpm --filter @akeezo/contracts build && pnpm --filter @akeezo/ui build && tsc && esbuild src/main.ts --bundle --platform=node --format=esm --external:vite \"--banner:js=import { fileURLToPath as __fileURLToPath__ } from 'node:url'; import { dirname as __dirname__ } from 'node:path'; import { createRequire as __createRequire__ } from 'node:module'; var require = __createRequire__(import.meta.url); var __filename = __fileURLToPath__(import.meta.url); var __dirname = __dirname__(__filename);\" --outfile=dist/bundle.js",
-    "start": "node dist/main.js",
+    "build": "pnpm --filter @akeezo/contracts build && pnpm --filter @akeezo/ui build && tsc && esbuild src/main.ts --bundle --platform=node --format=esm --external:vite \"--banner:js=import { fileURLToPath as __fileURLToPath__ } from 'node:url'; import { dirname as __dirname__ } from 'node:path'; import { createRequire as __createRequire__ } from 'node:module'; var require = __createRequire__(import.meta.url); var __filename = __fileURLToPath__(import.meta.url); var __dirname = __dirname__(__filename);\" --outfile=index.js && node -e \"const fs=require('fs'); fs.copyFileSync('index.js', 'dist/bundle.js');\"",
+    "start": "node index.js",
     "test": "node --import tsx --test src/tests/acceptanceCriteria.test.ts && node --import tsx --test src/tests/auth.test.ts && node --import tsx --test src/tests/websiteStructureAndErrors.test.ts && node --import tsx --test src/tests/websiteAudit.test.ts && node --import tsx --test src/tests/dualPortal.test.ts && node --import tsx --test src/tests/adminSuite.test.ts && node --import tsx --test src/tests/themeSettings.test.ts",
     "seed": "tsx src/seeds/seed-dev.ts",
     "seed:cases": "tsx src/seeds/seed-case-management.ts"
