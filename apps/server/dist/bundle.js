@@ -305606,26 +305606,13 @@ var webPublicDir = path3.resolve(__dirname3, "../../web/public");
 var webClientDistDir = path3.resolve(__dirname3, "../../web/dist/client");
 var isServerless2 = Boolean(process.env.VERCEL) || Boolean(process.env.VERCEL_ENV) || Boolean(process.env.VERCEL_REGION) || Boolean(process.env.NOW_REGION) || Boolean(process.env.AWS_LAMBDA_FUNCTION_NAME) || Boolean(process.env.LAMBDA_TASK_ROOT);
 var isTestEnv = process.env.NODE_ENV === "test" || process.execArgv.includes("--test") || process.argv.includes("--test") || process.argv[1]?.includes("test");
+var isDirectRun = Boolean(process.argv[1]) && path3.resolve(process.argv[1]) === path3.resolve(__filename2);
 var app = (0, import_express5.default)();
-if (!isServerless2 && !isTestEnv) {
+if (isDirectRun && !isServerless2 && !isTestEnv) {
   connectDB().catch((err) => {
     console.warn("[Akeezo Server] Non-blocking initial DB connection notice:", err?.message);
   });
 }
-app.use(async (req, _res, next) => {
-  if (import_mongoose24.default.connection.readyState === 0 && !isTestEnv) {
-    if (req.path.startsWith("/api") || req.path.startsWith("/v1")) {
-      try {
-        await connectDB();
-      } catch {
-      }
-    } else {
-      connectDB().catch(() => {
-      });
-    }
-  }
-  next();
-});
 app.use((0, import_compression.default)());
 app.use(
   (0, import_cors.default)({
@@ -305660,6 +305647,17 @@ app.get(["/health", "/api/health", "/api/v1/health", "/v1/health"], (_req, res) 
       timestamp: (/* @__PURE__ */ new Date()).toISOString()
     }
   });
+});
+app.use((req, _res, next) => {
+  if (req.path.includes("health")) {
+    return next();
+  }
+  if (import_mongoose24.default.connection.readyState === 0 && !isTestEnv) {
+    connectDB().catch((err) => {
+      console.warn("[Akeezo MongoDB] Non-blocking connect notice:", err?.message);
+    });
+  }
+  next();
 });
 app.use("/api/v1", apiRouter);
 app.use("/v1", apiRouter);
@@ -305798,7 +305796,7 @@ process.on("unhandledRejection", (reason, promise) => {
 process.on("uncaughtException", (err) => {
   console.error("[Akeezo Server Uncaught Exception]:", err);
 });
-if (!isServerless2 && !isTestEnv) {
+if (isDirectRun && !isServerless2 && !isTestEnv) {
   connectDB().then(() => {
     app.listen(env.PORT, () => {
       console.log(`[Akeezo Server] Listening on http://localhost:${env.PORT} (${env.NODE_ENV})`);

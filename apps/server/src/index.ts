@@ -34,30 +34,18 @@ const isTestEnv =
   process.argv.includes("--test") ||
   process.argv[1]?.includes("test");
 
+const isDirectRun =
+  Boolean(process.argv[1]) &&
+  path.resolve(process.argv[1]) === path.resolve(__filename);
+
 export const app = express();
 
-// 1. Database Connection (non-blocking connect in standalone mode; lazy connect on first request in serverless)
-if (!isServerless && !isTestEnv) {
+// 1. Database Connection (non-blocking connect in standalone direct run only)
+if (isDirectRun && !isServerless && !isTestEnv) {
   connectDB().catch((err) => {
     console.warn("[Akeezo Server] Non-blocking initial DB connection notice:", (err as Error)?.message);
   });
 }
-
-app.use(async (req, _res, next) => {
-  // If disconnected, attempt reconnect; on API routes await so queries don't buffer-timeout on cold start
-  if (mongoose.connection.readyState === 0 && !isTestEnv) {
-    if (req.path.startsWith("/api") || req.path.startsWith("/v1")) {
-      try {
-        await connectDB();
-      } catch {
-        // Continue and let individual route query handlers fail gracefully or buffer
-      }
-    } else {
-      connectDB().catch(() => {});
-    }
-  }
-  next();
-});
 
 // 2. Base Middlewares
 app.use(compression());
@@ -89,7 +77,7 @@ app.use(
 );
 app.use(express.json());
 
-// 3. Root & Health Probes (instant 200 responses)
+// 3. Root & Health Probes (instant 200 responses placed before DB to guarantee zero cold-start delay)
 app.get(["/health", "/api/health", "/api/v1/health", "/v1/health"], (_req, res) => {
   res.status(200).json({
     data: {
@@ -98,6 +86,19 @@ app.get(["/health", "/api/health", "/api/v1/health", "/v1/health"], (_req, res) 
       timestamp: new Date().toISOString()
     }
   });
+});
+
+// 4. Lazy Background Database Connection for Data API Routes
+app.use((req, _res, next) => {
+  if (req.path.includes("health")) {
+    return next();
+  }
+  if (mongoose.connection.readyState === 0 && !isTestEnv) {
+    connectDB().catch((err) => {
+      console.warn("[Akeezo MongoDB] Non-blocking connect notice:", err?.message);
+    });
+  }
+  next();
 });
 
 // 4. REST API Routes (mounted at all common prefixes)
@@ -277,8 +278,8 @@ process.on("uncaughtException", (err) => {
   console.error("[Akeezo Server Uncaught Exception]:", err);
 });
 
-// 8. Start Listening if not running in Serverless environment or test runner
-if (!isServerless && !isTestEnv) {
+// 8. Start Listening if running directly in standalone mode (not when imported or in serverless)
+if (isDirectRun && !isServerless && !isTestEnv) {
   connectDB()
     .then(() => {
       app.listen(env.PORT, () => {
