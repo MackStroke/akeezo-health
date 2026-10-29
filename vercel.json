@@ -48,15 +48,17 @@
   },
   "rewrites": [
     {
-      "source": "/api/(.*)",
+      "source": "/api/:match*",
       "destination": {
-        "service": "server"
+        "service": "server",
+        "path": "/api/:match*"
       }
     },
     {
       "source": "/api",
       "destination": {
-        "service": "server"
+        "service": "server",
+        "path": "/api"
       }
     },
     {
