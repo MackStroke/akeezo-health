@@ -3,7 +3,7 @@ import { describe, it, before, after } from "node:test";
 import assert from "node:assert/strict";
 import mongoose from "mongoose";
 import { connectDB, disconnectDB } from "../db/connection.js";
-import { app } from "../index.js";
+import { app } from "../main.js";
 import { EnquiryModel, PatientModel, CaseModel, CaseAuditLogModel, } from "../db/models/index.js";
 import { signToken } from "../utils/auth.js";
 describe("Dual Portal Architecture Verification: Website Admin & Case Management CMS", () => {

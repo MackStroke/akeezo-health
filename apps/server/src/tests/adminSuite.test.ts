@@ -1,7 +1,7 @@
 import { test, describe, before, after } from "node:test";
 import assert from "node:assert/strict";
 import mongoose from "mongoose";
-import { app } from "../index.js";
+import { app } from "../main.js";
 import {
   Page,
   ContentRevision,

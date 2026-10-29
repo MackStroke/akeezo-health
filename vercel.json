@@ -47,17 +47,15 @@
   },
   "rewrites": [
     {
-      "source": "/api/:match*",
+      "source": "/api/(.*)",
       "destination": {
-        "service": "server",
-        "path": "/api/:match*"
+        "service": "server"
       }
     },
     {
       "source": "/api",
       "destination": {
-        "service": "server",
-        "path": "/api"
+        "service": "server"
       }
     },
     {

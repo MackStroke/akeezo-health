@@ -293050,7 +293050,7 @@ var require_firestore = __commonJS({
   }
 });
 
-// src/index.ts
+// src/main.ts
 var import_express5 = __toESM(require_express2(), 1);
 var import_cors = __toESM(require_lib3(), 1);
 var import_compression = __toESM(require_compression(), 1);
@@ -297684,7 +297684,7 @@ var EnvSchema = external_exports.object({
 });
 var env = EnvSchema.parse(process.env);
 
-// src/index.ts
+// src/main.ts
 var import_mongoose24 = __toESM(require_mongoose2(), 1);
 
 // src/db/connection.ts
@@ -305599,7 +305599,7 @@ apiRouter.get("/route", async (req, res) => {
 });
 apiRouter.use(caseManagementRouter);
 
-// src/index.ts
+// src/main.ts
 var __filename2 = fileURLToPath2(import.meta.url);
 var __dirname3 = path3.dirname(__filename2);
 var webPublicDir = path3.resolve(__dirname3, "../../web/public");
@@ -305806,10 +305806,10 @@ if (isDirectRun && !isServerless2 && !isTestEnv) {
     console.error("[Akeezo Server] Fatal DB connection error:", err);
   });
 }
-var index_default = app;
+var main_default = app;
 export {
   app,
-  index_default as default
+  main_default as default
 };
 /*! Bundled license information:
 

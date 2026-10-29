@@ -1,7 +1,7 @@
 import { test, describe, before, after } from "node:test";
 import assert from "node:assert/strict";
 import mongoose from "mongoose";
-import { app } from "../index.js";
+import { app } from "../main.js";
 import { Page, RouteEntry, EnquiryModel, UserModel, RedirectModel, } from "../db/models/index.js";
 import { hashPassword, signToken } from "../utils/auth.js";
 const TEST_PORT = 4995;

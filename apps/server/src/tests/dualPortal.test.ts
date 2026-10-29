@@ -3,7 +3,7 @@ import { describe, it, before, after } from "node:test";
 import assert from "node:assert/strict";
 import mongoose from "mongoose";
 import { connectDB, disconnectDB } from "../db/connection.js";
-import { app } from "../index.js";
+import { app } from "../main.js";
 import {
   EnquiryModel,
   PatientModel,
