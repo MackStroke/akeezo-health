@@ -305604,15 +305604,10 @@ var __filename2 = fileURLToPath2(import.meta.url);
 var __dirname3 = path3.dirname(__filename2);
 var webPublicDir = path3.resolve(__dirname3, "../../web/public");
 var webClientDistDir = path3.resolve(__dirname3, "../../web/dist/client");
-var isServerless2 = Boolean(process.env.VERCEL) || Boolean(process.env.VERCEL_ENV) || Boolean(process.env.VERCEL_REGION) || Boolean(process.env.NOW_REGION) || Boolean(process.env.AWS_LAMBDA_FUNCTION_NAME) || Boolean(process.env.LAMBDA_TASK_ROOT);
+var isServerless2 = Boolean(process.env.VERCEL) || Boolean(process.env.VERCEL_ENV) || Boolean(process.env.VERCEL_REGION) || Boolean(process.env.NOW_REGION) || Boolean(process.env.AWS_LAMBDA_FUNCTION_NAME) || Boolean(process.env.LAMBDA_TASK_ROOT) || process.env.NODE_ENV === "production";
 var isTestEnv = process.env.NODE_ENV === "test" || process.execArgv.includes("--test") || process.argv.includes("--test") || process.argv[1]?.includes("test");
 var isDirectRun = Boolean(process.argv[1]) && path3.resolve(process.argv[1]) === path3.resolve(__filename2);
 var app = (0, import_express5.default)();
-if (isDirectRun && !isServerless2 && !isTestEnv) {
-  connectDB().catch((err) => {
-    console.warn("[Akeezo Server] Non-blocking initial DB connection notice:", err?.message);
-  });
-}
 app.use((0, import_compression.default)());
 app.use(
   (0, import_cors.default)({
@@ -305729,8 +305724,11 @@ ${themeCss}
     }
   });
   const uploadsDir = path3.resolve(process.cwd(), "uploads");
-  if (!fs4.existsSync(uploadsDir)) {
-    fs4.mkdirSync(uploadsDir, { recursive: true });
+  try {
+    if (!fs4.existsSync(uploadsDir)) {
+      fs4.mkdirSync(uploadsDir, { recursive: true });
+    }
+  } catch {
   }
   app.use(
     "/uploads",
@@ -305796,7 +305794,8 @@ process.on("unhandledRejection", (reason, promise) => {
 process.on("uncaughtException", (err) => {
   console.error("[Akeezo Server Uncaught Exception]:", err);
 });
-if (isDirectRun && !isServerless2 && !isTestEnv) {
+var shouldListen = isDirectRun && !isServerless2 && !isTestEnv && process.env.NODE_ENV !== "production";
+if (shouldListen) {
   connectDB().then(() => {
     app.listen(env.PORT, () => {
       console.log(`[Akeezo Server] Listening on http://localhost:${env.PORT} (${env.NODE_ENV})`);

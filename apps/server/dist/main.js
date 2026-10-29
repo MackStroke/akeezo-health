@@ -23,7 +23,8 @@ const isServerless = Boolean(process.env.VERCEL) ||
     Boolean(process.env.VERCEL_REGION) ||
     Boolean(process.env.NOW_REGION) ||
     Boolean(process.env.AWS_LAMBDA_FUNCTION_NAME) ||
-    Boolean(process.env.LAMBDA_TASK_ROOT);
+    Boolean(process.env.LAMBDA_TASK_ROOT) ||
+    process.env.NODE_ENV === "production";
 const isTestEnv = process.env.NODE_ENV === "test" ||
     process.execArgv.includes("--test") ||
     process.argv.includes("--test") ||
@@ -31,12 +32,6 @@ const isTestEnv = process.env.NODE_ENV === "test" ||
 const isDirectRun = Boolean(process.argv[1]) &&
     path.resolve(process.argv[1]) === path.resolve(__filename);
 export const app = express();
-// 1. Database Connection (non-blocking connect in standalone direct run only)
-if (isDirectRun && !isServerless && !isTestEnv) {
-    connectDB().catch((err) => {
-        console.warn("[Akeezo Server] Non-blocking initial DB connection notice:", err?.message);
-    });
-}
 // 2. Base Middlewares
 app.use(compression());
 app.use(cors({
@@ -168,8 +163,13 @@ if (!isServerless) {
     });
     // 3. Public Uploads Directory (safe static storage for media library assets)
     const uploadsDir = path.resolve(process.cwd(), "uploads");
-    if (!fs.existsSync(uploadsDir)) {
-        fs.mkdirSync(uploadsDir, { recursive: true });
+    try {
+        if (!fs.existsSync(uploadsDir)) {
+            fs.mkdirSync(uploadsDir, { recursive: true });
+        }
+    }
+    catch {
+        // Read-only filesystem in serverless environments
     }
     app.use("/uploads", (_req, res, next) => {
         res.setHeader("Content-Security-Policy", "default-src 'none'; sandbox");
@@ -241,7 +241,8 @@ process.on("uncaughtException", (err) => {
     console.error("[Akeezo Server Uncaught Exception]:", err);
 });
 // 8. Start Listening if running directly in standalone mode (not when imported or in serverless)
-if (isDirectRun && !isServerless && !isTestEnv) {
+const shouldListen = isDirectRun && !isServerless && !isTestEnv && process.env.NODE_ENV !== "production";
+if (shouldListen) {
     connectDB()
         .then(() => {
         app.listen(env.PORT, () => {
