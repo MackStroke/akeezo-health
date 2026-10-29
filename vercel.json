@@ -4,8 +4,7 @@
     "server": {
       "root": "apps/server",
       "framework": "express",
-      "entrypoint": "index.js",
-      "runtime": "nodejs22.x"
+      "entrypoint": "index.js"
     },
     "case-management": {
       "root": "apps/case-management",
