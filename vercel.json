@@ -3,9 +3,7 @@
   "services": {
     "server": {
       "root": "apps/server",
-      "framework": "express",
-      "buildCommand": "pnpm build",
-      "entrypoint": "index.js"
+      "framework": "express"
     },
     "case-management": {
       "root": "apps/case-management",
@@ -49,15 +47,17 @@
   },
   "rewrites": [
     {
-      "source": "/api/(.*)",
+      "source": "/api/:match*",
       "destination": {
-        "service": "server"
+        "service": "server",
+        "path": "/api/:match*"
       }
     },
     {
       "source": "/api",
       "destination": {
-        "service": "server"
+        "service": "server",
+        "path": "/api"
       }
     },
     {

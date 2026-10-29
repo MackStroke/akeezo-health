@@ -305639,7 +305639,7 @@ app.use(
   })
 );
 app.use(import_express5.default.json());
-app.get(["/health", "/api/health", "/api/v1/health", "/v1/health"], (_req, res) => {
+app.get(["/health", "/api/health", "/api/v1/health", "/v1/health", "/ping", "/api/ping"], (_req, res) => {
   res.status(200).json({
     data: {
       status: "healthy",

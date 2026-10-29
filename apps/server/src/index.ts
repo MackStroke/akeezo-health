@@ -78,7 +78,7 @@ app.use(
 app.use(express.json());
 
 // 3. Root & Health Probes (instant 200 responses placed before DB to guarantee zero cold-start delay)
-app.get(["/health", "/api/health", "/api/v1/health", "/v1/health"], (_req, res) => {
+app.get(["/health", "/api/health", "/api/v1/health", "/v1/health", "/ping", "/api/ping"], (_req, res) => {
   res.status(200).json({
     data: {
       status: "healthy",
