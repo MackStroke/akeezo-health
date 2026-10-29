@@ -277542,8 +277542,8 @@ var require_pipeline_util = __commonJS({
     var ExecutionUtil = class {
       _firestore;
       _serializer;
-      constructor(_firestore, _serializer) {
-        this._firestore = _firestore;
+      constructor(_firestore2, _serializer) {
+        this._firestore = _firestore2;
         this._serializer = _serializer;
       }
       _getResponse(structuredPipeline, transactionOrReadTime) {
@@ -279719,8 +279719,8 @@ var require_query_util = __commonJS({
       _firestore;
       _queryOptions;
       _serializer;
-      constructor(_firestore, _queryOptions, _serializer) {
-        this._firestore = _firestore;
+      constructor(_firestore2, _queryOptions, _serializer) {
+        this._firestore = _firestore2;
         this._queryOptions = _queryOptions;
         this._serializer = _serializer;
       }
@@ -281470,12 +281470,12 @@ var require_query3 = __commonJS({
        * @param _firestore The Firestore Database client.
        * @param _queryOptions Options that define the query.
        */
-      constructor(_firestore, _queryOptions) {
-        this._firestore = _firestore;
+      constructor(_firestore2, _queryOptions) {
+        this._firestore = _firestore2;
         this._queryOptions = _queryOptions;
-        this._serializer = new serializer_1.Serializer(_firestore);
+        this._serializer = new serializer_1.Serializer(_firestore2);
         this._allowUndefined = !!this._firestore._settings.ignoreUndefinedProperties;
-        this._queryUtil = new query_util_1.QueryUtil(_firestore, _queryOptions, this._serializer);
+        this._queryUtil = new query_util_1.QueryUtil(_firestore2, _queryOptions, this._serializer);
       }
       /**
        * Extracts field values from the DocumentSnapshot based on the provided
@@ -283008,8 +283008,8 @@ var require_document_reference = __commonJS({
        * @param _path The Path of this reference.
        * @param _converter The converter to use when serializing data.
        */
-      constructor(_firestore, _path, _converter = (0, types_1.defaultConverter)()) {
-        this._firestore = _firestore;
+      constructor(_firestore2, _path, _converter = (0, types_1.defaultConverter)()) {
+        this._firestore = _firestore2;
         this._path = _path;
         this._converter = _converter;
       }
@@ -290794,13 +290794,13 @@ var require_query_partition = __commonJS({
       _memoizedStartAt;
       _memoizedEndBefore;
       /** @private */
-      constructor(_firestore, _collectionId, _converter, _startAt, _endBefore) {
-        this._firestore = _firestore;
+      constructor(_firestore2, _collectionId, _converter, _startAt, _endBefore) {
+        this._firestore = _firestore2;
         this._collectionId = _collectionId;
         this._converter = _converter;
         this._startAt = _startAt;
         this._endBefore = _endBefore;
-        this._serializer = new serializer_1.Serializer(_firestore);
+        this._serializer = new serializer_1.Serializer(_firestore2);
       }
       /**
        * The cursor that defines the first result for this partition or `undefined`
@@ -301204,18 +301204,72 @@ var v1 = import_firestore.default.v1;
 // src/firebase.ts
 var FIREBASE_PROJECT_ID = process.env.FIREBASE_PROJECT_ID || "akeezo-health";
 var FIREBASE_API_KEY = process.env.FIREBASE_API_KEY || "AIzaSyAlTH5b-owDOYnUn-pK3EYmMJmMZJNW3OY";
-var firebaseAdminApp = getApps().length === 0 ? initializeApp({
-  projectId: FIREBASE_PROJECT_ID
-}) : getApp();
-var adminAuth = getAuth(firebaseAdminApp);
-var firestore = getFirestore(firebaseAdminApp);
-try {
-  firestore.settings({ ignoreUndefinedProperties: true });
-} catch {
+var _app = null;
+var _auth = null;
+var _firestore = null;
+function getFirebaseAdminApp() {
+  if (!_app) {
+    try {
+      _app = getApps().length === 0 ? initializeApp({
+        projectId: FIREBASE_PROJECT_ID
+      }) : getApp();
+    } catch (err) {
+      console.warn("[Firebase Admin App] Notice:", err.message);
+      return null;
+    }
+  }
+  return _app;
 }
+function getAdminAuth() {
+  if (!_auth) {
+    const app2 = getFirebaseAdminApp();
+    if (app2) {
+      try {
+        _auth = getAuth(app2);
+      } catch (err) {
+        console.warn("[Firebase Admin Auth] Notice:", err.message);
+      }
+    }
+  }
+  return _auth;
+}
+function getFirestoreDB() {
+  if (!_firestore) {
+    const app2 = getFirebaseAdminApp();
+    if (app2) {
+      try {
+        _firestore = getFirestore(app2);
+        _firestore.settings({ ignoreUndefinedProperties: true });
+      } catch (err) {
+        console.warn("[Cloud Firestore] Notice:", err.message);
+      }
+    }
+  }
+  return _firestore;
+}
+var firebaseAdminApp = new Proxy({}, {
+  get(_target, prop) {
+    const app2 = getFirebaseAdminApp();
+    return app2 ? app2[prop] : void 0;
+  }
+});
+var adminAuth = new Proxy({}, {
+  get(_target, prop) {
+    const auth = getAdminAuth();
+    return auth ? auth[prop] : void 0;
+  }
+});
+var firestore = new Proxy({}, {
+  get(_target, prop) {
+    const db = getFirestoreDB();
+    return db ? db[prop] : void 0;
+  }
+});
 async function verifyFirebaseToken(idToken) {
   try {
-    return await adminAuth.verifyIdToken(idToken);
+    const auth = getAdminAuth();
+    if (!auth) return null;
+    return await auth.verifyIdToken(idToken);
   } catch (err) {
     console.warn("[Firebase Admin Auth] Token verification failed:", err.message);
     return null;
@@ -301251,7 +301305,9 @@ async function syncUserToFirebase(user) {
 }
 async function syncPatientToFirestore(patient) {
   try {
-    const docRef = firestore.collection("patients").doc(patient.patientId);
+    const db = getFirestoreDB();
+    if (!db) return false;
+    const docRef = db.collection("patients").doc(patient.patientId);
     await docRef.set(
       {
         ...patient,
@@ -301269,7 +301325,9 @@ async function syncPatientToFirestore(patient) {
 }
 async function syncCaseToFirestore(caseItem) {
   try {
-    const docRef = firestore.collection("cases").doc(caseItem.caseCode);
+    const db = getFirestoreDB();
+    if (!db) return false;
+    const docRef = db.collection("cases").doc(caseItem.caseCode);
     await docRef.set(
       {
         ...caseItem,
@@ -305549,7 +305607,7 @@ var webClientDistDir = path3.resolve(__dirname3, "../../web/dist/client");
 var isServerless2 = Boolean(process.env.VERCEL) || Boolean(process.env.VERCEL_ENV) || Boolean(process.env.VERCEL_REGION) || Boolean(process.env.NOW_REGION) || Boolean(process.env.AWS_LAMBDA_FUNCTION_NAME) || Boolean(process.env.LAMBDA_TASK_ROOT);
 var isTestEnv = process.env.NODE_ENV === "test" || process.execArgv.includes("--test") || process.argv.includes("--test") || process.argv[1]?.includes("test");
 var app = (0, import_express5.default)();
-if (!isTestEnv) {
+if (!isServerless2 && !isTestEnv) {
   connectDB().catch((err) => {
     console.warn("[Akeezo Server] Non-blocking initial DB connection notice:", err?.message);
   });

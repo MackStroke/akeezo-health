@@ -51,15 +51,13 @@
     {
       "source": "/api/(.*)",
       "destination": {
-        "service": "server",
-        "path": "/api/$1"
+        "service": "server"
       }
     },
     {
       "source": "/api",
       "destination": {
-        "service": "server",
-        "path": "/api"
+        "service": "server"
       }
     },
     {

@@ -29,8 +29,8 @@ const isTestEnv = process.env.NODE_ENV === "test" ||
     process.argv.includes("--test") ||
     process.argv[1]?.includes("test");
 export const app = express();
-// 1. Database Connection (non-blocking background connect so routes respond instantly)
-if (!isTestEnv) {
+// 1. Database Connection (non-blocking connect in standalone mode; lazy connect on first request in serverless)
+if (!isServerless && !isTestEnv) {
     connectDB().catch((err) => {
         console.warn("[Akeezo Server] Non-blocking initial DB connection notice:", err?.message);
     });
