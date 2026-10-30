@@ -8,6 +8,7 @@ import { LegalTemplate } from "@akeezo/web/src/templates/LegalTemplate.js";
 import { NotFoundTemplate } from "@akeezo/web/src/templates/NotFoundTemplate.js";
 import { ServerErrorTemplate } from "@akeezo/web/src/templates/ServerErrorTemplate.js";
 import { CalculatorTemplate } from "@akeezo/web/src/templates/CalculatorTemplate.js";
+import { TreatmentsTemplate } from "@akeezo/web/src/templates/TreatmentsTemplate.js";
 import { SiteHeader } from "@akeezo/web/src/components/SiteHeader.js";
 import { SiteFooter } from "@akeezo/web/src/components/SiteFooter.js";
 import { renderFallback500Html } from "../ssr/renderer.js";
@@ -184,5 +185,22 @@ describe("Website Audit Task 8: Calculator Page Structure", () => {
     assert.ok(html.includes("Frequently Asked Questions"), "Must render FAQ section");
     assert.ok(html.includes("All Questions"), "Must render FAQ category filters");
     assert.ok(html.includes("How accurate are the cost estimates"), "Must render FAQ questions");
+  });
+});
+
+describe("Website Audit Task 9: Treatments Directory Page Structure", () => {
+  it("Treatments page resolves with treatmentDirectory and renders hero, search, top treatments, all treatments, and promotional banners", () => {
+    const data = getDefaultRouteData("/treatments");
+    assert.equal(data.pageKind, "treatmentDirectory");
+    assert.equal(data.seo.title, "Medical Treatments Worldwide | Find Best Treatment Options | AKEEZO");
+
+    const html = renderToString(React.createElement(TreatmentsTemplate, { data }));
+    assert.ok(html.includes("Find The Best Treatments Worldwide"), "Must render hero headline");
+    assert.ok(html.includes("Top Treatments on AKEEZO"), "Must render top treatments section");
+    assert.ok(html.includes("AKEEZO"), "Must render AKEEZO branding");
+    assert.ok(html.includes("Is Absolutely Free"), "Must render free banner headline");
+    assert.ok(html.includes("All Treatments"), "Must render All Treatments directory");
+    assert.ok(html.includes("Cosmetic/Plastic Surgery"), "Must render treatment cards");
+    assert.ok(html.includes("Make Confident"), "Must render confident decision banner");
   });
 });

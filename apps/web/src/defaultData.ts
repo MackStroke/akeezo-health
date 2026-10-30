@@ -139,6 +139,28 @@ export function getDefaultRouteData(path = "/"): PublicRouteResponseDTO {
     };
   }
 
+  if (normalized === "/treatments" || normalized.startsWith("/treatments/")) {
+    return {
+      pageKind: "treatmentDirectory",
+      path: normalized,
+      locale: "en",
+      seo: {
+        title: "Medical Treatments Worldwide | Find Best Treatment Options | AKEEZO",
+        description:
+          "Discover comprehensive medical treatments worldwide. Compare prices, read reviews, and find accredited international healthcare options with AKEEZO.",
+        canonicalPath: "/treatments",
+        robots: "index,follow",
+        schemaKind: "MedicalWebPage"
+      },
+      payload: {
+        headline: "Find The Best Treatments Worldwide",
+        subheadline: "World-class care, anywhere in the world."
+      },
+      siteSettings: DEFAULT_SITE_SETTINGS,
+      statusCode: 200
+    };
+  }
+
   if (normalized === "/") {
     return {
       pageKind: "home",

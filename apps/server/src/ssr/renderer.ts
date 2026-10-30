@@ -327,6 +327,27 @@ export async function handleSsr(req: Request, res: Response, next: NextFunction)
         siteSettings,
         statusCode: 200
       };
+    } else if (normalizedPath === "/treatments" || normalizedPath.startsWith("/treatments/")) {
+      statusCode = 200;
+      dto = {
+        pageKind: "treatmentDirectory",
+        path: normalizedPath,
+        locale: "en",
+        seo: {
+          title: "Medical Treatments Worldwide | Find Best Treatment Options | AKEEZO",
+          description:
+            "Discover comprehensive medical treatments worldwide. Compare prices, read reviews, and find accredited international healthcare options with AKEEZO.",
+          canonicalPath: "/treatments",
+          robots: "index,follow",
+          schemaKind: "MedicalWebPage"
+        },
+        payload: {
+          headline: "Find The Best Treatments Worldwide",
+          subheadline: "World-class care, anywhere in the world."
+        },
+        siteSettings,
+        statusCode: 200
+      };
     } else if (LEGAL_SEO_MAP[normalizedPath]) {
       const legalSeo = LEGAL_SEO_MAP[normalizedPath];
       statusCode = 200;

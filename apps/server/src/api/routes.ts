@@ -128,6 +128,30 @@ apiRouter.get("/route", async (req: Request, res: Response) => {
         return;
       }
 
+      if (normalizedPath === "/treatments" || normalizedPath.startsWith("/treatments/")) {
+        const treatmentsDto: PublicRouteResponseDTO = {
+          pageKind: "treatmentDirectory",
+          path: normalizedPath,
+          locale,
+          seo: {
+            title: "Medical Treatments Worldwide | Find Best Treatment Options | AKEEZO",
+            description:
+              "Discover comprehensive medical treatments worldwide. Compare prices, read reviews, and find accredited international healthcare options with AKEEZO.",
+            canonicalPath: "/treatments",
+            robots: "index,follow",
+            schemaKind: "MedicalWebPage"
+          },
+          payload: {
+            headline: "Find The Best Treatments Worldwide",
+            subheadline: "World-class care, anywhere in the world."
+          },
+          siteSettings,
+          statusCode: 200
+        };
+        res.json({ data: treatmentsDto });
+        return;
+      }
+
       // Check legal compliance pages
       const LEGAL_SEO_MAP: Record<string, { title: string; description: string }> = {
         "/privacy": {

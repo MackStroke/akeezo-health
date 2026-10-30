@@ -470,7 +470,15 @@ export const SiteHeader: React.FC<SiteHeaderProps> = ({
               ))}
             </div>
 
-            <div className="mt-6 flex justify-end">
+            <div className="mt-6 flex items-center justify-between border-t border-border pt-4">
+              <a
+                href="/treatments"
+                onClick={() => setIsExploreOpen(false)}
+                className="inline-flex items-center gap-1.5 text-xs font-bold text-action hover:text-action-hover"
+              >
+                <span>View All 22+ Medical Treatments & Specialities</span>
+                <ChevronRight className="size-3.5" />
+              </a>
               <button
                 type="button"
                 onClick={() => setIsExploreOpen(false)}

@@ -104,6 +104,18 @@ const SEED_PAGES: SeedPageDef[] = [
     title: "Surgery Cost Calculator Tool | Save up to 70% | AKEEZO",
     description: "Compare surgery costs across top medical destinations and accredited international hospitals. Get transparent estimates and connect with world-class surgeons.",
     payload: {}
+  },
+  {
+    slug: "treatments",
+    path: "/treatments",
+    pageKind: "treatmentDirectory",
+    title: "Medical Treatments Worldwide | Find Best Treatment Options | AKEEZO",
+    description:
+      "Discover comprehensive medical treatments worldwide. Compare prices, read reviews, and find accredited international healthcare options with AKEEZO.",
+    payload: {
+      headline: "Find The Best Treatments Worldwide",
+      subheadline: "World-class care, anywhere in the world."
+    }
   }
 ];
 
