@@ -188,7 +188,7 @@ export const SiteFooter: React.FC<SiteFooterProps> = ({ siteSettings = {} }) => 
             <h3 className="font-bold text-ink text-sm mb-3">Patient Support</h3>
             <ul className="space-y-2">
               <li><a href="/#opinion" className="hover:text-action">Free Second Opinion</a></li>
-              <li><a href="/#calculator" className="hover:text-action">Cost Calculator</a></li>
+              <li><a href="/cost-calculator" className="hover:text-action">Cost Calculator</a></li>
               <li><a href="/#visa" className="hover:text-action">Medical Visa Assistance</a></li>
               <li><a href="/#concierge" className="hover:text-action">Airport Concierge & Stay</a></li>
               <li><a href="/#telehealth" className="hover:text-action">Video Consultation Desk</a></li>

@@ -7,6 +7,7 @@ import { HomeTemplate } from "@akeezo/web/src/templates/HomeTemplate.js";
 import { LegalTemplate } from "@akeezo/web/src/templates/LegalTemplate.js";
 import { NotFoundTemplate } from "@akeezo/web/src/templates/NotFoundTemplate.js";
 import { ServerErrorTemplate } from "@akeezo/web/src/templates/ServerErrorTemplate.js";
+import { CalculatorTemplate } from "@akeezo/web/src/templates/CalculatorTemplate.js";
 import { SiteHeader } from "@akeezo/web/src/components/SiteHeader.js";
 import { SiteFooter } from "@akeezo/web/src/components/SiteFooter.js";
 import { renderFallback500Html } from "../ssr/renderer.js";
@@ -121,5 +122,29 @@ describe("Website Audit Task 7: Brand Color Theme Consistency", () => {
         // Dual-theme feature cards
         assert.ok(homeHtml.includes("border-border-orange"), "HomeTemplate must render brand orange border on price card");
         assert.ok(homeHtml.includes("border-border-teal"), "HomeTemplate must render brand teal border on explore card");
+    });
+});
+describe("Website Audit Task 8: Calculator Page Structure", () => {
+    it("Calculator page resolves with calculatorLanding and renders requested structure, breadcrumb, 4 steps, success stories, and FAQs", () => {
+        const data = getDefaultRouteData("/cost-calculator");
+        assert.equal(data.pageKind, "calculatorLanding");
+        assert.equal(data.seo.title, "Surgery Cost Calculator Tool | Save up to 70% | AKEEZO");
+        const html = renderToString(React.createElement(CalculatorTemplate, { data }));
+        assert.ok(html.includes("Surgery Cost"), "Must render surgery cost headline");
+        assert.ok(html.includes("Save up to 70%"), "Must render Save up to 70% gradient text");
+        assert.ok(html.includes("Trusted by 15,000+ International Patients"), "Must render trust badge");
+        assert.ok(html.includes("Patient Success Stories"), "Must render patient success stories section");
+        assert.ok(html.includes("Sarah M."), "Must render Sarah M. review");
+        assert.ok(html.includes("James L."), "Must render James L. review");
+        assert.ok(html.includes("Elena K."), "Must render Elena K. review");
+        assert.ok(html.includes("How to Use Our Surgery Cost Calculator Tool"), "Must render 4 steps section");
+        assert.ok(html.includes("Select Treatment"), "Must render step 1");
+        assert.ok(html.includes("Choose Country"), "Must render step 2");
+        assert.ok(html.includes("Patient Details"), "Must render step 3");
+        assert.ok(html.includes("Preferences"), "Must render step 4");
+        assert.ok(html.includes("Try the Calculator Now"), "Must render Try the Calculator banner");
+        assert.ok(html.includes("Frequently Asked Questions"), "Must render FAQ section");
+        assert.ok(html.includes("All Questions"), "Must render FAQ category filters");
+        assert.ok(html.includes("How accurate are the cost estimates"), "Must render FAQ questions");
     });
 });

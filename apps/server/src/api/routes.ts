@@ -108,6 +108,26 @@ apiRouter.get("/route", async (req: Request, res: Response) => {
         return;
       }
 
+      if (normalizedPath === "/cost-calculator" || normalizedPath === "/calculator") {
+        const calculatorDto: PublicRouteResponseDTO = {
+          pageKind: "calculatorLanding",
+          path: normalizedPath,
+          locale,
+          seo: {
+            title: "Surgery Cost Calculator Tool | Save up to 70% | AKEEZO",
+            description: "Compare surgery costs across top medical destinations and accredited international hospitals. Get transparent estimates and connect with world-class surgeons.",
+            canonicalPath: "/cost-calculator",
+            robots: "index,follow",
+            schemaKind: "MedicalWebPage"
+          },
+          payload: {},
+          siteSettings,
+          statusCode: 200
+        };
+        res.json({ data: calculatorDto });
+        return;
+      }
+
       // Check legal compliance pages
       const LEGAL_SEO_MAP: Record<string, { title: string; description: string }> = {
         "/privacy": {

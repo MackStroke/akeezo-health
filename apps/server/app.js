@@ -300279,6 +300279,23 @@ async function handleSsr(req, res, next) {
         statusCode: routeEntry.statusCode || 200
       };
       statusCode = dto.statusCode;
+    } else if (normalizedPath === "/cost-calculator" || normalizedPath === "/calculator") {
+      statusCode = 200;
+      dto = {
+        pageKind: "calculatorLanding",
+        path: normalizedPath,
+        locale: "en",
+        seo: {
+          title: "Surgery Cost Calculator Tool | Save up to 70% | AKEEZO",
+          description: "Compare surgery costs across top medical destinations and accredited international hospitals. Get transparent estimates and connect with world-class surgeons.",
+          canonicalPath: "/cost-calculator",
+          robots: "index,follow",
+          schemaKind: "MedicalWebPage"
+        },
+        payload: {},
+        siteSettings,
+        statusCode: 200
+      };
     } else if (LEGAL_SEO_MAP[normalizedPath]) {
       const legalSeo = LEGAL_SEO_MAP[normalizedPath];
       statusCode = 200;
@@ -305511,6 +305528,25 @@ apiRouter.get("/route", async (req, res) => {
           statusCode: 200
         };
         res.json({ data: homeDto });
+        return;
+      }
+      if (normalizedPath === "/cost-calculator" || normalizedPath === "/calculator") {
+        const calculatorDto = {
+          pageKind: "calculatorLanding",
+          path: normalizedPath,
+          locale,
+          seo: {
+            title: "Surgery Cost Calculator Tool | Save up to 70% | AKEEZO",
+            description: "Compare surgery costs across top medical destinations and accredited international hospitals. Get transparent estimates and connect with world-class surgeons.",
+            canonicalPath: "/cost-calculator",
+            robots: "index,follow",
+            schemaKind: "MedicalWebPage"
+          },
+          payload: {},
+          siteSettings,
+          statusCode: 200
+        };
+        res.json({ data: calculatorDto });
         return;
       }
       const LEGAL_SEO_MAP = {

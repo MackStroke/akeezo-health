@@ -117,6 +117,28 @@ export function getDefaultRouteData(path = "/"): PublicRouteResponseDTO {
     };
   }
 
+  if (normalized === "/cost-calculator" || normalized === "/calculator") {
+    return {
+      pageKind: "calculatorLanding",
+      path: normalized,
+      locale: "en",
+      seo: {
+        title: "Surgery Cost Calculator Tool | Save up to 70% | AKEEZO",
+        description:
+          "Compare surgery costs across top medical destinations and accredited international hospitals. Get transparent estimates and connect with world-class surgeons.",
+        canonicalPath: "/cost-calculator",
+        robots: "index,follow",
+        schemaKind: "MedicalWebPage"
+      },
+      payload: {
+        headline: "Surgery Cost Calculator Tool",
+        tagline: "Save up to 70%"
+      },
+      siteSettings: DEFAULT_SITE_SETTINGS,
+      statusCode: 200
+    };
+  }
+
   if (normalized === "/") {
     return {
       pageKind: "home",

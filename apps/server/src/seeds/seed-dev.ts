@@ -96,6 +96,14 @@ const SEED_PAGES: SeedPageDef[] = [
       documentId: "grievance-officer",
       category: "Compliance & Governance"
     }
+  },
+  {
+    slug: "cost-calculator",
+    path: "/cost-calculator",
+    pageKind: "calculatorLanding",
+    title: "Surgery Cost Calculator Tool | Save up to 70% | AKEEZO",
+    description: "Compare surgery costs across top medical destinations and accredited international hospitals. Get transparent estimates and connect with world-class surgeons.",
+    payload: {}
   }
 ];
 

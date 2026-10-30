@@ -4,6 +4,7 @@ import { HomeTemplate } from "./templates/HomeTemplate.js";
 import { LegalTemplate } from "./templates/LegalTemplate.js";
 import { NotFoundTemplate } from "./templates/NotFoundTemplate.js";
 import { ServerErrorTemplate } from "./templates/ServerErrorTemplate.js";
+import { CalculatorTemplate } from "./templates/CalculatorTemplate.js";
 import { getDefaultRouteData } from "./defaultData.js";
 
 export interface AppProps {
@@ -101,6 +102,10 @@ export function App({ data }: AppProps) {
     switch (currentData.pageKind) {
       case "home":
         return <HomeTemplate data={currentData} />;
+      case "calculatorLanding":
+      case "calculatorWizard":
+      case "calculatorResult":
+        return <CalculatorTemplate data={currentData} />;
       case "legal":
         return <LegalTemplate data={currentData} />;
       case "serverError":
