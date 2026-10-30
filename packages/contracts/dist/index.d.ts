@@ -7,4 +7,5 @@ export * from "./cases.js";
 export * from "./episodes.js";
 export * from "./commissions.js";
 export * from "./quotes.js";
+export * from "./changelog.js";
 //# sourceMappingURL=index.d.ts.map

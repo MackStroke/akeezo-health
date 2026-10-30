@@ -17,6 +17,7 @@ import {
   UserModel,
   MediaAssetModel,
   RedirectModel,
+  ChangelogModel,
 } from "../db/models/index.js";
 import {
   hashPassword,
@@ -38,6 +39,8 @@ import {
   DEFAULT_PLATFORM_INTEGRATIONS,
   PlatformIntegrationsSchema,
   type PlatformIntegrations,
+  CreateChangelogDTO,
+  UpdateChangelogDTO,
 } from "@akeezo/contracts";
 import {
   optimizeMediaBuffer,
@@ -2779,6 +2782,293 @@ cmsAdminRouter.get("/activity", async (req: Request, res: Response) => {
     res.json({ data: logs });
   } catch (err: any) {
     res.status(500).json({ error: { code: "FETCH_ACTIVITY_FAILED", message: err.message } });
+  }
+});
+
+// ==========================================
+// 8a. PLATFORM CHANGELOG RECORDING & MANAGEMENT
+// ==========================================
+
+async function ensureSeedChangelogs() {
+  if (mongoose.connection.readyState !== 1) return;
+  try {
+    const count = await ChangelogModel.countDocuments();
+    if (count === 0) {
+      await ChangelogModel.create([
+        {
+          version: "v1.4.0",
+          title: "Platform Changelog Management & Release Tracking",
+          summary: "Empower administrators to record, categorize, publish, and track software releases, clinical features, and security updates.",
+          releaseDate: new Date(),
+          category: "feature",
+          status: "published",
+          audience: "all",
+          items: [
+            { type: "feature", text: "Added Changelog recording interface in Admin Panel with multi-dimensional filtering, pagination, and sorting", badge: "Admin" },
+            { type: "feature", text: "Introduced itemized release note builder with category badges, author attribution, and markdown notes", badge: "CMS" },
+            { type: "security", text: "Integrated DPDP Act audit logging for all changelog creation, publication, and modification events", badge: "Security" },
+            { type: "improvement", text: "Created public changelog API endpoint and SSR release notes viewer", badge: "Public" },
+          ],
+          modules: ["Admin", "CMS", "Activity Log", "Security"],
+          authorName: "Priti (Super Admin)",
+          notes: "Milestone release establishing an immutable public and internal changelog system for Akeezo Healthcare Platform.",
+        },
+        {
+          version: "v1.3.0",
+          title: "Third-Party Platform Integrations Hub",
+          summary: "Integrated Google Tag Manager, Google Cloud Console, Meta Pixel, Gemini AI, and Google Analytics 4 with DPDP Act encrypted masking.",
+          releaseDate: new Date(Date.now() - 86400000 * 2),
+          category: "feature",
+          status: "published",
+          audience: "all",
+          items: [
+            { type: "feature", text: "Dedicated Integrations Hub in Admin Panel with live connection testing and latency measurement", badge: "Integrations" },
+            { type: "security", text: "Encrypted API secret storage with secret-preservation engine to prevent bullet mask overwrites", badge: "DPDP Act" },
+            { type: "improvement", text: "Dynamic SSR tag injection for GTM, GA4, and Meta Pixel on public web pages", badge: "SSR" },
+          ],
+          modules: ["Integrations", "Security", "SSR"],
+          authorName: "Priti (Super Admin)",
+          notes: "Full production-ready connectivity across all core cloud marketing and AI infrastructure services.",
+        },
+        {
+          version: "v1.2.0",
+          title: "Web-Optimized Media Library Engine",
+          summary: "High-performance WebP media pipeline with automatic responsive variant generation and SVG vector sanitization.",
+          releaseDate: new Date(Date.now() - 86400000 * 4),
+          category: "improvement",
+          status: "published",
+          audience: "all",
+          items: [
+            { type: "feature", text: "Sharp-powered WebP transcoding engine reducing image payload sizes by up to 75%", badge: "Media" },
+            { type: "security", text: "DOMPurify SVG vector sanitization preventing stored XSS script injection payloads", badge: "Security" },
+            { type: "feature", text: "Responsive breakpoint variant generation (thumbnail, small, medium, large, full)", badge: "Performance" },
+          ],
+          modules: ["Media Library", "Security", "CDN"],
+          authorName: "Akeezo Core Team",
+          notes: "Critical speed and data footprint optimization for medical tourist patients on variable mobile connectivity.",
+        },
+        {
+          version: "v1.1.0",
+          title: "Dual-Portal Architecture & Dynamic Theme Studio",
+          summary: "Enterprise separation between Website CMS and Case Management ERP with real-time CSS variable branding controls.",
+          releaseDate: new Date(Date.now() - 86400000 * 6),
+          category: "feature",
+          status: "published",
+          audience: "all",
+          items: [
+            { type: "feature", text: "Dual-portal architectural isolation for Website Super Admin and Case Management CMS", badge: "Architecture" },
+            { type: "feature", text: "Theme Studio with zero-FOAC server-side CSS variable injection and preset palettes", badge: "Branding" },
+            { type: "improvement", text: "Strict test port isolation and partial unique indexes in compliance with enterprise guardrails", badge: "Guardrails" },
+          ],
+          modules: ["Architecture", "Theme Studio", "ERP"],
+          authorName: "Akeezo Engineering",
+          notes: "Established foundational multi-tenant data boundaries and dynamic branding customization.",
+        },
+      ]);
+    }
+  } catch (err) {
+    console.warn("Changelog seed notice:", (err as Error)?.message);
+  }
+}
+
+// GET /api/v1/admin/changelogs
+cmsAdminRouter.get("/changelogs", async (req: Request, res: Response) => {
+  try {
+    await ensureSeedChangelogs();
+    const filter: Record<string, any> = {};
+
+    if (req.query.category && req.query.category !== "all") {
+      filter.category = req.query.category;
+    }
+    if (req.query.status && req.query.status !== "all") {
+      filter.status = req.query.status;
+    }
+    if (req.query.audience && req.query.audience !== "all") {
+      filter.audience = req.query.audience;
+    }
+    if (req.query.module && req.query.module !== "all") {
+      filter.modules = req.query.module;
+    }
+    if (req.query.search) {
+      const regex = new RegExp(escapeRegex(String(req.query.search).trim()), "i");
+      filter.$or = [
+        { version: regex },
+        { title: regex },
+        { summary: regex },
+        { authorName: regex },
+        { "items.text": regex },
+        { modules: regex },
+      ];
+    }
+
+    const page = Math.max(1, parseInt(String(req.query.page || "1"), 10));
+    const limit = Math.max(1, Math.min(100, parseInt(String(req.query.limit || "10"), 10)));
+    const skip = (page - 1) * limit;
+
+    const sortField = String(req.query.sortField || "releaseDate");
+    const sortDirection = req.query.sortDirection === "asc" ? 1 : -1;
+    const sortObj: Record<string, 1 | -1> = { [sortField]: sortDirection };
+
+    const total = await ChangelogModel.countDocuments(filter);
+    const items = await ChangelogModel.find(filter)
+      .sort(sortObj)
+      .skip(skip)
+      .limit(limit)
+      .lean();
+
+    res.json({
+      data: items,
+      pagination: {
+        total,
+        page,
+        limit,
+        totalPages: Math.ceil(total / limit) || 1,
+      },
+    });
+  } catch (err: any) {
+    res.status(500).json({ error: { code: "FETCH_CHANGELOGS_FAILED", message: err.message } });
+  }
+});
+
+// GET /api/v1/admin/changelogs/:id
+cmsAdminRouter.get("/changelogs/:id", async (req: Request, res: Response) => {
+  try {
+    const doc = await ChangelogModel.findById(req.params.id).lean();
+    if (!doc) {
+      return res.status(404).json({ error: { code: "NOT_FOUND", message: "Changelog entry not found" } });
+    }
+    res.json({ data: doc });
+  } catch (err: any) {
+    res.status(500).json({ error: { code: "FETCH_CHANGELOG_FAILED", message: err.message } });
+  }
+});
+
+// POST /api/v1/admin/changelogs
+cmsAdminRouter.post("/changelogs", async (req: Request, res: Response) => {
+  try {
+    const parsed = CreateChangelogDTO.safeParse(req.body);
+    if (!parsed.success) {
+      return res.status(400).json({
+        error: { code: "VALIDATION_FAILED", message: parsed.error.issues.map((i) => i.message).join(", ") },
+      });
+    }
+
+    const user = (req as any).user;
+    const doc = await ChangelogModel.create({
+      ...parsed.data,
+      releaseDate: parsed.data.releaseDate ? new Date(parsed.data.releaseDate) : new Date(),
+      authorId: user?._id || undefined,
+      authorName: parsed.data.authorName || user?.name || "Akeezo Super Admin",
+    });
+
+    await logAdminActivity(
+      user?._id,
+      "changelog",
+      doc._id,
+      "create",
+      { version: ["", doc.version], title: ["", doc.title] },
+      req
+    );
+
+    res.status(201).json({ data: doc });
+  } catch (err: any) {
+    res.status(500).json({ error: { code: "CREATE_CHANGELOG_FAILED", message: err.message } });
+  }
+});
+
+// PUT /api/v1/admin/changelogs/:id
+cmsAdminRouter.put("/changelogs/:id", async (req: Request, res: Response) => {
+  try {
+    const parsed = UpdateChangelogDTO.safeParse(req.body);
+    if (!parsed.success) {
+      return res.status(400).json({
+        error: { code: "VALIDATION_FAILED", message: parsed.error.issues.map((i) => i.message).join(", ") },
+      });
+    }
+
+    const existing = await ChangelogModel.findById(req.params.id);
+    if (!existing) {
+      return res.status(404).json({ error: { code: "NOT_FOUND", message: "Changelog entry not found" } });
+    }
+
+    const previousData = existing.toObject ? existing.toObject() : existing;
+    const updatePayload: Record<string, any> = { ...parsed.data };
+    if (parsed.data.releaseDate) {
+      updatePayload.releaseDate = new Date(parsed.data.releaseDate);
+    }
+
+    const updated = await ChangelogModel.findByIdAndUpdate(
+      req.params.id,
+      { $set: updatePayload },
+      { new: true, runValidators: true }
+    );
+
+    await logAdminActivity(
+      (req as any).user?._id,
+      "changelog",
+      req.params.id,
+      "update",
+      {
+        version: [previousData.version, updated?.version],
+        status: [previousData.status, updated?.status],
+      },
+      req
+    );
+
+    res.json({ data: updated });
+  } catch (err: any) {
+    res.status(500).json({ error: { code: "UPDATE_CHANGELOG_FAILED", message: err.message } });
+  }
+});
+
+// POST /api/v1/admin/changelogs/:id/publish
+cmsAdminRouter.post("/changelogs/:id/publish", async (req: Request, res: Response) => {
+  try {
+    const doc = await ChangelogModel.findById(req.params.id);
+    if (!doc) {
+      return res.status(404).json({ error: { code: "NOT_FOUND", message: "Changelog entry not found" } });
+    }
+
+    const nextStatus = doc.status === "published" ? "draft" : "published";
+    const previousStatus = doc.status;
+    doc.status = nextStatus;
+    await doc.save();
+
+    await logAdminActivity(
+      (req as any).user?._id,
+      "changelog",
+      doc._id,
+      "update",
+      { status: [previousStatus, nextStatus] },
+      req
+    );
+
+    res.json({ data: doc });
+  } catch (err: any) {
+    res.status(500).json({ error: { code: "PUBLISH_CHANGELOG_FAILED", message: err.message } });
+  }
+});
+
+// DELETE /api/v1/admin/changelogs/:id
+cmsAdminRouter.delete("/changelogs/:id", async (req: Request, res: Response) => {
+  try {
+    const doc = await ChangelogModel.findByIdAndDelete(req.params.id);
+    if (!doc) {
+      return res.status(404).json({ error: { code: "NOT_FOUND", message: "Changelog entry not found" } });
+    }
+
+    await logAdminActivity(
+      (req as any).user?._id,
+      "changelog",
+      req.params.id,
+      "delete",
+      { version: [doc.version, "deleted"] },
+      req
+    );
+
+    res.json({ data: { success: true, deletedId: req.params.id } });
+  } catch (err: any) {
+    res.status(500).json({ error: { code: "DELETE_CHANGELOG_FAILED", message: err.message } });
   }
 });
 

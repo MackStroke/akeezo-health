@@ -1,0 +1,40 @@
+import { z } from "zod";
+export const ChangelogCategorySchema = z.enum([
+    "feature",
+    "improvement",
+    "fix",
+    "security",
+    "maintenance",
+    "breaking",
+]);
+export const ChangelogStatusSchema = z.enum(["draft", "published", "archived"]);
+export const ChangelogAudienceSchema = z.enum(["all", "public", "internal", "partners"]);
+export const ChangelogItemSchema = z.object({
+    id: z.string().optional(),
+    type: ChangelogCategorySchema.default("improvement"),
+    text: z.string().min(1, "Item description is required"),
+    badge: z.string().optional(),
+});
+export const ChangelogEntrySchema = z.object({
+    _id: z.string().optional(),
+    version: z.string().min(1, "Version is required"),
+    title: z.string().min(1, "Title is required"),
+    summary: z.string().optional().default(""),
+    releaseDate: z.string(),
+    category: ChangelogCategorySchema.default("feature"),
+    status: ChangelogStatusSchema.default("published"),
+    audience: ChangelogAudienceSchema.default("all"),
+    items: z.array(ChangelogItemSchema).default([]),
+    modules: z.array(z.string()).default([]),
+    authorName: z.string().default("Akeezo Engineering"),
+    authorId: z.string().optional(),
+    notes: z.string().optional().default(""),
+    createdAt: z.string().optional(),
+    updatedAt: z.string().optional(),
+});
+export const CreateChangelogDTO = ChangelogEntrySchema.omit({
+    _id: true,
+    createdAt: true,
+    updatedAt: true,
+});
+export const UpdateChangelogDTO = CreateChangelogDTO.partial();

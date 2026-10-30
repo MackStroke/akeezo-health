@@ -3,7 +3,7 @@ import path from "node:path";
 import { fileURLToPath, pathToFileURL } from "node:url";
 import { PassThrough } from "node:stream";
 import type { Request, Response, NextFunction } from "express";
-import { RouteEntry, ContentRevision, SiteSettings } from "../db/models/index.js";
+import { RouteEntry, ContentRevision, SiteSettings, ChangelogModel } from "../db/models/index.js";
 import {
   type PublicRouteResponseDTO,
   type SiteSettings as SiteSettingsDTO,

@@ -98172,7 +98172,7 @@ var require_document2 = __commonJS({
     var ObjectExpectedError = require_objectExpected();
     var ObjectParameterError = require_objectParameter();
     var ParallelValidateError = require_parallelValidate();
-    var Schema18 = require_schema2();
+    var Schema19 = require_schema2();
     var StrictModeError = require_strict();
     var ValidationError = require_validation();
     var ValidatorError = require_validator();
@@ -98231,7 +98231,7 @@ var require_document2 = __commonJS({
       }
       options = Object.assign({}, options);
       if (this.$__schema == null) {
-        const _schema = utils.isObject(fields) && !fields.instanceOfSchema ? new Schema18(fields) : fields;
+        const _schema = utils.isObject(fields) && !fields.instanceOfSchema ? new Schema19(fields) : fields;
         this.$__setSchema(_schema);
         fields = skipId;
         skipId = options;
@@ -108025,7 +108025,7 @@ var require_map2 = __commonJS({
     var SchemaType = require_schemaType();
     var createJSONSchemaTypeDefinition = require_createJSONSchemaTypeDefinition();
     var MongooseError = require_mongooseError();
-    var Schema18 = require_schema2();
+    var Schema19 = require_schema2();
     var utils = require_utils6();
     var SchemaMap = class extends SchemaType {
       /**
@@ -108148,7 +108148,7 @@ var require_map2 = __commonJS({
       if (utils.hasUserDefinedProperty(obj, "of")) {
         const isInlineSchema = utils.isPOJO(obj.of) && Object.keys(obj.of).length > 0 && !utils.hasUserDefinedProperty(obj.of, schema.options.typeKey);
         if (isInlineSchema) {
-          _mapType = { [schema.options.typeKey]: new Schema18(obj.of) };
+          _mapType = { [schema.options.typeKey]: new Schema19(obj.of) };
         } else if (utils.isPOJO(obj.of)) {
           _mapType = Object.assign({}, obj.of);
         } else {
@@ -109011,9 +109011,9 @@ var require_schema2 = __commonJS({
     var isPOJO = utils.isPOJO;
     var id = 0;
     var numberRE = /^\d+$/;
-    function Schema18(obj, options) {
-      if (!(this instanceof Schema18)) {
-        return new Schema18(obj, options);
+    function Schema19(obj, options) {
+      if (!(this instanceof Schema19)) {
+        return new Schema19(obj, options);
       }
       this.obj = obj;
       this.paths = {};
@@ -109123,34 +109123,34 @@ var require_schema2 = __commonJS({
         })(prop));
       }
     }
-    Schema18.prototype = Object.create(EventEmitter.prototype);
-    Schema18.prototype.constructor = Schema18;
-    Schema18.prototype.instanceOfSchema = true;
-    Object.defineProperty(Schema18.prototype, "$schemaType", {
+    Schema19.prototype = Object.create(EventEmitter.prototype);
+    Schema19.prototype.constructor = Schema19;
+    Schema19.prototype.instanceOfSchema = true;
+    Object.defineProperty(Schema19.prototype, "$schemaType", {
       configurable: false,
       enumerable: false,
       writable: true
     });
-    Object.defineProperty(Schema18.prototype, "childSchemas", {
+    Object.defineProperty(Schema19.prototype, "childSchemas", {
       configurable: false,
       enumerable: true,
       writable: true
     });
-    Object.defineProperty(Schema18.prototype, "virtuals", {
+    Object.defineProperty(Schema19.prototype, "virtuals", {
       configurable: false,
       enumerable: true,
       writable: true
     });
-    Schema18.prototype.obj;
-    Schema18.prototype.paths;
-    Schema18.prototype.tree;
-    Schema18.prototype.clone = function() {
+    Schema19.prototype.obj;
+    Schema19.prototype.paths;
+    Schema19.prototype.tree;
+    Schema19.prototype.clone = function() {
       const s2 = this._clone();
       s2.on("init", (v) => this.emit("init", v));
       return s2;
     };
-    Schema18.prototype._clone = function _clone(Constructor) {
-      Constructor = Constructor || (this.base == null ? Schema18 : this.base.Schema);
+    Schema19.prototype._clone = function _clone(Constructor) {
+      Constructor = Constructor || (this.base == null ? Schema19 : this.base.Schema);
       const s2 = new Constructor({}, this._userProvidedOptions);
       s2.base = this.base;
       s2.obj = this.obj;
@@ -109218,8 +109218,8 @@ var require_schema2 = __commonJS({
       s2.encryptedFields = clone2(this.encryptedFields);
       return s2;
     };
-    Schema18.prototype.pick = function(paths, options) {
-      const newSchema = new Schema18({}, options || this.options);
+    Schema19.prototype.pick = function(paths, options) {
+      const newSchema = new Schema19({}, options || this.options);
       if (!Array.isArray(paths)) {
         throw new MongooseError('Schema#pick() only accepts an array argument, got "' + typeof paths + '"');
       }
@@ -109248,8 +109248,8 @@ var require_schema2 = __commonJS({
       }
       return newSchema;
     };
-    Schema18.prototype.omit = function(paths, options) {
-      const newSchema = new Schema18(this, options || this.options);
+    Schema19.prototype.omit = function(paths, options) {
+      const newSchema = new Schema19(this, options || this.options);
       if (!Array.isArray(paths)) {
         throw new MongooseError(
           'Schema#omit() only accepts an array argument, got "' + typeof paths + '"'
@@ -109263,7 +109263,7 @@ var require_schema2 = __commonJS({
       }
       return newSchema;
     };
-    Schema18.prototype.defaultOptions = function(options) {
+    Schema19.prototype.defaultOptions = function(options) {
       this._userProvidedOptions = options == null ? {} : clone2(options);
       const baseOptions = this.base && this.base.options || {};
       const strict = "strict" in baseOptions ? baseOptions.strict : true;
@@ -109306,12 +109306,12 @@ var require_schema2 = __commonJS({
       }
       return options;
     };
-    Schema18.prototype.discriminator = function(name, schema, options) {
+    Schema19.prototype.discriminator = function(name, schema, options) {
       this._applyDiscriminators = this._applyDiscriminators || /* @__PURE__ */ new Map();
       this._applyDiscriminators.set(name, { schema, options });
       return this;
     };
-    Schema18.prototype._defaultToObjectOptions = function(json) {
+    Schema19.prototype._defaultToObjectOptions = function(json) {
       const path5 = json ? "toJSON" : "toObject";
       if (this._defaultToObjectOptionsMap && this._defaultToObjectOptionsMap[path5]) {
         return this._defaultToObjectOptionsMap[path5];
@@ -109323,7 +109323,7 @@ var require_schema2 = __commonJS({
       this._defaultToObjectOptionsMap[path5] = defaultOptions;
       return defaultOptions;
     };
-    Schema18.prototype.encryptionType = function encryptionType(encryptionType) {
+    Schema19.prototype.encryptionType = function encryptionType(encryptionType) {
       if (arguments.length === 0) {
         return this.options.encryptionType;
       }
@@ -109332,8 +109332,8 @@ var require_schema2 = __commonJS({
       }
       this.options.encryptionType = encryptionType;
     };
-    Schema18.prototype.add = function add(obj, prefix) {
-      if (obj instanceof Schema18 || obj != null && obj.instanceOfSchema) {
+    Schema19.prototype.add = function add(obj, prefix) {
+      if (obj instanceof Schema19 || obj != null && obj.instanceOfSchema) {
         merge(this, obj);
         return this;
       }
@@ -109360,7 +109360,7 @@ var require_schema2 = __commonJS({
         }
         let isMongooseTypeString = false;
         if (typeof val === "string") {
-          const MongooseTypes2 = this.base != null ? this.base.Schema.Types : Schema18.Types;
+          const MongooseTypes2 = this.base != null ? this.base.Schema.Types : Schema19.Types;
           const upperVal = val.charAt(0).toUpperCase() + val.substring(1);
           isMongooseTypeString = MongooseTypes2[upperVal] != null;
         }
@@ -109412,7 +109412,7 @@ var require_schema2 = __commonJS({
             if (this._userProvidedOptions.toJSON != null) {
               childSchemaOptions.toJSON = utils.omit(this._userProvidedOptions.toJSON, ["transform"]);
             }
-            const _schema = new Schema18(_typeDef, childSchemaOptions);
+            const _schema = new Schema19(_typeDef, childSchemaOptions);
             _schema.$implicitlyCreated = true;
             const schemaWrappedPath = Object.assign({}, val, { [typeKey]: _schema });
             this.path(prefix + key, schemaWrappedPath);
@@ -109453,23 +109453,23 @@ var require_schema2 = __commonJS({
       aliasFields(this, aliasObj);
       return this;
     };
-    Schema18.prototype._addEncryptedField = function _addEncryptedField(path5, fieldConfig) {
+    Schema19.prototype._addEncryptedField = function _addEncryptedField(path5, fieldConfig) {
       const type = this.path(path5).autoEncryptionType();
       if (type == null) {
         throw new Error(`Invalid BSON type for FLE field: '${path5}'`);
       }
       this.encryptedFields[path5] = clone2(fieldConfig);
     };
-    Schema18.prototype._removeEncryptedField = function _removeEncryptedField(path5) {
+    Schema19.prototype._removeEncryptedField = function _removeEncryptedField(path5) {
       delete this.encryptedFields[path5];
     };
-    Schema18.prototype._hasEncryptedFields = function _hasEncryptedFields() {
+    Schema19.prototype._hasEncryptedFields = function _hasEncryptedFields() {
       return Object.keys(this.encryptedFields).length > 0;
     };
-    Schema18.prototype._hasEncryptedField = function _hasEncryptedField(path5) {
+    Schema19.prototype._hasEncryptedField = function _hasEncryptedField(path5) {
       return path5 in this.encryptedFields;
     };
-    Schema18.prototype._buildEncryptedFields = function() {
+    Schema19.prototype._buildEncryptedFields = function() {
       const fields = Object.entries(this.encryptedFields).map(
         ([path5, config]) => {
           const bsonType = this.path(path5).autoEncryptionType();
@@ -109478,7 +109478,7 @@ var require_schema2 = __commonJS({
       );
       return { fields };
     };
-    Schema18.prototype._buildSchemaMap = function() {
+    Schema19.prototype._buildSchemaMap = function() {
       function buildNestedPath(path5, object, value) {
         let i2 = 0, component = path5[i2];
         for (; i2 < path5.length - 1; ++i2, component = path5[i2]) {
@@ -109506,11 +109506,11 @@ var require_schema2 = __commonJS({
         properties
       };
     };
-    Schema18.prototype.alias = function alias(path5, alias) {
+    Schema19.prototype.alias = function alias(path5, alias) {
       aliasFields(this, { [path5]: alias });
       return this;
     };
-    Schema18.prototype.removeIndex = function removeIndex(index) {
+    Schema19.prototype.removeIndex = function removeIndex(index) {
       if (arguments.length > 1) {
         throw new Error("removeIndex() takes only 1 argument");
       }
@@ -109532,22 +109532,22 @@ var require_schema2 = __commonJS({
       }
       return this;
     };
-    Schema18.prototype.clearIndexes = function clearIndexes() {
+    Schema19.prototype.clearIndexes = function clearIndexes() {
       this._indexes.length = 0;
       return this;
     };
-    Schema18.prototype.searchIndex = function searchIndex(description) {
+    Schema19.prototype.searchIndex = function searchIndex(description) {
       this._searchIndexes.push(description);
       return this;
     };
-    Schema18.reserved = /* @__PURE__ */ Object.create(null);
-    Schema18.prototype.reserved = Schema18.reserved;
-    var reserved = Schema18.reserved;
+    Schema19.reserved = /* @__PURE__ */ Object.create(null);
+    Schema19.prototype.reserved = Schema19.reserved;
+    var reserved = Schema19.reserved;
     reserved["prototype"] = // EventEmitter
     reserved.emit = reserved.listeners = reserved.removeListener = // document properties and functions
     reserved.collection = reserved.errors = reserved.get = reserved.init = reserved.isModified = reserved.isNew = reserved.populated = reserved.remove = reserved.save = reserved.toObject = reserved.validate = 1;
     reserved.collection = 1;
-    Schema18.prototype.path = function(path5, obj) {
+    Schema19.prototype.path = function(path5, obj) {
       if (obj === void 0) {
         if (Object.hasOwn(this.paths, path5)) {
           return this.paths[path5];
@@ -109698,7 +109698,7 @@ var require_schema2 = __commonJS({
       }
       return this;
     };
-    Schema18.prototype._gatherChildSchemas = function _gatherChildSchemas() {
+    Schema19.prototype._gatherChildSchemas = function _gatherChildSchemas() {
       const childSchemas = [];
       for (const path5 of Object.keys(this.paths)) {
         if (typeof path5 !== "string") {
@@ -109773,13 +109773,13 @@ var require_schema2 = __commonJS({
       }
       return null;
     }
-    Object.defineProperty(Schema18.prototype, "base", {
+    Object.defineProperty(Schema19.prototype, "base", {
       configurable: true,
       enumerable: false,
       writable: true,
       value: null
     });
-    Schema18.prototype.interpretAsType = function(path5, obj, options) {
+    Schema19.prototype.interpretAsType = function(path5, obj, options) {
       if (obj instanceof SchemaType) {
         if (obj.path === path5) {
           return obj;
@@ -109788,7 +109788,7 @@ var require_schema2 = __commonJS({
         clone3.path = path5;
         return clone3;
       }
-      const MongooseTypes2 = this.base != null ? this.base.Schema.Types : Schema18.Types;
+      const MongooseTypes2 = this.base != null ? this.base.Schema.Types : Schema19.Types;
       const Types = this.base != null ? this.base.Types : require_types3();
       if (!utils.isPOJO(obj) && !(obj instanceof SchemaTypeOptions)) {
         const constructorName = utils.getFunctionName(obj.constructor);
@@ -109814,9 +109814,9 @@ var require_schema2 = __commonJS({
       if (Array.isArray(type) || type === Array || type === "array" || type === MongooseTypes2.Array) {
         let cast = type === Array || type === "array" ? obj.cast || obj.of : type[0];
         if (cast && cast.instanceOfSchema) {
-          if (!(cast instanceof Schema18)) {
+          if (!(cast instanceof Schema19)) {
             if (this.options._isMerging) {
-              cast = new Schema18(cast);
+              cast = new Schema19(cast);
             } else {
               throw new TypeError("Schema for array path `" + path5 + `\` is from a different copy of the Mongoose module. Please make sure you're using the same version of Mongoose everywhere with \`npm list mongoose\`. If you are still getting this error, please add \`new Schema()\` around the path: ${path5}: new Schema(...)`);
             }
@@ -109824,9 +109824,9 @@ var require_schema2 = __commonJS({
           return new MongooseTypes2.DocumentArray(path5, cast, obj, null, this);
         }
         if (cast && cast[options.typeKey] && cast[options.typeKey].instanceOfSchema) {
-          if (!(cast[options.typeKey] instanceof Schema18)) {
+          if (!(cast[options.typeKey] instanceof Schema19)) {
             if (this.options._isMerging) {
-              cast[options.typeKey] = new Schema18(cast[options.typeKey]);
+              cast[options.typeKey] = new Schema19(cast[options.typeKey]);
             } else {
               throw new TypeError("Schema for array path `" + path5 + `\` is from a different copy of the Mongoose module. Please make sure you're using the same version of Mongoose everywhere with \`npm list mongoose\`. If you are still getting this error, please add \`new Schema()\` around the path: ${path5}: new Schema(...)`);
             }
@@ -109864,10 +109864,10 @@ var require_schema2 = __commonJS({
             }
             if (Object.hasOwn(this._userProvidedOptions, "_id")) {
               childSchemaOptions._id = this._userProvidedOptions._id;
-            } else if (Schema18.Types.DocumentArray.defaultOptions._id != null) {
-              childSchemaOptions._id = Schema18.Types.DocumentArray.defaultOptions._id;
+            } else if (Schema19.Types.DocumentArray.defaultOptions._id != null) {
+              childSchemaOptions._id = Schema19.Types.DocumentArray.defaultOptions._id;
             }
-            const childSchema = new Schema18(castFromTypeKey, childSchemaOptions);
+            const childSchema = new Schema19(castFromTypeKey, childSchemaOptions);
             childSchema.$implicitlyCreated = true;
             return new MongooseTypes2.DocumentArray(path5, childSchema, obj, null, this);
           } else {
@@ -109927,7 +109927,7 @@ var require_schema2 = __commonJS({
       const schemaType = new MongooseTypes2[name](path5, obj, options, this);
       return schemaType;
     };
-    Schema18.prototype.eachPath = function(fn) {
+    Schema19.prototype.eachPath = function(fn) {
       const keys = Object.keys(this.paths);
       const len = keys.length;
       for (let i2 = 0; i2 < len; ++i2) {
@@ -109935,7 +109935,7 @@ var require_schema2 = __commonJS({
       }
       return this;
     };
-    Schema18.prototype.requiredPaths = function requiredPaths(invalidate) {
+    Schema19.prototype.requiredPaths = function requiredPaths(invalidate) {
       if (this._requiredpaths && !invalidate) {
         return this._requiredpaths;
       }
@@ -109951,14 +109951,14 @@ var require_schema2 = __commonJS({
       this._requiredpaths = ret;
       return this._requiredpaths;
     };
-    Schema18.prototype.indexedPaths = function indexedPaths() {
+    Schema19.prototype.indexedPaths = function indexedPaths() {
       if (this._indexedpaths) {
         return this._indexedpaths;
       }
       this._indexedpaths = this.indexes();
       return this._indexedpaths;
     };
-    Schema18.prototype.pathType = function(path5) {
+    Schema19.prototype.pathType = function(path5) {
       if (Object.hasOwn(this.paths, path5)) {
         return "real";
       }
@@ -109985,7 +109985,7 @@ var require_schema2 = __commonJS({
       }
       return "adhocOrUndefined";
     };
-    Schema18.prototype.hasMixedParent = function(path5) {
+    Schema19.prototype.hasMixedParent = function(path5) {
       const subpaths = path5.split(/\./g);
       path5 = "";
       for (let i2 = 0; i2 < subpaths.length; ++i2) {
@@ -109996,7 +109996,7 @@ var require_schema2 = __commonJS({
       }
       return null;
     };
-    Schema18.prototype.setupTimestamp = function(timestamps) {
+    Schema19.prototype.setupTimestamp = function(timestamps) {
       return setupTimestamps(this, timestamps);
     };
     function getPositionalPathType(self2, path5, cleanPath) {
@@ -110050,11 +110050,11 @@ var require_schema2 = __commonJS({
       getPositionalPathType(self2, path5, cleanPath);
       return self2.subpaths[cleanPath];
     }
-    Schema18.prototype.queue = function(name, args) {
+    Schema19.prototype.queue = function(name, args) {
       this.callQueue.push([name, args]);
       return this;
     };
-    Schema18.prototype.pre = function(name) {
+    Schema19.prototype.pre = function(name) {
       if (name instanceof RegExp) {
         const remainingArgs = Array.prototype.slice.call(arguments, 1);
         for (const fn of hookNames) {
@@ -110074,7 +110074,7 @@ var require_schema2 = __commonJS({
       this.s.hooks.pre.apply(this.s.hooks, arguments);
       return this;
     };
-    Schema18.prototype.post = function(name) {
+    Schema19.prototype.post = function(name) {
       if (name instanceof RegExp) {
         const remainingArgs = Array.prototype.slice.call(arguments, 1);
         for (const fn of hookNames) {
@@ -110094,7 +110094,7 @@ var require_schema2 = __commonJS({
       this.s.hooks.post.apply(this.s.hooks, arguments);
       return this;
     };
-    Schema18.prototype.plugin = function(fn, opts) {
+    Schema19.prototype.plugin = function(fn, opts) {
       if (typeof fn !== "function") {
         throw new Error('First param to `schema.plugin()` must be a function, got "' + typeof fn + '"');
       }
@@ -110109,7 +110109,7 @@ var require_schema2 = __commonJS({
       fn(this, opts);
       return this;
     };
-    Schema18.prototype.method = function(name, fn, options) {
+    Schema19.prototype.method = function(name, fn, options) {
       if (typeof name !== "string") {
         for (const i2 in name) {
           this.methods[i2] = name[i2];
@@ -110121,7 +110121,7 @@ var require_schema2 = __commonJS({
       }
       return this;
     };
-    Schema18.prototype.static = function(name, fn) {
+    Schema19.prototype.static = function(name, fn) {
       if (typeof name !== "string") {
         for (const i2 in name) {
           this.statics[i2] = name[i2];
@@ -110131,7 +110131,7 @@ var require_schema2 = __commonJS({
       }
       return this;
     };
-    Schema18.prototype.index = function(fields, options) {
+    Schema19.prototype.index = function(fields, options) {
       fields || (fields = {});
       options || (options = {});
       if (options.expires) {
@@ -110157,7 +110157,7 @@ var require_schema2 = __commonJS({
       this._indexes.push([fields, options]);
       return this;
     };
-    Schema18.prototype.set = function(key, value, tags) {
+    Schema19.prototype.set = function(key, value, tags) {
       if (arguments.length === 1) {
         return this.options[key];
       }
@@ -110221,11 +110221,11 @@ var require_schema2 = __commonJS({
         _propagateOptionsToImplicitlyCreatedSchemas(schema, options);
       }
     }
-    Schema18.prototype.get = function(key) {
+    Schema19.prototype.get = function(key) {
       return this.options[key];
     };
     var indexTypes = "2d 2dsphere hashed text".split(" ");
-    Object.defineProperty(Schema18, "indexTypes", {
+    Object.defineProperty(Schema19, "indexTypes", {
       get: function() {
         return indexTypes;
       },
@@ -110233,10 +110233,10 @@ var require_schema2 = __commonJS({
         throw new Error("Cannot overwrite Schema.indexTypes");
       }
     });
-    Schema18.prototype.indexes = function() {
+    Schema19.prototype.indexes = function() {
       return getIndexes(this);
     };
-    Schema18.prototype.virtual = function(name, options) {
+    Schema19.prototype.virtual = function(name, options) {
       if (name instanceof VirtualType || getConstructorName(name) === "VirtualType") {
         return this.virtual(name.path, name.options);
       }
@@ -110342,10 +110342,10 @@ var require_schema2 = __commonJS({
       }
       return virtuals[name];
     };
-    Schema18.prototype.virtualpath = function(name) {
+    Schema19.prototype.virtualpath = function(name) {
       return Object.hasOwn(this.virtuals, name) ? this.virtuals[name] : null;
     };
-    Schema18.prototype.remove = function(path5) {
+    Schema19.prototype.remove = function(path5) {
       if (typeof path5 === "string") {
         path5 = [path5];
       }
@@ -110397,7 +110397,7 @@ var require_schema2 = __commonJS({
       }
       delete branch[last];
     }
-    Schema18.prototype.removeVirtual = function(path5) {
+    Schema19.prototype.removeVirtual = function(path5) {
       if (typeof path5 === "string") {
         path5 = [path5];
       }
@@ -110419,7 +110419,7 @@ var require_schema2 = __commonJS({
       }
       return this;
     };
-    Schema18.prototype.loadClass = function(model, virtualsOnly) {
+    Schema19.prototype.loadClass = function(model, virtualsOnly) {
       if (model === Object.prototype || model === Function.prototype || Object.hasOwn(model.prototype, "$isMongooseModelPrototype") || Object.hasOwn(model.prototype, "$isMongooseDocumentPrototype")) {
         return this;
       }
@@ -110460,7 +110460,7 @@ var require_schema2 = __commonJS({
       }, this);
       return this;
     };
-    Schema18.prototype._getSchema = function(path5) {
+    Schema19.prototype._getSchema = function(path5) {
       const _this = this;
       const pathschema = _this.path(path5);
       const resultPath = [];
@@ -110536,7 +110536,7 @@ var require_schema2 = __commonJS({
       }
       return search(parts, _this);
     };
-    Schema18.prototype._getPathType = function(path5) {
+    Schema19.prototype._getPathType = function(path5) {
       const _this = this;
       const pathschema = _this.path(path5);
       if (pathschema) {
@@ -110575,7 +110575,7 @@ var require_schema2 = __commonJS({
       }
       return search(path5.split("."), _this);
     };
-    Schema18.prototype._transformDuplicateKeyError = function _transformDuplicateKeyError(error) {
+    Schema19.prototype._transformDuplicateKeyError = function _transformDuplicateKeyError(error) {
       if (!this._duplicateKeyErrorMessagesByPath) {
         return error;
       }
@@ -110599,10 +110599,10 @@ var require_schema2 = __commonJS({
     function isArrayFilter(piece) {
       return piece.startsWith("$[") && piece.endsWith("]");
     }
-    Schema18.prototype._preCompile = function _preCompile() {
+    Schema19.prototype._preCompile = function _preCompile() {
       this.plugin(idGetter, { deduplicate: true });
     };
-    Schema18.prototype.toJSONSchema = function toJSONSchema(options) {
+    Schema19.prototype.toJSONSchema = function toJSONSchema(options) {
       const useBsonType = options?.useBsonType ?? false;
       const result = useBsonType ? { required: [], properties: {} } : { type: "object", required: [], properties: {} };
       for (const path5 of Object.keys(this.paths)) {
@@ -110652,8 +110652,8 @@ var require_schema2 = __commonJS({
       }
       return result;
     };
-    module.exports = exports = Schema18;
-    Schema18.Types = MongooseTypes = require_schema();
+    module.exports = exports = Schema19;
+    Schema19.Types = MongooseTypes = require_schema();
     exports.ObjectId = MongooseTypes.ObjectId;
   }
 });
@@ -111951,7 +111951,7 @@ var require_connection2 = __commonJS({
     "use strict";
     var ChangeStream = require_changeStream();
     var EventEmitter = __require("events").EventEmitter;
-    var Schema18 = require_schema2();
+    var Schema19 = require_schema2();
     var STATES = require_connectionState();
     var MongooseBulkWriteError = require_bulkWriteError();
     var MongooseError = require_error2();
@@ -112259,10 +112259,10 @@ var require_connection2 = __commonJS({
         });
       });
     };
-    async function _wrapUserTransaction(fn, session, mongoose25) {
+    async function _wrapUserTransaction(fn, session, mongoose26) {
       try {
-        const res = mongoose25.transactionAsyncLocalStorage == null ? await fn(session) : await new Promise((resolve) => {
-          mongoose25.transactionAsyncLocalStorage.run(
+        const res = mongoose26.transactionAsyncLocalStorage == null ? await fn(session) : await new Promise((resolve) => {
+          mongoose26.transactionAsyncLocalStorage.run(
             { session },
             () => resolve(fn(session))
           );
@@ -112608,7 +112608,7 @@ var require_connection2 = __commonJS({
       }
       if (utils.isObject(schema)) {
         if (!schema.instanceOfSchema) {
-          schema = new Schema18(schema);
+          schema = new Schema19(schema);
         } else if (!(schema instanceof this.base.Schema)) {
           schema = schema._clone(this.base.Schema);
         }
@@ -112991,7 +112991,7 @@ var require_connection3 = __commonJS({
     var processConnectionOptions = require_processConnectionOptions();
     var setTimeout2 = require_timers().setTimeout;
     var utils = require_utils6();
-    var Schema18 = require_schema2();
+    var Schema19 = require_schema2();
     function NativeConnection() {
       MongooseConnection.apply(this, arguments);
       this._listening = false;
@@ -113189,7 +113189,7 @@ var require_connection3 = __commonJS({
         const { schema, collection: { collectionName } } = model;
         const namespace = `${this.$dbName}.${collectionName}`;
         const mappings = schema.encryptionType() === "csfle" ? csfleMappings : qeMappings;
-        mappings[namespace] ??= new Schema18({}, { encryptionType: schema.encryptionType() });
+        mappings[namespace] ??= new Schema19({}, { encryptionType: schema.encryptionType() });
         const isNonRootDiscriminator = schema.discriminatorMapping && !schema.discriminatorMapping.isRoot;
         if (isNonRootDiscriminator) {
           const rootSchema = schema._baseSchema;
@@ -121849,7 +121849,7 @@ var require_model = __commonJS({
     var OverwriteModelError = require_overwriteModel();
     var Query2 = require_query2();
     var SaveOptions = require_saveOptions();
-    var Schema18 = require_schema2();
+    var Schema19 = require_schema2();
     var ValidationError = require_validation();
     var VersionError = require_version();
     var ParallelSaveError = require_parallelSave();
@@ -121912,7 +121912,7 @@ var require_model = __commonJS({
       bson: true
     });
     function Model(doc, fields, skipId) {
-      if (fields instanceof Schema18) {
+      if (fields instanceof Schema19) {
         throw new TypeError("2nd argument to `Model` constructor must be a POJO or string, **not** a schema. Make sure you're calling `mongoose.model()`, not `mongoose.Model()`.");
       }
       if (typeof doc === "string") {
@@ -122341,9 +122341,9 @@ var require_model = __commonJS({
       const overwriteModels = typeof options.overwriteModels === "boolean" ? options.overwriteModels : false;
       _checkContext(this, "discriminator");
       if (utils.isObject(schema) && !schema.instanceOfSchema) {
-        schema = new Schema18(schema);
+        schema = new Schema19(schema);
       }
-      if (schema instanceof Schema18 && clone3) {
+      if (schema instanceof Schema19 && clone3) {
         schema = schema.clone();
       }
       schema = discriminator(this, name, schema, value, mergePlugins, options.mergeHooks, overwriteModels);
@@ -124620,7 +124620,7 @@ var require_browserDocument = __commonJS({
     var NodeJSDocument = require_document2();
     var EventEmitter = __require("events").EventEmitter;
     var MongooseError = require_error2();
-    var Schema18 = require_schema2();
+    var Schema19 = require_schema2();
     var ObjectId2 = require_objectid();
     var ValidationError = MongooseError.ValidationError;
     var applyHooks = require_applyHooks();
@@ -124630,7 +124630,7 @@ var require_browserDocument = __commonJS({
         return new Document12(obj, schema, fields, skipId, skipInit);
       }
       if (isObject2(schema) && !schema.instanceOfSchema) {
-        schema = new Schema18(schema);
+        schema = new Schema19(schema);
       }
       schema = this.schema || schema;
       if (!this.schema && schema.options._id) {
@@ -124701,7 +124701,7 @@ var require_mongoose = __commonJS({
     var Document12 = require_document2();
     var EventEmitter = __require("events").EventEmitter;
     var Kareem = require_kareem();
-    var Schema18 = require_schema2();
+    var Schema19 = require_schema2();
     var SchemaType = require_schemaType();
     var SchemaTypes = require_schema();
     var VirtualType = require_virtualType();
@@ -124752,12 +124752,12 @@ var require_mongoose = __commonJS({
         const _this = this;
         this.Schema = function() {
           this.base = _this;
-          return Schema18.apply(this, arguments);
+          return Schema19.apply(this, arguments);
         };
-        this.Schema.prototype = Object.create(Schema18.prototype);
-        Object.assign(this.Schema, Schema18);
+        this.Schema.prototype = Object.create(Schema19.prototype);
+        Object.assign(this.Schema, Schema19);
         this.Schema.base = this;
-        this.Schema.Types = Object.assign({}, Schema18.Types);
+        this.Schema.Types = Object.assign({}, Schema19.Types);
       } else {
         for (const key of ["Schema", "model"]) {
           this[key] = Mongoose.prototype[key];
@@ -124779,7 +124779,7 @@ var require_mongoose = __commonJS({
     Mongoose.prototype.ConnectionStates = STATES;
     Mongoose.prototype.driver = driver;
     Mongoose.prototype.setDriver = function setDriver(driver2) {
-      const _mongoose = this instanceof Mongoose ? this : mongoose25;
+      const _mongoose = this instanceof Mongoose ? this : mongoose26;
       if (_mongoose.__driver === driver2) {
         return _mongoose;
       }
@@ -124797,7 +124797,7 @@ var require_mongoose = __commonJS({
         }
       }
       if (driver2.SchemaTypes != null) {
-        Object.assign(mongoose25.Schema.Types, driver2.SchemaTypes);
+        Object.assign(mongoose26.Schema.Types, driver2.SchemaTypes);
       }
       const Connection = driver2.Connection;
       const oldDefaultConnection = _mongoose.connections[0];
@@ -124815,7 +124815,7 @@ var require_mongoose = __commonJS({
       return _mongoose;
     };
     Mongoose.prototype.set = function getsetOptions(key, value) {
-      const _mongoose = this instanceof Mongoose ? this : mongoose25;
+      const _mongoose = this instanceof Mongoose ? this : mongoose26;
       if (arguments.length === 1 && typeof key !== "object") {
         if (VALID_OPTIONS.indexOf(key) === -1) {
           const error2 = new SetOptionError();
@@ -124876,7 +124876,7 @@ var require_mongoose = __commonJS({
     };
     Mongoose.prototype.get = Mongoose.prototype.set;
     Mongoose.prototype.createConnection = function createConnection(uri, options) {
-      const _mongoose = this instanceof Mongoose ? this : mongoose25;
+      const _mongoose = this instanceof Mongoose ? this : mongoose26;
       const Connection = _mongoose.__driver.Connection;
       const conn = new Connection(_mongoose);
       _mongoose.connections.push(conn);
@@ -124891,7 +124891,7 @@ var require_mongoose = __commonJS({
       if (typeof options === "function" || arguments.length >= 3 && typeof arguments[2] === "function") {
         throw new MongooseError("Mongoose.prototype.connect() no longer accepts a callback");
       }
-      const _mongoose = this instanceof Mongoose ? this : mongoose25;
+      const _mongoose = this instanceof Mongoose ? this : mongoose26;
       if (_mongoose.connection == null) {
         _createDefaultConnection(_mongoose);
       }
@@ -124902,7 +124902,7 @@ var require_mongoose = __commonJS({
       if (arguments.length >= 1 && typeof arguments[0] === "function") {
         throw new MongooseError("Mongoose.prototype.disconnect() no longer accepts a callback");
       }
-      const _mongoose = this instanceof Mongoose ? this : mongoose25;
+      const _mongoose = this instanceof Mongoose ? this : mongoose26;
       const remaining = _mongoose.connections.length;
       if (remaining <= 0) {
         return;
@@ -124910,18 +124910,18 @@ var require_mongoose = __commonJS({
       await Promise.all(_mongoose.connections.map((conn) => conn.close()));
     };
     Mongoose.prototype.startSession = function startSession() {
-      const _mongoose = this instanceof Mongoose ? this : mongoose25;
+      const _mongoose = this instanceof Mongoose ? this : mongoose26;
       return _mongoose.connection.startSession.apply(_mongoose.connection, arguments);
     };
     Mongoose.prototype.pluralize = function pluralize(fn) {
-      const _mongoose = this instanceof Mongoose ? this : mongoose25;
+      const _mongoose = this instanceof Mongoose ? this : mongoose26;
       if (arguments.length > 0) {
         _mongoose._pluralize = fn;
       }
       return _mongoose._pluralize;
     };
     Mongoose.prototype.model = function model(name, schema, collection, options) {
-      const _mongoose = this instanceof Mongoose ? this : mongoose25;
+      const _mongoose = this instanceof Mongoose ? this : mongoose26;
       if (typeof schema === "string") {
         collection = schema;
         schema = false;
@@ -124933,10 +124933,10 @@ var require_mongoose = __commonJS({
         }
         return model3;
       }
-      if (utils.isObject(schema) && !(schema instanceof Schema18)) {
-        schema = new Schema18(schema);
+      if (utils.isObject(schema) && !(schema instanceof Schema19)) {
+        schema = new Schema19(schema);
       }
-      if (schema && !(schema instanceof Schema18)) {
+      if (schema && !(schema instanceof Schema19)) {
         throw new _mongoose.Error("The 2nd parameter to `mongoose.model()` should be a schema or a POJO");
       }
       options = options || {};
@@ -124969,7 +124969,7 @@ var require_mongoose = __commonJS({
       return model2;
     };
     Mongoose.prototype._model = function _model(name, schema, collection, options) {
-      const _mongoose = this instanceof Mongoose ? this : mongoose25;
+      const _mongoose = this instanceof Mongoose ? this : mongoose26;
       let model;
       if (typeof name === "function") {
         model = name;
@@ -125008,25 +125008,25 @@ var require_mongoose = __commonJS({
       return model;
     };
     Mongoose.prototype.deleteModel = function deleteModel(name) {
-      const _mongoose = this instanceof Mongoose ? this : mongoose25;
+      const _mongoose = this instanceof Mongoose ? this : mongoose26;
       _mongoose.connection.deleteModel(name);
       delete _mongoose.models[name];
       return _mongoose;
     };
     Mongoose.prototype.modelNames = function modelNames() {
-      const _mongoose = this instanceof Mongoose ? this : mongoose25;
+      const _mongoose = this instanceof Mongoose ? this : mongoose26;
       const names = Object.keys(_mongoose.models);
       return names;
     };
     Mongoose.prototype._applyPlugins = function _applyPlugins(schema, options) {
-      const _mongoose = this instanceof Mongoose ? this : mongoose25;
+      const _mongoose = this instanceof Mongoose ? this : mongoose26;
       options = options || {};
       options.applyPluginsToDiscriminators = _mongoose.options && _mongoose.options.applyPluginsToDiscriminators || false;
       options.applyPluginsToChildSchemas = typeof (_mongoose.options && _mongoose.options.applyPluginsToChildSchemas) === "boolean" ? _mongoose.options.applyPluginsToChildSchemas : true;
       applyPlugins(schema, _mongoose.plugins, options, "$globalPluginsApplied");
     };
     Mongoose.prototype.plugin = function plugin(fn, opts) {
-      const _mongoose = this instanceof Mongoose ? this : mongoose25;
+      const _mongoose = this instanceof Mongoose ? this : mongoose26;
       _mongoose.plugins.push([fn, opts]);
       return _mongoose;
     };
@@ -125065,9 +125065,9 @@ var require_mongoose = __commonJS({
     Mongoose.prototype.BaseConnection = require_connection2();
     Mongoose.prototype.version = pkg.version;
     Mongoose.prototype.Mongoose = Mongoose;
-    Mongoose.prototype.Schema = Schema18;
+    Mongoose.prototype.Schema = Schema19;
     Mongoose.prototype.SchemaType = SchemaType;
-    Mongoose.prototype.SchemaTypes = Schema18.Types;
+    Mongoose.prototype.SchemaTypes = Schema19.Types;
     Mongoose.prototype.VirtualType = VirtualType;
     Mongoose.prototype.Types = Types;
     Mongoose.prototype.Query = Query2;
@@ -125076,14 +125076,14 @@ var require_mongoose = __commonJS({
     Mongoose.prototype.DocumentProvider = require_documentProvider();
     Mongoose.prototype.ObjectId = SchemaTypes.ObjectId;
     Mongoose.prototype.isValidObjectId = function isValidObjectId(v) {
-      const _mongoose = this instanceof Mongoose ? this : mongoose25;
+      const _mongoose = this instanceof Mongoose ? this : mongoose26;
       return _mongoose.Types.ObjectId.isValid(v);
     };
     Mongoose.prototype.isObjectIdOrHexString = function isObjectIdOrHexString(v) {
       return isBsonType(v, "ObjectId") || typeof v === "string" && objectIdHexRegexp.test(v);
     };
     Mongoose.prototype.syncIndexes = function syncIndexes(options) {
-      const _mongoose = this instanceof Mongoose ? this : mongoose25;
+      const _mongoose = this instanceof Mongoose ? this : mongoose26;
       return _mongoose.connection.syncIndexes(options);
     };
     Mongoose.prototype.Decimal128 = SchemaTypes.Decimal128;
@@ -125103,15 +125103,15 @@ var require_mongoose = __commonJS({
     Mongoose.prototype.skipMiddlewareFunction = Kareem.skipWrappedFunction;
     Mongoose.prototype.overwriteMiddlewareResult = Kareem.overwriteResult;
     Mongoose.prototype.omitUndefined = require_omitUndefined();
-    function _createDefaultConnection(mongoose26) {
-      if (mongoose26.connection) {
+    function _createDefaultConnection(mongoose27) {
+      if (mongoose27.connection) {
         return;
       }
-      const conn = mongoose26.createConnection();
+      const conn = mongoose27.createConnection();
       conn[defaultConnectionSymbol] = true;
-      conn.models = mongoose26.models;
+      conn.models = mongoose27.models;
     }
-    var mongoose25 = module.exports = exports = new Mongoose({
+    var mongoose26 = module.exports = exports = new Mongoose({
       [defaultMongooseSymbol]: true
     });
   }
@@ -125123,10 +125123,10 @@ var require_lib9 = __commonJS({
     "use strict";
     var mongodbDriver = require_node_mongodb_native();
     require_driver().set(mongodbDriver);
-    var mongoose25 = require_mongoose();
-    mongoose25.setDriver(mongodbDriver);
-    mongoose25.Mongoose.prototype.mongo = require_lib6();
-    module.exports = mongoose25;
+    var mongoose26 = require_mongoose();
+    mongoose26.setDriver(mongodbDriver);
+    mongoose26.Mongoose.prototype.mongo = require_lib6();
+    module.exports = mongoose26;
   }
 });
 
@@ -125134,55 +125134,55 @@ var require_lib9 = __commonJS({
 var require_mongoose2 = __commonJS({
   "../../node_modules/mongoose/index.js"(exports, module) {
     "use strict";
-    var mongoose25 = require_lib9();
-    module.exports = mongoose25;
-    module.exports.default = mongoose25;
-    module.exports.mongoose = mongoose25;
-    module.exports.cast = mongoose25.cast;
-    module.exports.STATES = mongoose25.STATES;
-    module.exports.setDriver = mongoose25.setDriver;
-    module.exports.set = mongoose25.set;
-    module.exports.get = mongoose25.get;
-    module.exports.createConnection = mongoose25.createConnection;
-    module.exports.connect = mongoose25.connect;
-    module.exports.disconnect = mongoose25.disconnect;
-    module.exports.startSession = mongoose25.startSession;
-    module.exports.pluralize = mongoose25.pluralize;
-    module.exports.model = mongoose25.model;
-    module.exports.deleteModel = mongoose25.deleteModel;
-    module.exports.modelNames = mongoose25.modelNames;
-    module.exports.plugin = mongoose25.plugin;
-    module.exports.connections = mongoose25.connections;
-    module.exports.version = mongoose25.version;
-    module.exports.Aggregate = mongoose25.Aggregate;
-    module.exports.Mongoose = mongoose25.Mongoose;
-    module.exports.Schema = mongoose25.Schema;
-    module.exports.SchemaType = mongoose25.SchemaType;
-    module.exports.SchemaTypes = mongoose25.SchemaTypes;
-    module.exports.VirtualType = mongoose25.VirtualType;
-    module.exports.Types = mongoose25.Types;
-    module.exports.Query = mongoose25.Query;
-    module.exports.Model = mongoose25.Model;
-    module.exports.Document = mongoose25.Document;
-    module.exports.ObjectId = mongoose25.ObjectId;
-    module.exports.isValidObjectId = mongoose25.isValidObjectId;
-    module.exports.isObjectIdOrHexString = mongoose25.isObjectIdOrHexString;
-    module.exports.syncIndexes = mongoose25.syncIndexes;
-    module.exports.Decimal128 = mongoose25.Decimal128;
-    module.exports.Mixed = mongoose25.Mixed;
-    module.exports.Date = mongoose25.Date;
-    module.exports.Number = mongoose25.Number;
-    module.exports.Error = mongoose25.Error;
-    module.exports.MongooseError = mongoose25.MongooseError;
-    module.exports.now = mongoose25.now;
-    module.exports.CastError = mongoose25.CastError;
-    module.exports.SchemaTypeOptions = mongoose25.SchemaTypeOptions;
-    module.exports.mongo = mongoose25.mongo;
-    module.exports.mquery = mongoose25.mquery;
-    module.exports.sanitizeFilter = mongoose25.sanitizeFilter;
-    module.exports.trusted = mongoose25.trusted;
-    module.exports.skipMiddlewareFunction = mongoose25.skipMiddlewareFunction;
-    module.exports.overwriteMiddlewareResult = mongoose25.overwriteMiddlewareResult;
+    var mongoose26 = require_lib9();
+    module.exports = mongoose26;
+    module.exports.default = mongoose26;
+    module.exports.mongoose = mongoose26;
+    module.exports.cast = mongoose26.cast;
+    module.exports.STATES = mongoose26.STATES;
+    module.exports.setDriver = mongoose26.setDriver;
+    module.exports.set = mongoose26.set;
+    module.exports.get = mongoose26.get;
+    module.exports.createConnection = mongoose26.createConnection;
+    module.exports.connect = mongoose26.connect;
+    module.exports.disconnect = mongoose26.disconnect;
+    module.exports.startSession = mongoose26.startSession;
+    module.exports.pluralize = mongoose26.pluralize;
+    module.exports.model = mongoose26.model;
+    module.exports.deleteModel = mongoose26.deleteModel;
+    module.exports.modelNames = mongoose26.modelNames;
+    module.exports.plugin = mongoose26.plugin;
+    module.exports.connections = mongoose26.connections;
+    module.exports.version = mongoose26.version;
+    module.exports.Aggregate = mongoose26.Aggregate;
+    module.exports.Mongoose = mongoose26.Mongoose;
+    module.exports.Schema = mongoose26.Schema;
+    module.exports.SchemaType = mongoose26.SchemaType;
+    module.exports.SchemaTypes = mongoose26.SchemaTypes;
+    module.exports.VirtualType = mongoose26.VirtualType;
+    module.exports.Types = mongoose26.Types;
+    module.exports.Query = mongoose26.Query;
+    module.exports.Model = mongoose26.Model;
+    module.exports.Document = mongoose26.Document;
+    module.exports.ObjectId = mongoose26.ObjectId;
+    module.exports.isValidObjectId = mongoose26.isValidObjectId;
+    module.exports.isObjectIdOrHexString = mongoose26.isObjectIdOrHexString;
+    module.exports.syncIndexes = mongoose26.syncIndexes;
+    module.exports.Decimal128 = mongoose26.Decimal128;
+    module.exports.Mixed = mongoose26.Mixed;
+    module.exports.Date = mongoose26.Date;
+    module.exports.Number = mongoose26.Number;
+    module.exports.Error = mongoose26.Error;
+    module.exports.MongooseError = mongoose26.MongooseError;
+    module.exports.now = mongoose26.now;
+    module.exports.CastError = mongoose26.CastError;
+    module.exports.SchemaTypeOptions = mongoose26.SchemaTypeOptions;
+    module.exports.mongo = mongoose26.mongo;
+    module.exports.mquery = mongoose26.mquery;
+    module.exports.sanitizeFilter = mongoose26.sanitizeFilter;
+    module.exports.trusted = mongoose26.trusted;
+    module.exports.skipMiddlewareFunction = mongoose26.skipMiddlewareFunction;
+    module.exports.overwriteMiddlewareResult = mongoose26.overwriteMiddlewareResult;
   }
 });
 
@@ -297685,7 +297685,7 @@ var EnvSchema = external_exports.object({
 var env = EnvSchema.parse(process.env);
 
 // src/main.ts
-var import_mongoose24 = __toESM(require_mongoose2(), 1);
+var import_mongoose25 = __toESM(require_mongoose2(), 1);
 
 // src/db/connection.ts
 var import_mongoose = __toESM(require_mongoose2(), 1);
@@ -297720,7 +297720,7 @@ async function connectDB() {
 
 // src/api/routes.ts
 var import_express4 = __toESM(require_express2(), 1);
-var import_mongoose23 = __toESM(require_mongoose2(), 1);
+var import_mongoose24 = __toESM(require_mongoose2(), 1);
 
 // src/db/models/RouteEntry.ts
 var import_mongoose2 = __toESM(require_mongoose2(), 1);
@@ -299088,6 +299088,47 @@ var QuoteComparisonItemSchema = external_exports.object({
   isLowestPrice: external_exports.boolean().default(false)
 });
 
+// ../../packages/contracts/dist/changelog.js
+var ChangelogCategorySchema = external_exports.enum([
+  "feature",
+  "improvement",
+  "fix",
+  "security",
+  "maintenance",
+  "breaking"
+]);
+var ChangelogStatusSchema = external_exports.enum(["draft", "published", "archived"]);
+var ChangelogAudienceSchema = external_exports.enum(["all", "public", "internal", "partners"]);
+var ChangelogItemSchema = external_exports.object({
+  id: external_exports.string().optional(),
+  type: ChangelogCategorySchema.default("improvement"),
+  text: external_exports.string().min(1, "Item description is required"),
+  badge: external_exports.string().optional()
+});
+var ChangelogEntrySchema = external_exports.object({
+  _id: external_exports.string().optional(),
+  version: external_exports.string().min(1, "Version is required"),
+  title: external_exports.string().min(1, "Title is required"),
+  summary: external_exports.string().optional().default(""),
+  releaseDate: external_exports.string(),
+  category: ChangelogCategorySchema.default("feature"),
+  status: ChangelogStatusSchema.default("published"),
+  audience: ChangelogAudienceSchema.default("all"),
+  items: external_exports.array(ChangelogItemSchema).default([]),
+  modules: external_exports.array(external_exports.string()).default([]),
+  authorName: external_exports.string().default("Akeezo Engineering"),
+  authorId: external_exports.string().optional(),
+  notes: external_exports.string().optional().default(""),
+  createdAt: external_exports.string().optional(),
+  updatedAt: external_exports.string().optional()
+});
+var CreateChangelogDTO = ChangelogEntrySchema.omit({
+  _id: true,
+  createdAt: true,
+  updatedAt: true
+});
+var UpdateChangelogDTO = CreateChangelogDTO.partial();
+
 // src/db/models/RouteEntry.ts
 var RouteEntrySchema2 = new import_mongoose2.Schema(
   {
@@ -300173,6 +300214,57 @@ UserSessionSchema.index({ expiresAt: 1 }, { expireAfterSeconds: 0 });
 UserSessionSchema.index({ userId: 1, isValid: 1 });
 var UserSessionModel = import_mongoose18.default.models.UserSession || import_mongoose18.default.model("UserSession", UserSessionSchema);
 
+// src/db/models/Changelog.ts
+var import_mongoose19 = __toESM(require_mongoose2(), 1);
+var ChangelogItemSchema2 = new import_mongoose19.Schema(
+  {
+    type: {
+      type: String,
+      enum: ["feature", "improvement", "fix", "security", "maintenance", "breaking"],
+      default: "improvement"
+    },
+    text: { type: String, required: true, trim: true },
+    badge: { type: String, trim: true }
+  },
+  { _id: true }
+);
+var ChangelogSchema = new import_mongoose19.Schema(
+  {
+    version: { type: String, required: true, trim: true },
+    title: { type: String, required: true, trim: true },
+    summary: { type: String, trim: true, default: "" },
+    releaseDate: { type: Date, required: true, default: Date.now },
+    category: {
+      type: String,
+      enum: ["feature", "improvement", "fix", "security", "maintenance", "breaking"],
+      default: "feature"
+    },
+    status: {
+      type: String,
+      enum: ["draft", "published", "archived"],
+      default: "published"
+    },
+    audience: {
+      type: String,
+      enum: ["all", "public", "internal", "partners"],
+      default: "all"
+    },
+    items: { type: [ChangelogItemSchema2], default: [] },
+    modules: { type: [String], default: [] },
+    authorName: { type: String, default: "Akeezo Engineering" },
+    authorId: { type: import_mongoose19.Schema.Types.ObjectId, ref: "User" },
+    notes: { type: String, default: "" }
+  },
+  {
+    timestamps: true
+  }
+);
+ChangelogSchema.index({ releaseDate: -1 });
+ChangelogSchema.index({ status: 1, releaseDate: -1 });
+ChangelogSchema.index({ version: 1 });
+ChangelogSchema.index({ category: 1 });
+var ChangelogModel = import_mongoose19.default.models.Changelog || import_mongoose19.default.model("Changelog", ChangelogSchema);
+
 // src/ssr/renderer.ts
 import fs2 from "node:fs/promises";
 import path from "node:path";
@@ -300746,7 +300838,7 @@ ${gtmBodySnippet}`);
 
 // src/api/caseManagementRoutes.ts
 var import_express = __toESM(require_express2(), 1);
-var import_mongoose20 = __toESM(require_mongoose2(), 1);
+var import_mongoose21 = __toESM(require_mongoose2(), 1);
 
 // src/services/stageGuards.ts
 async function evaluateStageGuards(caseId, toStage) {
@@ -301145,7 +301237,7 @@ async function findDuplicatePatients(query) {
 }
 
 // src/utils/auth.ts
-var import_mongoose19 = __toESM(require_mongoose2(), 1);
+var import_mongoose20 = __toESM(require_mongoose2(), 1);
 import crypto4 from "crypto";
 var JWT_SECRET = process.env.JWT_SECRET || "akeezo_super_secure_jwt_secret_token_2026";
 var TOKEN_EXPIRY_SECONDS = 60 * 60 * 12;
@@ -301319,7 +301411,7 @@ async function findUserByPhoneOrFallback(phone) {
   const digits = phone.replace(/\D/g, "");
   if (!digits || digits.length < 8) return null;
   const last10 = digits.slice(-10);
-  if (import_mongoose19.default.connection.readyState === 1) {
+  if (import_mongoose20.default.connection.readyState === 1) {
     try {
       const user = await UserModel.findOne({
         $or: [
@@ -301340,7 +301432,7 @@ async function findUserByPhoneOrFallback(phone) {
 }
 async function findUserByEmailOrFallback(email) {
   const normalized = email.toLowerCase().trim();
-  if (import_mongoose19.default.connection.readyState === 1) {
+  if (import_mongoose20.default.connection.readyState === 1) {
     try {
       const user = await UserModel.findOne({ email: normalized });
       if (user) return user;
@@ -301359,7 +301451,7 @@ async function findUserByIdentifierOrFallback(identifier) {
   return findUserByEmailOrFallback(trimmed);
 }
 async function findUserByIdOrFallback(id) {
-  if (import_mongoose19.default.connection.readyState === 1) {
+  if (import_mongoose20.default.connection.readyState === 1) {
     try {
       const user = await UserModel.findById(id);
       if (user) return user;
@@ -301853,7 +301945,7 @@ caseManagementRouter.get("/patients/duplicates", async (req, res) => {
 });
 caseManagementRouter.get("/patients", async (req, res) => {
   try {
-    if (import_mongoose20.default.connection.readyState === 1) {
+    if (import_mongoose21.default.connection.readyState === 1) {
       let patientFilter = {};
       if (req.user?.role === "partner") {
         if (!req.user.partnerId) {
@@ -301884,7 +301976,7 @@ caseManagementRouter.get("/patients", async (req, res) => {
 });
 caseManagementRouter.get("/partners", async (req, res) => {
   try {
-    if (import_mongoose20.default.connection.readyState === 1) {
+    if (import_mongoose21.default.connection.readyState === 1) {
       const filter = req.user?.role === "partner" && req.user.partnerId ? { _id: req.user.partnerId } : {};
       const partners = await PartnerModel.find(filter).sort({ name: 1 }).lean();
       if (partners.length > 0) return res.json({ data: partners });
@@ -301961,7 +302053,7 @@ caseManagementRouter.get("/partners/:id/statement", async (req, res) => {
 });
 caseManagementRouter.get("/hospitals", async (_req, res) => {
   try {
-    if (import_mongoose20.default.connection.readyState === 1) {
+    if (import_mongoose21.default.connection.readyState === 1) {
       const hospitals = await HospitalModel.find().sort({ name: 1 }).lean();
       if (hospitals.length > 0) return res.json({ data: hospitals });
     }
@@ -302007,7 +302099,7 @@ caseManagementRouter.post("/hospitals/:id/doctors", async (req, res) => {
 });
 caseManagementRouter.get("/cases", async (req, res) => {
   try {
-    if (import_mongoose20.default.connection.readyState === 1) {
+    if (import_mongoose21.default.connection.readyState === 1) {
       const filter = {};
       if (req.query.stage) filter.stage = req.query.stage;
       if (req.query.status) filter.status = req.query.status;
@@ -302041,7 +302133,7 @@ caseManagementRouter.get("/cases", async (req, res) => {
 });
 caseManagementRouter.get("/cases/board", async (req, res) => {
   try {
-    if (import_mongoose20.default.connection.readyState === 1) {
+    if (import_mongoose21.default.connection.readyState === 1) {
       const filter = { status: "open" };
       if (req.user?.role === "partner") {
         if (!req.user.partnerId) {
@@ -302094,7 +302186,7 @@ caseManagementRouter.post("/cases", async (req, res) => {
     const parsed = CreateCaseIntakeSchema.parse(req.body);
     let patientId;
     if (parsed.existingPatientId) {
-      patientId = new import_mongoose20.default.Types.ObjectId(parsed.existingPatientId);
+      patientId = new import_mongoose21.default.Types.ObjectId(parsed.existingPatientId);
     } else {
       const passportEncrypted = parsed.patient.passportNumber ? encryptSensitiveField(parsed.patient.passportNumber) : void 0;
       const passportHash = parsed.patient.passportNumber ? PatientModel.hashPassport(parsed.patient.passportNumber) : void 0;
@@ -302118,7 +302210,7 @@ caseManagementRouter.post("/cases", async (req, res) => {
     const newCase = await CaseModel.create({
       caseCode,
       patientId,
-      partnerId: parsed.partnerId ? new import_mongoose20.default.Types.ObjectId(parsed.partnerId) : void 0,
+      partnerId: parsed.partnerId ? new import_mongoose21.default.Types.ObjectId(parsed.partnerId) : void 0,
       source: parsed.source,
       caseType: parsed.caseType,
       specialty: parsed.specialty,
@@ -302130,7 +302222,7 @@ caseManagementRouter.post("/cases", async (req, res) => {
       budgetCurrency: parsed.budgetCurrency,
       patientInIndia: parsed.patientInIndia,
       stage: "new_referral",
-      ownerId: new import_mongoose20.default.Types.ObjectId(parsed.ownerId),
+      ownerId: new import_mongoose21.default.Types.ObjectId(parsed.ownerId),
       referredOn: parsed.referredOn ? new Date(parsed.referredOn) : /* @__PURE__ */ new Date(),
       feeDisclosedToPartner: parsed.feeDisclosedToPartner,
       feeDisclosedOn: parsed.feeDisclosedToPartner ? /* @__PURE__ */ new Date() : void 0
@@ -302148,7 +302240,7 @@ caseManagementRouter.post("/cases", async (req, res) => {
       entityId: newCase._id,
       caseId: newCase._id,
       action: "create",
-      actorId: new import_mongoose20.default.Types.ObjectId(parsed.ownerId),
+      actorId: new import_mongoose21.default.Types.ObjectId(parsed.ownerId),
       changes: { caseCode: [null, caseCode], stage: [null, "new_referral"] }
     });
     if (parsed.patient) {
@@ -302183,7 +302275,7 @@ caseManagementRouter.get("/cases/search", async (req, res) => {
     if (!q) {
       const filter = { status: "open" };
       if (req.user?.role === "partner") {
-        filter.partnerId = req.user.partnerId || new import_mongoose20.default.Types.ObjectId();
+        filter.partnerId = req.user.partnerId || new import_mongoose21.default.Types.ObjectId();
       }
       const allCases = await CaseModel.find(filter).populate("patientId").populate("partnerId", "name partnerCode").populate("ownerId", "name email").sort({ createdAt: -1 }).limit(50).lean();
       return res.json({ data: allCases });
@@ -302220,7 +302312,7 @@ caseManagementRouter.get("/cases/search", async (req, res) => {
     }
     const caseFilter = { $or: orClauses };
     if (req.user?.role === "partner") {
-      caseFilter.partnerId = req.user.partnerId || new import_mongoose20.default.Types.ObjectId();
+      caseFilter.partnerId = req.user.partnerId || new import_mongoose21.default.Types.ObjectId();
     }
     const cases = await CaseModel.find(caseFilter).populate("patientId").populate("partnerId", "name partnerCode").populate("ownerId", "name email").sort({ createdAt: -1 }).lean();
     res.json({ data: cases });
@@ -302231,9 +302323,9 @@ caseManagementRouter.get("/cases/search", async (req, res) => {
 caseManagementRouter.get("/cases/:id", async (req, res) => {
   try {
     let caseDoc = null;
-    if (import_mongoose20.default.connection.readyState === 1) {
+    if (import_mongoose21.default.connection.readyState === 1) {
       try {
-        if (import_mongoose20.default.Types.ObjectId.isValid(req.params.id)) {
+        if (import_mongoose21.default.Types.ObjectId.isValid(req.params.id)) {
           caseDoc = await CaseModel.findById(req.params.id).populate("patientId").populate("partnerId").populate("ownerId", "name email role").lean();
         }
         if (!caseDoc) {
@@ -303198,7 +303290,7 @@ caseManagementRouter.post("/migration/import", requireRole("admin"), async (req,
     }
     await CaseAuditLogModel.create({
       entityType: "MigrationImport",
-      entityId: new import_mongoose20.default.Types.ObjectId(),
+      entityId: new import_mongoose21.default.Types.ObjectId(),
       action: "create",
       changes: { importedSummary: [null, summary.counts] }
     });
@@ -303210,7 +303302,7 @@ caseManagementRouter.post("/migration/import", requireRole("admin"), async (req,
 
 // src/api/authRoutes.ts
 var import_express2 = __toESM(require_express2(), 1);
-var import_mongoose21 = __toESM(require_mongoose2(), 1);
+var import_mongoose22 = __toESM(require_mongoose2(), 1);
 import crypto6 from "crypto";
 
 // src/utils/otpManager.ts
@@ -303343,7 +303435,7 @@ authRouter.post("/login", async (req, res) => {
         lockedUntil = now + 15 * 60 * 1e3;
       }
       failedAttempts.set(lockKey, { count: currentCount, lockedUntil });
-      if (user && import_mongoose21.default.connection.readyState === 1) {
+      if (user && import_mongoose22.default.connection.readyState === 1) {
         try {
           await CaseAuditLogModel.create({
             entityType: "User",
@@ -303383,7 +303475,7 @@ authRouter.post("/login", async (req, res) => {
       await user.save();
     } catch {
     }
-    if (import_mongoose21.default.connection.readyState === 1) {
+    if (import_mongoose22.default.connection.readyState === 1) {
       try {
         const tokenHash = crypto6.createHash("sha256").update(token).digest("hex");
         const expiresAt = new Date(Date.now() + 12 * 60 * 60 * 1e3);
@@ -303406,7 +303498,7 @@ authRouter.post("/login", async (req, res) => {
       secure: process.env.NODE_ENV === "production",
       maxAge: 12 * 60 * 60 * 1e3
     });
-    if (import_mongoose21.default.connection.readyState === 1) {
+    if (import_mongoose22.default.connection.readyState === 1) {
       try {
         await CaseAuditLogModel.create({
           entityType: "User",
@@ -303454,7 +303546,7 @@ authRouter.post("/phone/otp", async (req, res) => {
     const userPhone = normalizePhone(parsed.phone);
     if (!user) {
       const digits = userPhone.replace(/\D/g, "");
-      if (import_mongoose21.default.connection.readyState === 1) {
+      if (import_mongoose22.default.connection.readyState === 1) {
         try {
           user = await UserModel.create({
             name: `Staff (${userPhone.slice(-4)})`,
@@ -303471,7 +303563,7 @@ authRouter.post("/phone/otp", async (req, res) => {
       }
       if (!user) {
         user = {
-          _id: new import_mongoose21.default.Types.ObjectId(),
+          _id: new import_mongoose22.default.Types.ObjectId(),
           name: `Staff (${userPhone.slice(-4)})`,
           email: `staff-${digits.slice(-6)}@akeezo.com`,
           phone: userPhone,
@@ -303505,7 +303597,7 @@ authRouter.post("/phone/otp", async (req, res) => {
       await user.save();
     } catch {
     }
-    if (import_mongoose21.default.connection.readyState === 1) {
+    if (import_mongoose22.default.connection.readyState === 1) {
       try {
         const tokenHash = crypto6.createHash("sha256").update(token).digest("hex");
         const expiresAt = new Date(Date.now() + 12 * 60 * 60 * 1e3);
@@ -303559,7 +303651,7 @@ authRouter.post("/email/otp", async (req, res) => {
     let user = await findUserByEmailOrFallback(parsed.email);
     if (!user) {
       const emailPrefix = parsed.email.split("@")[0];
-      if (import_mongoose21.default.connection.readyState === 1) {
+      if (import_mongoose22.default.connection.readyState === 1) {
         try {
           user = await UserModel.create({
             name: emailPrefix.charAt(0).toUpperCase() + emailPrefix.slice(1),
@@ -303576,7 +303668,7 @@ authRouter.post("/email/otp", async (req, res) => {
       }
       if (!user) {
         user = {
-          _id: new import_mongoose21.default.Types.ObjectId(),
+          _id: new import_mongoose22.default.Types.ObjectId(),
           name: emailPrefix.charAt(0).toUpperCase() + emailPrefix.slice(1),
           email: parsed.email.toLowerCase().trim(),
           phone: "+91 82876 39443",
@@ -303611,7 +303703,7 @@ authRouter.post("/email/otp", async (req, res) => {
       await user.save();
     } catch {
     }
-    if (import_mongoose21.default.connection.readyState === 1) {
+    if (import_mongoose22.default.connection.readyState === 1) {
       try {
         const tokenHash = crypto6.createHash("sha256").update(token).digest("hex");
         const expiresAt = new Date(Date.now() + 12 * 60 * 60 * 1e3);
@@ -303713,7 +303805,7 @@ var handleOtpVerify = async (req, res) => {
       await user.save();
     } catch {
     }
-    if (import_mongoose21.default.connection.readyState === 1) {
+    if (import_mongoose22.default.connection.readyState === 1) {
       try {
         const tokenHash = crypto6.createHash("sha256").update(token).digest("hex");
         const expiresAt = new Date(Date.now() + 12 * 60 * 60 * 1e3);
@@ -303736,7 +303828,7 @@ var handleOtpVerify = async (req, res) => {
       secure: process.env.NODE_ENV === "production",
       maxAge: 12 * 60 * 60 * 1e3
     });
-    if (import_mongoose21.default.connection.readyState === 1) {
+    if (import_mongoose22.default.connection.readyState === 1) {
       try {
         await CaseAuditLogModel.create({
           entityType: "User",
@@ -303784,7 +303876,7 @@ authRouter.post("/firebase", async (req, res) => {
       const emailPrefix = cleanEmail.split("@")[0];
       const isSuperAdminEmail = cleanEmail.includes("admin") || cleanEmail === "priti@akeezo.com" || cleanEmail === "yogesh@akeezo.com";
       const userRole = isSuperAdminEmail ? "admin" : "coordinator";
-      if (import_mongoose21.default.connection.readyState === 1) {
+      if (import_mongoose22.default.connection.readyState === 1) {
         try {
           user = await UserModel.create({
             name: emailPrefix.charAt(0).toUpperCase() + emailPrefix.slice(1),
@@ -303800,7 +303892,7 @@ authRouter.post("/firebase", async (req, res) => {
       }
       if (!user) {
         user = {
-          _id: new import_mongoose21.default.Types.ObjectId(),
+          _id: new import_mongoose22.default.Types.ObjectId(),
           name: emailPrefix.charAt(0).toUpperCase() + emailPrefix.slice(1),
           email: cleanEmail,
           role: userRole,
@@ -303900,7 +303992,7 @@ authRouter.post("/logout", requireAuth, async (req, res) => {
   const authHeader = req.headers.authorization;
   const token = authHeader?.startsWith("Bearer ") ? authHeader.split(" ")[1] : void 0;
   if (req.user) {
-    if (token && import_mongoose21.default.connection.readyState === 1) {
+    if (token && import_mongoose22.default.connection.readyState === 1) {
       try {
         const tokenHash = crypto6.createHash("sha256").update(token).digest("hex");
         await UserSessionModel.updateOne({ tokenHash }, { $set: { isValid: false } });
@@ -303923,7 +304015,7 @@ authRouter.post("/logout", requireAuth, async (req, res) => {
 
 // src/api/cmsAdminRoutes.ts
 var import_express3 = __toESM(require_express2(), 1);
-var import_mongoose22 = __toESM(require_mongoose2(), 1);
+var import_mongoose23 = __toESM(require_mongoose2(), 1);
 import fs4 from "node:fs";
 import path3 from "node:path";
 
@@ -304202,13 +304294,13 @@ var cmsAdminRouter = (0, import_express3.Router)();
 cmsAdminRouter.use(requireAuth);
 cmsAdminRouter.use(requireRole("admin"));
 async function logAdminActivity(actorId, entityType, entityId, action, changes, req, caseId) {
-  if (import_mongoose22.default.connection.readyState === 1) {
+  if (import_mongoose23.default.connection.readyState === 1) {
     try {
       await CaseAuditLogModel.create({
         occurredAt: /* @__PURE__ */ new Date(),
-        actorId: actorId && import_mongoose22.default.isValidObjectId(actorId) ? actorId : void 0,
+        actorId: actorId && import_mongoose23.default.isValidObjectId(actorId) ? actorId : void 0,
         entityType,
-        entityId: entityId && import_mongoose22.default.isValidObjectId(entityId) ? entityId : new import_mongoose22.default.Types.ObjectId(),
+        entityId: entityId && import_mongoose23.default.isValidObjectId(entityId) ? entityId : new import_mongoose23.default.Types.ObjectId(),
         caseId: caseId || (entityType === "case" ? entityId : void 0),
         action,
         changes,
@@ -304240,7 +304332,7 @@ cmsAdminRouter.get("/overview-stats", async (_req, res) => {
     let partnersCount = 4;
     let hospitalsCount = 6;
     let usersCount = 7;
-    if (import_mongoose22.default.connection.readyState === 1) {
+    if (import_mongoose23.default.connection.readyState === 1) {
       const [
         pCount,
         dCount,
@@ -304292,7 +304384,7 @@ cmsAdminRouter.get("/overview-stats", async (_req, res) => {
       status: e2.status || "received"
     }));
     let recentActivities = [];
-    if (import_mongoose22.default.connection.readyState === 1) {
+    if (import_mongoose23.default.connection.readyState === 1) {
       recentActivities = await CaseAuditLogModel.find().sort({ occurredAt: -1 }).limit(6).populate("actorId", "name role email").lean();
     }
     res.json({
@@ -304334,8 +304426,8 @@ cmsAdminRouter.get("/overview-stats", async (_req, res) => {
         recentEnquiries,
         recentActivities,
         system: {
-          environment: import_mongoose22.default.connection.readyState === 1 ? "production" : "demo-preview",
-          database: import_mongoose22.default.connection.readyState === 1 ? "connected" : "in-memory-fallback",
+          environment: import_mongoose23.default.connection.readyState === 1 ? "production" : "demo-preview",
+          database: import_mongoose23.default.connection.readyState === 1 ? "connected" : "in-memory-fallback",
           status: "healthy",
           timestamp: (/* @__PURE__ */ new Date()).toISOString()
         }
@@ -304457,7 +304549,7 @@ function processIntegrationsPayload(newIntegrations, existingIntegrations) {
 cmsAdminRouter.get("/site-settings", async (_req, res) => {
   try {
     let settings = null;
-    if (import_mongoose22.default.connection.readyState === 1) {
+    if (import_mongoose23.default.connection.readyState === 1) {
       const doc = await getActiveSiteSettingsDoc();
       if (doc) settings = doc.toObject ? doc.toObject() : doc;
     }
@@ -304923,10 +305015,10 @@ cmsAdminRouter.get("/system-health", async (_req, res) => {
         heapUsedMb: Math.round(memUsage.heapUsed / 1024 / 1024)
       },
       database: {
-        status: import_mongoose22.default.connection.readyState === 1 ? "connected" : "disconnected",
-        host: import_mongoose22.default.connection.host || "127.0.0.1",
-        port: import_mongoose22.default.connection.port || 27017,
-        dbName: import_mongoose22.default.connection.name || "akeezo_local"
+        status: import_mongoose23.default.connection.readyState === 1 ? "connected" : "disconnected",
+        host: import_mongoose23.default.connection.host || "127.0.0.1",
+        port: import_mongoose23.default.connection.port || 27017,
+        dbName: import_mongoose23.default.connection.name || "akeezo_local"
       },
       timestamp: (/* @__PURE__ */ new Date()).toISOString()
     }
@@ -305333,7 +305425,7 @@ cmsAdminRouter.get("/media/stats", async (_req, res) => {
     let totalCurrentBytes = 0;
     let totalSavedBytes = 0;
     const formatBreakdown = { webp: 0, svg: 0, png: 0, jpeg: 0, pdf: 0, other: 0 };
-    if (import_mongoose22.default.connection.readyState === 1) {
+    if (import_mongoose23.default.connection.readyState === 1) {
       const allAssets = await MediaAssetModel.find().lean();
       totalAssets = allAssets.length;
       for (const a of allAssets) {
@@ -305513,7 +305605,7 @@ cmsAdminRouter.get("/media", async (req, res) => {
     const skip = (page - 1) * limit;
     let items = [];
     let total = 0;
-    if (import_mongoose22.default.connection.readyState === 1) {
+    if (import_mongoose23.default.connection.readyState === 1) {
       [items, total] = await Promise.all([
         MediaAssetModel.find(filter).sort(sortCriteria).skip(skip).limit(limit).lean(),
         MediaAssetModel.countDocuments(filter)
@@ -305857,7 +305949,7 @@ cmsAdminRouter.get("/enquiries/export/csv", async (req, res) => {
     await logAdminActivity(
       req.user?._id,
       "enquiry",
-      new import_mongoose22.default.Types.ObjectId(),
+      new import_mongoose23.default.Types.ObjectId(),
       "export",
       { count: [0, enquiries.length] },
       req
@@ -305947,7 +306039,7 @@ cmsAdminRouter.post("/enquiries/:id/convert-to-case", async (req, res) => {
     const count = await CaseModel.countDocuments();
     const caseCode = `CASE-2026-${String(count + 1).padStart(4, "0")}`;
     const defaultOwner = await UserModel.findOne({ role: { $in: ["administrator", "coordinator"] } });
-    const ownerId = defaultOwner?._id || new import_mongoose22.default.Types.ObjectId();
+    const ownerId = defaultOwner?._id || new import_mongoose23.default.Types.ObjectId();
     const specialtyMap = {
       medical_tourism: "general_surgery",
       cardiology: "cardiac_sciences",
@@ -305999,7 +306091,7 @@ cmsAdminRouter.post("/enquiries/:id/convert-to-case", async (req, res) => {
 cmsAdminRouter.get("/redirects", async (_req, res) => {
   try {
     let redirects = [];
-    if (import_mongoose22.default.connection.readyState === 1) {
+    if (import_mongoose23.default.connection.readyState === 1) {
       redirects = await RedirectModel.find().sort({ createdAt: -1 }).lean();
     }
     if (redirects.length === 0) {
@@ -306106,7 +306198,7 @@ cmsAdminRouter.delete("/redirects/:id", async (req, res) => {
 cmsAdminRouter.get("/users", async (_req, res) => {
   try {
     let users = [];
-    if (import_mongoose22.default.connection.readyState === 1) {
+    if (import_mongoose23.default.connection.readyState === 1) {
       users = await UserModel.find().sort({ createdAt: -1 }).select("-passwordHash").lean();
     }
     if (users.length === 0) {
@@ -306134,7 +306226,7 @@ var handleCreateUser = async (req, res) => {
       return res.status(400).json({ error: { code: "MISSING_FIELDS", message: "Name and email are required." } });
     }
     const normalizedEmail = email.toLowerCase().trim();
-    if (import_mongoose22.default.connection.readyState === 1) {
+    if (import_mongoose23.default.connection.readyState === 1) {
       const existing = await UserModel.findOne({ email: normalizedEmail });
       if (existing) {
         return res.status(409).json({ error: { code: "USER_EXISTS", message: `User with email '${normalizedEmail}' already exists.` } });
@@ -306143,7 +306235,7 @@ var handleCreateUser = async (req, res) => {
     const assignedPassword = password && password.trim().length >= 6 ? password.trim() : `Akeezo@${Math.floor(1e3 + Math.random() * 9e3)}!`;
     const passwordHash = hashPassword(assignedPassword);
     let newUser = null;
-    if (import_mongoose22.default.connection.readyState === 1) {
+    if (import_mongoose23.default.connection.readyState === 1) {
       newUser = await UserModel.create({
         name: name.trim(),
         email: normalizedEmail,
@@ -306156,7 +306248,7 @@ var handleCreateUser = async (req, res) => {
       });
     } else {
       newUser = {
-        _id: new import_mongoose22.default.Types.ObjectId().toString(),
+        _id: new import_mongoose23.default.Types.ObjectId().toString(),
         name: name.trim(),
         email: normalizedEmail,
         phone: phone?.trim() || "+91 82876 39443",
@@ -306443,7 +306535,7 @@ cmsAdminRouter.get("/activity", async (req, res) => {
     }
     const limit = Math.max(1, Math.min(100, parseInt(String(req.query.limit || "50"), 10)));
     let logs = [];
-    if (import_mongoose22.default.connection.readyState === 1) {
+    if (import_mongoose23.default.connection.readyState === 1) {
       logs = await CaseAuditLogModel.find(filter).sort({ occurredAt: -1 }).limit(limit).populate("actorId", "name email role").lean();
     }
     if (logs.length === 0) {
@@ -306475,6 +306567,254 @@ cmsAdminRouter.get("/activity", async (req, res) => {
     res.status(500).json({ error: { code: "FETCH_ACTIVITY_FAILED", message: err.message } });
   }
 });
+async function ensureSeedChangelogs() {
+  if (import_mongoose23.default.connection.readyState !== 1) return;
+  try {
+    const count = await ChangelogModel.countDocuments();
+    if (count === 0) {
+      await ChangelogModel.create([
+        {
+          version: "v1.4.0",
+          title: "Platform Changelog Management & Release Tracking",
+          summary: "Empower administrators to record, categorize, publish, and track software releases, clinical features, and security updates.",
+          releaseDate: /* @__PURE__ */ new Date(),
+          category: "feature",
+          status: "published",
+          audience: "all",
+          items: [
+            { type: "feature", text: "Added Changelog recording interface in Admin Panel with multi-dimensional filtering, pagination, and sorting", badge: "Admin" },
+            { type: "feature", text: "Introduced itemized release note builder with category badges, author attribution, and markdown notes", badge: "CMS" },
+            { type: "security", text: "Integrated DPDP Act audit logging for all changelog creation, publication, and modification events", badge: "Security" },
+            { type: "improvement", text: "Created public changelog API endpoint and SSR release notes viewer", badge: "Public" }
+          ],
+          modules: ["Admin", "CMS", "Activity Log", "Security"],
+          authorName: "Priti (Super Admin)",
+          notes: "Milestone release establishing an immutable public and internal changelog system for Akeezo Healthcare Platform."
+        },
+        {
+          version: "v1.3.0",
+          title: "Third-Party Platform Integrations Hub",
+          summary: "Integrated Google Tag Manager, Google Cloud Console, Meta Pixel, Gemini AI, and Google Analytics 4 with DPDP Act encrypted masking.",
+          releaseDate: new Date(Date.now() - 864e5 * 2),
+          category: "feature",
+          status: "published",
+          audience: "all",
+          items: [
+            { type: "feature", text: "Dedicated Integrations Hub in Admin Panel with live connection testing and latency measurement", badge: "Integrations" },
+            { type: "security", text: "Encrypted API secret storage with secret-preservation engine to prevent bullet mask overwrites", badge: "DPDP Act" },
+            { type: "improvement", text: "Dynamic SSR tag injection for GTM, GA4, and Meta Pixel on public web pages", badge: "SSR" }
+          ],
+          modules: ["Integrations", "Security", "SSR"],
+          authorName: "Priti (Super Admin)",
+          notes: "Full production-ready connectivity across all core cloud marketing and AI infrastructure services."
+        },
+        {
+          version: "v1.2.0",
+          title: "Web-Optimized Media Library Engine",
+          summary: "High-performance WebP media pipeline with automatic responsive variant generation and SVG vector sanitization.",
+          releaseDate: new Date(Date.now() - 864e5 * 4),
+          category: "improvement",
+          status: "published",
+          audience: "all",
+          items: [
+            { type: "feature", text: "Sharp-powered WebP transcoding engine reducing image payload sizes by up to 75%", badge: "Media" },
+            { type: "security", text: "DOMPurify SVG vector sanitization preventing stored XSS script injection payloads", badge: "Security" },
+            { type: "feature", text: "Responsive breakpoint variant generation (thumbnail, small, medium, large, full)", badge: "Performance" }
+          ],
+          modules: ["Media Library", "Security", "CDN"],
+          authorName: "Akeezo Core Team",
+          notes: "Critical speed and data footprint optimization for medical tourist patients on variable mobile connectivity."
+        },
+        {
+          version: "v1.1.0",
+          title: "Dual-Portal Architecture & Dynamic Theme Studio",
+          summary: "Enterprise separation between Website CMS and Case Management ERP with real-time CSS variable branding controls.",
+          releaseDate: new Date(Date.now() - 864e5 * 6),
+          category: "feature",
+          status: "published",
+          audience: "all",
+          items: [
+            { type: "feature", text: "Dual-portal architectural isolation for Website Super Admin and Case Management CMS", badge: "Architecture" },
+            { type: "feature", text: "Theme Studio with zero-FOAC server-side CSS variable injection and preset palettes", badge: "Branding" },
+            { type: "improvement", text: "Strict test port isolation and partial unique indexes in compliance with enterprise guardrails", badge: "Guardrails" }
+          ],
+          modules: ["Architecture", "Theme Studio", "ERP"],
+          authorName: "Akeezo Engineering",
+          notes: "Established foundational multi-tenant data boundaries and dynamic branding customization."
+        }
+      ]);
+    }
+  } catch (err) {
+    console.warn("Changelog seed notice:", err?.message);
+  }
+}
+cmsAdminRouter.get("/changelogs", async (req, res) => {
+  try {
+    await ensureSeedChangelogs();
+    const filter = {};
+    if (req.query.category && req.query.category !== "all") {
+      filter.category = req.query.category;
+    }
+    if (req.query.status && req.query.status !== "all") {
+      filter.status = req.query.status;
+    }
+    if (req.query.audience && req.query.audience !== "all") {
+      filter.audience = req.query.audience;
+    }
+    if (req.query.module && req.query.module !== "all") {
+      filter.modules = req.query.module;
+    }
+    if (req.query.search) {
+      const regex = new RegExp(escapeRegex(String(req.query.search).trim()), "i");
+      filter.$or = [
+        { version: regex },
+        { title: regex },
+        { summary: regex },
+        { authorName: regex },
+        { "items.text": regex },
+        { modules: regex }
+      ];
+    }
+    const page = Math.max(1, parseInt(String(req.query.page || "1"), 10));
+    const limit = Math.max(1, Math.min(100, parseInt(String(req.query.limit || "10"), 10)));
+    const skip = (page - 1) * limit;
+    const sortField = String(req.query.sortField || "releaseDate");
+    const sortDirection = req.query.sortDirection === "asc" ? 1 : -1;
+    const sortObj = { [sortField]: sortDirection };
+    const total = await ChangelogModel.countDocuments(filter);
+    const items = await ChangelogModel.find(filter).sort(sortObj).skip(skip).limit(limit).lean();
+    res.json({
+      data: items,
+      pagination: {
+        total,
+        page,
+        limit,
+        totalPages: Math.ceil(total / limit) || 1
+      }
+    });
+  } catch (err) {
+    res.status(500).json({ error: { code: "FETCH_CHANGELOGS_FAILED", message: err.message } });
+  }
+});
+cmsAdminRouter.get("/changelogs/:id", async (req, res) => {
+  try {
+    const doc = await ChangelogModel.findById(req.params.id).lean();
+    if (!doc) {
+      return res.status(404).json({ error: { code: "NOT_FOUND", message: "Changelog entry not found" } });
+    }
+    res.json({ data: doc });
+  } catch (err) {
+    res.status(500).json({ error: { code: "FETCH_CHANGELOG_FAILED", message: err.message } });
+  }
+});
+cmsAdminRouter.post("/changelogs", async (req, res) => {
+  try {
+    const parsed = CreateChangelogDTO.safeParse(req.body);
+    if (!parsed.success) {
+      return res.status(400).json({
+        error: { code: "VALIDATION_FAILED", message: parsed.error.issues.map((i2) => i2.message).join(", ") }
+      });
+    }
+    const user = req.user;
+    const doc = await ChangelogModel.create({
+      ...parsed.data,
+      releaseDate: parsed.data.releaseDate ? new Date(parsed.data.releaseDate) : /* @__PURE__ */ new Date(),
+      authorId: user?._id || void 0,
+      authorName: parsed.data.authorName || user?.name || "Akeezo Super Admin"
+    });
+    await logAdminActivity(
+      user?._id,
+      "changelog",
+      doc._id,
+      "create",
+      { version: ["", doc.version], title: ["", doc.title] },
+      req
+    );
+    res.status(201).json({ data: doc });
+  } catch (err) {
+    res.status(500).json({ error: { code: "CREATE_CHANGELOG_FAILED", message: err.message } });
+  }
+});
+cmsAdminRouter.put("/changelogs/:id", async (req, res) => {
+  try {
+    const parsed = UpdateChangelogDTO.safeParse(req.body);
+    if (!parsed.success) {
+      return res.status(400).json({
+        error: { code: "VALIDATION_FAILED", message: parsed.error.issues.map((i2) => i2.message).join(", ") }
+      });
+    }
+    const existing = await ChangelogModel.findById(req.params.id);
+    if (!existing) {
+      return res.status(404).json({ error: { code: "NOT_FOUND", message: "Changelog entry not found" } });
+    }
+    const previousData = existing.toObject ? existing.toObject() : existing;
+    const updatePayload = { ...parsed.data };
+    if (parsed.data.releaseDate) {
+      updatePayload.releaseDate = new Date(parsed.data.releaseDate);
+    }
+    const updated = await ChangelogModel.findByIdAndUpdate(
+      req.params.id,
+      { $set: updatePayload },
+      { new: true, runValidators: true }
+    );
+    await logAdminActivity(
+      req.user?._id,
+      "changelog",
+      req.params.id,
+      "update",
+      {
+        version: [previousData.version, updated?.version],
+        status: [previousData.status, updated?.status]
+      },
+      req
+    );
+    res.json({ data: updated });
+  } catch (err) {
+    res.status(500).json({ error: { code: "UPDATE_CHANGELOG_FAILED", message: err.message } });
+  }
+});
+cmsAdminRouter.post("/changelogs/:id/publish", async (req, res) => {
+  try {
+    const doc = await ChangelogModel.findById(req.params.id);
+    if (!doc) {
+      return res.status(404).json({ error: { code: "NOT_FOUND", message: "Changelog entry not found" } });
+    }
+    const nextStatus = doc.status === "published" ? "draft" : "published";
+    const previousStatus = doc.status;
+    doc.status = nextStatus;
+    await doc.save();
+    await logAdminActivity(
+      req.user?._id,
+      "changelog",
+      doc._id,
+      "update",
+      { status: [previousStatus, nextStatus] },
+      req
+    );
+    res.json({ data: doc });
+  } catch (err) {
+    res.status(500).json({ error: { code: "PUBLISH_CHANGELOG_FAILED", message: err.message } });
+  }
+});
+cmsAdminRouter.delete("/changelogs/:id", async (req, res) => {
+  try {
+    const doc = await ChangelogModel.findByIdAndDelete(req.params.id);
+    if (!doc) {
+      return res.status(404).json({ error: { code: "NOT_FOUND", message: "Changelog entry not found" } });
+    }
+    await logAdminActivity(
+      req.user?._id,
+      "changelog",
+      req.params.id,
+      "delete",
+      { version: [doc.version, "deleted"] },
+      req
+    );
+    res.json({ data: { success: true, deletedId: req.params.id } });
+  } catch (err) {
+    res.status(500).json({ error: { code: "DELETE_CHANGELOG_FAILED", message: err.message } });
+  }
+});
 cmsAdminRouter.get("/profile", async (req, res) => {
   try {
     const authHeader = req.headers.authorization;
@@ -306485,7 +306825,7 @@ cmsAdminRouter.get("/profile", async (req, res) => {
       if (parts.length === 3) {
         try {
           const payload = JSON.parse(Buffer.from(parts[1], "base64").toString("utf8"));
-          if (payload.userId && import_mongoose22.default.connection.readyState === 1) {
+          if (payload.userId && import_mongoose23.default.connection.readyState === 1) {
             const dbUser = await UserModel.findById(payload.userId).select("-passwordHash").lean();
             if (dbUser) user = dbUser;
           }
@@ -306523,7 +306863,7 @@ cmsAdminRouter.put("/profile", async (req, res) => {
         }
       }
     }
-    if (import_mongoose22.default.connection.readyState === 1) {
+    if (import_mongoose23.default.connection.readyState === 1) {
       const user = await UserModel.findById(userId);
       if (user) {
         if (req.body.name) user.name = req.body.name;
@@ -306560,7 +306900,7 @@ cmsAdminRouter.post("/profile/password", async (req, res) => {
       const payload = verifyToken(token);
       if (payload && payload.userId) userId = payload.userId;
     }
-    if (import_mongoose22.default.connection.readyState === 1) {
+    if (import_mongoose23.default.connection.readyState === 1) {
       const user = await UserModel.findById(userId);
       if (user) {
         const isMatch = verifyPassword(currentPassword, user.passwordHash);
@@ -306585,7 +306925,7 @@ var apiRouter = (0, import_express4.Router)();
 apiRouter.use("/auth", authRouter);
 apiRouter.use("/admin", cmsAdminRouter);
 apiRouter.get("/health", (_req, res) => {
-  const isDbConnected = import_mongoose23.default.connection.readyState === 1;
+  const isDbConnected = import_mongoose24.default.connection.readyState === 1;
   res.status(200).json({
     data: {
       status: isDbConnected ? "healthy" : "degraded",
@@ -306597,11 +306937,30 @@ apiRouter.get("/health", (_req, res) => {
 });
 apiRouter.get("/site", async (_req, res) => {
   try {
-    const settingsDoc = import_mongoose23.default.connection.readyState === 1 ? await SiteSettings.findOne({ environment: "development" }).lean() || await SiteSettings.findOne().lean() : null;
+    const settingsDoc = import_mongoose24.default.connection.readyState === 1 ? await SiteSettings.findOne({ environment: "development" }).lean() || await SiteSettings.findOne().lean() : null;
     const siteSettings = toSafeSiteSettings(settingsDoc);
     res.json({ data: siteSettings });
   } catch (err) {
     res.json({ data: toSafeSiteSettings(null) });
+  }
+});
+apiRouter.get("/changelogs", async (req, res) => {
+  try {
+    if (import_mongoose24.default.connection.readyState !== 1) {
+      return res.json({ data: [] });
+    }
+    const filter = {
+      status: "published",
+      audience: { $in: ["all", "public"] }
+    };
+    if (req.query.category && req.query.category !== "all") {
+      filter.category = req.query.category;
+    }
+    const limit = Math.max(1, Math.min(50, parseInt(String(req.query.limit || "20"), 10)));
+    const items = await ChangelogModel.find(filter).sort({ releaseDate: -1 }).limit(limit).lean();
+    res.json({ data: items });
+  } catch (err) {
+    res.status(500).json({ error: { code: "FETCH_PUBLIC_CHANGELOGS_FAILED", message: err.message } });
   }
 });
 apiRouter.get("/route", async (req, res) => {
@@ -306611,7 +306970,7 @@ apiRouter.get("/route", async (req, res) => {
     const normalizedPath = rawPath.length > 1 && rawPath.endsWith("/") ? rawPath.slice(0, -1) : rawPath;
     let settingsDoc = null;
     let routeEntry = null;
-    if (import_mongoose23.default.connection.readyState === 1) {
+    if (import_mongoose24.default.connection.readyState === 1) {
       settingsDoc = await SiteSettings.findOne({ environment: "development" }).lean() || await SiteSettings.findOne().lean();
       routeEntry = await RouteEntry.findOne({ locale, path: normalizedPath }).lean();
     }
@@ -306937,7 +307296,7 @@ app.use((req, _res, next) => {
   if (req.path.includes("health")) {
     return next();
   }
-  if (import_mongoose24.default.connection.readyState === 0 && !isTestEnv) {
+  if (import_mongoose25.default.connection.readyState === 0 && !isTestEnv) {
     connectDB().catch((err) => {
       console.warn("[Akeezo MongoDB] Non-blocking connect notice:", err?.message);
     });
@@ -306997,7 +307356,7 @@ if (!isServerless2) {
     }
     try {
       let html = await fs5.promises.readFile(indexPath, "utf-8");
-      if (import_mongoose24.default.connection.readyState === 1) {
+      if (import_mongoose25.default.connection.readyState === 1) {
         const targetEnv = env.NODE_ENV || "development";
         const doc = await SiteSettings.findOne({ environment: targetEnv }).lean() || await SiteSettings.findOne({ environment: "development" }).lean() || await SiteSettings.findOne().lean();
         const adminTheme = doc?.adminTheme;
@@ -307042,7 +307401,7 @@ ${themeCss}
     if (req.path.startsWith("/api") || req.path.startsWith("/v1") || req.path.startsWith("/admin") || req.path.startsWith("/case-management") || req.path.startsWith("/uploads")) {
       return next();
     }
-    if (import_mongoose24.default.connection.readyState !== 1) return next();
+    if (import_mongoose25.default.connection.readyState !== 1) return next();
     try {
       const rawPath = req.path.toLowerCase().replace(/\/+$/, "") || "/";
       const redirect = await RedirectModel.findOne({ sourcePath: rawPath, enabled: true }).lean();

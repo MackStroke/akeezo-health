@@ -1,6 +1,6 @@
 import { Router } from "express";
 import mongoose from "mongoose";
-import { RouteEntry, ContentRevision, SiteSettings } from "../db/models/index.js";
+import { RouteEntry, ContentRevision, SiteSettings, ChangelogModel } from "../db/models/index.js";
 import { toSafeSiteSettings } from "../ssr/renderer.js";
 import { caseManagementRouter } from "./caseManagementRoutes.js";
 import { authRouter } from "./authRoutes.js";
@@ -34,6 +34,30 @@ apiRouter.get("/site", async (_req, res) => {
     }
     catch (err) {
         res.json({ data: toSafeSiteSettings(null) });
+    }
+});
+// GET /api/v1/changelogs (public read-only)
+apiRouter.get('/changelogs', async (req, res) => {
+    try {
+        if (mongoose.connection.readyState !== 1) {
+            return res.json({ data: [] });
+        }
+        const filter = {
+            status: 'published',
+            audience: { $in: ['all', 'public'] },
+        };
+        if (req.query.category && req.query.category !== 'all') {
+            filter.category = req.query.category;
+        }
+        const limit = Math.max(1, Math.min(50, parseInt(String(req.query.limit || '20'), 10)));
+        const items = await ChangelogModel.find(filter)
+            .sort({ releaseDate: -1 })
+            .limit(limit)
+            .lean();
+        res.json({ data: items });
+    }
+    catch (err) {
+        res.status(500).json({ error: { code: 'FETCH_PUBLIC_CHANGELOGS_FAILED', message: err.message } });
     }
 });
 // GET /api/v1/route?path=/&locale=en
