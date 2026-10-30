@@ -300875,7 +300875,7 @@ var import_mongoose20 = __toESM(require_mongoose2(), 1);
 var BlogPostSchema2 = new import_mongoose20.Schema(
   {
     title: { type: String, required: true, trim: true },
-    slug: { type: String, required: true, trim: true, unique: true },
+    slug: { type: String, required: true, trim: true },
     excerpt: { type: String, default: "", trim: true },
     content: { type: String, required: true },
     category: { type: String, required: true, default: "Medical Travel Guide" },

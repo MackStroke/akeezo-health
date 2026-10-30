@@ -45,7 +45,7 @@ export interface IBlogPost extends Document {
 const BlogPostSchema = new Schema<IBlogPost>(
   {
     title: { type: String, required: true, trim: true },
-    slug: { type: String, required: true, trim: true, unique: true },
+    slug: { type: String, required: true, trim: true },
     excerpt: { type: String, default: "", trim: true },
     content: { type: String, required: true },
     category: { type: String, required: true, default: "Medical Travel Guide" },
