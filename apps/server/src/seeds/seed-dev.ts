@@ -116,6 +116,18 @@ const SEED_PAGES: SeedPageDef[] = [
       headline: "Find The Best Treatments Worldwide",
       subheadline: "World-class care, anywhere in the world."
     }
+  },
+  {
+    slug: "hospitals",
+    path: "/hospitals",
+    pageKind: "hospitalDirectory",
+    title: "World-Class Hospitals | Personally Matched for You | AKEEZO",
+    description:
+      "Find and compare top accredited hospitals globally. Transparent estimates, verified patient satisfaction ratings, and complete care coordination with AKEEZO.",
+    payload: {
+      headline: "World-Class Hospitals, Personally Matched for You",
+      subheadline: "Find the Best Hospitals for Your Treatment, Anywhere in the World"
+    }
   }
 ];
 

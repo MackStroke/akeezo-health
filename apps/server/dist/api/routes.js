@@ -135,6 +135,28 @@ apiRouter.get("/route", async (req, res) => {
                 res.json({ data: treatmentsDto });
                 return;
             }
+            if (normalizedPath === "/hospitals" || normalizedPath.startsWith("/hospitals/")) {
+                const hospitalsDto = {
+                    pageKind: "hospitalDirectory",
+                    path: normalizedPath,
+                    locale,
+                    seo: {
+                        title: "World-Class Hospitals | Personally Matched for You | AKEEZO",
+                        description: "Find and compare top accredited hospitals globally. Transparent estimates, verified patient satisfaction ratings, and complete care coordination with AKEEZO.",
+                        canonicalPath: "/hospitals",
+                        robots: "index,follow",
+                        schemaKind: "MedicalWebPage"
+                    },
+                    payload: {
+                        headline: "World-Class Hospitals, Personally Matched for You",
+                        subheadline: "Find the Best Hospitals for Your Treatment, Anywhere in the World"
+                    },
+                    siteSettings,
+                    statusCode: 200
+                };
+                res.json({ data: hospitalsDto });
+                return;
+            }
             // Check legal compliance pages
             const LEGAL_SEO_MAP = {
                 "/privacy": {

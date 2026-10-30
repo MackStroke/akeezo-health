@@ -320,6 +320,27 @@ export async function handleSsr(req, res, next) {
                 statusCode: 200
             };
         }
+        else if (normalizedPath === "/hospitals" || normalizedPath.startsWith("/hospitals/")) {
+            statusCode = 200;
+            dto = {
+                pageKind: "hospitalDirectory",
+                path: normalizedPath,
+                locale: "en",
+                seo: {
+                    title: "World-Class Hospitals | Personally Matched for You | AKEEZO",
+                    description: "Find and compare top accredited hospitals globally. Transparent estimates, verified patient satisfaction ratings, and complete care coordination with AKEEZO.",
+                    canonicalPath: "/hospitals",
+                    robots: "index,follow",
+                    schemaKind: "MedicalWebPage"
+                },
+                payload: {
+                    headline: "World-Class Hospitals, Personally Matched for You",
+                    subheadline: "Find the Best Hospitals for Your Treatment, Anywhere in the World"
+                },
+                siteSettings,
+                statusCode: 200
+            };
+        }
         else if (LEGAL_SEO_MAP[normalizedPath]) {
             const legalSeo = LEGAL_SEO_MAP[normalizedPath];
             statusCode = 200;

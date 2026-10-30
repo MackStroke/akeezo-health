@@ -9,6 +9,7 @@ import { NotFoundTemplate } from "@akeezo/web/src/templates/NotFoundTemplate.js"
 import { ServerErrorTemplate } from "@akeezo/web/src/templates/ServerErrorTemplate.js";
 import { CalculatorTemplate } from "@akeezo/web/src/templates/CalculatorTemplate.js";
 import { TreatmentsTemplate } from "@akeezo/web/src/templates/TreatmentsTemplate.js";
+import { HospitalsTemplate } from "@akeezo/web/src/templates/HospitalsTemplate.js";
 import { SiteHeader } from "@akeezo/web/src/components/SiteHeader.js";
 import { SiteFooter } from "@akeezo/web/src/components/SiteFooter.js";
 import { renderFallback500Html } from "../ssr/renderer.js";
@@ -162,5 +163,23 @@ describe("Website Audit Task 9: Treatments Directory Page Structure", () => {
         assert.ok(html.includes("All Treatments"), "Must render All Treatments directory");
         assert.ok(html.includes("Cosmetic/Plastic Surgery"), "Must render treatment cards");
         assert.ok(html.includes("Make Confident"), "Must render confident decision banner");
+    });
+});
+describe("Website Audit Task 10: Hospitals Directory Page Structure", () => {
+    it("Hospitals page resolves with hospitalDirectory and renders hero, search, top hospitals, recently viewed, and promotional banners", () => {
+        const data = getDefaultRouteData("/hospitals");
+        assert.equal(data.pageKind, "hospitalDirectory");
+        assert.equal(data.seo.title, "World-Class Hospitals | Personally Matched for You | AKEEZO");
+        const html = renderToString(React.createElement(HospitalsTemplate, { data }));
+        assert.ok(html.includes("World-Class Hospitals"), "Must render hero headline");
+        assert.ok(html.includes("Explore Hospitals Globally"), "Must render search placeholder");
+        assert.ok(html.includes("Top Hospitals"), "Must render top hospitals section");
+        assert.ok(html.includes("Yanhee International Hospital"), "Must render Yanhee Hospital");
+        assert.ok(html.includes("Memorial"), "Must render Memorial Hospital");
+        assert.ok(html.includes("AKEEZO Care"), "Must render AKEEZO branding");
+        assert.ok(html.includes("Is Absolutely Free"), "Must render free banner headline");
+        assert.ok(html.includes("Recently Viewed Hospital"), "Must render recently viewed hospitals section");
+        assert.ok(html.includes("Explore Hospitals"), "Must render explore all hospitals grid");
+        assert.ok(html.includes("Medanta"), "Must render Medanta Hospital");
     });
 });

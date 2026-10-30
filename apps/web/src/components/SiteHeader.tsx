@@ -240,7 +240,7 @@ export const SiteHeader: React.FC<SiteHeaderProps> = ({
                 <span>Treatments</span>
                 <ChevronDown className="size-3.5 text-ink-muted/80" />
               </button>
-              <a href="/#hospitals" className="transition-colors hover:text-action py-1">
+              <a href="/hospitals" className="transition-colors hover:text-action py-1">
                 Hospitals
               </a>
               <a href="/#doctors" className="transition-colors hover:text-action py-1">
@@ -347,7 +347,7 @@ export const SiteHeader: React.FC<SiteHeaderProps> = ({
                   <ChevronRight className="size-4 text-ink-muted" />
                 </button>
                 <a
-                  href="/#hospitals"
+                  href="/hospitals"
                   onClick={() => setIsMobileMenuOpen(false)}
                   className="flex items-center justify-between py-2 hover:text-action"
                 >
@@ -470,15 +470,26 @@ export const SiteHeader: React.FC<SiteHeaderProps> = ({
               ))}
             </div>
 
-            <div className="mt-6 flex items-center justify-between border-t border-border pt-4">
-              <a
-                href="/treatments"
-                onClick={() => setIsExploreOpen(false)}
-                className="inline-flex items-center gap-1.5 text-xs font-bold text-action hover:text-action-hover"
-              >
-                <span>View All 22+ Medical Treatments & Specialities</span>
-                <ChevronRight className="size-3.5" />
-              </a>
+            <div className="mt-6 flex flex-wrap items-center justify-between gap-3 border-t border-border pt-4">
+              <div className="flex flex-wrap items-center gap-4">
+                <a
+                  href="/treatments"
+                  onClick={() => setIsExploreOpen(false)}
+                  className="inline-flex items-center gap-1.5 text-xs font-bold text-action hover:text-action-hover"
+                >
+                  <span>View All 22+ Medical Treatments & Specialities</span>
+                  <ChevronRight className="size-3.5" />
+                </a>
+                <span className="text-border hidden sm:inline">|</span>
+                <a
+                  href="/hospitals"
+                  onClick={() => setIsExploreOpen(false)}
+                  className="inline-flex items-center gap-1.5 text-xs font-bold text-action hover:text-action-hover"
+                >
+                  <span>Explore World's Top Hospitals</span>
+                  <ChevronRight className="size-3.5" />
+                </a>
+              </div>
               <button
                 type="button"
                 onClick={() => setIsExploreOpen(false)}
