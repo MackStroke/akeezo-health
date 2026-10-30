@@ -362,6 +362,27 @@ export async function handleSsr(req, res, next) {
                 statusCode: 200
             };
         }
+        else if (normalizedPath === "/about" || normalizedPath === "/about-us") {
+            statusCode = 200;
+            dto = {
+                pageKind: "about",
+                path: normalizedPath,
+                locale: "en",
+                seo: {
+                    title: "About Us | Hey! We're AKEEZO Healthcare Platform",
+                    description: "Meet the team behind AKEEZO. A dedicated group of patient advocates, healthcare researchers, and travel experts making world-class medical care reachable for anyone, anywhere.",
+                    canonicalPath: "/about",
+                    robots: "index,follow",
+                    schemaKind: "AboutPage"
+                },
+                payload: {
+                    headline: "Hey! We're AKEEZO",
+                    subheadline: "We're a team of patient advocates, healthcare researchers, and travel experts — obsessed with one thing: making world-class medical care reachable for anyone, anywhere."
+                },
+                siteSettings,
+                statusCode: 200
+            };
+        }
         else if (LEGAL_SEO_MAP[normalizedPath]) {
             const legalSeo = LEGAL_SEO_MAP[normalizedPath];
             statusCode = 200;

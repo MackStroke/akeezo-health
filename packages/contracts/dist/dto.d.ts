@@ -197,6 +197,192 @@ export declare const PublicRouteResponseSchema: z.ZodObject<{
             contentBackground?: string | undefined;
             cardBackground?: string | undefined;
         }>>;
+        integrations: z.ZodOptional<z.ZodObject<{
+            googleTagManager: z.ZodDefault<z.ZodObject<{
+                enabled: z.ZodDefault<z.ZodBoolean>;
+                containerId: z.ZodDefault<z.ZodString>;
+            }, "strip", z.ZodTypeAny, {
+                enabled: boolean;
+                containerId: string;
+            }, {
+                enabled?: boolean | undefined;
+                containerId?: string | undefined;
+            }>>;
+            googleCloud: z.ZodDefault<z.ZodObject<{
+                enabled: z.ZodDefault<z.ZodBoolean>;
+                projectId: z.ZodDefault<z.ZodString>;
+                clientEmail: z.ZodDefault<z.ZodString>;
+                region: z.ZodDefault<z.ZodString>;
+                storageBucket: z.ZodDefault<z.ZodString>;
+                status: z.ZodDefault<z.ZodEnum<["connected", "unconfigured", "error"]>>;
+            }, "strip", z.ZodTypeAny, {
+                status: "connected" | "unconfigured" | "error";
+                enabled: boolean;
+                projectId: string;
+                clientEmail: string;
+                region: string;
+                storageBucket: string;
+            }, {
+                status?: "connected" | "unconfigured" | "error" | undefined;
+                enabled?: boolean | undefined;
+                projectId?: string | undefined;
+                clientEmail?: string | undefined;
+                region?: string | undefined;
+                storageBucket?: string | undefined;
+            }>>;
+            metaPixel: z.ZodDefault<z.ZodObject<{
+                enabled: z.ZodDefault<z.ZodBoolean>;
+                pixelId: z.ZodDefault<z.ZodString>;
+                testEventCode: z.ZodDefault<z.ZodString>;
+            }, "strip", z.ZodTypeAny, {
+                enabled: boolean;
+                pixelId: string;
+                testEventCode: string;
+            }, {
+                enabled?: boolean | undefined;
+                pixelId?: string | undefined;
+                testEventCode?: string | undefined;
+            }>>;
+            gemini: z.ZodDefault<z.ZodObject<{
+                enabled: z.ZodDefault<z.ZodBoolean>;
+                apiKey: z.ZodDefault<z.ZodString>;
+                apiKeyMasked: z.ZodDefault<z.ZodString>;
+                model: z.ZodDefault<z.ZodString>;
+                temperature: z.ZodDefault<z.ZodNumber>;
+                status: z.ZodDefault<z.ZodEnum<["active", "unconfigured", "error"]>>;
+                lastTestedAt: z.ZodOptional<z.ZodString>;
+            }, "strip", z.ZodTypeAny, {
+                status: "unconfigured" | "error" | "active";
+                enabled: boolean;
+                apiKey: string;
+                apiKeyMasked: string;
+                model: string;
+                temperature: number;
+                lastTestedAt?: string | undefined;
+            }, {
+                status?: "unconfigured" | "error" | "active" | undefined;
+                enabled?: boolean | undefined;
+                apiKey?: string | undefined;
+                apiKeyMasked?: string | undefined;
+                model?: string | undefined;
+                temperature?: number | undefined;
+                lastTestedAt?: string | undefined;
+            }>>;
+            googleAnalytics: z.ZodDefault<z.ZodObject<{
+                enabled: z.ZodDefault<z.ZodBoolean>;
+                measurementId: z.ZodDefault<z.ZodString>;
+                anonymizeIp: z.ZodDefault<z.ZodBoolean>;
+            }, "strip", z.ZodTypeAny, {
+                enabled: boolean;
+                measurementId: string;
+                anonymizeIp: boolean;
+            }, {
+                enabled?: boolean | undefined;
+                measurementId?: string | undefined;
+                anonymizeIp?: boolean | undefined;
+            }>>;
+            googleAnalyticsId: z.ZodOptional<z.ZodString>;
+            firebaseProjectMasked: z.ZodOptional<z.ZodString>;
+            smtpHostMasked: z.ZodOptional<z.ZodString>;
+            storageBucketMasked: z.ZodOptional<z.ZodString>;
+        }, "strip", z.ZodTypeAny, {
+            googleTagManager: {
+                enabled: boolean;
+                containerId: string;
+            };
+            googleCloud: {
+                status: "connected" | "unconfigured" | "error";
+                enabled: boolean;
+                projectId: string;
+                clientEmail: string;
+                region: string;
+                storageBucket: string;
+            };
+            metaPixel: {
+                enabled: boolean;
+                pixelId: string;
+                testEventCode: string;
+            };
+            gemini: {
+                status: "unconfigured" | "error" | "active";
+                enabled: boolean;
+                apiKey: string;
+                apiKeyMasked: string;
+                model: string;
+                temperature: number;
+                lastTestedAt?: string | undefined;
+            };
+            googleAnalytics: {
+                enabled: boolean;
+                measurementId: string;
+                anonymizeIp: boolean;
+            };
+            googleAnalyticsId?: string | undefined;
+            firebaseProjectMasked?: string | undefined;
+            smtpHostMasked?: string | undefined;
+            storageBucketMasked?: string | undefined;
+        }, {
+            googleTagManager?: {
+                enabled?: boolean | undefined;
+                containerId?: string | undefined;
+            } | undefined;
+            googleCloud?: {
+                status?: "connected" | "unconfigured" | "error" | undefined;
+                enabled?: boolean | undefined;
+                projectId?: string | undefined;
+                clientEmail?: string | undefined;
+                region?: string | undefined;
+                storageBucket?: string | undefined;
+            } | undefined;
+            metaPixel?: {
+                enabled?: boolean | undefined;
+                pixelId?: string | undefined;
+                testEventCode?: string | undefined;
+            } | undefined;
+            gemini?: {
+                status?: "unconfigured" | "error" | "active" | undefined;
+                enabled?: boolean | undefined;
+                apiKey?: string | undefined;
+                apiKeyMasked?: string | undefined;
+                model?: string | undefined;
+                temperature?: number | undefined;
+                lastTestedAt?: string | undefined;
+            } | undefined;
+            googleAnalytics?: {
+                enabled?: boolean | undefined;
+                measurementId?: string | undefined;
+                anonymizeIp?: boolean | undefined;
+            } | undefined;
+            googleAnalyticsId?: string | undefined;
+            firebaseProjectMasked?: string | undefined;
+            smtpHostMasked?: string | undefined;
+            storageBucketMasked?: string | undefined;
+        }>>;
+        mediaSettings: z.ZodOptional<z.ZodObject<{
+            autoOptimizeOnUpload: z.ZodDefault<z.ZodBoolean>;
+            quality: z.ZodDefault<z.ZodNumber>;
+            maxWidth: z.ZodDefault<z.ZodNumber>;
+            maxHeight: z.ZodDefault<z.ZodNumber>;
+            generateVariants: z.ZodDefault<z.ZodBoolean>;
+            format: z.ZodDefault<z.ZodEnum<["webp", "original"]>>;
+            preserveOriginals: z.ZodDefault<z.ZodBoolean>;
+        }, "strip", z.ZodTypeAny, {
+            autoOptimizeOnUpload: boolean;
+            quality: number;
+            maxWidth: number;
+            maxHeight: number;
+            generateVariants: boolean;
+            format: "webp" | "original";
+            preserveOriginals: boolean;
+        }, {
+            autoOptimizeOnUpload?: boolean | undefined;
+            quality?: number | undefined;
+            maxWidth?: number | undefined;
+            maxHeight?: number | undefined;
+            generateVariants?: boolean | undefined;
+            format?: "webp" | "original" | undefined;
+            preserveOriginals?: boolean | undefined;
+        }>>;
         logoVariants: z.ZodOptional<z.ZodObject<{
             light: z.ZodOptional<z.ZodString>;
             dark: z.ZodOptional<z.ZodString>;
@@ -314,6 +500,52 @@ export declare const PublicRouteResponseSchema: z.ZodObject<{
         contactEmail?: string | undefined;
         emergencyHelpline?: string | undefined;
         whatsappHelpline?: string | undefined;
+        integrations?: {
+            googleTagManager: {
+                enabled: boolean;
+                containerId: string;
+            };
+            googleCloud: {
+                status: "connected" | "unconfigured" | "error";
+                enabled: boolean;
+                projectId: string;
+                clientEmail: string;
+                region: string;
+                storageBucket: string;
+            };
+            metaPixel: {
+                enabled: boolean;
+                pixelId: string;
+                testEventCode: string;
+            };
+            gemini: {
+                status: "unconfigured" | "error" | "active";
+                enabled: boolean;
+                apiKey: string;
+                apiKeyMasked: string;
+                model: string;
+                temperature: number;
+                lastTestedAt?: string | undefined;
+            };
+            googleAnalytics: {
+                enabled: boolean;
+                measurementId: string;
+                anonymizeIp: boolean;
+            };
+            googleAnalyticsId?: string | undefined;
+            firebaseProjectMasked?: string | undefined;
+            smtpHostMasked?: string | undefined;
+            storageBucketMasked?: string | undefined;
+        } | undefined;
+        mediaSettings?: {
+            autoOptimizeOnUpload: boolean;
+            quality: number;
+            maxWidth: number;
+            maxHeight: number;
+            generateVariants: boolean;
+            format: "webp" | "original";
+            preserveOriginals: boolean;
+        } | undefined;
         logoVariants?: {
             light?: string | undefined;
             dark?: string | undefined;
@@ -404,6 +636,52 @@ export declare const PublicRouteResponseSchema: z.ZodObject<{
             headerText?: string | undefined;
             contentBackground?: string | undefined;
             cardBackground?: string | undefined;
+        } | undefined;
+        integrations?: {
+            googleTagManager?: {
+                enabled?: boolean | undefined;
+                containerId?: string | undefined;
+            } | undefined;
+            googleCloud?: {
+                status?: "connected" | "unconfigured" | "error" | undefined;
+                enabled?: boolean | undefined;
+                projectId?: string | undefined;
+                clientEmail?: string | undefined;
+                region?: string | undefined;
+                storageBucket?: string | undefined;
+            } | undefined;
+            metaPixel?: {
+                enabled?: boolean | undefined;
+                pixelId?: string | undefined;
+                testEventCode?: string | undefined;
+            } | undefined;
+            gemini?: {
+                status?: "unconfigured" | "error" | "active" | undefined;
+                enabled?: boolean | undefined;
+                apiKey?: string | undefined;
+                apiKeyMasked?: string | undefined;
+                model?: string | undefined;
+                temperature?: number | undefined;
+                lastTestedAt?: string | undefined;
+            } | undefined;
+            googleAnalytics?: {
+                enabled?: boolean | undefined;
+                measurementId?: string | undefined;
+                anonymizeIp?: boolean | undefined;
+            } | undefined;
+            googleAnalyticsId?: string | undefined;
+            firebaseProjectMasked?: string | undefined;
+            smtpHostMasked?: string | undefined;
+            storageBucketMasked?: string | undefined;
+        } | undefined;
+        mediaSettings?: {
+            autoOptimizeOnUpload?: boolean | undefined;
+            quality?: number | undefined;
+            maxWidth?: number | undefined;
+            maxHeight?: number | undefined;
+            generateVariants?: boolean | undefined;
+            format?: "webp" | "original" | undefined;
+            preserveOriginals?: boolean | undefined;
         } | undefined;
         logoVariants?: {
             light?: string | undefined;
@@ -512,6 +790,52 @@ export declare const PublicRouteResponseSchema: z.ZodObject<{
         contactEmail?: string | undefined;
         emergencyHelpline?: string | undefined;
         whatsappHelpline?: string | undefined;
+        integrations?: {
+            googleTagManager: {
+                enabled: boolean;
+                containerId: string;
+            };
+            googleCloud: {
+                status: "connected" | "unconfigured" | "error";
+                enabled: boolean;
+                projectId: string;
+                clientEmail: string;
+                region: string;
+                storageBucket: string;
+            };
+            metaPixel: {
+                enabled: boolean;
+                pixelId: string;
+                testEventCode: string;
+            };
+            gemini: {
+                status: "unconfigured" | "error" | "active";
+                enabled: boolean;
+                apiKey: string;
+                apiKeyMasked: string;
+                model: string;
+                temperature: number;
+                lastTestedAt?: string | undefined;
+            };
+            googleAnalytics: {
+                enabled: boolean;
+                measurementId: string;
+                anonymizeIp: boolean;
+            };
+            googleAnalyticsId?: string | undefined;
+            firebaseProjectMasked?: string | undefined;
+            smtpHostMasked?: string | undefined;
+            storageBucketMasked?: string | undefined;
+        } | undefined;
+        mediaSettings?: {
+            autoOptimizeOnUpload: boolean;
+            quality: number;
+            maxWidth: number;
+            maxHeight: number;
+            generateVariants: boolean;
+            format: "webp" | "original";
+            preserveOriginals: boolean;
+        } | undefined;
         logoVariants?: {
             light?: string | undefined;
             dark?: string | undefined;
@@ -616,6 +940,52 @@ export declare const PublicRouteResponseSchema: z.ZodObject<{
             headerText?: string | undefined;
             contentBackground?: string | undefined;
             cardBackground?: string | undefined;
+        } | undefined;
+        integrations?: {
+            googleTagManager?: {
+                enabled?: boolean | undefined;
+                containerId?: string | undefined;
+            } | undefined;
+            googleCloud?: {
+                status?: "connected" | "unconfigured" | "error" | undefined;
+                enabled?: boolean | undefined;
+                projectId?: string | undefined;
+                clientEmail?: string | undefined;
+                region?: string | undefined;
+                storageBucket?: string | undefined;
+            } | undefined;
+            metaPixel?: {
+                enabled?: boolean | undefined;
+                pixelId?: string | undefined;
+                testEventCode?: string | undefined;
+            } | undefined;
+            gemini?: {
+                status?: "unconfigured" | "error" | "active" | undefined;
+                enabled?: boolean | undefined;
+                apiKey?: string | undefined;
+                apiKeyMasked?: string | undefined;
+                model?: string | undefined;
+                temperature?: number | undefined;
+                lastTestedAt?: string | undefined;
+            } | undefined;
+            googleAnalytics?: {
+                enabled?: boolean | undefined;
+                measurementId?: string | undefined;
+                anonymizeIp?: boolean | undefined;
+            } | undefined;
+            googleAnalyticsId?: string | undefined;
+            firebaseProjectMasked?: string | undefined;
+            smtpHostMasked?: string | undefined;
+            storageBucketMasked?: string | undefined;
+        } | undefined;
+        mediaSettings?: {
+            autoOptimizeOnUpload?: boolean | undefined;
+            quality?: number | undefined;
+            maxWidth?: number | undefined;
+            maxHeight?: number | undefined;
+            generateVariants?: boolean | undefined;
+            format?: "webp" | "original" | undefined;
+            preserveOriginals?: boolean | undefined;
         } | undefined;
         logoVariants?: {
             light?: string | undefined;

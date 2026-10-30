@@ -179,6 +179,28 @@ apiRouter.get("/route", async (req, res) => {
                 res.json({ data: doctorsDto });
                 return;
             }
+            if (normalizedPath === "/about" || normalizedPath === "/about-us") {
+                const aboutDto = {
+                    pageKind: "about",
+                    path: normalizedPath,
+                    locale,
+                    seo: {
+                        title: "About Us | Hey! We're AKEEZO Healthcare Platform",
+                        description: "Meet the team behind AKEEZO. A dedicated group of patient advocates, healthcare researchers, and travel experts making world-class medical care reachable for anyone, anywhere.",
+                        canonicalPath: "/about",
+                        robots: "index,follow",
+                        schemaKind: "AboutPage"
+                    },
+                    payload: {
+                        headline: "Hey! We're AKEEZO",
+                        subheadline: "We're a team of patient advocates, healthcare researchers, and travel experts — obsessed with one thing: making world-class medical care reachable for anyone, anywhere."
+                    },
+                    siteSettings,
+                    statusCode: 200
+                };
+                res.json({ data: aboutDto });
+                return;
+            }
             // Check legal compliance pages
             const LEGAL_SEO_MAP = {
                 "/privacy": {

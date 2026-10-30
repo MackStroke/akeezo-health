@@ -181,6 +181,11 @@ export const SiteFooter: React.FC<SiteFooterProps> = ({ siteSettings = {} }) => 
             <p className="leading-relaxed mb-3">
               India's verified medical tourism and healthcare navigation platform. Bridging global patients to accredited hospitals with personalized care coordination.
             </p>
+            <div className="mb-3">
+              <a href="/about" className="hover:text-action font-bold text-action inline-flex items-center gap-1">
+                Meet Our Team &amp; Story &rarr;
+              </a>
+            </div>
             <div className="font-bold text-ink">ISO 9001:2015 Certified</div>
           </div>
 

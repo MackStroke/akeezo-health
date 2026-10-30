@@ -130,10 +130,40 @@ const SiteSettingsSchema = new Schema({
         spamFilterEnabled: { type: Boolean, default: true }
     },
     integrations: {
-        googleAnalyticsId: { type: String, default: "" },
+        googleTagManager: {
+            enabled: { type: Boolean, default: false },
+            containerId: { type: String, default: "GTM-AKZ89P4" },
+        },
+        googleCloud: {
+            enabled: { type: Boolean, default: true },
+            projectId: { type: String, default: "akeezo-health-prod" },
+            clientEmail: { type: String, default: "service-account@akeezo-health-prod.iam.gserviceaccount.com" },
+            region: { type: String, default: "asia-south1" },
+            storageBucket: { type: String, default: "gs://akeezo-vault-prod" },
+            status: { type: String, default: "connected" },
+        },
+        metaPixel: {
+            enabled: { type: Boolean, default: false },
+            pixelId: { type: String, default: "982347109283471" },
+            testEventCode: { type: String, default: "" },
+        },
+        gemini: {
+            enabled: { type: Boolean, default: true },
+            apiKey: { type: String, default: "" },
+            model: { type: String, default: "gemini-2.0-flash" },
+            temperature: { type: Number, default: 0.2 },
+            status: { type: String, default: "active" },
+            lastTestedAt: { type: Date },
+        },
+        googleAnalytics: {
+            enabled: { type: Boolean, default: true },
+            measurementId: { type: String, default: "G-AKEEZO2026X" },
+            anonymizeIp: { type: Boolean, default: true },
+        },
+        googleAnalyticsId: { type: String, default: "G-AKEEZO2026X" },
         firebaseProjectMasked: { type: String, default: "akeezo-health-prod (Active)" },
         smtpHostMasked: { type: String, default: "smtp.sendgrid.net (Configured)" },
-        storageBucketMasked: { type: String, default: "gs://akeezo-vault-prod (Protected)" }
+        storageBucketMasked: { type: String, default: "gs://akeezo-vault-prod (Protected)" },
     },
     mediaSettings: {
         autoOptimizeOnUpload: { type: Boolean, default: true },

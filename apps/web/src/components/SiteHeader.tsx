@@ -249,6 +249,9 @@ export const SiteHeader: React.FC<SiteHeaderProps> = ({
               <a href="/#destinations" className="transition-colors hover:text-action py-1">
                 Destinations
               </a>
+              <a href="/about" className="transition-colors hover:text-action py-1">
+                About
+              </a>
               <button
                 type="button"
                 onClick={() => setIsCalculatorOpen(true)}
@@ -368,6 +371,14 @@ export const SiteHeader: React.FC<SiteHeaderProps> = ({
                   className="flex items-center justify-between py-2 hover:text-action"
                 >
                   <span>Medical Tourism Destinations</span>
+                  <ChevronRight className="size-4 text-ink-muted" />
+                </a>
+                <a
+                  href="/about"
+                  onClick={() => setIsMobileMenuOpen(false)}
+                  className="flex items-center justify-between py-2 hover:text-action"
+                >
+                  <span>About AKEEZO &amp; Our Team</span>
                   <ChevronRight className="size-4 text-ink-muted" />
                 </a>
               </nav>

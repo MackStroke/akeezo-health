@@ -11,6 +11,7 @@ import { CalculatorTemplate } from "@akeezo/web/src/templates/CalculatorTemplate
 import { TreatmentsTemplate } from "@akeezo/web/src/templates/TreatmentsTemplate.js";
 import { HospitalsTemplate } from "@akeezo/web/src/templates/HospitalsTemplate.js";
 import { DoctorsTemplate } from "@akeezo/web/src/templates/DoctorsTemplate.js";
+import { AboutTemplate } from "@akeezo/web/src/templates/AboutTemplate.js";
 import { SiteHeader } from "@akeezo/web/src/components/SiteHeader.js";
 import { SiteFooter } from "@akeezo/web/src/components/SiteFooter.js";
 import { renderFallback500Html } from "../ssr/renderer.js";
@@ -201,5 +202,26 @@ describe("Website Audit Task 11: Doctors Directory Page Structure", () => {
         assert.ok(html.includes("Recently Viewed Doctors"), "Must render recently viewed doctors section");
         assert.ok(html.includes("Top Doctors Globally"), "Must render explore all doctors grid");
         assert.ok(html.includes("Prof. Dr. Francesco Rubino"), "Must render Francesco Rubino");
+    });
+});
+describe("Website Audit Task 12: About Us Page Structure", () => {
+    it("About page resolves with about and renders hero, our story, stats, leadership team, press, and testimonials", () => {
+        const data = getDefaultRouteData("/about");
+        assert.equal(data.pageKind, "about");
+        assert.equal(data.seo.title, "About Us | Hey! We're AKEEZO Healthcare Platform");
+        const html = renderToString(React.createElement(AboutTemplate, { data }));
+        assert.ok(html.includes("Hey! We&#x27;re AKEEZO") || html.includes("Hey! We're AKEEZO"), "Must render hero headline");
+        assert.ok(html.includes("Our Story"), "Must render our story section");
+        assert.ok(html.includes("Meet Our Team"), "Must render meet our team section");
+        assert.ok(html.includes("Aditya Oza"), "Must render Aditya Oza");
+        assert.ok(html.includes("Mikhail Bohra"), "Must render Mikhail Bohra");
+        assert.ok(html.includes("Dr Md El Chami"), "Must render Dr Md El Chami");
+        assert.ok(html.includes("Trusted by Patients Across the Globe"), "Must render press coverage section");
+        assert.ok(html.includes("Women&#x27;s Insider") || html.includes("Women's Insider"), "Must render featured press");
+        assert.ok(html.includes("Bio Spectrum India"), "Must render Bio Spectrum");
+        assert.ok(html.includes("Testimonial"), "Must render testimonials section");
+        assert.ok(html.includes("Google"), "Must render Google reviews badge");
+        assert.ok(html.includes("Trustpilot"), "Must render Trustpilot badge");
+        assert.ok(html.includes("4.8"), "Must render rating meter");
     });
 });

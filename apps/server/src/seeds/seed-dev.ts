@@ -140,6 +140,19 @@ const SEED_PAGES: SeedPageDef[] = [
       headline: "World-Class Doctors, Personally Matched for You",
       subheadline: "Search, compare, and connect with leading specialists across the globe."
     }
+  },
+  {
+    slug: "about",
+    path: "/about",
+    pageKind: "about",
+    title: "About Us | Hey! We're AKEEZO Healthcare Platform",
+    description:
+      "Meet the team behind AKEEZO. A dedicated group of patient advocates, healthcare researchers, and travel experts making world-class medical care reachable for anyone, anywhere.",
+    payload: {
+      headline: "Hey! We're AKEEZO",
+      subheadline:
+        "We're a team of patient advocates, healthcare researchers, and travel experts — obsessed with one thing: making world-class medical care reachable for anyone, anywhere."
+    }
   }
 ];
 

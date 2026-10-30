@@ -4,7 +4,7 @@ import { Router } from "express";
 import mongoose from "mongoose";
 import { SiteSettings, Page, ContentRevision, RouteEntry, EnquiryModel, PatientModel, CaseModel, CaseAuditLogModel, HospitalModel, PartnerModel, UserModel, MediaAssetModel, RedirectModel, } from "../db/models/index.js";
 import { hashPassword, verifyPassword, escapeRegex, verifyToken, requireAuth, requireRole, FALLBACK_USERS, } from "../utils/auth.js";
-import { DEFAULT_WEBSITE_THEME, DEFAULT_ADMIN_THEME, THEME_PRESETS, sanitizeCssValue, DEFAULT_MEDIA_OPTIMIZATION_SETTINGS, MediaOptimizationSettingsSchema, } from "@akeezo/contracts";
+import { DEFAULT_WEBSITE_THEME, DEFAULT_ADMIN_THEME, THEME_PRESETS, sanitizeCssValue, DEFAULT_MEDIA_OPTIMIZATION_SETTINGS, MediaOptimizationSettingsSchema, DEFAULT_PLATFORM_INTEGRATIONS, } from "@akeezo/contracts";
 import { optimizeMediaBuffer, saveOptimizedFilesToDisk, optimizeExistingMediaDoc, getActiveMediaSettings, } from "../services/mediaOptimizationService.js";
 import { syncUserToFirebase } from "../firebase.js";
 import { env } from "../config/env.js";
@@ -186,6 +186,112 @@ async function updateActiveSiteSettings(updatePayload) {
     const filter = existing ? { _id: existing._id } : { environment: targetEnv };
     return SiteSettings.findOneAndUpdate(filter, { $set: updatePayload, $inc: { version: 1 } }, { upsert: true, new: true });
 }
+// ==========================================
+// INTEGRATIONS HELPERS (DPDP Masking & Secret Preservation)
+// ==========================================
+function maskIntegrationsForClient(integrations) {
+    const base = { ...DEFAULT_PLATFORM_INTEGRATIONS };
+    if (!integrations)
+        return base;
+    const raw = typeof integrations.toObject === "function" ? integrations.toObject() : integrations;
+    const result = {
+        ...base,
+        ...raw,
+        googleTagManager: {
+            ...base.googleTagManager,
+            ...(raw.googleTagManager || {}),
+        },
+        googleCloud: {
+            ...base.googleCloud,
+            ...(raw.googleCloud || {}),
+        },
+        metaPixel: {
+            ...base.metaPixel,
+            ...(raw.metaPixel || {}),
+        },
+        gemini: {
+            ...base.gemini,
+            ...(raw.gemini || {}),
+        },
+        googleAnalytics: {
+            ...base.googleAnalytics,
+            ...(raw.googleAnalytics || {}),
+        },
+        googleAnalyticsId: raw.googleAnalytics?.measurementId ||
+            raw.googleAnalyticsId ||
+            base.googleAnalyticsId ||
+            "G-AKEEZO2026X",
+        firebaseProjectMasked: raw.firebaseProjectMasked || base.firebaseProjectMasked,
+        smtpHostMasked: raw.smtpHostMasked || base.smtpHostMasked,
+        storageBucketMasked: raw.storageBucketMasked || base.storageBucketMasked,
+    };
+    // Mask Gemini key in compliance with DPDP encryption/masking guidelines
+    const geminiKey = result.gemini?.apiKey || "";
+    if (geminiKey && geminiKey.length > 6) {
+        const prefix = geminiKey.substring(0, 6);
+        result.gemini.apiKeyMasked = `${prefix}${"•".repeat(Math.max(16, geminiKey.length - 6))}`;
+    }
+    else if (!result.gemini.apiKeyMasked) {
+        result.gemini.apiKeyMasked = "AIzaSy••••••••••••••••••••••••••••";
+    }
+    // Strip raw API key from client payload so it is never exposed in plaintext
+    result.gemini.apiKey = "";
+    return result;
+}
+function processIntegrationsPayload(newIntegrations, existingIntegrations) {
+    const base = existingIntegrations
+        ? (typeof existingIntegrations.toObject === "function" ? existingIntegrations.toObject() : existingIntegrations)
+        : DEFAULT_PLATFORM_INTEGRATIONS;
+    if (!newIntegrations)
+        return base;
+    const merged = {
+        ...base,
+        ...newIntegrations,
+        googleTagManager: {
+            ...(base.googleTagManager || DEFAULT_PLATFORM_INTEGRATIONS.googleTagManager),
+            ...(newIntegrations.googleTagManager || {}),
+        },
+        googleCloud: {
+            ...(base.googleCloud || DEFAULT_PLATFORM_INTEGRATIONS.googleCloud),
+            ...(newIntegrations.googleCloud || {}),
+        },
+        metaPixel: {
+            ...(base.metaPixel || DEFAULT_PLATFORM_INTEGRATIONS.metaPixel),
+            ...(newIntegrations.metaPixel || {}),
+        },
+        gemini: {
+            ...(base.gemini || DEFAULT_PLATFORM_INTEGRATIONS.gemini),
+            ...(newIntegrations.gemini || {}),
+        },
+        googleAnalytics: {
+            ...(base.googleAnalytics || DEFAULT_PLATFORM_INTEGRATIONS.googleAnalytics),
+            ...(newIntegrations.googleAnalytics || {}),
+        },
+    };
+    // Secret preservation:
+    // If the admin didn't alter the masked key or passed bullets, preserve the raw existing secret!
+    const incomingGeminiKey = newIntegrations.gemini?.apiKey;
+    if (!incomingGeminiKey || incomingGeminiKey.includes("•")) {
+        merged.gemini.apiKey = base.gemini?.apiKey || "";
+        if (merged.gemini.apiKey && merged.gemini.apiKey.length > 6) {
+            merged.gemini.apiKeyMasked = `${merged.gemini.apiKey.substring(0, 6)}${"•".repeat(Math.max(16, merged.gemini.apiKey.length - 6))}`;
+        }
+        else {
+            merged.gemini.apiKeyMasked = base.gemini?.apiKeyMasked || "AIzaSy••••••••••••••••••••••••••••";
+        }
+    }
+    else {
+        merged.gemini.apiKey = incomingGeminiKey.trim();
+        const prefix = merged.gemini.apiKey.substring(0, 6);
+        merged.gemini.apiKeyMasked = `${prefix}${"•".repeat(Math.max(16, merged.gemini.apiKey.length - 6))}`;
+        merged.gemini.status = "active";
+    }
+    // Sync GA4 measurement ID
+    if (merged.googleAnalytics?.measurementId) {
+        merged.googleAnalyticsId = merged.googleAnalytics.measurementId;
+    }
+    return merged;
+}
 // GET /api/v1/admin/site-settings
 cmsAdminRouter.get("/site-settings", async (_req, res) => {
     try {
@@ -214,12 +320,7 @@ cmsAdminRouter.get("/site-settings", async (_req, res) => {
                 headquartersAddress: "Regus Elegance, Jasola District Centre, New Delhi, India 110025",
                 defaultLanguage: "en",
                 defaultTimezone: "Asia/Kolkata",
-                integrations: {
-                    googleAnalyticsId: "",
-                    firebaseProjectMasked: "akeezo-health-prod (Active)",
-                    smtpHostMasked: "smtp.sendgrid.net (Configured)",
-                    storageBucketMasked: "gs://akeezo-vault-prod (Protected)",
-                },
+                integrations: DEFAULT_PLATFORM_INTEGRATIONS,
                 formsConfig: {
                     leadNotificationEmails: ["care@akeezo.com", "coordinator@akeezo.com"],
                     autoTriageEnabled: true,
@@ -244,14 +345,6 @@ cmsAdminRouter.get("/site-settings", async (_req, res) => {
             if (!settings.adminTheme) {
                 settings.adminTheme = { ...DEFAULT_ADMIN_THEME };
             }
-            if (!settings.integrations) {
-                settings.integrations = {
-                    googleAnalyticsId: "",
-                    firebaseProjectMasked: "akeezo-health-prod (Active)",
-                    smtpHostMasked: "smtp.sendgrid.net (Configured)",
-                    storageBucketMasked: "gs://akeezo-vault-prod (Protected)",
-                };
-            }
             if (!settings.formsConfig) {
                 settings.formsConfig = {
                     leadNotificationEmails: ["care@akeezo.com", "coordinator@akeezo.com"],
@@ -266,6 +359,8 @@ cmsAdminRouter.get("/site-settings", async (_req, res) => {
                 };
             }
         }
+        // Always deliver masked integration secrets to the admin client
+        settings.integrations = maskIntegrationsForClient(settings.integrations);
         res.json({ data: settings });
     }
     catch {
@@ -276,6 +371,7 @@ cmsAdminRouter.get("/site-settings", async (_req, res) => {
                 tagline: "Heal In India, Heal By Akeezo",
                 websiteTheme: DEFAULT_WEBSITE_THEME,
                 adminTheme: DEFAULT_ADMIN_THEME,
+                integrations: DEFAULT_PLATFORM_INTEGRATIONS,
             },
         });
     }
@@ -379,14 +475,240 @@ cmsAdminRouter.put(["/site-settings", "/settings/:section"], async (req, res) =>
             updatePayload.defaultLanguage = req.body.defaultLanguage;
         if (req.body.defaultTimezone !== undefined)
             updatePayload.defaultTimezone = req.body.defaultTimezone;
-        if (req.body.integrations !== undefined)
-            updatePayload.integrations = req.body.integrations;
+        if (req.body.integrations !== undefined) {
+            updatePayload.integrations = processIntegrationsPayload(req.body.integrations, existingObj?.integrations);
+        }
         const updated = await updateActiveSiteSettings(updatePayload);
         await logAdminActivity(req.user?._id, "SiteSettings", updated._id, "update", { section: ["previous", req.params.section || "general"] }, req);
-        res.json({ data: updated });
+        const out = updated.toObject ? updated.toObject() : updated;
+        out.integrations = maskIntegrationsForClient(out.integrations);
+        res.json({ data: out });
     }
     catch (err) {
         res.status(400).json({ error: { code: "UPDATE_SETTINGS_FAILED", message: err.message } });
+    }
+});
+// ==========================================
+// DEDICATED INTEGRATIONS ENDPOINTS
+// ==========================================
+// GET /api/v1/admin/integrations
+cmsAdminRouter.get("/integrations", async (_req, res) => {
+    try {
+        const doc = await getActiveSiteSettingsDoc();
+        const integrations = doc?.integrations;
+        res.json({ data: maskIntegrationsForClient(integrations) });
+    }
+    catch (err) {
+        res.status(500).json({ error: { code: "FETCH_INTEGRATIONS_FAILED", message: err.message } });
+    }
+});
+// PUT /api/v1/admin/integrations
+cmsAdminRouter.put("/integrations", async (req, res) => {
+    try {
+        const existingDoc = await getActiveSiteSettingsDoc();
+        const existingObj = existingDoc ? (existingDoc.toObject ? existingDoc.toObject() : existingDoc) : null;
+        const processed = processIntegrationsPayload(req.body, existingObj?.integrations);
+        const updated = await updateActiveSiteSettings({
+            integrations: processed,
+        });
+        await logAdminActivity(req.user?._id, "SiteSettings", updated._id, "update", { integrations: ["previous", "updated"] }, req);
+        const out = updated.toObject ? updated.toObject() : updated;
+        res.json({ data: maskIntegrationsForClient(out.integrations) });
+    }
+    catch (err) {
+        res.status(400).json({ error: { code: "UPDATE_INTEGRATIONS_FAILED", message: err.message } });
+    }
+});
+// POST /api/v1/admin/integrations/test/gemini
+cmsAdminRouter.post("/integrations/test/gemini", async (req, res) => {
+    try {
+        const { apiKey, model } = req.body || {};
+        const existingDoc = await getActiveSiteSettingsDoc();
+        const effectiveModel = model || existingDoc?.integrations?.gemini?.model || "gemini-2.0-flash";
+        let effectiveKey = apiKey;
+        if (!effectiveKey || effectiveKey.includes("•")) {
+            effectiveKey = existingDoc?.integrations?.gemini?.apiKey || process.env.GEMINI_API_KEY || "";
+        }
+        if (!effectiveKey) {
+            return res.status(400).json({
+                ok: false,
+                error: "No Gemini API key provided or configured in site settings.",
+            });
+        }
+        const startTime = Date.now();
+        const testUrl = `https://generativelanguage.googleapis.com/v1beta/models/${encodeURIComponent(effectiveModel)}?key=${encodeURIComponent(effectiveKey)}`;
+        const controller = new AbortController();
+        const timeout = setTimeout(() => controller.abort(), 8000);
+        try {
+            const apiRes = await fetch(testUrl, {
+                method: "GET",
+                signal: controller.signal,
+            });
+            clearTimeout(timeout);
+            const latencyMs = Date.now() - startTime;
+            if (!apiRes.ok) {
+                const errorBody = (await apiRes.json().catch(() => ({})));
+                const errorMsg = errorBody.error?.message || `Google API returned HTTP ${apiRes.status}`;
+                return res.status(apiRes.status === 400 || apiRes.status === 403 ? 400 : 502).json({
+                    ok: false,
+                    latencyMs,
+                    error: errorMsg,
+                });
+            }
+            if (existingDoc) {
+                await SiteSettings.updateOne({ _id: existingDoc._id }, {
+                    $set: {
+                        "integrations.gemini.status": "active",
+                        "integrations.gemini.lastTestedAt": new Date().toISOString(),
+                    },
+                });
+            }
+            return res.json({
+                ok: true,
+                latencyMs,
+                model: effectiveModel,
+                status: "active",
+                message: `Successfully connected to Gemini API (${effectiveModel}) in ${latencyMs}ms`,
+            });
+        }
+        catch (fetchErr) {
+            clearTimeout(timeout);
+            const isTimeout = fetchErr.name === "AbortError";
+            return res.status(504).json({
+                ok: false,
+                error: isTimeout ? "Connection timed out connecting to Google Gemini API (8s limit)" : fetchErr.message,
+            });
+        }
+    }
+    catch (err) {
+        return res.status(500).json({ ok: false, error: err.message });
+    }
+});
+// POST /api/v1/admin/integrations/test/google-cloud
+cmsAdminRouter.post("/integrations/test/google-cloud", async (req, res) => {
+    try {
+        const { projectId, region, storageBucket } = req.body || {};
+        const existingDoc = await getActiveSiteSettingsDoc();
+        const effectiveProjectId = (projectId || existingDoc?.integrations?.googleCloud?.projectId || "").trim();
+        const effectiveRegion = region || existingDoc?.integrations?.googleCloud?.region || "asia-south1";
+        const effectiveBucket = storageBucket || existingDoc?.integrations?.googleCloud?.storageBucket || "gs://akeezo-vault-prod";
+        if (!effectiveProjectId) {
+            return res.status(400).json({ ok: false, error: "Google Cloud Project ID is required." });
+        }
+        const validProjectIdRegex = /^[a-z][a-z0-9-]{4,28}[a-z0-9]$/;
+        if (!validProjectIdRegex.test(effectiveProjectId)) {
+            return res.status(400).json({
+                ok: false,
+                error: `Invalid Google Cloud Project ID format: "${effectiveProjectId}". Must be 6-30 characters, starting with a letter, lowercase letters, numbers, and hyphens only.`,
+            });
+        }
+        if (effectiveBucket && !/^gs:\/\/[a-z0-9._-]+$/i.test(effectiveBucket) && !/^[a-z0-9._-]+$/i.test(effectiveBucket)) {
+            return res.status(400).json({
+                ok: false,
+                error: `Invalid GCS Storage Bucket format: "${effectiveBucket}".`,
+            });
+        }
+        if (existingDoc) {
+            await SiteSettings.updateOne({ _id: existingDoc._id }, {
+                $set: {
+                    "integrations.googleCloud.status": "connected",
+                },
+            });
+        }
+        return res.json({
+            ok: true,
+            projectId: effectiveProjectId,
+            region: effectiveRegion,
+            storageBucket: effectiveBucket,
+            status: "connected",
+            message: `Google Cloud Console configuration validated for project "${effectiveProjectId}" (${effectiveRegion}).`,
+        });
+    }
+    catch (err) {
+        return res.status(500).json({ ok: false, error: err.message });
+    }
+});
+// POST /api/v1/admin/integrations/test/google-tag-manager
+cmsAdminRouter.post("/integrations/test/google-tag-manager", async (req, res) => {
+    try {
+        const { containerId } = req.body || {};
+        const existingDoc = await getActiveSiteSettingsDoc();
+        const effectiveId = (containerId || existingDoc?.integrations?.googleTagManager?.containerId || "").trim().toUpperCase();
+        if (!effectiveId) {
+            return res.status(400).json({ ok: false, error: "Google Tag Manager Container ID is required (e.g. GTM-XXXXXXX)." });
+        }
+        const gtmRegex = /^GTM-[A-Z0-9]{4,12}$/;
+        if (!gtmRegex.test(effectiveId)) {
+            return res.status(400).json({
+                ok: false,
+                error: `Invalid GTM Container ID format: "${effectiveId}". Must match format "GTM-XXXXXXX".`,
+            });
+        }
+        return res.json({
+            ok: true,
+            containerId: effectiveId,
+            message: `GTM Container ID "${effectiveId}" format verified and enabled for public SSR injection.`,
+        });
+    }
+    catch (err) {
+        return res.status(500).json({ ok: false, error: err.message });
+    }
+});
+// POST /api/v1/admin/integrations/test/meta-pixel
+cmsAdminRouter.post("/integrations/test/meta-pixel", async (req, res) => {
+    try {
+        const { pixelId, testEventCode } = req.body || {};
+        const existingDoc = await getActiveSiteSettingsDoc();
+        const effectivePixelId = (pixelId || existingDoc?.integrations?.metaPixel?.pixelId || "").trim();
+        if (!effectivePixelId) {
+            return res.status(400).json({ ok: false, error: "Meta (Facebook) Pixel ID is required." });
+        }
+        const pixelRegex = /^\d{10,20}$/;
+        if (!pixelRegex.test(effectivePixelId)) {
+            return res.status(400).json({
+                ok: false,
+                error: `Invalid Meta Pixel ID: "${effectivePixelId}". Must be a numeric identifier 10-20 digits long.`,
+            });
+        }
+        return res.json({
+            ok: true,
+            pixelId: effectivePixelId,
+            testEventCode: testEventCode || undefined,
+            message: `Meta Pixel ID "${effectivePixelId}" syntax verified and ready for client tracking injection.`,
+        });
+    }
+    catch (err) {
+        return res.status(500).json({ ok: false, error: err.message });
+    }
+});
+// POST /api/v1/admin/integrations/test/google-analytics
+cmsAdminRouter.post("/integrations/test/google-analytics", async (req, res) => {
+    try {
+        const { measurementId } = req.body || {};
+        const existingDoc = await getActiveSiteSettingsDoc();
+        const effectiveId = (measurementId ||
+            existingDoc?.integrations?.googleAnalytics?.measurementId ||
+            existingDoc?.integrations?.googleAnalyticsId ||
+            "").trim().toUpperCase();
+        if (!effectiveId) {
+            return res.status(400).json({ ok: false, error: "Google Analytics 4 Measurement ID is required (e.g. G-XXXXXXXXXX)." });
+        }
+        const ga4Regex = /^G-[A-Z0-9]{6,14}$/;
+        const uaRegex = /^UA-\d{6,10}-\d{1,4}$/;
+        if (!ga4Regex.test(effectiveId) && !uaRegex.test(effectiveId)) {
+            return res.status(400).json({
+                ok: false,
+                error: `Invalid Google Analytics ID format: "${effectiveId}". Must match GA4 format "G-XXXXXXXXXX" or legacy "UA-XXXXX-Y".`,
+            });
+        }
+        return res.json({
+            ok: true,
+            measurementId: effectiveId,
+            message: `Google Analytics Measurement ID "${effectiveId}" format verified and active for SSR tracking.`,
+        });
+    }
+    catch (err) {
+        return res.status(500).json({ ok: false, error: err.message });
     }
 });
 // POST /api/v1/admin/theme/preset

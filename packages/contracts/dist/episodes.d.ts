@@ -33,7 +33,7 @@ export declare const EpisodeSchema: z.ZodObject<{
     createdAt: z.ZodString;
     updatedAt: z.ZodString;
 }, "strip", z.ZodTypeAny, {
-    status: "completed" | "planned" | "active" | "paused" | "cancelled";
+    status: "completed" | "active" | "planned" | "paused" | "cancelled";
     id: string;
     caseId: string;
     createdAt: string;
@@ -70,7 +70,7 @@ export declare const EpisodeSchema: z.ZodObject<{
     sequenceNo: number;
     episodeType: "other" | "consultation_only" | "opd_cycle" | "day_care" | "ipd" | "diagnostic" | "follow_up";
     treatmentName: string;
-    status?: "completed" | "planned" | "active" | "paused" | "cancelled" | undefined;
+    status?: "completed" | "active" | "planned" | "paused" | "cancelled" | undefined;
     version?: number | undefined;
     billedAmountMinor?: number | null | undefined;
     seriesId?: string | null | undefined;

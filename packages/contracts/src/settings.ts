@@ -412,6 +412,129 @@ export const THEME_PRESETS: Record<string, ThemePreset> = {
   }
 };
 
+
+
+// ==========================================
+// MEDIA WEB OPTIMIZATION SETTINGS SCHEMA
+// ==========================================
+export const MediaOptimizationSettingsSchema = z.object({
+  autoOptimizeOnUpload: z.boolean().default(true),
+  quality: z.number().min(1).max(100).default(80),
+  maxWidth: z.number().min(100).max(4096).default(1920),
+  maxHeight: z.number().min(100).max(4096).default(1920),
+  generateVariants: z.boolean().default(true),
+  format: z.enum(["webp", "original"]).default("webp"),
+  preserveOriginals: z.boolean().default(true),
+});
+
+export type MediaOptimizationSettings = z.infer<typeof MediaOptimizationSettingsSchema>;
+
+export const DEFAULT_MEDIA_OPTIMIZATION_SETTINGS: MediaOptimizationSettings = {
+  autoOptimizeOnUpload: true,
+  quality: 80,
+  maxWidth: 1920,
+  maxHeight: 1920,
+  generateVariants: true,
+  format: "webp",
+  preserveOriginals: true,
+};
+
+// ==========================================
+// 5 CORE THIRD-PARTY CLOUD & MARKETING INTEGRATIONS
+// ==========================================
+
+export const GoogleTagManagerConfigSchema = z.object({
+  enabled: z.boolean().default(false),
+  containerId: z.string().default(""), // e.g. GTM-XXXXXXX
+});
+export type GoogleTagManagerConfig = z.infer<typeof GoogleTagManagerConfigSchema>;
+
+export const GoogleCloudConfigSchema = z.object({
+  enabled: z.boolean().default(true),
+  projectId: z.string().default("akeezo-health-prod"),
+  clientEmail: z.string().default("service-account@akeezo-health-prod.iam.gserviceaccount.com"),
+  region: z.string().default("asia-south1"),
+  storageBucket: z.string().default("gs://akeezo-vault-prod"),
+  status: z.enum(["connected", "unconfigured", "error"]).default("connected"),
+});
+export type GoogleCloudConfig = z.infer<typeof GoogleCloudConfigSchema>;
+
+export const MetaPixelConfigSchema = z.object({
+  enabled: z.boolean().default(false),
+  pixelId: z.string().default(""), // e.g. 123456789012345
+  testEventCode: z.string().default(""),
+});
+export type MetaPixelConfig = z.infer<typeof MetaPixelConfigSchema>;
+
+export const GeminiApiConfigSchema = z.object({
+  enabled: z.boolean().default(true),
+  apiKey: z.string().default(""),
+  apiKeyMasked: z.string().default(""),
+  model: z.string().default("gemini-2.0-flash"),
+  temperature: z.number().min(0).max(1).default(0.2),
+  status: z.enum(["active", "unconfigured", "error"]).default("active"),
+  lastTestedAt: z.string().optional(),
+});
+export type GeminiApiConfig = z.infer<typeof GeminiApiConfigSchema>;
+
+export const GoogleAnalyticsConfigSchema = z.object({
+  enabled: z.boolean().default(true),
+  measurementId: z.string().default("G-AKEEZO2026X"),
+  anonymizeIp: z.boolean().default(true),
+});
+export type GoogleAnalyticsConfig = z.infer<typeof GoogleAnalyticsConfigSchema>;
+
+export const PlatformIntegrationsSchema = z.object({
+  googleTagManager: GoogleTagManagerConfigSchema.default({}),
+  googleCloud: GoogleCloudConfigSchema.default({}),
+  metaPixel: MetaPixelConfigSchema.default({}),
+  gemini: GeminiApiConfigSchema.default({}),
+  googleAnalytics: GoogleAnalyticsConfigSchema.default({}),
+  // Legacy / mask backward-compatibility fields
+  googleAnalyticsId: z.string().optional(),
+  firebaseProjectMasked: z.string().optional(),
+  smtpHostMasked: z.string().optional(),
+  storageBucketMasked: z.string().optional(),
+});
+export type PlatformIntegrations = z.infer<typeof PlatformIntegrationsSchema>;
+
+export const DEFAULT_PLATFORM_INTEGRATIONS: PlatformIntegrations = {
+  googleTagManager: {
+    enabled: false,
+    containerId: "GTM-AKZ89P4",
+  },
+  googleCloud: {
+    enabled: true,
+    projectId: "akeezo-health-prod",
+    clientEmail: "service-account@akeezo-health-prod.iam.gserviceaccount.com",
+    region: "asia-south1",
+    storageBucket: "gs://akeezo-vault-prod",
+    status: "connected",
+  },
+  metaPixel: {
+    enabled: false,
+    pixelId: "982347109283471",
+    testEventCode: "",
+  },
+  gemini: {
+    enabled: true,
+    apiKey: "",
+    apiKeyMasked: "AIzaSy••••••••••••••••••••••••••••",
+    model: "gemini-2.0-flash",
+    temperature: 0.2,
+    status: "active",
+  },
+  googleAnalytics: {
+    enabled: true,
+    measurementId: "G-AKEEZO2026X",
+    anonymizeIp: true,
+  },
+  googleAnalyticsId: "G-AKEEZO2026X",
+  firebaseProjectMasked: "akeezo-health-prod (Active)",
+  smtpHostMasked: "smtp.sendgrid.net (Configured)",
+  storageBucketMasked: "gs://akeezo-vault-prod (Protected)",
+};
+
 export const SiteSettingsSchema = z.object({
   brandName: z.string().default("AKEEZO"),
   tagline: z.string().default("Heal In India, Heal By Akeezo"),
@@ -439,6 +562,8 @@ export const SiteSettingsSchema = z.object({
   actionColor: z.string().optional(),
   websiteTheme: WebsiteThemeSchema.default(DEFAULT_WEBSITE_THEME),
   adminTheme: AdminThemeSchema.default(DEFAULT_ADMIN_THEME),
+  integrations: PlatformIntegrationsSchema.optional(),
+  mediaSettings: MediaOptimizationSettingsSchema.optional(),
   logoVariants: z
     .object({
       light: z.string().optional(),
@@ -599,29 +724,6 @@ export function getGoogleFontUrl(fontFamily?: string): string | null {
   return `https://fonts.googleapis.com/css2?family=${encoded}:wght@300;400;500;600;700;800;900&display=swap`;
 }
 
-// ==========================================
-// MEDIA WEB OPTIMIZATION SETTINGS SCHEMA
-// ==========================================
-export const MediaOptimizationSettingsSchema = z.object({
-  autoOptimizeOnUpload: z.boolean().default(true),
-  quality: z.number().min(1).max(100).default(80),
-  maxWidth: z.number().min(100).max(4096).default(1920),
-  maxHeight: z.number().min(100).max(4096).default(1920),
-  generateVariants: z.boolean().default(true),
-  format: z.enum(["webp", "original"]).default("webp"),
-  preserveOriginals: z.boolean().default(true),
-});
 
-export type MediaOptimizationSettings = z.infer<typeof MediaOptimizationSettingsSchema>;
-
-export const DEFAULT_MEDIA_OPTIMIZATION_SETTINGS: MediaOptimizationSettings = {
-  autoOptimizeOnUpload: true,
-  quality: 80,
-  maxWidth: 1920,
-  maxHeight: 1920,
-  generateVariants: true,
-  format: "webp",
-  preserveOriginals: true,
-};
 
 
