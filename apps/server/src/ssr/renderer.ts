@@ -3,6 +3,7 @@ import path from "node:path";
 import { fileURLToPath, pathToFileURL } from "node:url";
 import { PassThrough } from "node:stream";
 import type { Request, Response, NextFunction } from "express";
+import mongoose from "mongoose";
 import { RouteEntry, ContentRevision, SiteSettings, ChangelogModel } from "../db/models/index.js";
 import {
   type PublicRouteResponseDTO,
@@ -430,6 +431,39 @@ export async function handleSsr(req: Request, res: Response, next: NextFunction)
         payload: {},
         siteSettings,
         statusCode: 200
+      };
+    } else if (normalizedPath === "/changelog" || normalizedPath === "/changelogs") {
+      statusCode = 200;
+      let changelogs: any[] = [];
+      if (mongoose.connection.readyState === 1) {
+        changelogs = await ChangelogModel.find({
+          status: "published",
+          audience: { $in: ["all", "public"] },
+        })
+          .sort({ releaseDate: -1 })
+          .limit(30)
+          .lean();
+      }
+      dto = {
+        pageKind: "legal",
+        path: "/changelog",
+        locale: "en",
+        seo: {
+          title: "Platform Changelog & Release Notes | AKEEZO Healthcare Platform",
+          description:
+            "Follow the latest updates, clinical feature additions, integrations, and security releases across the AKEEZO Healthcare Platform.",
+          canonicalPath: "/changelog",
+          robots: "index,follow",
+          schemaKind: "WebPage",
+        },
+        payload: {
+          documentId: "changelog",
+          title: "Platform Changelog & Release Notes",
+          category: "System Updates",
+          changelogs,
+        },
+        siteSettings,
+        statusCode: 200,
       };
     } else {
       // Genuine 404
