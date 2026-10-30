@@ -1,14 +1,20 @@
-import React, { useState } from "react";
-import type { PublicRouteResponseDTO } from "@akeezo/contracts";
+import React, { useState, useEffect, useRef, useCallback } from "react";
+import { type PublicRouteResponseDTO, type CarouselSlide, DEFAULT_CAROUSEL_SLIDES } from "@akeezo/contracts";
 import {
   Search,
   Award,
   Globe2,
   CheckCircle2,
   BadgeCheck,
+  ChevronLeft,
   ChevronRight,
   Calculator,
-  Compass
+  Compass,
+  Stethoscope,
+  Shield,
+  Heart,
+  Activity,
+  Sparkles
 } from "lucide-react";
 import {
   COUNTRIES,
@@ -28,6 +34,106 @@ export interface HomeTemplateProps {
   data: PublicRouteResponseDTO;
 }
 
+function getCarouselIcon(iconName?: string) {
+  switch (iconName?.toLowerCase()) {
+    case "compass":
+      return <Compass className="size-5" />;
+    case "stethoscope":
+      return <Stethoscope className="size-5" />;
+    case "shield":
+      return <Shield className="size-5" />;
+    case "heart":
+      return <Heart className="size-5" />;
+    case "award":
+      return <Award className="size-5" />;
+    case "activity":
+      return <Activity className="size-5" />;
+    case "sparkles":
+      return <Sparkles className="size-5" />;
+    case "calculator":
+    default:
+      return <Calculator className="size-5" />;
+  }
+}
+
+function getWatermarkIcon(iconName?: string, colorClass = "text-brand-orange") {
+  switch (iconName?.toLowerCase()) {
+    case "compass":
+      return <Compass className={`size-18 ${colorClass}`} />;
+    case "stethoscope":
+      return <Stethoscope className={`size-18 ${colorClass}`} />;
+    case "shield":
+      return <Shield className={`size-18 ${colorClass}`} />;
+    case "heart":
+      return <Heart className={`size-18 ${colorClass}`} />;
+    case "award":
+      return <Award className={`size-18 ${colorClass}`} />;
+    case "activity":
+      return <Activity className={`size-18 ${colorClass}`} />;
+    case "sparkles":
+      return <Sparkles className={`size-18 ${colorClass}`} />;
+    case "calculator":
+    default:
+      return <Calculator className={`size-18 ${colorClass}`} />;
+  }
+}
+
+function getSlideThemeStyles(accentColor?: string) {
+  switch (accentColor?.toLowerCase()) {
+    case "teal":
+      return {
+        cardBorder: "border-border-teal",
+        cardGradient: "from-white via-white to-surface-teal/60",
+        iconContainer: "bg-surface-teal text-action border-border-teal",
+        button: "bg-action hover:bg-action-hover text-white shadow-md shadow-action/20",
+        badge: "text-action bg-surface-teal border-border-teal",
+        watermarkBorder: "border-action",
+        watermarkText: "text-action",
+      };
+    case "purple":
+      return {
+        cardBorder: "border-purple-200",
+        cardGradient: "from-white via-white to-purple-50/60",
+        iconContainer: "bg-purple-100 text-purple-700 border-purple-200",
+        button: "bg-purple-600 hover:bg-purple-700 text-white shadow-md shadow-purple-600/20",
+        badge: "text-purple-700 bg-purple-50 border-purple-200",
+        watermarkBorder: "border-purple-400",
+        watermarkText: "text-purple-600",
+      };
+    case "emerald":
+      return {
+        cardBorder: "border-emerald-200",
+        cardGradient: "from-white via-white to-emerald-50/60",
+        iconContainer: "bg-emerald-100 text-emerald-700 border-emerald-200",
+        button: "bg-emerald-600 hover:bg-emerald-700 text-white shadow-md shadow-emerald-600/20",
+        badge: "text-emerald-700 bg-emerald-50 border-emerald-200",
+        watermarkBorder: "border-emerald-400",
+        watermarkText: "text-emerald-600",
+      };
+    case "blue":
+      return {
+        cardBorder: "border-blue-200",
+        cardGradient: "from-white via-white to-blue-50/60",
+        iconContainer: "bg-blue-100 text-blue-700 border-blue-200",
+        button: "bg-blue-600 hover:bg-blue-700 text-white shadow-md shadow-blue-600/20",
+        badge: "text-blue-700 bg-blue-50 border-blue-200",
+        watermarkBorder: "border-blue-400",
+        watermarkText: "text-blue-600",
+      };
+    case "orange":
+    default:
+      return {
+        cardBorder: "border-border-orange",
+        cardGradient: "from-white via-white to-surface-orange/60",
+        iconContainer: "bg-surface-orange text-brand-orange border-border-orange",
+        button: "bg-brand-orange hover:bg-brand-orange-alt text-white shadow-md shadow-brand-orange/20",
+        badge: "text-action-accent bg-surface-orange border-border-orange",
+        watermarkBorder: "border-brand-orange",
+        watermarkText: "text-brand-orange",
+      };
+  }
+}
+
 export const HomeTemplate: React.FC<HomeTemplateProps> = ({ data }) => {
   const { siteSettings } = data;
   const [searchQuery, setSearchQuery] = useState("");
@@ -35,6 +141,65 @@ export const HomeTemplate: React.FC<HomeTemplateProps> = ({ data }) => {
   const [selectedSpecialty, setSelectedSpecialty] = useState("Cardiac Surgery");
   const [isCalculatorOpen, setIsCalculatorOpen] = useState(false);
   const [isExploreOpen, setIsExploreOpen] = useState(false);
+
+  // Active feature slides from site settings
+  const rawSlides: CarouselSlide[] =
+    siteSettings?.carouselSlides && siteSettings.carouselSlides.length > 0
+      ? siteSettings.carouselSlides
+      : DEFAULT_CAROUSEL_SLIDES;
+
+  const slides = rawSlides
+    .filter((s) => s.isActive !== false)
+    .sort((a, b) => (a.order || 0) - (b.order || 0));
+
+  const [carouselIndex, setCarouselIndex] = useState(0);
+  const [isPaused, setIsPaused] = useState(false);
+  const [isDesktop, setIsDesktop] = useState(true);
+  const touchStartXRef = useRef<number | null>(null);
+
+  useEffect(() => {
+    const handleResize = () => {
+      setIsDesktop(typeof window !== "undefined" ? window.innerWidth >= 768 : true);
+    };
+    handleResize();
+    window.addEventListener("resize", handleResize);
+    return () => window.removeEventListener("resize", handleResize);
+  }, []);
+
+  const visibleCards = isDesktop ? 2 : 1;
+  const maxIndex = Math.max(0, slides.length - visibleCards);
+
+  const handlePrevSlide = useCallback(() => {
+    setCarouselIndex((prev) => (prev <= 0 ? maxIndex : prev - 1));
+  }, [maxIndex]);
+
+  const handleNextSlide = useCallback(() => {
+    setCarouselIndex((prev) => (prev >= maxIndex ? 0 : prev + 1));
+  }, [maxIndex]);
+
+  useEffect(() => {
+    if (isPaused || maxIndex <= 0) return;
+    const interval = setInterval(() => {
+      handleNextSlide();
+    }, 5000);
+    return () => clearInterval(interval);
+  }, [isPaused, maxIndex, handleNextSlide]);
+
+  const handleTouchStart = (e: React.TouchEvent) => {
+    touchStartXRef.current = e.touches[0].clientX;
+  };
+
+  const handleTouchEnd = (e: React.TouchEvent) => {
+    if (touchStartXRef.current === null) return;
+    const touchEndX = e.changedTouches[0].clientX;
+    const deltaX = touchStartXRef.current - touchEndX;
+    if (deltaX > 40) {
+      handleNextSlide();
+    } else if (deltaX < -40) {
+      handlePrevSlide();
+    }
+    touchStartXRef.current = null;
+  };
 
   const phone = siteSettings.phone || siteSettings.emergencyHelpline || "+91 82876 39443";
   const phoneClean = phone.replace(/[^0-9]/g, "");
@@ -186,80 +351,141 @@ export const HomeTemplate: React.FC<HomeTemplateProps> = ({ data }) => {
           </div>
         </section>
 
-        {/* 3. Feature Row (CureMeAbroad: 2 cards ~575×297px with 24px gap, 28px padding, 20px radius) */}
+        {/* 3. Feature Carousel Section (Controlled via Admin Panel) */}
         <section className="py-4 sm:py-6" aria-label="Core Patient Tools">
           <div className="mx-auto max-w-[1280px] px-4 sm:px-8">
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-              {/* Feature Card 1: Get Your Personalized Price */}
-              <div id="calculator" className="group relative flex flex-col justify-between overflow-hidden rounded-[20px] border border-border-orange bg-gradient-to-br from-white via-white to-surface-orange/60 p-7 shadow-[0_4px_20px_rgb(15_23_42/8%)] transition-transform duration-200 hover:-translate-y-1 min-h-[297px]">
-                <div className="max-w-[360px] relative z-10">
-                  <div className="inline-flex size-11 items-center justify-center rounded-full bg-surface-orange text-brand-orange mb-4 border border-border-orange">
-                    <Calculator className="size-5" />
-                  </div>
-                  <h2 className="text-[22px] sm:text-[24px] font-bold text-ink mb-2 leading-[30px] font-heading">
-                    Get Your Personalized Price
-                  </h2>
-                  <p className="text-sm text-ink-muted leading-relaxed">
-                    See the real price before you talk to anyone. Compare itemized hospital quotes, room categories, and physician fees with zero markups.
-                  </p>
-                </div>
-
-                {/* Decorative Subtle Right Graphic per design.md */}
-                <div className="absolute right-4 top-1/2 -translate-y-1/2 opacity-10 group-hover:opacity-15 transition-opacity pointer-events-none hidden sm:block">
-                  <div className="size-36 rounded-full border-8 border-brand-orange flex items-center justify-center">
-                    <Calculator className="size-18 text-brand-orange" />
-                  </div>
-                </div>
-
-                <div className="mt-8 flex items-center justify-between relative z-10">
-                  <button
-                    type="button"
-                    onClick={() => setIsCalculatorOpen(true)}
-                    className="inline-flex h-11 min-h-[44px] items-center justify-center rounded-full bg-brand-orange hover:bg-brand-orange-alt px-5 text-xs font-bold text-white shadow-md shadow-brand-orange/20 transition-all cursor-pointer"
-                  >
-                    Get Your Estimate in 1 Minute
-                  </button>
-                  <span className="inline-flex items-center px-3 py-1 rounded-full text-xs font-bold text-action-accent bg-surface-orange border border-border-orange">
-                    Save Up To 70%
-                  </span>
-                </div>
+            {/* Carousel Navigation Header */}
+            <div className="flex items-center justify-between mb-4">
+              <div className="flex items-center gap-2">
+                <span className="inline-block size-2 rounded-full bg-brand-orange animate-pulse" />
+                <span className="text-xs font-bold uppercase tracking-wider text-ink-muted">
+                  Personalized Care Tools &amp; Second Opinions
+                </span>
               </div>
-
-              {/* Feature Card 2: Explore Options */}
-              <div id="destinations" className="group relative flex flex-col justify-between overflow-hidden rounded-[20px] border border-border-teal bg-gradient-to-br from-white via-white to-surface-teal/60 p-7 shadow-[0_4px_20px_rgb(15_23_42/8%)] transition-transform duration-200 hover:-translate-y-1 min-h-[297px]">
-                <div className="max-w-[360px] relative z-10">
-                  <div className="inline-flex size-11 items-center justify-center rounded-full bg-surface-teal text-action mb-4 border border-border-teal">
-                    <Compass className="size-5" />
-                  </div>
-                  <h2 className="text-[22px] sm:text-[24px] font-bold text-ink mb-2 leading-[30px] font-heading">
-                    Explore Treatments & Hospitals
-                  </h2>
-                  <p className="text-sm text-ink-muted leading-relaxed">
-                    Every accredited Indian healthcare destination, JCI-certified hospital, and world-renowned department chair organized in one directory.
-                  </p>
-                </div>
-
-                {/* Decorative Subtle Right Graphic per design.md */}
-                <div className="absolute right-4 top-1/2 -translate-y-1/2 opacity-10 group-hover:opacity-15 transition-opacity pointer-events-none hidden sm:block">
-                  <div className="size-36 rounded-full border-8 border-action flex items-center justify-center">
-                    <Compass className="size-18 text-action" />
-                  </div>
-                </div>
-
-                <div className="mt-8 flex items-center justify-between relative z-10">
-                  <button
-                    type="button"
-                    onClick={() => setIsExploreOpen(true)}
-                    className="inline-flex h-11 min-h-[44px] items-center justify-center rounded-full bg-action px-5 text-xs font-bold text-white shadow-md shadow-action/20 transition-all hover:bg-action-hover cursor-pointer"
-                  >
-                    Explore All Specialities
-                  </button>
-                  <span className="inline-flex items-center px-3 py-1 rounded-full text-xs font-bold text-action bg-surface-teal border border-border-teal">
-                    150+ Verified Hubs
-                  </span>
-                </div>
+              <div className="flex items-center gap-2">
+                <button
+                  type="button"
+                  onClick={handlePrevSlide}
+                  disabled={maxIndex <= 0}
+                  aria-label="Previous slide"
+                  className="size-8 sm:size-9 rounded-full border border-border bg-white shadow-xs flex items-center justify-center text-ink-muted hover:text-ink hover:bg-surface-muted transition-all disabled:opacity-40 disabled:cursor-not-allowed cursor-pointer"
+                >
+                  <ChevronLeft className="size-4" />
+                </button>
+                <button
+                  type="button"
+                  onClick={handleNextSlide}
+                  disabled={maxIndex <= 0}
+                  aria-label="Next slide"
+                  className="size-8 sm:size-9 rounded-full border border-border bg-white shadow-xs flex items-center justify-center text-ink-muted hover:text-ink hover:bg-surface-muted transition-all disabled:opacity-40 disabled:cursor-not-allowed cursor-pointer"
+                >
+                  <ChevronRight className="size-4" />
+                </button>
               </div>
             </div>
+
+            {/* Carousel Viewport & Track */}
+            <div
+              className="relative overflow-hidden"
+              onMouseEnter={() => setIsPaused(true)}
+              onMouseLeave={() => setIsPaused(false)}
+              onTouchStart={handleTouchStart}
+              onTouchEnd={handleTouchEnd}
+            >
+              <div
+                className="flex gap-6 transition-transform duration-500 ease-in-out"
+                style={{
+                  transform:
+                    carouselIndex === 0
+                      ? "translateX(0px)"
+                      : isDesktop
+                      ? `translateX(calc(-${carouselIndex} * (50% + 12px)))`
+                      : `translateX(calc(-${carouselIndex} * (100% + 24px)))`
+                }}
+              >
+                {slides.map((slide) => {
+                  const styles = getSlideThemeStyles(slide.accentColor || slide.badgeStyle);
+                  const handleAction = () => {
+                    if (slide.buttonAction === "calculator") {
+                      setIsCalculatorOpen(true);
+                    } else if (slide.buttonAction === "explore") {
+                      setIsExploreOpen(true);
+                    } else if (slide.buttonAction === "whatsapp") {
+                      window.location.href = `https://wa.me/${phoneClean}?text=${encodeURIComponent(
+                        `Hello Akeezo Care Team, I would like to inquire about: ${slide.title}`
+                      )}`;
+                    } else if (slide.buttonLink) {
+                      window.location.href = slide.buttonLink;
+                    }
+                  };
+
+                  return (
+                    <div
+                      key={slide.id}
+                      id={slide.id}
+                      className={`w-full md:w-[calc(50%-12px)] shrink-0 group relative flex flex-col justify-between overflow-hidden rounded-[20px] border ${styles.cardBorder} bg-gradient-to-br ${styles.cardGradient} p-7 shadow-[0_4px_20px_rgb(15_23_42/8%)] transition-transform duration-200 hover:-translate-y-1 min-h-[297px]`}
+                    >
+                      <div className="max-w-[380px] relative z-10">
+                        <div
+                          className={`inline-flex size-11 items-center justify-center rounded-full ${styles.iconContainer} mb-4 border`}
+                        >
+                          {getCarouselIcon(slide.iconName)}
+                        </div>
+                        <h2 className="text-[22px] sm:text-[24px] font-bold text-ink mb-2 leading-[30px] font-heading">
+                          {slide.title}
+                        </h2>
+                        <p className="text-sm text-ink-muted leading-relaxed line-clamp-3">
+                          {slide.description}
+                        </p>
+                      </div>
+
+                      {/* Decorative Subtle Right Graphic */}
+                      <div className="absolute right-4 top-1/2 -translate-y-1/2 opacity-10 group-hover:opacity-15 transition-opacity pointer-events-none hidden sm:block">
+                        <div
+                          className={`size-36 rounded-full border-8 ${styles.watermarkBorder} flex items-center justify-center`}
+                        >
+                          {getWatermarkIcon(slide.iconName, styles.watermarkText)}
+                        </div>
+                      </div>
+
+                      <div className="mt-8 flex items-center justify-between relative z-10 gap-3">
+                        <button
+                          type="button"
+                          onClick={handleAction}
+                          className={`inline-flex h-11 min-h-[44px] items-center justify-center rounded-full ${styles.button} px-5 text-xs font-bold transition-all cursor-pointer`}
+                        >
+                          {slide.buttonText}
+                        </button>
+                        {slide.badgeText && (
+                          <span
+                            className={`inline-flex items-center px-3 py-1 rounded-full text-xs font-bold ${styles.badge} border shrink-0`}
+                          >
+                            {slide.badgeText}
+                          </span>
+                        )}
+                      </div>
+                    </div>
+                  );
+                })}
+              </div>
+            </div>
+
+            {/* Pagination Dots */}
+            {maxIndex > 0 && (
+              <div className="flex items-center justify-center gap-1.5 mt-4">
+                {Array.from({ length: maxIndex + 1 }).map((_, idx) => (
+                  <button
+                    key={idx}
+                    type="button"
+                    onClick={() => setCarouselIndex(idx)}
+                    aria-label={`Go to slide ${idx + 1}`}
+                    className={`h-2 rounded-full transition-all cursor-pointer ${
+                      carouselIndex === idx ? "w-6 bg-brand-orange" : "w-2 bg-slate-300 hover:bg-slate-400"
+                    }`}
+                  />
+                ))}
+              </div>
+            )}
           </div>
         </section>
 

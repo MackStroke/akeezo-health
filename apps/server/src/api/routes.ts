@@ -1,6 +1,6 @@
 import { Router, type Request, type Response } from "express";
 import mongoose from "mongoose";
-import { RouteEntry, ContentRevision, SiteSettings, ChangelogModel } from "../db/models/index.js";
+import { RouteEntry, ContentRevision, SiteSettings, ChangelogModel, BlogPostModel } from "../db/models/index.js";
 import type { PublicRouteResponseDTO, SeoMetadata } from "@akeezo/contracts";
 import { toSafeSiteSettings } from "../ssr/renderer.js";
 import { caseManagementRouter } from "./caseManagementRoutes.js";
@@ -64,6 +64,88 @@ apiRouter.get('/changelogs', async (req: Request, res: Response) => {
     res.json({ data: items });
   } catch (err: any) {
     res.status(500).json({ error: { code: 'FETCH_PUBLIC_CHANGELOGS_FAILED', message: err.message } });
+  }
+});
+
+// GET /api/v1/blog (public read-only)
+apiRouter.get('/blog', async (req: Request, res: Response) => {
+  try {
+    if (mongoose.connection.readyState !== 1) {
+      return res.json({ data: [], pagination: { page: 1, limit: 10, total: 0, totalPages: 0 } });
+    }
+    const page = Math.max(1, parseInt(req.query.page as string) || 1);
+    const limit = Math.min(50, Math.max(1, parseInt(req.query.limit as string) || 10));
+    const skip = (page - 1) * limit;
+
+    const filter: Record<string, any> = { status: "published" };
+    if (req.query.category && req.query.category !== "all") {
+      filter.category = req.query.category;
+    }
+    if (req.query.tag) {
+      filter.tags = req.query.tag;
+    }
+    if (req.query.search) {
+      const q = String(req.query.search).trim();
+      filter.$or = [
+        { title: { $regex: q, $options: "i" } },
+        { excerpt: { $regex: q, $options: "i" } },
+        { "seo.focusKeyword": { $regex: q, $options: "i" } },
+      ];
+    }
+
+    const [docs, total] = await Promise.all([
+      BlogPostModel.find(filter)
+        .select("-content")
+        .sort({ publishedAt: -1 })
+        .skip(skip)
+        .limit(limit)
+        .lean(),
+      BlogPostModel.countDocuments(filter),
+    ]);
+
+    res.json({
+      data: docs,
+      pagination: {
+        page,
+        limit,
+        total,
+        totalPages: Math.max(1, Math.ceil(total / limit)),
+      },
+    });
+  } catch (err: any) {
+    res.status(500).json({ error: { code: 'FETCH_BLOG_FAILED', message: err.message } });
+  }
+});
+
+// GET /api/v1/blog/:slug (public single article)
+apiRouter.get('/blog/:slug', async (req: Request, res: Response) => {
+  try {
+    if (mongoose.connection.readyState !== 1) {
+      return res.status(503).json({ error: { code: 'DATABASE_UNAVAILABLE', message: 'Database disconnected' } });
+    }
+    const slug = req.params.slug.trim().toLowerCase();
+    const doc = await BlogPostModel.findOneAndUpdate(
+      { slug, status: "published" },
+      { $inc: { viewsCount: 1 } },
+      { new: true }
+    ).lean();
+
+    if (!doc) {
+      return res.status(404).json({ error: { code: 'ARTICLE_NOT_FOUND', message: 'Article not found or not published' } });
+    }
+
+    const related = await BlogPostModel.find({
+      _id: { $ne: doc._id },
+      category: doc.category,
+      status: "published",
+    })
+      .select("title slug excerpt category featuredImage publishedAt estimatedReadTime")
+      .limit(3)
+      .lean();
+
+    res.json({ data: doc, related });
+  } catch (err: any) {
+    res.status(500).json({ error: { code: 'FETCH_ARTICLE_FAILED', message: err.message } });
   }
 });
 

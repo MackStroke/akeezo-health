@@ -34,7 +34,9 @@ import {
   Check,
   Save,
   X,
+  BookOpen,
 } from "lucide-react";
+import { BlogManagerView } from "./BlogManagerView.js";
 import { useToast, DisabledGuideButton } from "@akeezo/ui";
 
 interface PageItem {
@@ -69,9 +71,23 @@ interface FooterGroup {
   }[];
 }
 
-export const ContentView: React.FC = () => {
+interface ContentViewProps {
+  initialSubTab?: "pages" | "blog" | "navigation";
+  initialCreateModal?: boolean;
+}
+
+export const ContentView: React.FC<ContentViewProps> = ({
+  initialSubTab = "pages",
+  initialCreateModal = false,
+}) => {
   const toast = useToast();
-  const [activeSubTab, setActiveSubTab] = useState<"pages" | "navigation">("pages");
+  const [activeSubTab, setActiveSubTab] = useState<"pages" | "blog" | "navigation">(initialSubTab);
+
+  useEffect(() => {
+    if (initialSubTab) {
+      setActiveSubTab(initialSubTab);
+    }
+  }, [initialSubTab]);
 
   // --- Pages State ---
   const [pages, setPages] = useState<PageItem[]>([]);
@@ -450,7 +466,12 @@ export const ContentView: React.FC = () => {
       {/* 2. Sub-Tab Switcher */}
       <div className="flex border-b border-slate-200 gap-2">
         <button
-          onClick={() => setActiveSubTab("pages")}
+          onClick={() => {
+            setActiveSubTab("pages");
+            if (typeof window !== "undefined") {
+              window.history.pushState(null, "", "/admin/content");
+            }
+          }}
           className={`px-4 py-3 text-xs font-bold border-b-2 flex items-center gap-2 transition ${
             activeSubTab === "pages"
               ? "border-[#007A6C] text-[#007A6C] bg-[#E6F8F6]/60 rounded-t-xl"
@@ -462,7 +483,29 @@ export const ContentView: React.FC = () => {
         </button>
 
         <button
-          onClick={() => setActiveSubTab("navigation")}
+          onClick={() => {
+            setActiveSubTab("blog");
+            if (typeof window !== "undefined") {
+              window.history.pushState(null, "", "/admin/blog");
+            }
+          }}
+          className={`px-4 py-3 text-xs font-bold border-b-2 flex items-center gap-2 transition ${
+            activeSubTab === "blog"
+              ? "border-[#007A6C] text-[#007A6C] bg-[#E6F8F6]/60 rounded-t-xl"
+              : "border-transparent text-slate-500 hover:text-slate-800 hover:bg-slate-50"
+          }`}
+        >
+          <BookOpen className="w-4 h-4 text-[#007A6C]" />
+          <span>Blog Articles & SEO Optimizer</span>
+        </button>
+
+        <button
+          onClick={() => {
+            setActiveSubTab("navigation");
+            if (typeof window !== "undefined") {
+              window.history.pushState(null, "", "/admin/content#navigation");
+            }
+          }}
           className={`px-4 py-3 text-xs font-bold border-b-2 flex items-center gap-2 transition ${
             activeSubTab === "navigation"
               ? "border-[#007A6C] text-[#007A6C] bg-[#E6F8F6]/60 rounded-t-xl"
@@ -473,6 +516,11 @@ export const ContentView: React.FC = () => {
           <span>Public Navigation & Footer Menus</span>
         </button>
       </div>
+
+      {/* SUB-TAB: BLOG ARTICLES & SEO SUITE */}
+      {activeSubTab === "blog" && (
+        <BlogManagerView initialCreateModal={initialCreateModal} />
+      )}
 
       {/* SUB-TAB 1: PAGES & REVISIONS */}
       {activeSubTab === "pages" && (

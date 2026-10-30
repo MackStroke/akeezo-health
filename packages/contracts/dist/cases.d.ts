@@ -72,14 +72,14 @@ export declare const StageGuardDetailSchema: z.ZodObject<{
     message: z.ZodString;
 }, "strip", z.ZodTypeAny, {
     message: string;
+    passed: boolean;
     field: string;
     guard: string;
-    passed: boolean;
 }, {
     message: string;
+    passed: boolean;
     field: string;
     guard: string;
-    passed: boolean;
 }>;
 export declare const CaseReadinessResultSchema: z.ZodObject<{
     caseId: z.ZodString;
@@ -93,14 +93,14 @@ export declare const CaseReadinessResultSchema: z.ZodObject<{
         message: z.ZodString;
     }, "strip", z.ZodTypeAny, {
         message: string;
+        passed: boolean;
         field: string;
         guard: string;
-        passed: boolean;
     }, {
         message: string;
+        passed: boolean;
         field: string;
         guard: string;
-        passed: boolean;
     }>, "many">;
 }, "strip", z.ZodTypeAny, {
     caseId: string;
@@ -109,9 +109,9 @@ export declare const CaseReadinessResultSchema: z.ZodObject<{
     isReady: boolean;
     guards: {
         message: string;
+        passed: boolean;
         field: string;
         guard: string;
-        passed: boolean;
     }[];
 }, {
     caseId: string;
@@ -120,9 +120,9 @@ export declare const CaseReadinessResultSchema: z.ZodObject<{
     isReady: boolean;
     guards: {
         message: string;
+        passed: boolean;
         field: string;
         guard: string;
-        passed: boolean;
     }[];
 }>;
 export type CaseReadinessResult = z.infer<typeof CaseReadinessResultSchema>;
@@ -144,11 +144,11 @@ export declare const PatientSchema: z.ZodObject<{
     updatedAt: z.ZodString;
 }, "strip", z.ZodTypeAny, {
     id: string;
-    fullName: string;
-    sex: "other" | "unknown" | "male" | "female";
-    preferredLanguage: string;
     createdAt: string;
     updatedAt: string;
+    fullName: string;
+    sex: "unknown" | "other" | "male" | "female";
+    preferredLanguage: string;
     dateOfBirth?: string | undefined;
     nationality?: string | undefined;
     passportNumberMasked?: string | undefined;
@@ -160,13 +160,13 @@ export declare const PatientSchema: z.ZodObject<{
     notes?: string | undefined;
 }, {
     id: string;
-    fullName: string;
     createdAt: string;
     updatedAt: string;
+    fullName: string;
     dateOfBirth?: string | undefined;
     nationality?: string | undefined;
     passportNumberMasked?: string | undefined;
-    sex?: "other" | "unknown" | "male" | "female" | undefined;
+    sex?: "unknown" | "other" | "male" | "female" | undefined;
     countryOfResidence?: string | undefined;
     preferredLanguage?: string | undefined;
     phone?: string | undefined;
@@ -198,11 +198,11 @@ export declare const CaseSchema: z.ZodObject<{
         updatedAt: z.ZodString;
     }, "strip", z.ZodTypeAny, {
         id: string;
-        fullName: string;
-        sex: "other" | "unknown" | "male" | "female";
-        preferredLanguage: string;
         createdAt: string;
         updatedAt: string;
+        fullName: string;
+        sex: "unknown" | "other" | "male" | "female";
+        preferredLanguage: string;
         dateOfBirth?: string | undefined;
         nationality?: string | undefined;
         passportNumberMasked?: string | undefined;
@@ -214,13 +214,13 @@ export declare const CaseSchema: z.ZodObject<{
         notes?: string | undefined;
     }, {
         id: string;
-        fullName: string;
         createdAt: string;
         updatedAt: string;
+        fullName: string;
         dateOfBirth?: string | undefined;
         nationality?: string | undefined;
         passportNumberMasked?: string | undefined;
-        sex?: "other" | "unknown" | "male" | "female" | undefined;
+        sex?: "unknown" | "other" | "male" | "female" | undefined;
         countryOfResidence?: string | undefined;
         preferredLanguage?: string | undefined;
         phone?: string | undefined;
@@ -282,11 +282,11 @@ export declare const CaseSchema: z.ZodObject<{
     totalPartnerShareMinor: number;
     patient?: {
         id: string;
-        fullName: string;
-        sex: "other" | "unknown" | "male" | "female";
-        preferredLanguage: string;
         createdAt: string;
         updatedAt: string;
+        fullName: string;
+        sex: "unknown" | "other" | "male" | "female";
+        preferredLanguage: string;
         dateOfBirth?: string | undefined;
         nationality?: string | undefined;
         passportNumberMasked?: string | undefined;
@@ -326,13 +326,13 @@ export declare const CaseSchema: z.ZodObject<{
     status?: "closed" | "open" | undefined;
     patient?: {
         id: string;
-        fullName: string;
         createdAt: string;
         updatedAt: string;
+        fullName: string;
         dateOfBirth?: string | undefined;
         nationality?: string | undefined;
         passportNumberMasked?: string | undefined;
-        sex?: "other" | "unknown" | "male" | "female" | undefined;
+        sex?: "unknown" | "other" | "male" | "female" | undefined;
         countryOfResidence?: string | undefined;
         preferredLanguage?: string | undefined;
         phone?: string | undefined;
@@ -375,7 +375,7 @@ export declare const CreateCaseIntakeSchema: z.ZodObject<{
         passportCountry: z.ZodOptional<z.ZodString>;
     }, "strip", z.ZodTypeAny, {
         fullName: string;
-        sex: "other" | "unknown" | "male" | "female";
+        sex: "unknown" | "other" | "male" | "female";
         preferredLanguage: string;
         dateOfBirth?: string | undefined;
         passportNumber?: string | undefined;
@@ -390,7 +390,7 @@ export declare const CreateCaseIntakeSchema: z.ZodObject<{
         dateOfBirth?: string | undefined;
         passportNumber?: string | undefined;
         nationality?: string | undefined;
-        sex?: "other" | "unknown" | "male" | "female" | undefined;
+        sex?: "unknown" | "other" | "male" | "female" | undefined;
         countryOfResidence?: string | undefined;
         preferredLanguage?: string | undefined;
         phone?: string | undefined;
@@ -417,7 +417,7 @@ export declare const CreateCaseIntakeSchema: z.ZodObject<{
 }, "strip", z.ZodTypeAny, {
     patient: {
         fullName: string;
-        sex: "other" | "unknown" | "male" | "female";
+        sex: "unknown" | "other" | "male" | "female";
         preferredLanguage: string;
         dateOfBirth?: string | undefined;
         passportNumber?: string | undefined;
@@ -450,7 +450,7 @@ export declare const CreateCaseIntakeSchema: z.ZodObject<{
         dateOfBirth?: string | undefined;
         passportNumber?: string | undefined;
         nationality?: string | undefined;
-        sex?: "other" | "unknown" | "male" | "female" | undefined;
+        sex?: "unknown" | "other" | "male" | "female" | undefined;
         countryOfResidence?: string | undefined;
         preferredLanguage?: string | undefined;
         phone?: string | undefined;

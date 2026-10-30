@@ -18,6 +18,7 @@ import {
   MediaAssetModel,
   RedirectModel,
   ChangelogModel,
+  BlogPostModel,
 } from "../db/models/index.js";
 import {
   hashPassword,
@@ -41,6 +42,11 @@ import {
   type PlatformIntegrations,
   CreateChangelogDTO,
   UpdateChangelogDTO,
+  CreateBlogPostDTO,
+  UpdateBlogPostDTO,
+  calculateSeoContentScore,
+  DEFAULT_CAROUSEL_SLIDES,
+  type CarouselSlide,
 } from "@akeezo/contracts";
 import {
   optimizeMediaBuffer,
@@ -414,8 +420,12 @@ cmsAdminRouter.get("/site-settings", async (_req: Request, res: Response) => {
           headerMenu: [],
           footerGroups: [],
         },
+        carouselSlides: DEFAULT_CAROUSEL_SLIDES,
       };
     } else {
+      if (!settings.carouselSlides || settings.carouselSlides.length === 0) {
+        settings.carouselSlides = DEFAULT_CAROUSEL_SLIDES;
+      }
       if (!settings.websiteTheme) {
         settings.websiteTheme = {
           ...DEFAULT_WEBSITE_THEME,
@@ -456,6 +466,7 @@ cmsAdminRouter.get("/site-settings", async (_req: Request, res: Response) => {
         websiteTheme: DEFAULT_WEBSITE_THEME,
         adminTheme: DEFAULT_ADMIN_THEME,
         integrations: DEFAULT_PLATFORM_INTEGRATIONS,
+        carouselSlides: DEFAULT_CAROUSEL_SLIDES,
       },
     });
   }
@@ -537,6 +548,7 @@ cmsAdminRouter.put(["/site-settings", "/settings/:section"], async (req: Request
     if (req.body.formsConfig !== undefined) updatePayload.formsConfig = req.body.formsConfig;
     if (req.body.defaultLanguage !== undefined) updatePayload.defaultLanguage = req.body.defaultLanguage;
     if (req.body.defaultTimezone !== undefined) updatePayload.defaultTimezone = req.body.defaultTimezone;
+    if (req.body.carouselSlides !== undefined) updatePayload.carouselSlides = req.body.carouselSlides;
 
     if (req.body.integrations !== undefined) {
       updatePayload.integrations = processIntegrationsPayload(req.body.integrations, existingObj?.integrations);
@@ -822,6 +834,61 @@ cmsAdminRouter.post("/integrations/test/google-analytics", async (req: Request, 
     });
   } catch (err: any) {
     return res.status(500).json({ ok: false, error: err.message });
+  }
+});
+
+// ==========================================
+// FEATURE CAROUSEL SLIDES ENDPOINTS
+// ==========================================
+
+// GET /api/v1/admin/carousel-slides
+cmsAdminRouter.get("/carousel-slides", async (_req: Request, res: Response) => {
+  try {
+    const doc = await getActiveSiteSettingsDoc();
+    const slides = doc?.carouselSlides && doc.carouselSlides.length > 0 ? doc.carouselSlides : DEFAULT_CAROUSEL_SLIDES;
+    res.json({ data: slides });
+  } catch (err: any) {
+    res.status(500).json({ error: { code: "FETCH_CAROUSEL_FAILED", message: err.message } });
+  }
+});
+
+// PUT /api/v1/admin/carousel-slides
+cmsAdminRouter.put("/carousel-slides", async (req: Request, res: Response) => {
+  try {
+    const slides = Array.isArray(req.body) ? req.body : req.body?.slides;
+    if (!Array.isArray(slides)) {
+      return res.status(400).json({ error: { code: "INVALID_SLIDES", message: "Slides must be an array" } });
+    }
+    const updated = await updateActiveSiteSettings({ carouselSlides: slides });
+    await logAdminActivity(
+      (req as any).user?._id,
+      "SiteSettings",
+      updated._id,
+      "update",
+      { carouselSlides: ["previous", "updated"] },
+      req
+    );
+    res.json({ data: updated.carouselSlides });
+  } catch (err: any) {
+    res.status(400).json({ error: { code: "UPDATE_CAROUSEL_FAILED", message: err.message } });
+  }
+});
+
+// POST /api/v1/admin/carousel-slides/reset
+cmsAdminRouter.post("/carousel-slides/reset", async (req: Request, res: Response) => {
+  try {
+    const updated = await updateActiveSiteSettings({ carouselSlides: DEFAULT_CAROUSEL_SLIDES });
+    await logAdminActivity(
+      (req as any).user?._id,
+      "SiteSettings",
+      updated._id,
+      "update",
+      { carouselSlides: ["previous", "reset_defaults"] },
+      req
+    );
+    res.json({ data: DEFAULT_CAROUSEL_SLIDES });
+  } catch (err: any) {
+    res.status(400).json({ error: { code: "RESET_CAROUSEL_FAILED", message: err.message } });
   }
 });
 
@@ -3100,6 +3167,527 @@ cmsAdminRouter.delete("/changelogs/:id", async (req: Request, res: Response) => 
     res.json({ data: { success: true, deletedId: req.params.id } });
   } catch (err: any) {
     res.status(500).json({ error: { code: "DELETE_CHANGELOG_FAILED", message: err.message } });
+  }
+});
+
+// ==========================================
+// 8b. BLOG MANAGER & SEO CONTENT OPTIMIZATION ENGINE
+// ==========================================
+
+async function ensureSeedBlogPosts() {
+  if (mongoose.connection.readyState !== 1) return;
+  try {
+    const count = await BlogPostModel.countDocuments();
+    if (count === 0) {
+      const postsToSeed = [
+        {
+          title: "Complete Guide to Robotic Knee Replacement in India: Cost, Technology & Recovery",
+          slug: "robotic-knee-replacement-in-india-cost-technology-guide",
+          category: "Orthopedics",
+          excerpt: "A complete clinical overview of robotic knee replacement in India. Compare Mako surgical robotics, premier JCI accredited hospital packages from $4,200, surgeon qualifications, and rapid recovery protocols.",
+          content: `For patients suffering from severe osteoarthritis, finding advanced joint care at an affordable cost is life-changing. **Robotic knee replacement in India** has emerged as a premier global choice, combining state-of-the-art robotic assistance with internationally board-certified orthopedic surgeons.
+
+## What is Robotic Knee Replacement and How Does it Work?
+
+Unlike traditional joint replacement surgery, robotic-assisted knee arthroplasty utilizes dynamic CT-based 3D modeling. Before the first incision is made, the surgeon maps the precise anatomical dimensions of the patient's knee joint.
+
+During the procedure:
+1. **Real-Time Sensor Feedback**: The robotic arm (such as Stryker's Mako or Smith & Nephew's NAVIO) assists the orthopedic surgeon within sub-millimeter precision boundaries.
+2. **Bone Sparing Precision**: Only diseased cartilage and bone are excised, preserving healthy surrounding ligaments, including the posterior cruciate ligament (PCL).
+3. **Balanced Soft-Tissue Tension**: The robotic system continuously calculates ligament tension through flexion and extension, ensuring natural joint kinematics.
+
+## Key Advantages of Robotic Knee Replacement in India
+
+Choosing robotic knee replacement in India provides distinct clinical and economic benefits:
+- **Sub-Millimeter Alignment**: Implant positioning accuracy within 0.5 mm and 0.5 degrees reduces postoperative wear and tear, dramatically increasing prosthetic longevity beyond 25 years.
+- **Smaller Surgical Incisions**: Minimally invasive approaches cause less trauma to the quadriceps muscle, resulting in significantly lower blood loss and reduced post-op pain.
+- **Same-Day Ambulatory Mobilization**: Over 85% of patients stand and take assisted steps within 6 to 12 hours after surgery.
+- **NABH & JCI Accredited Centers**: Premier hospital partners in New Delhi, Gurugram, Mumbai, and Chennai operate dedicated joint replacement suites with laminar air flow HEPA filtration (class 100).
+
+## Cost Comparison: India vs US, UK & UAE
+
+One of the most compelling aspects of medical travel to India is the comprehensive value. A unilateral robotic total knee replacement in the United States typically exceeds $38,000 to $55,000 without insurance. In the United Kingdom, private treatment ranges from £14,000 to £20,000.
+
+In India, a comprehensive all-inclusive package ranges between **$4,200 and $6,000 USD**. This comprehensive package typically includes:
+- Robotic surgical equipment consumables and Mako planning software fees
+- FDA-approved titanium / cobalt-chromium implants (Zimmer Biomet, Stryker, DePuy Synthes)
+- 4 to 5 days of private inpatient hospitalization
+- Pre-operative cardiopulmonary clearance diagnostics
+- Daily in-hospital physical therapy and initial rehabilitation
+
+## Recovery Timeline & Post-Op Physical Therapy
+
+Recovery is significantly accelerated compared to conventional manual techniques:
+- **Days 1 to 3**: In-hospital gait training with walker or crutches, pain management, and gentle range-of-motion exercises.
+- **Week 2**: Suture inspection, transition to single cane, and commencement of outpatient rehabilitation.
+- **Weeks 4 to 6**: Return to driving, non-strenuous daily activities, and clearance for long-distance commercial flights.
+
+To explore your personalized surgical estimate and receive a free clinical opinion from leading joint replacement surgeons, visit our [Akeezo Treatment Cost Estimator](/calculator) or review [Accredited Indian Orthopedic Hospitals](/hospitals).`,
+          tags: ["Orthopedics", "Robotic Knee", "Joint Replacement", "India Medical Travel", "Mako Surgery"],
+          featuredImage: {
+            url: "/hero/hero-bg.webp",
+            alt: "robotic knee replacement in india orthopedic surgery suite",
+            caption: "Advanced robotic-assisted orthopedic surgery at a JCI accredited Indian hospital.",
+          },
+          author: {
+            name: "Dr. Arvind Chawla",
+            role: "Chief Orthopedic Consultant",
+            avatarUrl: "",
+          },
+          status: "published",
+          publishedAt: new Date(Date.now() - 5 * 24 * 60 * 60 * 1000),
+          seo: {
+            focusKeyword: "robotic knee replacement in india",
+            seoTitle: "Robotic Knee Replacement in India: Cost, Technology & Recovery Guide",
+            metaDescription: "Explore robotic knee replacement in India. Compare Mako robotic technology, hospital packages from $4,200, surgeon credentials, and speedy recovery timelines.",
+            canonicalUrl: "/blog/robotic-knee-replacement-in-india-cost-technology-guide",
+            noIndex: false,
+            seoScore: 92,
+            schemaType: "MedicalWebPage",
+          },
+          estimatedReadTime: 4,
+          medicalDisclaimerEnabled: true,
+          viewsCount: 342,
+        },
+        {
+          title: "Top Cardiac Surgery Hospitals in Delhi NCR: A Global Patient Guide",
+          slug: "cardiac-surgery-in-delhi-top-hospitals-costs",
+          category: "Cardiology",
+          excerpt: "Comprehensive guide to cardiac surgery in Delhi NCR. Compare heart bypass CABG surgery costs, pediatric cardiology centers, board-certified surgeons, and visa support.",
+          content: `When facing complex cardiovascular conditions, accessing world-class surgical expertise without prohibitive waiting lists or financial distress is critical. **Cardiac surgery in Delhi** has earned international renown, serving thousands of global patients annually.
+
+## Why Choose Cardiac Surgery in Delhi NCR?
+
+Delhi National Capital Region (NCR) hosts the highest density of Joint Commission International (JCI) and NABH-accredited heart institutes in South Asia:
+- **Pioneering Surgeons**: Indian cardiothoracic surgeons frequently boast 20 to 35 years of clinical experience, having performed over 10,000 coronary bypasses each.
+- **Beating Heart (Off-Pump) CABG**: Over 95% of coronary bypass operations in top Delhi centers are performed on a beating heart without placing the patient on a cardiopulmonary bypass pump, reducing neurological and renal complications.
+- **Minimally Invasive Cardiac Surgery (MICS)**: Valve repairs and single-vessel bypasses performed via 4-inch keyhole intercostal incisions rather than full sternotomy.
+
+## Benchmark Procedures & Packages in Delhi
+
+Typical packaged costs for cardiac procedures in Delhi NCR include:
+- **Coronary Artery Bypass Grafting (CABG)**: $4,500 to $6,500 USD (compared to $70,000+ in the US).
+- **Aortic / Mitral Valve Replacement (Tissue / Mechanical)**: $5,500 to $7,800 USD.
+- **Pediatric Heart Surgery (ASD / VSD / Tetralogy of Fallot)**: $4,200 to $6,200 USD.
+
+## Patient Logistics & Inbound Care Protocols
+
+Through Akeezo's dedicated care coordination desk, international cardiac patients receive:
+- Rapid priority Medical Visa (e-Med Visa) assistance with 48-hour hospital invitation letters.
+- Complimentary airport tarmac-to-hospital ambulance transfer.
+- Language interpretation services in Arabic, Russian, French, and Bengali.
+- Dedicated ICU stay followed by step-down cardiac telemetry monitoring.
+
+For immediate consultation, review [Accredited Indian Cardiology Institutes](/hospitals) or submit your recent ECG and angiogram reports to our clinical triage desk.`,
+          tags: ["Cardiology", "Heart Bypass", "CABG", "Delhi Hospitals", "Cardiac Surgery"],
+          featuredImage: {
+            url: "/hero/hero-bg.webp",
+            alt: "cardiac surgery in delhi premier heart institute operating theater",
+            caption: "State-of-the-art hybrid cardiac catheterization and operating suite in Delhi NCR.",
+          },
+          author: {
+            name: "Dr. Sunita Rao",
+            role: "Cardiothoracic Surgery Advisor",
+            avatarUrl: "",
+          },
+          status: "published",
+          publishedAt: new Date(Date.now() - 9 * 24 * 60 * 60 * 1000),
+          seo: {
+            focusKeyword: "cardiac surgery in delhi",
+            seoTitle: "Cardiac Surgery in Delhi: Top JCI Hospitals, CABG Costs & Specialists",
+            metaDescription: "Complete guide to cardiac surgery in Delhi. Compare heart bypass CABG surgery costs, pediatric cardiology centers, board-certified surgeons, and visa support.",
+            canonicalUrl: "/blog/cardiac-surgery-in-delhi-top-hospitals-costs",
+            noIndex: false,
+            seoScore: 88,
+            schemaType: "MedicalWebPage",
+          },
+          estimatedReadTime: 3,
+          medicalDisclaimerEnabled: true,
+          viewsCount: 289,
+        },
+        {
+          title: "Bone Marrow Transplant in India: Clinical Protocols & International Patient Care",
+          slug: "bone-marrow-transplant-in-india-protocols",
+          category: "Oncology",
+          excerpt: "Comprehensive clinical guide to bone marrow transplant in India. Learn about allogeneic vs autologous BMT, HLA donor matching, BMT HEPA isolation suites, and cost savings of 70%.",
+          content: `For patients battling leukemia, lymphoma, multiple myeloma, aplastic anemia, or thalassemia major, a hematopoietic stem cell transplant offers a curative clinical pathway. Undergoing a **bone marrow transplant in India** provides access to internationally trained hematologists and world-class infection control suites at a fraction of Western costs.
+
+## Understanding Bone Marrow Transplant in India
+
+A bone marrow transplant (BMT) replaces damaged or diseased bone marrow with healthy blood-forming stem cells:
+- **Autologous BMT**: Uses the patient's own stem cells, harvested before high-dose conditioning chemotherapy.
+- **Allogeneic BMT**: Involves stem cells from a matched related donor (sibling), matched unrelated donor (MUD) via international marrow registries, or haploidentical (half-matched) family donors.
+
+## Dedicated BMT Infrastructure & Safety Protocols
+
+Infection prevention is the single most critical determinant of transplant success. Premier Indian BMT units feature:
+- Positive pressure HEPA-filtered rooms with 12 to 20 air changes per hour.
+- Dedicated laminar flow isolation corridors preventing cross-contamination.
+- In-house blood bank with leukocyte depletion, gamma irradiation, and apheresis technologies.
+- 24/7 dedicated BMT nursing care with strict barrier nursing protocols.
+
+## Cost and Duration of Stay
+
+While an allogeneic BMT in Western Europe or the US regularly exceeds $150,000 to $300,000 USD, in India comprehensive BMT packages average **$18,000 to $28,000 USD** for autologous transplants and **$25,000 to $38,000 USD** for allogeneic transplants.
+
+International patients typically plan for a 60 to 90-day total stay in India, including:
+1. **Pre-Transplant Workup (Days -14 to -7)**: Comprehensive organ function tests and donor HLA typing.
+2. **Conditioning Regimen (Days -7 to -1)**: Chemotherapy or immunotherapy to clear host marrow.
+3. **Stem Cell Infusion (Day 0)**: Painless intravenous infusion of stem cells.
+4. **Neutropenic Phase (Days +1 to +21)**: Intensive monitoring until engraftment occurs.
+5. **Post-Engraftment Recovery**: Outpatient convalescence before fit-to-fly clearance.
+
+Learn more about specialized oncology care on our [Hospital Directory](/hospitals) or contact our international medical travel coordinator for immediate case assessment.`,
+          tags: ["Oncology", "Bone Marrow Transplant", "BMT", "Hematology", "Cancer Care"],
+          featuredImage: {
+            url: "/hero/hero-bg.webp",
+            alt: "bone marrow transplant in india clinical isolation unit",
+            caption: "HEPA-filtered positive pressure BMT isolation suite at an accredited oncology center.",
+          },
+          author: {
+            name: "Akeezo Medical Editorial Board",
+            role: "Clinical Oncology Desk",
+            avatarUrl: "",
+          },
+          status: "published",
+          publishedAt: new Date(Date.now() - 14 * 24 * 60 * 60 * 1000),
+          seo: {
+            focusKeyword: "bone marrow transplant in india",
+            seoTitle: "Bone Marrow Transplant in India: Costs, Protocols & Top Centers",
+            metaDescription: "Guide to bone marrow transplant in India. Learn about allogeneic vs autologous BMT, HLA donor matching, BMT HEPA isolation suites, and cost savings of 70%.",
+            canonicalUrl: "/blog/bone-marrow-transplant-in-india-protocols",
+            noIndex: false,
+            seoScore: 85,
+            schemaType: "MedicalWebPage",
+          },
+          estimatedReadTime: 4,
+          medicalDisclaimerEnabled: true,
+          viewsCount: 198,
+        },
+      ];
+
+      for (const p of postsToSeed) {
+        const audit = calculateSeoContentScore({
+          title: p.title,
+          slug: p.slug,
+          content: p.content,
+          focusKeyword: p.seo.focusKeyword,
+          seoTitle: p.seo.seoTitle,
+          metaDescription: p.seo.metaDescription,
+          featuredImageAlt: p.featuredImage.alt,
+        });
+        p.seo.seoScore = audit.score;
+        await BlogPostModel.create(p);
+      }
+    }
+  } catch (err) {
+    console.warn("[Akeezo Seed Blog] Seed failed:", err);
+  }
+}
+
+// GET /api/v1/admin/blog
+cmsAdminRouter.get("/blog", async (req: Request, res: Response) => {
+  try {
+    await ensureSeedBlogPosts();
+    const page = Math.max(1, parseInt(req.query.page as string) || 1);
+    const limit = Math.min(100, Math.max(1, parseInt(req.query.limit as string) || 10));
+    const skip = (page - 1) * limit;
+
+    const filter: Record<string, any> = {};
+    if (req.query.search) {
+      const q = String(req.query.search).trim();
+      filter.$or = [
+        { title: { $regex: escapeRegex(q), $options: "i" } },
+        { slug: { $regex: escapeRegex(q), $options: "i" } },
+        { excerpt: { $regex: escapeRegex(q), $options: "i" } },
+        { "seo.focusKeyword": { $regex: escapeRegex(q), $options: "i" } },
+        { tags: { $regex: escapeRegex(q), $options: "i" } },
+      ];
+    }
+    if (req.query.category && req.query.category !== "all") {
+      filter.category = req.query.category;
+    }
+    if (req.query.status && req.query.status !== "all") {
+      filter.status = req.query.status;
+    }
+    if (req.query.minSeoScore) {
+      const minScore = parseInt(req.query.minSeoScore as string);
+      if (!isNaN(minScore)) {
+        filter["seo.seoScore"] = { $gte: minScore };
+      }
+    }
+
+    const sortField = (req.query.sortField as string) || "createdAt";
+    const sortDirection = req.query.sortDirection === "asc" ? 1 : -1;
+    const sort: Record<string, any> = { [sortField]: sortDirection };
+
+    const [docs, total] = await Promise.all([
+      BlogPostModel.find(filter).sort(sort).skip(skip).limit(limit).lean(),
+      BlogPostModel.countDocuments(filter),
+    ]);
+
+    res.json({
+      data: docs,
+      pagination: {
+        page,
+        limit,
+        total,
+        totalPages: Math.max(1, Math.ceil(total / limit)),
+      },
+    });
+  } catch (err: any) {
+    res.status(500).json({ error: { code: "FETCH_BLOGS_FAILED", message: err.message } });
+  }
+});
+
+// GET /api/v1/admin/blog/:id
+cmsAdminRouter.get("/blog/:id", async (req: Request, res: Response) => {
+  try {
+    const doc = await BlogPostModel.findById(req.params.id);
+    if (!doc) {
+      return res.status(404).json({ error: { code: "NOT_FOUND", message: "Blog post not found" } });
+    }
+    const seoAudit = calculateSeoContentScore({
+      title: doc.title,
+      slug: doc.slug,
+      content: doc.content,
+      focusKeyword: doc.seo?.focusKeyword || "",
+      seoTitle: doc.seo?.seoTitle,
+      metaDescription: doc.seo?.metaDescription,
+      featuredImageAlt: doc.featuredImage?.alt,
+    });
+    res.json({ data: doc, seoAudit });
+  } catch (err: any) {
+    res.status(500).json({ error: { code: "FETCH_BLOG_FAILED", message: err.message } });
+  }
+});
+
+// POST /api/v1/admin/blog
+cmsAdminRouter.post("/blog", async (req: Request, res: Response) => {
+  try {
+    const parsed = CreateBlogPostDTO.safeParse(req.body);
+    if (!parsed.success) {
+      return res.status(400).json({
+        error: { code: "VALIDATION_FAILED", message: parsed.error.issues.map((i) => i.message).join(", ") },
+      });
+    }
+
+    const slug = parsed.data.slug.trim().toLowerCase();
+    const existing = await BlogPostModel.findOne({ slug });
+    if (existing) {
+      return res.status(409).json({
+        error: { code: "SLUG_EXISTS", message: `A blog article with slug "${slug}" already exists.` },
+      });
+    }
+
+    const seoAudit = calculateSeoContentScore({
+      title: parsed.data.title,
+      slug,
+      content: parsed.data.content,
+      focusKeyword: parsed.data.seo?.focusKeyword || "",
+      seoTitle: parsed.data.seo?.seoTitle,
+      metaDescription: parsed.data.seo?.metaDescription,
+      featuredImageAlt: parsed.data.featuredImage?.alt,
+    });
+
+    const words = parsed.data.content.split(/\s+/).filter(Boolean).length;
+    const readTime = Math.max(1, Math.ceil(words / 200));
+
+    const publishedAt = parsed.data.status === "published"
+      ? (parsed.data.publishedAt ? new Date(parsed.data.publishedAt) : new Date())
+      : (parsed.data.publishedAt ? new Date(parsed.data.publishedAt) : undefined);
+
+    const doc = await BlogPostModel.create({
+      ...parsed.data,
+      slug,
+      publishedAt,
+      estimatedReadTime: readTime,
+      seo: {
+        ...parsed.data.seo,
+        seoScore: seoAudit.score,
+      },
+    });
+
+    await logAdminActivity(
+      (req as any).user?._id,
+      "blog",
+      doc._id,
+      "create",
+      { title: ["", doc.title], slug: ["", doc.slug], status: ["", doc.status] },
+      req
+    );
+
+    res.status(201).json({ data: doc, seoAudit });
+  } catch (err: any) {
+    if (err.code === 11000) {
+      return res.status(409).json({ error: { code: "SLUG_EXISTS", message: "Blog slug must be unique." } });
+    }
+    res.status(500).json({ error: { code: "CREATE_BLOG_FAILED", message: err.message } });
+  }
+});
+
+// PUT /api/v1/admin/blog/:id
+cmsAdminRouter.put("/blog/:id", async (req: Request, res: Response) => {
+  try {
+    const parsed = UpdateBlogPostDTO.safeParse(req.body);
+    if (!parsed.success) {
+      return res.status(400).json({
+        error: { code: "VALIDATION_FAILED", message: parsed.error.issues.map((i) => i.message).join(", ") },
+      });
+    }
+
+    const existing = await BlogPostModel.findById(req.params.id);
+    if (!existing) {
+      return res.status(404).json({ error: { code: "NOT_FOUND", message: "Blog post not found" } });
+    }
+
+    if (parsed.data.slug) {
+      const slug = parsed.data.slug.trim().toLowerCase();
+      const conflict = await BlogPostModel.findOne({ _id: { $ne: req.params.id }, slug });
+      if (conflict) {
+        return res.status(409).json({
+          error: { code: "SLUG_EXISTS", message: `A blog article with slug "${slug}" already exists.` },
+        });
+      }
+    }
+
+    const previous = existing.toObject ? existing.toObject() : existing;
+    const updateData: Record<string, any> = { ...parsed.data };
+    if (parsed.data.slug) {
+      updateData.slug = parsed.data.slug.trim().toLowerCase();
+    }
+
+    const title = updateData.title || existing.title;
+    const slug = updateData.slug || existing.slug;
+    const content = updateData.content || existing.content;
+    const focusKeyword = updateData.seo?.focusKeyword ?? existing.seo?.focusKeyword ?? "";
+    const seoTitle = updateData.seo?.seoTitle ?? existing.seo?.seoTitle ?? title;
+    const metaDescription = updateData.seo?.metaDescription ?? existing.seo?.metaDescription ?? "";
+    const featuredImageAlt = updateData.featuredImage?.alt ?? existing.featuredImage?.alt ?? "";
+
+    const seoAudit = calculateSeoContentScore({
+      title,
+      slug,
+      content,
+      focusKeyword,
+      seoTitle,
+      metaDescription,
+      featuredImageAlt,
+    });
+
+    const words = content.split(/\s+/).filter(Boolean).length;
+    updateData.estimatedReadTime = Math.max(1, Math.ceil(words / 200));
+
+    if (!updateData.seo) {
+      updateData.seo = { ...existing.seo };
+    }
+    updateData.seo.seoScore = seoAudit.score;
+
+    if (updateData.status === "published" && !existing.publishedAt) {
+      updateData.publishedAt = new Date();
+    }
+
+    const updated = await BlogPostModel.findByIdAndUpdate(
+      req.params.id,
+      { $set: updateData },
+      { new: true, runValidators: true }
+    );
+
+    await logAdminActivity(
+      (req as any).user?._id,
+      "blog",
+      req.params.id,
+      "update",
+      {
+        title: [previous.title, updated?.title],
+        status: [previous.status, updated?.status],
+        seoScore: [previous.seo?.seoScore, updated?.seo?.seoScore],
+      },
+      req
+    );
+
+    res.json({ data: updated, seoAudit });
+  } catch (err: any) {
+    if (err.code === 11000) {
+      return res.status(409).json({ error: { code: "SLUG_EXISTS", message: "Blog slug must be unique." } });
+    }
+    res.status(500).json({ error: { code: "UPDATE_BLOG_FAILED", message: err.message } });
+  }
+});
+
+// POST /api/v1/admin/blog/:id/publish
+cmsAdminRouter.post("/blog/:id/publish", async (req: Request, res: Response) => {
+  try {
+    const existing = await BlogPostModel.findById(req.params.id);
+    if (!existing) {
+      return res.status(404).json({ error: { code: "NOT_FOUND", message: "Blog post not found" } });
+    }
+
+    const nextStatus = existing.status === "published" ? "draft" : "published";
+    const updatePayload: Record<string, any> = { status: nextStatus };
+    if (nextStatus === "published" && !existing.publishedAt) {
+      updatePayload.publishedAt = new Date();
+    }
+
+    const updated = await BlogPostModel.findByIdAndUpdate(
+      req.params.id,
+      { $set: updatePayload },
+      { new: true }
+    );
+
+    await logAdminActivity(
+      (req as any).user?._id,
+      "blog",
+      req.params.id,
+      "update",
+      { status: [existing.status, nextStatus] },
+      req
+    );
+
+    res.json({ data: updated });
+  } catch (err: any) {
+    res.status(500).json({ error: { code: "TOGGLE_BLOG_STATUS_FAILED", message: err.message } });
+  }
+});
+
+// DELETE /api/v1/admin/blog/:id
+cmsAdminRouter.delete("/blog/:id", async (req: Request, res: Response) => {
+  try {
+    const doc = await BlogPostModel.findByIdAndDelete(req.params.id);
+    if (!doc) {
+      return res.status(404).json({ error: { code: "NOT_FOUND", message: "Blog post not found" } });
+    }
+
+    await logAdminActivity(
+      (req as any).user?._id,
+      "blog",
+      req.params.id,
+      "delete",
+      { title: [doc.title, "deleted"], slug: [doc.slug, "deleted"] },
+      req
+    );
+
+    res.json({ data: { success: true, deletedId: req.params.id } });
+  } catch (err: any) {
+    res.status(500).json({ error: { code: "DELETE_BLOG_FAILED", message: err.message } });
+  }
+});
+
+// POST /api/v1/admin/blog/seo-audit
+cmsAdminRouter.post("/blog/seo-audit", async (req: Request, res: Response) => {
+  try {
+    const audit = calculateSeoContentScore({
+      title: req.body.title || "",
+      slug: req.body.slug || "",
+      content: req.body.content || "",
+      focusKeyword: req.body.focusKeyword || "",
+      seoTitle: req.body.seoTitle,
+      metaDescription: req.body.metaDescription,
+      featuredImageAlt: req.body.featuredImageAlt,
+    });
+    res.json({ data: audit });
+  } catch (err: any) {
+    res.status(500).json({ error: { code: "SEO_AUDIT_FAILED", message: err.message } });
   }
 });
 

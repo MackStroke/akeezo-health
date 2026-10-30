@@ -55,12 +55,12 @@ export declare const ChangelogEntrySchema: z.ZodObject<{
     updatedAt: z.ZodOptional<z.ZodString>;
 }, "strip", z.ZodTypeAny, {
     status: "draft" | "published" | "archived";
+    title: string;
+    category: "feature" | "improvement" | "fix" | "security" | "maintenance" | "breaking";
     notes: string;
     version: string;
-    title: string;
     summary: string;
     releaseDate: string;
-    category: "feature" | "improvement" | "fix" | "security" | "maintenance" | "breaking";
     audience: "internal" | "all" | "public" | "partners";
     items: {
         type: "feature" | "improvement" | "fix" | "security" | "maintenance" | "breaking";
@@ -70,21 +70,21 @@ export declare const ChangelogEntrySchema: z.ZodObject<{
     }[];
     modules: string[];
     authorName: string;
+    _id?: string | undefined;
     createdAt?: string | undefined;
     updatedAt?: string | undefined;
-    _id?: string | undefined;
     authorId?: string | undefined;
 }, {
-    version: string;
     title: string;
+    version: string;
     releaseDate: string;
     status?: "draft" | "published" | "archived" | undefined;
-    notes?: string | undefined;
+    _id?: string | undefined;
+    category?: "feature" | "improvement" | "fix" | "security" | "maintenance" | "breaking" | undefined;
     createdAt?: string | undefined;
     updatedAt?: string | undefined;
-    _id?: string | undefined;
+    notes?: string | undefined;
     summary?: string | undefined;
-    category?: "feature" | "improvement" | "fix" | "security" | "maintenance" | "breaking" | undefined;
     audience?: "internal" | "all" | "public" | "partners" | undefined;
     items?: {
         text: string;
@@ -128,14 +128,14 @@ export declare const CreateChangelogDTO: z.ZodObject<Omit<{
     notes: z.ZodDefault<z.ZodOptional<z.ZodString>>;
     createdAt: z.ZodOptional<z.ZodString>;
     updatedAt: z.ZodOptional<z.ZodString>;
-}, "createdAt" | "updatedAt" | "_id">, "strip", z.ZodTypeAny, {
+}, "_id" | "createdAt" | "updatedAt">, "strip", z.ZodTypeAny, {
     status: "draft" | "published" | "archived";
+    title: string;
+    category: "feature" | "improvement" | "fix" | "security" | "maintenance" | "breaking";
     notes: string;
     version: string;
-    title: string;
     summary: string;
     releaseDate: string;
-    category: "feature" | "improvement" | "fix" | "security" | "maintenance" | "breaking";
     audience: "internal" | "all" | "public" | "partners";
     items: {
         type: "feature" | "improvement" | "fix" | "security" | "maintenance" | "breaking";
@@ -147,13 +147,13 @@ export declare const CreateChangelogDTO: z.ZodObject<Omit<{
     authorName: string;
     authorId?: string | undefined;
 }, {
-    version: string;
     title: string;
+    version: string;
     releaseDate: string;
     status?: "draft" | "published" | "archived" | undefined;
+    category?: "feature" | "improvement" | "fix" | "security" | "maintenance" | "breaking" | undefined;
     notes?: string | undefined;
     summary?: string | undefined;
-    category?: "feature" | "improvement" | "fix" | "security" | "maintenance" | "breaking" | undefined;
     audience?: "internal" | "all" | "public" | "partners" | undefined;
     items?: {
         text: string;
@@ -168,12 +168,12 @@ export declare const CreateChangelogDTO: z.ZodObject<Omit<{
 export type CreateChangelogInput = z.infer<typeof CreateChangelogDTO>;
 export declare const UpdateChangelogDTO: z.ZodObject<{
     status: z.ZodOptional<z.ZodDefault<z.ZodEnum<["draft", "published", "archived"]>>>;
+    title: z.ZodOptional<z.ZodString>;
+    category: z.ZodOptional<z.ZodDefault<z.ZodEnum<["feature", "improvement", "fix", "security", "maintenance", "breaking"]>>>;
     notes: z.ZodOptional<z.ZodDefault<z.ZodOptional<z.ZodString>>>;
     version: z.ZodOptional<z.ZodString>;
-    title: z.ZodOptional<z.ZodString>;
     summary: z.ZodOptional<z.ZodDefault<z.ZodOptional<z.ZodString>>>;
     releaseDate: z.ZodOptional<z.ZodString>;
-    category: z.ZodOptional<z.ZodDefault<z.ZodEnum<["feature", "improvement", "fix", "security", "maintenance", "breaking"]>>>;
     audience: z.ZodOptional<z.ZodDefault<z.ZodEnum<["all", "public", "internal", "partners"]>>>;
     items: z.ZodOptional<z.ZodDefault<z.ZodArray<z.ZodObject<{
         id: z.ZodOptional<z.ZodString>;
@@ -196,12 +196,12 @@ export declare const UpdateChangelogDTO: z.ZodObject<{
     authorId: z.ZodOptional<z.ZodOptional<z.ZodString>>;
 }, "strip", z.ZodTypeAny, {
     status?: "draft" | "published" | "archived" | undefined;
+    title?: string | undefined;
+    category?: "feature" | "improvement" | "fix" | "security" | "maintenance" | "breaking" | undefined;
     notes?: string | undefined;
     version?: string | undefined;
-    title?: string | undefined;
     summary?: string | undefined;
     releaseDate?: string | undefined;
-    category?: "feature" | "improvement" | "fix" | "security" | "maintenance" | "breaking" | undefined;
     audience?: "internal" | "all" | "public" | "partners" | undefined;
     items?: {
         type: "feature" | "improvement" | "fix" | "security" | "maintenance" | "breaking";
@@ -214,12 +214,12 @@ export declare const UpdateChangelogDTO: z.ZodObject<{
     authorId?: string | undefined;
 }, {
     status?: "draft" | "published" | "archived" | undefined;
+    title?: string | undefined;
+    category?: "feature" | "improvement" | "fix" | "security" | "maintenance" | "breaking" | undefined;
     notes?: string | undefined;
     version?: string | undefined;
-    title?: string | undefined;
     summary?: string | undefined;
     releaseDate?: string | undefined;
-    category?: "feature" | "improvement" | "fix" | "security" | "maintenance" | "breaking" | undefined;
     audience?: "internal" | "all" | "public" | "partners" | undefined;
     items?: {
         text: string;

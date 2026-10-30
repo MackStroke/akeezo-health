@@ -535,6 +535,82 @@ export const DEFAULT_PLATFORM_INTEGRATIONS: PlatformIntegrations = {
   storageBucketMasked: "gs://akeezo-vault-prod (Protected)",
 };
 
+export const CarouselSlideSchema = z.object({
+  id: z.string(),
+  title: z.string(),
+  description: z.string(),
+  badgeText: z.string(),
+  badgeStyle: z.string().default("orange"), // "orange" | "teal" | "purple" | "blue" | "emerald"
+  buttonText: z.string(),
+  buttonAction: z.string().default("calculator"), // "calculator" | "explore" | "link" | "whatsapp"
+  buttonLink: z.string().optional().default(""),
+  accentColor: z.string().default("orange"), // "orange" | "teal" | "purple" | "blue" | "emerald"
+  iconName: z.string().default("calculator"), // "calculator" | "compass" | "shield" | "heart" | "stethoscope" | "award" | "activity"
+  isActive: z.boolean().default(true),
+  order: z.number().default(0)
+});
+
+export type CarouselSlide = z.infer<typeof CarouselSlideSchema>;
+
+export const DEFAULT_CAROUSEL_SLIDES: CarouselSlide[] = [
+  {
+    id: "calculator",
+    title: "Get Your Personalized Price",
+    description: "See the real price before you talk to anyone. Compare itemized hospital quotes, room categories, and physician fees with zero markups.",
+    badgeText: "Save Up To 70%",
+    badgeStyle: "orange",
+    buttonText: "Get Your Estimate in 1 Minute",
+    buttonAction: "calculator",
+    buttonLink: "/cost-calculator",
+    accentColor: "orange",
+    iconName: "calculator",
+    isActive: true,
+    order: 1
+  },
+  {
+    id: "destinations",
+    title: "Explore Treatments & Hospitals",
+    description: "Every accredited Indian healthcare destination, JCI-certified hospital, and world-renowned department chair organized in one directory.",
+    badgeText: "150+ Verified Hubs",
+    badgeStyle: "teal",
+    buttonText: "Explore All Specialities",
+    buttonAction: "explore",
+    buttonLink: "/hospitals",
+    accentColor: "teal",
+    iconName: "compass",
+    isActive: true,
+    order: 2
+  },
+  {
+    id: "second-opinion",
+    title: "Free Clinical Second Opinion",
+    description: "Upload diagnostic scans or pathology reports to receive independent treatment evaluations from top Indian department chairs within 24-48 hours.",
+    badgeText: "100% Free & Confidential",
+    badgeStyle: "purple",
+    buttonText: "Get Free Second Opinion",
+    buttonAction: "whatsapp",
+    buttonLink: "/#opinion",
+    accentColor: "purple",
+    iconName: "stethoscope",
+    isActive: true,
+    order: 3
+  },
+  {
+    id: "medical-visa",
+    title: "Fast-Track Medical Visa (FRRO)",
+    description: "Official hospital invitation letters dispatched in under 24 hours. Complete airport reception, private transport, and local language concierge.",
+    badgeText: "24-48h Visa Letter",
+    badgeStyle: "emerald",
+    buttonText: "Learn About Visa Support",
+    buttonAction: "link",
+    buttonLink: "/#visa",
+    accentColor: "emerald",
+    iconName: "shield",
+    isActive: true,
+    order: 4
+  }
+];
+
 export const SiteSettingsSchema = z.object({
   brandName: z.string().default("AKEEZO"),
   tagline: z.string().default("Heal In India, Heal By Akeezo"),
@@ -586,7 +662,8 @@ export const SiteSettingsSchema = z.object({
       address: z.string().optional()
     })
     .optional(),
-  socialLinks: z.record(z.string()).optional()
+  socialLinks: z.record(z.string()).optional(),
+  carouselSlides: z.array(CarouselSlideSchema).optional().default(DEFAULT_CAROUSEL_SLIDES)
 });
 
 export type SiteSettings = z.infer<typeof SiteSettingsSchema>;

@@ -18,25 +18,25 @@ export declare const UserSchema: z.ZodObject<{
     createdAt: z.ZodString;
     updatedAt: z.ZodString;
 }, "strip", z.ZodTypeAny, {
-    name: string;
     status: "active" | "disabled";
     id: string;
-    email: string;
+    name: string;
+    role: "partner" | "admin" | "coordinator" | "hospital_liaison" | "finance" | "viewer";
     createdAt: string;
     updatedAt: string;
-    role: "partner" | "admin" | "coordinator" | "hospital_liaison" | "finance" | "viewer";
+    email: string;
     permissions: string[];
     phoneVerified: boolean;
     totpEnabled: boolean;
     phone?: string | undefined;
     lastLoginAt?: string | undefined;
 }, {
-    name: string;
     id: string;
-    email: string;
+    name: string;
+    role: "partner" | "admin" | "coordinator" | "hospital_liaison" | "finance" | "viewer";
     createdAt: string;
     updatedAt: string;
-    role: "partner" | "admin" | "coordinator" | "hospital_liaison" | "finance" | "viewer";
+    email: string;
     permissions: string[];
     status?: "active" | "disabled" | undefined;
     phone?: string | undefined;
@@ -153,25 +153,25 @@ export declare const AuthResponseSchema: z.ZodObject<{
         createdAt: z.ZodString;
         updatedAt: z.ZodString;
     }, "strip", z.ZodTypeAny, {
-        name: string;
         status: "active" | "disabled";
         id: string;
-        email: string;
+        name: string;
+        role: "partner" | "admin" | "coordinator" | "hospital_liaison" | "finance" | "viewer";
         createdAt: string;
         updatedAt: string;
-        role: "partner" | "admin" | "coordinator" | "hospital_liaison" | "finance" | "viewer";
+        email: string;
         permissions: string[];
         phoneVerified: boolean;
         totpEnabled: boolean;
         phone?: string | undefined;
         lastLoginAt?: string | undefined;
     }, {
-        name: string;
         id: string;
-        email: string;
+        name: string;
+        role: "partner" | "admin" | "coordinator" | "hospital_liaison" | "finance" | "viewer";
         createdAt: string;
         updatedAt: string;
-        role: "partner" | "admin" | "coordinator" | "hospital_liaison" | "finance" | "viewer";
+        email: string;
         permissions: string[];
         status?: "active" | "disabled" | undefined;
         phone?: string | undefined;
@@ -189,13 +189,13 @@ export declare const AuthResponseSchema: z.ZodObject<{
     maskedPhone?: string | undefined;
     token?: string | undefined;
     user?: {
-        name: string;
         status: "active" | "disabled";
         id: string;
-        email: string;
+        name: string;
+        role: "partner" | "admin" | "coordinator" | "hospital_liaison" | "finance" | "viewer";
         createdAt: string;
         updatedAt: string;
-        role: "partner" | "admin" | "coordinator" | "hospital_liaison" | "finance" | "viewer";
+        email: string;
         permissions: string[];
         phoneVerified: boolean;
         totpEnabled: boolean;
@@ -211,12 +211,12 @@ export declare const AuthResponseSchema: z.ZodObject<{
     maskedPhone?: string | undefined;
     token?: string | undefined;
     user?: {
-        name: string;
         id: string;
-        email: string;
+        name: string;
+        role: "partner" | "admin" | "coordinator" | "hospital_liaison" | "finance" | "viewer";
         createdAt: string;
         updatedAt: string;
-        role: "partner" | "admin" | "coordinator" | "hospital_liaison" | "finance" | "viewer";
+        email: string;
         permissions: string[];
         status?: "active" | "disabled" | undefined;
         phone?: string | undefined;

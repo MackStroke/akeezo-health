@@ -154,9 +154,9 @@ export declare const CommissionRecordSchema: z.ZodObject<{
 }, "strip", z.ZodTypeAny, {
     status: "expected" | "received" | "invoiced" | "partially_received" | "partner_payable" | "partially_paid" | "paid" | "disputed" | "written_off";
     id: string;
-    caseId: string;
     createdAt: string;
     updatedAt: string;
+    caseId: string;
     version: number;
     episodeId: string;
     hospitalRateSnapshot: Record<string, any>;
@@ -178,9 +178,9 @@ export declare const CommissionRecordSchema: z.ZodObject<{
     tdsDeductedMinor?: number | null | undefined;
 }, {
     id: string;
-    caseId: string;
     createdAt: string;
     updatedAt: string;
+    caseId: string;
     episodeId: string;
     hospitalRateSnapshot: Record<string, any>;
     billedAmountMinor: number;
@@ -214,8 +214,8 @@ export declare const CommissionAdjustmentSchema: z.ZodObject<{
     createdAt: z.ZodString;
 }, "strip", z.ZodTypeAny, {
     id: string;
-    reason: string;
     createdAt: string;
+    reason: string;
     commissionRecordId: string;
     deltaBilledMinor: number;
     deltaCommissionMinor: number;
@@ -223,8 +223,8 @@ export declare const CommissionAdjustmentSchema: z.ZodObject<{
     approvedBy: string;
 }, {
     id: string;
-    reason: string;
     createdAt: string;
+    reason: string;
     commissionRecordId: string;
     deltaBilledMinor: number;
     deltaCommissionMinor: number;

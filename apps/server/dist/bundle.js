@@ -98172,7 +98172,7 @@ var require_document2 = __commonJS({
     var ObjectExpectedError = require_objectExpected();
     var ObjectParameterError = require_objectParameter();
     var ParallelValidateError = require_parallelValidate();
-    var Schema19 = require_schema2();
+    var Schema20 = require_schema2();
     var StrictModeError = require_strict();
     var ValidationError = require_validation();
     var ValidatorError = require_validator();
@@ -98231,7 +98231,7 @@ var require_document2 = __commonJS({
       }
       options = Object.assign({}, options);
       if (this.$__schema == null) {
-        const _schema = utils.isObject(fields) && !fields.instanceOfSchema ? new Schema19(fields) : fields;
+        const _schema = utils.isObject(fields) && !fields.instanceOfSchema ? new Schema20(fields) : fields;
         this.$__setSchema(_schema);
         fields = skipId;
         skipId = options;
@@ -108025,7 +108025,7 @@ var require_map2 = __commonJS({
     var SchemaType = require_schemaType();
     var createJSONSchemaTypeDefinition = require_createJSONSchemaTypeDefinition();
     var MongooseError = require_mongooseError();
-    var Schema19 = require_schema2();
+    var Schema20 = require_schema2();
     var utils = require_utils6();
     var SchemaMap = class extends SchemaType {
       /**
@@ -108148,7 +108148,7 @@ var require_map2 = __commonJS({
       if (utils.hasUserDefinedProperty(obj, "of")) {
         const isInlineSchema = utils.isPOJO(obj.of) && Object.keys(obj.of).length > 0 && !utils.hasUserDefinedProperty(obj.of, schema.options.typeKey);
         if (isInlineSchema) {
-          _mapType = { [schema.options.typeKey]: new Schema19(obj.of) };
+          _mapType = { [schema.options.typeKey]: new Schema20(obj.of) };
         } else if (utils.isPOJO(obj.of)) {
           _mapType = Object.assign({}, obj.of);
         } else {
@@ -109011,9 +109011,9 @@ var require_schema2 = __commonJS({
     var isPOJO = utils.isPOJO;
     var id = 0;
     var numberRE = /^\d+$/;
-    function Schema19(obj, options) {
-      if (!(this instanceof Schema19)) {
-        return new Schema19(obj, options);
+    function Schema20(obj, options) {
+      if (!(this instanceof Schema20)) {
+        return new Schema20(obj, options);
       }
       this.obj = obj;
       this.paths = {};
@@ -109123,34 +109123,34 @@ var require_schema2 = __commonJS({
         })(prop));
       }
     }
-    Schema19.prototype = Object.create(EventEmitter.prototype);
-    Schema19.prototype.constructor = Schema19;
-    Schema19.prototype.instanceOfSchema = true;
-    Object.defineProperty(Schema19.prototype, "$schemaType", {
+    Schema20.prototype = Object.create(EventEmitter.prototype);
+    Schema20.prototype.constructor = Schema20;
+    Schema20.prototype.instanceOfSchema = true;
+    Object.defineProperty(Schema20.prototype, "$schemaType", {
       configurable: false,
       enumerable: false,
       writable: true
     });
-    Object.defineProperty(Schema19.prototype, "childSchemas", {
+    Object.defineProperty(Schema20.prototype, "childSchemas", {
       configurable: false,
       enumerable: true,
       writable: true
     });
-    Object.defineProperty(Schema19.prototype, "virtuals", {
+    Object.defineProperty(Schema20.prototype, "virtuals", {
       configurable: false,
       enumerable: true,
       writable: true
     });
-    Schema19.prototype.obj;
-    Schema19.prototype.paths;
-    Schema19.prototype.tree;
-    Schema19.prototype.clone = function() {
+    Schema20.prototype.obj;
+    Schema20.prototype.paths;
+    Schema20.prototype.tree;
+    Schema20.prototype.clone = function() {
       const s2 = this._clone();
       s2.on("init", (v) => this.emit("init", v));
       return s2;
     };
-    Schema19.prototype._clone = function _clone(Constructor) {
-      Constructor = Constructor || (this.base == null ? Schema19 : this.base.Schema);
+    Schema20.prototype._clone = function _clone(Constructor) {
+      Constructor = Constructor || (this.base == null ? Schema20 : this.base.Schema);
       const s2 = new Constructor({}, this._userProvidedOptions);
       s2.base = this.base;
       s2.obj = this.obj;
@@ -109218,8 +109218,8 @@ var require_schema2 = __commonJS({
       s2.encryptedFields = clone2(this.encryptedFields);
       return s2;
     };
-    Schema19.prototype.pick = function(paths, options) {
-      const newSchema = new Schema19({}, options || this.options);
+    Schema20.prototype.pick = function(paths, options) {
+      const newSchema = new Schema20({}, options || this.options);
       if (!Array.isArray(paths)) {
         throw new MongooseError('Schema#pick() only accepts an array argument, got "' + typeof paths + '"');
       }
@@ -109248,8 +109248,8 @@ var require_schema2 = __commonJS({
       }
       return newSchema;
     };
-    Schema19.prototype.omit = function(paths, options) {
-      const newSchema = new Schema19(this, options || this.options);
+    Schema20.prototype.omit = function(paths, options) {
+      const newSchema = new Schema20(this, options || this.options);
       if (!Array.isArray(paths)) {
         throw new MongooseError(
           'Schema#omit() only accepts an array argument, got "' + typeof paths + '"'
@@ -109263,7 +109263,7 @@ var require_schema2 = __commonJS({
       }
       return newSchema;
     };
-    Schema19.prototype.defaultOptions = function(options) {
+    Schema20.prototype.defaultOptions = function(options) {
       this._userProvidedOptions = options == null ? {} : clone2(options);
       const baseOptions = this.base && this.base.options || {};
       const strict = "strict" in baseOptions ? baseOptions.strict : true;
@@ -109306,12 +109306,12 @@ var require_schema2 = __commonJS({
       }
       return options;
     };
-    Schema19.prototype.discriminator = function(name, schema, options) {
+    Schema20.prototype.discriminator = function(name, schema, options) {
       this._applyDiscriminators = this._applyDiscriminators || /* @__PURE__ */ new Map();
       this._applyDiscriminators.set(name, { schema, options });
       return this;
     };
-    Schema19.prototype._defaultToObjectOptions = function(json) {
+    Schema20.prototype._defaultToObjectOptions = function(json) {
       const path5 = json ? "toJSON" : "toObject";
       if (this._defaultToObjectOptionsMap && this._defaultToObjectOptionsMap[path5]) {
         return this._defaultToObjectOptionsMap[path5];
@@ -109323,7 +109323,7 @@ var require_schema2 = __commonJS({
       this._defaultToObjectOptionsMap[path5] = defaultOptions;
       return defaultOptions;
     };
-    Schema19.prototype.encryptionType = function encryptionType(encryptionType) {
+    Schema20.prototype.encryptionType = function encryptionType(encryptionType) {
       if (arguments.length === 0) {
         return this.options.encryptionType;
       }
@@ -109332,8 +109332,8 @@ var require_schema2 = __commonJS({
       }
       this.options.encryptionType = encryptionType;
     };
-    Schema19.prototype.add = function add(obj, prefix) {
-      if (obj instanceof Schema19 || obj != null && obj.instanceOfSchema) {
+    Schema20.prototype.add = function add(obj, prefix) {
+      if (obj instanceof Schema20 || obj != null && obj.instanceOfSchema) {
         merge(this, obj);
         return this;
       }
@@ -109360,7 +109360,7 @@ var require_schema2 = __commonJS({
         }
         let isMongooseTypeString = false;
         if (typeof val === "string") {
-          const MongooseTypes2 = this.base != null ? this.base.Schema.Types : Schema19.Types;
+          const MongooseTypes2 = this.base != null ? this.base.Schema.Types : Schema20.Types;
           const upperVal = val.charAt(0).toUpperCase() + val.substring(1);
           isMongooseTypeString = MongooseTypes2[upperVal] != null;
         }
@@ -109412,7 +109412,7 @@ var require_schema2 = __commonJS({
             if (this._userProvidedOptions.toJSON != null) {
               childSchemaOptions.toJSON = utils.omit(this._userProvidedOptions.toJSON, ["transform"]);
             }
-            const _schema = new Schema19(_typeDef, childSchemaOptions);
+            const _schema = new Schema20(_typeDef, childSchemaOptions);
             _schema.$implicitlyCreated = true;
             const schemaWrappedPath = Object.assign({}, val, { [typeKey]: _schema });
             this.path(prefix + key, schemaWrappedPath);
@@ -109453,23 +109453,23 @@ var require_schema2 = __commonJS({
       aliasFields(this, aliasObj);
       return this;
     };
-    Schema19.prototype._addEncryptedField = function _addEncryptedField(path5, fieldConfig) {
+    Schema20.prototype._addEncryptedField = function _addEncryptedField(path5, fieldConfig) {
       const type = this.path(path5).autoEncryptionType();
       if (type == null) {
         throw new Error(`Invalid BSON type for FLE field: '${path5}'`);
       }
       this.encryptedFields[path5] = clone2(fieldConfig);
     };
-    Schema19.prototype._removeEncryptedField = function _removeEncryptedField(path5) {
+    Schema20.prototype._removeEncryptedField = function _removeEncryptedField(path5) {
       delete this.encryptedFields[path5];
     };
-    Schema19.prototype._hasEncryptedFields = function _hasEncryptedFields() {
+    Schema20.prototype._hasEncryptedFields = function _hasEncryptedFields() {
       return Object.keys(this.encryptedFields).length > 0;
     };
-    Schema19.prototype._hasEncryptedField = function _hasEncryptedField(path5) {
+    Schema20.prototype._hasEncryptedField = function _hasEncryptedField(path5) {
       return path5 in this.encryptedFields;
     };
-    Schema19.prototype._buildEncryptedFields = function() {
+    Schema20.prototype._buildEncryptedFields = function() {
       const fields = Object.entries(this.encryptedFields).map(
         ([path5, config]) => {
           const bsonType = this.path(path5).autoEncryptionType();
@@ -109478,7 +109478,7 @@ var require_schema2 = __commonJS({
       );
       return { fields };
     };
-    Schema19.prototype._buildSchemaMap = function() {
+    Schema20.prototype._buildSchemaMap = function() {
       function buildNestedPath(path5, object, value) {
         let i2 = 0, component = path5[i2];
         for (; i2 < path5.length - 1; ++i2, component = path5[i2]) {
@@ -109506,11 +109506,11 @@ var require_schema2 = __commonJS({
         properties
       };
     };
-    Schema19.prototype.alias = function alias(path5, alias) {
+    Schema20.prototype.alias = function alias(path5, alias) {
       aliasFields(this, { [path5]: alias });
       return this;
     };
-    Schema19.prototype.removeIndex = function removeIndex(index) {
+    Schema20.prototype.removeIndex = function removeIndex(index) {
       if (arguments.length > 1) {
         throw new Error("removeIndex() takes only 1 argument");
       }
@@ -109532,22 +109532,22 @@ var require_schema2 = __commonJS({
       }
       return this;
     };
-    Schema19.prototype.clearIndexes = function clearIndexes() {
+    Schema20.prototype.clearIndexes = function clearIndexes() {
       this._indexes.length = 0;
       return this;
     };
-    Schema19.prototype.searchIndex = function searchIndex(description) {
+    Schema20.prototype.searchIndex = function searchIndex(description) {
       this._searchIndexes.push(description);
       return this;
     };
-    Schema19.reserved = /* @__PURE__ */ Object.create(null);
-    Schema19.prototype.reserved = Schema19.reserved;
-    var reserved = Schema19.reserved;
+    Schema20.reserved = /* @__PURE__ */ Object.create(null);
+    Schema20.prototype.reserved = Schema20.reserved;
+    var reserved = Schema20.reserved;
     reserved["prototype"] = // EventEmitter
     reserved.emit = reserved.listeners = reserved.removeListener = // document properties and functions
     reserved.collection = reserved.errors = reserved.get = reserved.init = reserved.isModified = reserved.isNew = reserved.populated = reserved.remove = reserved.save = reserved.toObject = reserved.validate = 1;
     reserved.collection = 1;
-    Schema19.prototype.path = function(path5, obj) {
+    Schema20.prototype.path = function(path5, obj) {
       if (obj === void 0) {
         if (Object.hasOwn(this.paths, path5)) {
           return this.paths[path5];
@@ -109698,7 +109698,7 @@ var require_schema2 = __commonJS({
       }
       return this;
     };
-    Schema19.prototype._gatherChildSchemas = function _gatherChildSchemas() {
+    Schema20.prototype._gatherChildSchemas = function _gatherChildSchemas() {
       const childSchemas = [];
       for (const path5 of Object.keys(this.paths)) {
         if (typeof path5 !== "string") {
@@ -109773,13 +109773,13 @@ var require_schema2 = __commonJS({
       }
       return null;
     }
-    Object.defineProperty(Schema19.prototype, "base", {
+    Object.defineProperty(Schema20.prototype, "base", {
       configurable: true,
       enumerable: false,
       writable: true,
       value: null
     });
-    Schema19.prototype.interpretAsType = function(path5, obj, options) {
+    Schema20.prototype.interpretAsType = function(path5, obj, options) {
       if (obj instanceof SchemaType) {
         if (obj.path === path5) {
           return obj;
@@ -109788,7 +109788,7 @@ var require_schema2 = __commonJS({
         clone3.path = path5;
         return clone3;
       }
-      const MongooseTypes2 = this.base != null ? this.base.Schema.Types : Schema19.Types;
+      const MongooseTypes2 = this.base != null ? this.base.Schema.Types : Schema20.Types;
       const Types = this.base != null ? this.base.Types : require_types3();
       if (!utils.isPOJO(obj) && !(obj instanceof SchemaTypeOptions)) {
         const constructorName = utils.getFunctionName(obj.constructor);
@@ -109814,9 +109814,9 @@ var require_schema2 = __commonJS({
       if (Array.isArray(type) || type === Array || type === "array" || type === MongooseTypes2.Array) {
         let cast = type === Array || type === "array" ? obj.cast || obj.of : type[0];
         if (cast && cast.instanceOfSchema) {
-          if (!(cast instanceof Schema19)) {
+          if (!(cast instanceof Schema20)) {
             if (this.options._isMerging) {
-              cast = new Schema19(cast);
+              cast = new Schema20(cast);
             } else {
               throw new TypeError("Schema for array path `" + path5 + `\` is from a different copy of the Mongoose module. Please make sure you're using the same version of Mongoose everywhere with \`npm list mongoose\`. If you are still getting this error, please add \`new Schema()\` around the path: ${path5}: new Schema(...)`);
             }
@@ -109824,9 +109824,9 @@ var require_schema2 = __commonJS({
           return new MongooseTypes2.DocumentArray(path5, cast, obj, null, this);
         }
         if (cast && cast[options.typeKey] && cast[options.typeKey].instanceOfSchema) {
-          if (!(cast[options.typeKey] instanceof Schema19)) {
+          if (!(cast[options.typeKey] instanceof Schema20)) {
             if (this.options._isMerging) {
-              cast[options.typeKey] = new Schema19(cast[options.typeKey]);
+              cast[options.typeKey] = new Schema20(cast[options.typeKey]);
             } else {
               throw new TypeError("Schema for array path `" + path5 + `\` is from a different copy of the Mongoose module. Please make sure you're using the same version of Mongoose everywhere with \`npm list mongoose\`. If you are still getting this error, please add \`new Schema()\` around the path: ${path5}: new Schema(...)`);
             }
@@ -109864,10 +109864,10 @@ var require_schema2 = __commonJS({
             }
             if (Object.hasOwn(this._userProvidedOptions, "_id")) {
               childSchemaOptions._id = this._userProvidedOptions._id;
-            } else if (Schema19.Types.DocumentArray.defaultOptions._id != null) {
-              childSchemaOptions._id = Schema19.Types.DocumentArray.defaultOptions._id;
+            } else if (Schema20.Types.DocumentArray.defaultOptions._id != null) {
+              childSchemaOptions._id = Schema20.Types.DocumentArray.defaultOptions._id;
             }
-            const childSchema = new Schema19(castFromTypeKey, childSchemaOptions);
+            const childSchema = new Schema20(castFromTypeKey, childSchemaOptions);
             childSchema.$implicitlyCreated = true;
             return new MongooseTypes2.DocumentArray(path5, childSchema, obj, null, this);
           } else {
@@ -109927,7 +109927,7 @@ var require_schema2 = __commonJS({
       const schemaType = new MongooseTypes2[name](path5, obj, options, this);
       return schemaType;
     };
-    Schema19.prototype.eachPath = function(fn) {
+    Schema20.prototype.eachPath = function(fn) {
       const keys = Object.keys(this.paths);
       const len = keys.length;
       for (let i2 = 0; i2 < len; ++i2) {
@@ -109935,7 +109935,7 @@ var require_schema2 = __commonJS({
       }
       return this;
     };
-    Schema19.prototype.requiredPaths = function requiredPaths(invalidate) {
+    Schema20.prototype.requiredPaths = function requiredPaths(invalidate) {
       if (this._requiredpaths && !invalidate) {
         return this._requiredpaths;
       }
@@ -109951,14 +109951,14 @@ var require_schema2 = __commonJS({
       this._requiredpaths = ret;
       return this._requiredpaths;
     };
-    Schema19.prototype.indexedPaths = function indexedPaths() {
+    Schema20.prototype.indexedPaths = function indexedPaths() {
       if (this._indexedpaths) {
         return this._indexedpaths;
       }
       this._indexedpaths = this.indexes();
       return this._indexedpaths;
     };
-    Schema19.prototype.pathType = function(path5) {
+    Schema20.prototype.pathType = function(path5) {
       if (Object.hasOwn(this.paths, path5)) {
         return "real";
       }
@@ -109985,7 +109985,7 @@ var require_schema2 = __commonJS({
       }
       return "adhocOrUndefined";
     };
-    Schema19.prototype.hasMixedParent = function(path5) {
+    Schema20.prototype.hasMixedParent = function(path5) {
       const subpaths = path5.split(/\./g);
       path5 = "";
       for (let i2 = 0; i2 < subpaths.length; ++i2) {
@@ -109996,7 +109996,7 @@ var require_schema2 = __commonJS({
       }
       return null;
     };
-    Schema19.prototype.setupTimestamp = function(timestamps) {
+    Schema20.prototype.setupTimestamp = function(timestamps) {
       return setupTimestamps(this, timestamps);
     };
     function getPositionalPathType(self2, path5, cleanPath) {
@@ -110050,11 +110050,11 @@ var require_schema2 = __commonJS({
       getPositionalPathType(self2, path5, cleanPath);
       return self2.subpaths[cleanPath];
     }
-    Schema19.prototype.queue = function(name, args) {
+    Schema20.prototype.queue = function(name, args) {
       this.callQueue.push([name, args]);
       return this;
     };
-    Schema19.prototype.pre = function(name) {
+    Schema20.prototype.pre = function(name) {
       if (name instanceof RegExp) {
         const remainingArgs = Array.prototype.slice.call(arguments, 1);
         for (const fn of hookNames) {
@@ -110074,7 +110074,7 @@ var require_schema2 = __commonJS({
       this.s.hooks.pre.apply(this.s.hooks, arguments);
       return this;
     };
-    Schema19.prototype.post = function(name) {
+    Schema20.prototype.post = function(name) {
       if (name instanceof RegExp) {
         const remainingArgs = Array.prototype.slice.call(arguments, 1);
         for (const fn of hookNames) {
@@ -110094,7 +110094,7 @@ var require_schema2 = __commonJS({
       this.s.hooks.post.apply(this.s.hooks, arguments);
       return this;
     };
-    Schema19.prototype.plugin = function(fn, opts) {
+    Schema20.prototype.plugin = function(fn, opts) {
       if (typeof fn !== "function") {
         throw new Error('First param to `schema.plugin()` must be a function, got "' + typeof fn + '"');
       }
@@ -110109,7 +110109,7 @@ var require_schema2 = __commonJS({
       fn(this, opts);
       return this;
     };
-    Schema19.prototype.method = function(name, fn, options) {
+    Schema20.prototype.method = function(name, fn, options) {
       if (typeof name !== "string") {
         for (const i2 in name) {
           this.methods[i2] = name[i2];
@@ -110121,7 +110121,7 @@ var require_schema2 = __commonJS({
       }
       return this;
     };
-    Schema19.prototype.static = function(name, fn) {
+    Schema20.prototype.static = function(name, fn) {
       if (typeof name !== "string") {
         for (const i2 in name) {
           this.statics[i2] = name[i2];
@@ -110131,7 +110131,7 @@ var require_schema2 = __commonJS({
       }
       return this;
     };
-    Schema19.prototype.index = function(fields, options) {
+    Schema20.prototype.index = function(fields, options) {
       fields || (fields = {});
       options || (options = {});
       if (options.expires) {
@@ -110157,7 +110157,7 @@ var require_schema2 = __commonJS({
       this._indexes.push([fields, options]);
       return this;
     };
-    Schema19.prototype.set = function(key, value, tags) {
+    Schema20.prototype.set = function(key, value, tags) {
       if (arguments.length === 1) {
         return this.options[key];
       }
@@ -110221,11 +110221,11 @@ var require_schema2 = __commonJS({
         _propagateOptionsToImplicitlyCreatedSchemas(schema, options);
       }
     }
-    Schema19.prototype.get = function(key) {
+    Schema20.prototype.get = function(key) {
       return this.options[key];
     };
     var indexTypes = "2d 2dsphere hashed text".split(" ");
-    Object.defineProperty(Schema19, "indexTypes", {
+    Object.defineProperty(Schema20, "indexTypes", {
       get: function() {
         return indexTypes;
       },
@@ -110233,10 +110233,10 @@ var require_schema2 = __commonJS({
         throw new Error("Cannot overwrite Schema.indexTypes");
       }
     });
-    Schema19.prototype.indexes = function() {
+    Schema20.prototype.indexes = function() {
       return getIndexes(this);
     };
-    Schema19.prototype.virtual = function(name, options) {
+    Schema20.prototype.virtual = function(name, options) {
       if (name instanceof VirtualType || getConstructorName(name) === "VirtualType") {
         return this.virtual(name.path, name.options);
       }
@@ -110342,10 +110342,10 @@ var require_schema2 = __commonJS({
       }
       return virtuals[name];
     };
-    Schema19.prototype.virtualpath = function(name) {
+    Schema20.prototype.virtualpath = function(name) {
       return Object.hasOwn(this.virtuals, name) ? this.virtuals[name] : null;
     };
-    Schema19.prototype.remove = function(path5) {
+    Schema20.prototype.remove = function(path5) {
       if (typeof path5 === "string") {
         path5 = [path5];
       }
@@ -110397,7 +110397,7 @@ var require_schema2 = __commonJS({
       }
       delete branch[last];
     }
-    Schema19.prototype.removeVirtual = function(path5) {
+    Schema20.prototype.removeVirtual = function(path5) {
       if (typeof path5 === "string") {
         path5 = [path5];
       }
@@ -110419,7 +110419,7 @@ var require_schema2 = __commonJS({
       }
       return this;
     };
-    Schema19.prototype.loadClass = function(model, virtualsOnly) {
+    Schema20.prototype.loadClass = function(model, virtualsOnly) {
       if (model === Object.prototype || model === Function.prototype || Object.hasOwn(model.prototype, "$isMongooseModelPrototype") || Object.hasOwn(model.prototype, "$isMongooseDocumentPrototype")) {
         return this;
       }
@@ -110460,7 +110460,7 @@ var require_schema2 = __commonJS({
       }, this);
       return this;
     };
-    Schema19.prototype._getSchema = function(path5) {
+    Schema20.prototype._getSchema = function(path5) {
       const _this = this;
       const pathschema = _this.path(path5);
       const resultPath = [];
@@ -110536,7 +110536,7 @@ var require_schema2 = __commonJS({
       }
       return search(parts, _this);
     };
-    Schema19.prototype._getPathType = function(path5) {
+    Schema20.prototype._getPathType = function(path5) {
       const _this = this;
       const pathschema = _this.path(path5);
       if (pathschema) {
@@ -110575,7 +110575,7 @@ var require_schema2 = __commonJS({
       }
       return search(path5.split("."), _this);
     };
-    Schema19.prototype._transformDuplicateKeyError = function _transformDuplicateKeyError(error) {
+    Schema20.prototype._transformDuplicateKeyError = function _transformDuplicateKeyError(error) {
       if (!this._duplicateKeyErrorMessagesByPath) {
         return error;
       }
@@ -110599,10 +110599,10 @@ var require_schema2 = __commonJS({
     function isArrayFilter(piece) {
       return piece.startsWith("$[") && piece.endsWith("]");
     }
-    Schema19.prototype._preCompile = function _preCompile() {
+    Schema20.prototype._preCompile = function _preCompile() {
       this.plugin(idGetter, { deduplicate: true });
     };
-    Schema19.prototype.toJSONSchema = function toJSONSchema(options) {
+    Schema20.prototype.toJSONSchema = function toJSONSchema(options) {
       const useBsonType = options?.useBsonType ?? false;
       const result = useBsonType ? { required: [], properties: {} } : { type: "object", required: [], properties: {} };
       for (const path5 of Object.keys(this.paths)) {
@@ -110652,8 +110652,8 @@ var require_schema2 = __commonJS({
       }
       return result;
     };
-    module.exports = exports = Schema19;
-    Schema19.Types = MongooseTypes = require_schema();
+    module.exports = exports = Schema20;
+    Schema20.Types = MongooseTypes = require_schema();
     exports.ObjectId = MongooseTypes.ObjectId;
   }
 });
@@ -111951,7 +111951,7 @@ var require_connection2 = __commonJS({
     "use strict";
     var ChangeStream = require_changeStream();
     var EventEmitter = __require("events").EventEmitter;
-    var Schema19 = require_schema2();
+    var Schema20 = require_schema2();
     var STATES = require_connectionState();
     var MongooseBulkWriteError = require_bulkWriteError();
     var MongooseError = require_error2();
@@ -112259,10 +112259,10 @@ var require_connection2 = __commonJS({
         });
       });
     };
-    async function _wrapUserTransaction(fn, session, mongoose27) {
+    async function _wrapUserTransaction(fn, session, mongoose28) {
       try {
-        const res = mongoose27.transactionAsyncLocalStorage == null ? await fn(session) : await new Promise((resolve) => {
-          mongoose27.transactionAsyncLocalStorage.run(
+        const res = mongoose28.transactionAsyncLocalStorage == null ? await fn(session) : await new Promise((resolve) => {
+          mongoose28.transactionAsyncLocalStorage.run(
             { session },
             () => resolve(fn(session))
           );
@@ -112608,7 +112608,7 @@ var require_connection2 = __commonJS({
       }
       if (utils.isObject(schema)) {
         if (!schema.instanceOfSchema) {
-          schema = new Schema19(schema);
+          schema = new Schema20(schema);
         } else if (!(schema instanceof this.base.Schema)) {
           schema = schema._clone(this.base.Schema);
         }
@@ -112991,7 +112991,7 @@ var require_connection3 = __commonJS({
     var processConnectionOptions = require_processConnectionOptions();
     var setTimeout2 = require_timers().setTimeout;
     var utils = require_utils6();
-    var Schema19 = require_schema2();
+    var Schema20 = require_schema2();
     function NativeConnection() {
       MongooseConnection.apply(this, arguments);
       this._listening = false;
@@ -113189,7 +113189,7 @@ var require_connection3 = __commonJS({
         const { schema, collection: { collectionName } } = model;
         const namespace = `${this.$dbName}.${collectionName}`;
         const mappings = schema.encryptionType() === "csfle" ? csfleMappings : qeMappings;
-        mappings[namespace] ??= new Schema19({}, { encryptionType: schema.encryptionType() });
+        mappings[namespace] ??= new Schema20({}, { encryptionType: schema.encryptionType() });
         const isNonRootDiscriminator = schema.discriminatorMapping && !schema.discriminatorMapping.isRoot;
         if (isNonRootDiscriminator) {
           const rootSchema = schema._baseSchema;
@@ -121849,7 +121849,7 @@ var require_model = __commonJS({
     var OverwriteModelError = require_overwriteModel();
     var Query2 = require_query2();
     var SaveOptions = require_saveOptions();
-    var Schema19 = require_schema2();
+    var Schema20 = require_schema2();
     var ValidationError = require_validation();
     var VersionError = require_version();
     var ParallelSaveError = require_parallelSave();
@@ -121912,7 +121912,7 @@ var require_model = __commonJS({
       bson: true
     });
     function Model(doc, fields, skipId) {
-      if (fields instanceof Schema19) {
+      if (fields instanceof Schema20) {
         throw new TypeError("2nd argument to `Model` constructor must be a POJO or string, **not** a schema. Make sure you're calling `mongoose.model()`, not `mongoose.Model()`.");
       }
       if (typeof doc === "string") {
@@ -122341,9 +122341,9 @@ var require_model = __commonJS({
       const overwriteModels = typeof options.overwriteModels === "boolean" ? options.overwriteModels : false;
       _checkContext(this, "discriminator");
       if (utils.isObject(schema) && !schema.instanceOfSchema) {
-        schema = new Schema19(schema);
+        schema = new Schema20(schema);
       }
-      if (schema instanceof Schema19 && clone3) {
+      if (schema instanceof Schema20 && clone3) {
         schema = schema.clone();
       }
       schema = discriminator(this, name, schema, value, mergePlugins, options.mergeHooks, overwriteModels);
@@ -124620,7 +124620,7 @@ var require_browserDocument = __commonJS({
     var NodeJSDocument = require_document2();
     var EventEmitter = __require("events").EventEmitter;
     var MongooseError = require_error2();
-    var Schema19 = require_schema2();
+    var Schema20 = require_schema2();
     var ObjectId2 = require_objectid();
     var ValidationError = MongooseError.ValidationError;
     var applyHooks = require_applyHooks();
@@ -124630,7 +124630,7 @@ var require_browserDocument = __commonJS({
         return new Document12(obj, schema, fields, skipId, skipInit);
       }
       if (isObject2(schema) && !schema.instanceOfSchema) {
-        schema = new Schema19(schema);
+        schema = new Schema20(schema);
       }
       schema = this.schema || schema;
       if (!this.schema && schema.options._id) {
@@ -124701,7 +124701,7 @@ var require_mongoose = __commonJS({
     var Document12 = require_document2();
     var EventEmitter = __require("events").EventEmitter;
     var Kareem = require_kareem();
-    var Schema19 = require_schema2();
+    var Schema20 = require_schema2();
     var SchemaType = require_schemaType();
     var SchemaTypes = require_schema();
     var VirtualType = require_virtualType();
@@ -124752,12 +124752,12 @@ var require_mongoose = __commonJS({
         const _this = this;
         this.Schema = function() {
           this.base = _this;
-          return Schema19.apply(this, arguments);
+          return Schema20.apply(this, arguments);
         };
-        this.Schema.prototype = Object.create(Schema19.prototype);
-        Object.assign(this.Schema, Schema19);
+        this.Schema.prototype = Object.create(Schema20.prototype);
+        Object.assign(this.Schema, Schema20);
         this.Schema.base = this;
-        this.Schema.Types = Object.assign({}, Schema19.Types);
+        this.Schema.Types = Object.assign({}, Schema20.Types);
       } else {
         for (const key of ["Schema", "model"]) {
           this[key] = Mongoose.prototype[key];
@@ -124779,7 +124779,7 @@ var require_mongoose = __commonJS({
     Mongoose.prototype.ConnectionStates = STATES;
     Mongoose.prototype.driver = driver;
     Mongoose.prototype.setDriver = function setDriver(driver2) {
-      const _mongoose = this instanceof Mongoose ? this : mongoose27;
+      const _mongoose = this instanceof Mongoose ? this : mongoose28;
       if (_mongoose.__driver === driver2) {
         return _mongoose;
       }
@@ -124797,7 +124797,7 @@ var require_mongoose = __commonJS({
         }
       }
       if (driver2.SchemaTypes != null) {
-        Object.assign(mongoose27.Schema.Types, driver2.SchemaTypes);
+        Object.assign(mongoose28.Schema.Types, driver2.SchemaTypes);
       }
       const Connection = driver2.Connection;
       const oldDefaultConnection = _mongoose.connections[0];
@@ -124815,7 +124815,7 @@ var require_mongoose = __commonJS({
       return _mongoose;
     };
     Mongoose.prototype.set = function getsetOptions(key, value) {
-      const _mongoose = this instanceof Mongoose ? this : mongoose27;
+      const _mongoose = this instanceof Mongoose ? this : mongoose28;
       if (arguments.length === 1 && typeof key !== "object") {
         if (VALID_OPTIONS.indexOf(key) === -1) {
           const error2 = new SetOptionError();
@@ -124876,7 +124876,7 @@ var require_mongoose = __commonJS({
     };
     Mongoose.prototype.get = Mongoose.prototype.set;
     Mongoose.prototype.createConnection = function createConnection(uri, options) {
-      const _mongoose = this instanceof Mongoose ? this : mongoose27;
+      const _mongoose = this instanceof Mongoose ? this : mongoose28;
       const Connection = _mongoose.__driver.Connection;
       const conn = new Connection(_mongoose);
       _mongoose.connections.push(conn);
@@ -124891,7 +124891,7 @@ var require_mongoose = __commonJS({
       if (typeof options === "function" || arguments.length >= 3 && typeof arguments[2] === "function") {
         throw new MongooseError("Mongoose.prototype.connect() no longer accepts a callback");
       }
-      const _mongoose = this instanceof Mongoose ? this : mongoose27;
+      const _mongoose = this instanceof Mongoose ? this : mongoose28;
       if (_mongoose.connection == null) {
         _createDefaultConnection(_mongoose);
       }
@@ -124902,7 +124902,7 @@ var require_mongoose = __commonJS({
       if (arguments.length >= 1 && typeof arguments[0] === "function") {
         throw new MongooseError("Mongoose.prototype.disconnect() no longer accepts a callback");
       }
-      const _mongoose = this instanceof Mongoose ? this : mongoose27;
+      const _mongoose = this instanceof Mongoose ? this : mongoose28;
       const remaining = _mongoose.connections.length;
       if (remaining <= 0) {
         return;
@@ -124910,18 +124910,18 @@ var require_mongoose = __commonJS({
       await Promise.all(_mongoose.connections.map((conn) => conn.close()));
     };
     Mongoose.prototype.startSession = function startSession() {
-      const _mongoose = this instanceof Mongoose ? this : mongoose27;
+      const _mongoose = this instanceof Mongoose ? this : mongoose28;
       return _mongoose.connection.startSession.apply(_mongoose.connection, arguments);
     };
     Mongoose.prototype.pluralize = function pluralize(fn) {
-      const _mongoose = this instanceof Mongoose ? this : mongoose27;
+      const _mongoose = this instanceof Mongoose ? this : mongoose28;
       if (arguments.length > 0) {
         _mongoose._pluralize = fn;
       }
       return _mongoose._pluralize;
     };
     Mongoose.prototype.model = function model(name, schema, collection, options) {
-      const _mongoose = this instanceof Mongoose ? this : mongoose27;
+      const _mongoose = this instanceof Mongoose ? this : mongoose28;
       if (typeof schema === "string") {
         collection = schema;
         schema = false;
@@ -124933,10 +124933,10 @@ var require_mongoose = __commonJS({
         }
         return model3;
       }
-      if (utils.isObject(schema) && !(schema instanceof Schema19)) {
-        schema = new Schema19(schema);
+      if (utils.isObject(schema) && !(schema instanceof Schema20)) {
+        schema = new Schema20(schema);
       }
-      if (schema && !(schema instanceof Schema19)) {
+      if (schema && !(schema instanceof Schema20)) {
         throw new _mongoose.Error("The 2nd parameter to `mongoose.model()` should be a schema or a POJO");
       }
       options = options || {};
@@ -124969,7 +124969,7 @@ var require_mongoose = __commonJS({
       return model2;
     };
     Mongoose.prototype._model = function _model(name, schema, collection, options) {
-      const _mongoose = this instanceof Mongoose ? this : mongoose27;
+      const _mongoose = this instanceof Mongoose ? this : mongoose28;
       let model;
       if (typeof name === "function") {
         model = name;
@@ -125008,25 +125008,25 @@ var require_mongoose = __commonJS({
       return model;
     };
     Mongoose.prototype.deleteModel = function deleteModel(name) {
-      const _mongoose = this instanceof Mongoose ? this : mongoose27;
+      const _mongoose = this instanceof Mongoose ? this : mongoose28;
       _mongoose.connection.deleteModel(name);
       delete _mongoose.models[name];
       return _mongoose;
     };
     Mongoose.prototype.modelNames = function modelNames() {
-      const _mongoose = this instanceof Mongoose ? this : mongoose27;
+      const _mongoose = this instanceof Mongoose ? this : mongoose28;
       const names = Object.keys(_mongoose.models);
       return names;
     };
     Mongoose.prototype._applyPlugins = function _applyPlugins(schema, options) {
-      const _mongoose = this instanceof Mongoose ? this : mongoose27;
+      const _mongoose = this instanceof Mongoose ? this : mongoose28;
       options = options || {};
       options.applyPluginsToDiscriminators = _mongoose.options && _mongoose.options.applyPluginsToDiscriminators || false;
       options.applyPluginsToChildSchemas = typeof (_mongoose.options && _mongoose.options.applyPluginsToChildSchemas) === "boolean" ? _mongoose.options.applyPluginsToChildSchemas : true;
       applyPlugins(schema, _mongoose.plugins, options, "$globalPluginsApplied");
     };
     Mongoose.prototype.plugin = function plugin(fn, opts) {
-      const _mongoose = this instanceof Mongoose ? this : mongoose27;
+      const _mongoose = this instanceof Mongoose ? this : mongoose28;
       _mongoose.plugins.push([fn, opts]);
       return _mongoose;
     };
@@ -125065,9 +125065,9 @@ var require_mongoose = __commonJS({
     Mongoose.prototype.BaseConnection = require_connection2();
     Mongoose.prototype.version = pkg.version;
     Mongoose.prototype.Mongoose = Mongoose;
-    Mongoose.prototype.Schema = Schema19;
+    Mongoose.prototype.Schema = Schema20;
     Mongoose.prototype.SchemaType = SchemaType;
-    Mongoose.prototype.SchemaTypes = Schema19.Types;
+    Mongoose.prototype.SchemaTypes = Schema20.Types;
     Mongoose.prototype.VirtualType = VirtualType;
     Mongoose.prototype.Types = Types;
     Mongoose.prototype.Query = Query2;
@@ -125076,14 +125076,14 @@ var require_mongoose = __commonJS({
     Mongoose.prototype.DocumentProvider = require_documentProvider();
     Mongoose.prototype.ObjectId = SchemaTypes.ObjectId;
     Mongoose.prototype.isValidObjectId = function isValidObjectId(v) {
-      const _mongoose = this instanceof Mongoose ? this : mongoose27;
+      const _mongoose = this instanceof Mongoose ? this : mongoose28;
       return _mongoose.Types.ObjectId.isValid(v);
     };
     Mongoose.prototype.isObjectIdOrHexString = function isObjectIdOrHexString(v) {
       return isBsonType(v, "ObjectId") || typeof v === "string" && objectIdHexRegexp.test(v);
     };
     Mongoose.prototype.syncIndexes = function syncIndexes(options) {
-      const _mongoose = this instanceof Mongoose ? this : mongoose27;
+      const _mongoose = this instanceof Mongoose ? this : mongoose28;
       return _mongoose.connection.syncIndexes(options);
     };
     Mongoose.prototype.Decimal128 = SchemaTypes.Decimal128;
@@ -125103,15 +125103,15 @@ var require_mongoose = __commonJS({
     Mongoose.prototype.skipMiddlewareFunction = Kareem.skipWrappedFunction;
     Mongoose.prototype.overwriteMiddlewareResult = Kareem.overwriteResult;
     Mongoose.prototype.omitUndefined = require_omitUndefined();
-    function _createDefaultConnection(mongoose28) {
-      if (mongoose28.connection) {
+    function _createDefaultConnection(mongoose29) {
+      if (mongoose29.connection) {
         return;
       }
-      const conn = mongoose28.createConnection();
+      const conn = mongoose29.createConnection();
       conn[defaultConnectionSymbol] = true;
-      conn.models = mongoose28.models;
+      conn.models = mongoose29.models;
     }
-    var mongoose27 = module.exports = exports = new Mongoose({
+    var mongoose28 = module.exports = exports = new Mongoose({
       [defaultMongooseSymbol]: true
     });
   }
@@ -125123,10 +125123,10 @@ var require_lib9 = __commonJS({
     "use strict";
     var mongodbDriver = require_node_mongodb_native();
     require_driver().set(mongodbDriver);
-    var mongoose27 = require_mongoose();
-    mongoose27.setDriver(mongodbDriver);
-    mongoose27.Mongoose.prototype.mongo = require_lib6();
-    module.exports = mongoose27;
+    var mongoose28 = require_mongoose();
+    mongoose28.setDriver(mongodbDriver);
+    mongoose28.Mongoose.prototype.mongo = require_lib6();
+    module.exports = mongoose28;
   }
 });
 
@@ -125134,55 +125134,55 @@ var require_lib9 = __commonJS({
 var require_mongoose2 = __commonJS({
   "../../node_modules/mongoose/index.js"(exports, module) {
     "use strict";
-    var mongoose27 = require_lib9();
-    module.exports = mongoose27;
-    module.exports.default = mongoose27;
-    module.exports.mongoose = mongoose27;
-    module.exports.cast = mongoose27.cast;
-    module.exports.STATES = mongoose27.STATES;
-    module.exports.setDriver = mongoose27.setDriver;
-    module.exports.set = mongoose27.set;
-    module.exports.get = mongoose27.get;
-    module.exports.createConnection = mongoose27.createConnection;
-    module.exports.connect = mongoose27.connect;
-    module.exports.disconnect = mongoose27.disconnect;
-    module.exports.startSession = mongoose27.startSession;
-    module.exports.pluralize = mongoose27.pluralize;
-    module.exports.model = mongoose27.model;
-    module.exports.deleteModel = mongoose27.deleteModel;
-    module.exports.modelNames = mongoose27.modelNames;
-    module.exports.plugin = mongoose27.plugin;
-    module.exports.connections = mongoose27.connections;
-    module.exports.version = mongoose27.version;
-    module.exports.Aggregate = mongoose27.Aggregate;
-    module.exports.Mongoose = mongoose27.Mongoose;
-    module.exports.Schema = mongoose27.Schema;
-    module.exports.SchemaType = mongoose27.SchemaType;
-    module.exports.SchemaTypes = mongoose27.SchemaTypes;
-    module.exports.VirtualType = mongoose27.VirtualType;
-    module.exports.Types = mongoose27.Types;
-    module.exports.Query = mongoose27.Query;
-    module.exports.Model = mongoose27.Model;
-    module.exports.Document = mongoose27.Document;
-    module.exports.ObjectId = mongoose27.ObjectId;
-    module.exports.isValidObjectId = mongoose27.isValidObjectId;
-    module.exports.isObjectIdOrHexString = mongoose27.isObjectIdOrHexString;
-    module.exports.syncIndexes = mongoose27.syncIndexes;
-    module.exports.Decimal128 = mongoose27.Decimal128;
-    module.exports.Mixed = mongoose27.Mixed;
-    module.exports.Date = mongoose27.Date;
-    module.exports.Number = mongoose27.Number;
-    module.exports.Error = mongoose27.Error;
-    module.exports.MongooseError = mongoose27.MongooseError;
-    module.exports.now = mongoose27.now;
-    module.exports.CastError = mongoose27.CastError;
-    module.exports.SchemaTypeOptions = mongoose27.SchemaTypeOptions;
-    module.exports.mongo = mongoose27.mongo;
-    module.exports.mquery = mongoose27.mquery;
-    module.exports.sanitizeFilter = mongoose27.sanitizeFilter;
-    module.exports.trusted = mongoose27.trusted;
-    module.exports.skipMiddlewareFunction = mongoose27.skipMiddlewareFunction;
-    module.exports.overwriteMiddlewareResult = mongoose27.overwriteMiddlewareResult;
+    var mongoose28 = require_lib9();
+    module.exports = mongoose28;
+    module.exports.default = mongoose28;
+    module.exports.mongoose = mongoose28;
+    module.exports.cast = mongoose28.cast;
+    module.exports.STATES = mongoose28.STATES;
+    module.exports.setDriver = mongoose28.setDriver;
+    module.exports.set = mongoose28.set;
+    module.exports.get = mongoose28.get;
+    module.exports.createConnection = mongoose28.createConnection;
+    module.exports.connect = mongoose28.connect;
+    module.exports.disconnect = mongoose28.disconnect;
+    module.exports.startSession = mongoose28.startSession;
+    module.exports.pluralize = mongoose28.pluralize;
+    module.exports.model = mongoose28.model;
+    module.exports.deleteModel = mongoose28.deleteModel;
+    module.exports.modelNames = mongoose28.modelNames;
+    module.exports.plugin = mongoose28.plugin;
+    module.exports.connections = mongoose28.connections;
+    module.exports.version = mongoose28.version;
+    module.exports.Aggregate = mongoose28.Aggregate;
+    module.exports.Mongoose = mongoose28.Mongoose;
+    module.exports.Schema = mongoose28.Schema;
+    module.exports.SchemaType = mongoose28.SchemaType;
+    module.exports.SchemaTypes = mongoose28.SchemaTypes;
+    module.exports.VirtualType = mongoose28.VirtualType;
+    module.exports.Types = mongoose28.Types;
+    module.exports.Query = mongoose28.Query;
+    module.exports.Model = mongoose28.Model;
+    module.exports.Document = mongoose28.Document;
+    module.exports.ObjectId = mongoose28.ObjectId;
+    module.exports.isValidObjectId = mongoose28.isValidObjectId;
+    module.exports.isObjectIdOrHexString = mongoose28.isObjectIdOrHexString;
+    module.exports.syncIndexes = mongoose28.syncIndexes;
+    module.exports.Decimal128 = mongoose28.Decimal128;
+    module.exports.Mixed = mongoose28.Mixed;
+    module.exports.Date = mongoose28.Date;
+    module.exports.Number = mongoose28.Number;
+    module.exports.Error = mongoose28.Error;
+    module.exports.MongooseError = mongoose28.MongooseError;
+    module.exports.now = mongoose28.now;
+    module.exports.CastError = mongoose28.CastError;
+    module.exports.SchemaTypeOptions = mongoose28.SchemaTypeOptions;
+    module.exports.mongo = mongoose28.mongo;
+    module.exports.mquery = mongoose28.mquery;
+    module.exports.sanitizeFilter = mongoose28.sanitizeFilter;
+    module.exports.trusted = mongoose28.trusted;
+    module.exports.skipMiddlewareFunction = mongoose28.skipMiddlewareFunction;
+    module.exports.overwriteMiddlewareResult = mongoose28.overwriteMiddlewareResult;
   }
 });
 
@@ -297685,7 +297685,7 @@ var EnvSchema = external_exports.object({
 var env = EnvSchema.parse(process.env);
 
 // src/main.ts
-var import_mongoose26 = __toESM(require_mongoose2(), 1);
+var import_mongoose27 = __toESM(require_mongoose2(), 1);
 
 // src/db/connection.ts
 var import_mongoose = __toESM(require_mongoose2(), 1);
@@ -297720,7 +297720,7 @@ async function connectDB() {
 
 // src/api/routes.ts
 var import_express4 = __toESM(require_express2(), 1);
-var import_mongoose25 = __toESM(require_mongoose2(), 1);
+var import_mongoose26 = __toESM(require_mongoose2(), 1);
 
 // src/db/models/RouteEntry.ts
 var import_mongoose2 = __toESM(require_mongoose2(), 1);
@@ -298292,6 +298292,82 @@ var DEFAULT_PLATFORM_INTEGRATIONS = {
   smtpHostMasked: "smtp.sendgrid.net (Configured)",
   storageBucketMasked: "gs://akeezo-vault-prod (Protected)"
 };
+var CarouselSlideSchema = external_exports.object({
+  id: external_exports.string(),
+  title: external_exports.string(),
+  description: external_exports.string(),
+  badgeText: external_exports.string(),
+  badgeStyle: external_exports.string().default("orange"),
+  // "orange" | "teal" | "purple" | "blue" | "emerald"
+  buttonText: external_exports.string(),
+  buttonAction: external_exports.string().default("calculator"),
+  // "calculator" | "explore" | "link" | "whatsapp"
+  buttonLink: external_exports.string().optional().default(""),
+  accentColor: external_exports.string().default("orange"),
+  // "orange" | "teal" | "purple" | "blue" | "emerald"
+  iconName: external_exports.string().default("calculator"),
+  // "calculator" | "compass" | "shield" | "heart" | "stethoscope" | "award" | "activity"
+  isActive: external_exports.boolean().default(true),
+  order: external_exports.number().default(0)
+});
+var DEFAULT_CAROUSEL_SLIDES = [
+  {
+    id: "calculator",
+    title: "Get Your Personalized Price",
+    description: "See the real price before you talk to anyone. Compare itemized hospital quotes, room categories, and physician fees with zero markups.",
+    badgeText: "Save Up To 70%",
+    badgeStyle: "orange",
+    buttonText: "Get Your Estimate in 1 Minute",
+    buttonAction: "calculator",
+    buttonLink: "/cost-calculator",
+    accentColor: "orange",
+    iconName: "calculator",
+    isActive: true,
+    order: 1
+  },
+  {
+    id: "destinations",
+    title: "Explore Treatments & Hospitals",
+    description: "Every accredited Indian healthcare destination, JCI-certified hospital, and world-renowned department chair organized in one directory.",
+    badgeText: "150+ Verified Hubs",
+    badgeStyle: "teal",
+    buttonText: "Explore All Specialities",
+    buttonAction: "explore",
+    buttonLink: "/hospitals",
+    accentColor: "teal",
+    iconName: "compass",
+    isActive: true,
+    order: 2
+  },
+  {
+    id: "second-opinion",
+    title: "Free Clinical Second Opinion",
+    description: "Upload diagnostic scans or pathology reports to receive independent treatment evaluations from top Indian department chairs within 24-48 hours.",
+    badgeText: "100% Free & Confidential",
+    badgeStyle: "purple",
+    buttonText: "Get Free Second Opinion",
+    buttonAction: "whatsapp",
+    buttonLink: "/#opinion",
+    accentColor: "purple",
+    iconName: "stethoscope",
+    isActive: true,
+    order: 3
+  },
+  {
+    id: "medical-visa",
+    title: "Fast-Track Medical Visa (FRRO)",
+    description: "Official hospital invitation letters dispatched in under 24 hours. Complete airport reception, private transport, and local language concierge.",
+    badgeText: "24-48h Visa Letter",
+    badgeStyle: "emerald",
+    buttonText: "Learn About Visa Support",
+    buttonAction: "link",
+    buttonLink: "/#visa",
+    accentColor: "emerald",
+    iconName: "shield",
+    isActive: true,
+    order: 4
+  }
+];
 var SiteSettingsSchema = external_exports.object({
   brandName: external_exports.string().default("AKEEZO"),
   tagline: external_exports.string().default("Heal In India, Heal By Akeezo"),
@@ -298337,7 +298413,8 @@ var SiteSettingsSchema = external_exports.object({
     email: external_exports.string().optional(),
     address: external_exports.string().optional()
   }).optional(),
-  socialLinks: external_exports.record(external_exports.string()).optional()
+  socialLinks: external_exports.record(external_exports.string()).optional(),
+  carouselSlides: external_exports.array(CarouselSlideSchema).optional().default(DEFAULT_CAROUSEL_SLIDES)
 });
 function sanitizeCssValue(val) {
   if (!val)
@@ -299129,6 +299206,515 @@ var CreateChangelogDTO = ChangelogEntrySchema.omit({
 });
 var UpdateChangelogDTO = CreateChangelogDTO.partial();
 
+// ../../packages/contracts/dist/blog.js
+var BlogCategoryEnum = external_exports.enum([
+  "Cardiology",
+  "Orthopedics",
+  "Oncology",
+  "Neurology",
+  "Organ Transplant",
+  "Medical Travel Guide",
+  "Patient Stories",
+  "Wellness & Prevention",
+  "Clinical Insights",
+  "Healthcare Policy"
+]);
+var BlogStatusEnum = external_exports.enum(["draft", "review", "published", "archived"]);
+var SeoCheckSeveritySchema = external_exports.enum(["error", "warning", "good"]);
+var SeoCheckItemSchema = external_exports.object({
+  id: external_exports.string(),
+  label: external_exports.string(),
+  passed: external_exports.boolean(),
+  severity: SeoCheckSeveritySchema,
+  message: external_exports.string(),
+  suggestion: external_exports.string().optional(),
+  value: external_exports.union([external_exports.string(), external_exports.number()]).optional()
+});
+var SeoAuditResultSchema = external_exports.object({
+  score: external_exports.number().min(0).max(100),
+  grade: external_exports.enum(["poor", "fair", "good", "optimal"]),
+  focusKeyword: external_exports.string(),
+  wordCount: external_exports.number().int().min(0),
+  readingTimeMinutes: external_exports.number().int().min(1),
+  keywordDensity: external_exports.number().min(0),
+  keywordOccurrences: external_exports.number().int().min(0),
+  checks: external_exports.array(SeoCheckItemSchema),
+  passedCount: external_exports.number().int().min(0),
+  warningCount: external_exports.number().int().min(0),
+  errorCount: external_exports.number().int().min(0)
+});
+var BlogPostSchema = external_exports.object({
+  _id: external_exports.string().optional(),
+  title: external_exports.string().min(5, "Title must be at least 5 characters").max(200),
+  slug: external_exports.string().min(3).max(120),
+  excerpt: external_exports.string().max(400).default(""),
+  content: external_exports.string().min(10, "Article content cannot be empty"),
+  category: BlogCategoryEnum.default("Medical Travel Guide"),
+  tags: external_exports.array(external_exports.string()).default([]),
+  featuredImage: external_exports.object({
+    url: external_exports.string().default(""),
+    alt: external_exports.string().default(""),
+    caption: external_exports.string().optional()
+  }).default({ url: "", alt: "" }),
+  author: external_exports.object({
+    name: external_exports.string().default("Akeezo Medical Editorial Board"),
+    role: external_exports.string().default("Clinical Content Specialist"),
+    avatarUrl: external_exports.string().optional()
+  }).default({ name: "Akeezo Medical Editorial Board", role: "Clinical Content Specialist" }),
+  status: BlogStatusEnum.default("draft"),
+  publishedAt: external_exports.string().nullable().optional(),
+  seo: external_exports.object({
+    focusKeyword: external_exports.string().default(""),
+    seoTitle: external_exports.string().max(120).default(""),
+    metaDescription: external_exports.string().max(300).default(""),
+    canonicalUrl: external_exports.string().optional(),
+    ogImage: external_exports.string().optional(),
+    noIndex: external_exports.boolean().default(false),
+    seoScore: external_exports.number().min(0).max(100).default(0),
+    schemaType: external_exports.string().default("MedicalWebPage")
+  }).default({ focusKeyword: "", seoTitle: "", metaDescription: "", noIndex: false, seoScore: 0, schemaType: "MedicalWebPage" }),
+  estimatedReadTime: external_exports.number().int().default(3),
+  medicalDisclaimerEnabled: external_exports.boolean().default(true),
+  viewsCount: external_exports.number().int().default(0),
+  createdAt: external_exports.string().optional(),
+  updatedAt: external_exports.string().optional()
+});
+var CreateBlogPostDTO = BlogPostSchema.omit({
+  _id: true,
+  createdAt: true,
+  updatedAt: true,
+  viewsCount: true
+});
+var UpdateBlogPostDTO = CreateBlogPostDTO.partial();
+function calculateSeoContentScore(input) {
+  const kw = (input.focusKeyword || "").trim().toLowerCase();
+  const title = (input.title || "").trim();
+  const seoTitle = (input.seoTitle || input.title || "").trim();
+  const metaDescription = (input.metaDescription || "").trim();
+  const slug = (input.slug || "").trim().toLowerCase();
+  const content = (input.content || "").trim();
+  const imgAlt = (input.featuredImageAlt || "").trim().toLowerCase();
+  const cleanText = content.replace(/<[^>]*>/g, " ").replace(/[#*_`~\[\]\(\)\-\+\=\|\{\}\\]/g, " ").replace(/\s+/g, " ").trim();
+  const words = cleanText.length > 0 ? cleanText.split(/\s+/).filter(Boolean) : [];
+  const wordCount = words.length;
+  const readingTimeMinutes = Math.max(1, Math.ceil(wordCount / 200));
+  let keywordOccurrences = 0;
+  if (kw.length > 0) {
+    const escapedKw = kw.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+    const regex = new RegExp(`\\b${escapedKw}\\b`, "gi");
+    const matches = cleanText.match(regex);
+    keywordOccurrences = matches ? matches.length : 0;
+  }
+  const keywordDensity = wordCount > 0 && kw.length > 0 ? Number((keywordOccurrences / wordCount * 100).toFixed(2)) : 0;
+  const checks = [];
+  let earnedWeight = 0;
+  const totalWeight = 100;
+  if (kw.length >= 2) {
+    earnedWeight += 10;
+    checks.push({
+      id: "focus_keyword_set",
+      label: "Target Focus Keyword",
+      passed: true,
+      severity: "good",
+      message: `Focus keyword "${kw}" is configured.`,
+      value: kw
+    });
+  } else {
+    checks.push({
+      id: "focus_keyword_set",
+      label: "Target Focus Keyword",
+      passed: false,
+      severity: "error",
+      message: "No focus keyword set. Add a focus keyword to evaluate SEO ranking factors.",
+      suggestion: "Enter a high-intent search term (e.g., 'robotic knee replacement in India')."
+    });
+  }
+  const titleLower = seoTitle.toLowerCase();
+  if (kw.length > 0 && titleLower.includes(kw)) {
+    earnedWeight += 15;
+    checks.push({
+      id: "title_keyword",
+      label: "Keyword in Title",
+      passed: true,
+      severity: "good",
+      message: "Focus keyword appears in the SEO title."
+    });
+  } else {
+    checks.push({
+      id: "title_keyword",
+      label: "Keyword in Title",
+      passed: false,
+      severity: "error",
+      message: "Focus keyword was not found in the SEO title.",
+      suggestion: `Include "${kw}" naturally in your title tag.`
+    });
+  }
+  const titleLen = seoTitle.length;
+  if (titleLen >= 40 && titleLen <= 65) {
+    earnedWeight += 8;
+    checks.push({
+      id: "title_length",
+      label: "Title Length",
+      passed: true,
+      severity: "good",
+      message: `SEO title is ${titleLen} characters (Optimal 40-65 chars).`,
+      value: `${titleLen} chars`
+    });
+  } else if (titleLen > 0 && titleLen < 40) {
+    earnedWeight += 4;
+    checks.push({
+      id: "title_length",
+      label: "Title Length",
+      passed: false,
+      severity: "warning",
+      message: `SEO title is ${titleLen} characters (too short, recommend 40-65 chars).`,
+      suggestion: "Expand your title with patient context or secondary keywords to maximize CTR.",
+      value: `${titleLen} chars`
+    });
+  } else if (titleLen > 65) {
+    earnedWeight += 3;
+    checks.push({
+      id: "title_length",
+      label: "Title Length",
+      passed: false,
+      severity: "warning",
+      message: `SEO title is ${titleLen} characters (may be truncated on Google SERPs).`,
+      suggestion: "Trim your title under 65 characters to avoid truncation ellipses in search results.",
+      value: `${titleLen} chars`
+    });
+  } else {
+    checks.push({
+      id: "title_length",
+      label: "Title Length",
+      passed: false,
+      severity: "error",
+      message: "SEO title is empty.",
+      suggestion: "Provide a compelling clinical guide title."
+    });
+  }
+  if (kw.length > 0 && titleLower.includes(kw)) {
+    const idx = titleLower.indexOf(kw);
+    if (idx <= titleLower.length * 0.5) {
+      earnedWeight += 5;
+      checks.push({
+        id: "title_keyword_position",
+        label: "Keyword Position in Title",
+        passed: true,
+        severity: "good",
+        message: "Focus keyword appears in the first half of the title."
+      });
+    } else {
+      checks.push({
+        id: "title_keyword_position",
+        label: "Keyword Position in Title",
+        passed: false,
+        severity: "warning",
+        message: "Focus keyword is placed towards the end of the title.",
+        suggestion: "Front-load your primary keyword for higher search query relevance weighting."
+      });
+    }
+  }
+  const descLower = metaDescription.toLowerCase();
+  if (kw.length > 0 && descLower.includes(kw)) {
+    earnedWeight += 10;
+    checks.push({
+      id: "desc_keyword",
+      label: "Keyword in Meta Description",
+      passed: true,
+      severity: "good",
+      message: "Focus keyword appears in the meta description snippet."
+    });
+  } else {
+    checks.push({
+      id: "desc_keyword",
+      label: "Keyword in Meta Description",
+      passed: false,
+      severity: "error",
+      message: "Focus keyword is missing from the meta description.",
+      suggestion: `Incorporate "${kw}" in your summary to prompt Google bolding in SERP results.`
+    });
+  }
+  const descLen = metaDescription.length;
+  if (descLen >= 120 && descLen <= 165) {
+    earnedWeight += 8;
+    checks.push({
+      id: "desc_length",
+      label: "Meta Description Length",
+      passed: true,
+      severity: "good",
+      message: `Meta description is ${descLen} characters (Optimal 120-165 chars).`,
+      value: `${descLen} chars`
+    });
+  } else if (descLen > 0 && descLen < 120) {
+    earnedWeight += 4;
+    checks.push({
+      id: "desc_length",
+      label: "Meta Description Length",
+      passed: false,
+      severity: "warning",
+      message: `Meta description is ${descLen} characters (recommend 120-165 chars for full SERP preview).`,
+      suggestion: "Add a clear value proposition or clinical reassurance for prospective patients.",
+      value: `${descLen} chars`
+    });
+  } else if (descLen > 165) {
+    earnedWeight += 4;
+    checks.push({
+      id: "desc_length",
+      label: "Meta Description Length",
+      passed: false,
+      severity: "warning",
+      message: `Meta description is ${descLen} characters (may get cut off in mobile search).`,
+      suggestion: "Shorten description under 165 characters.",
+      value: `${descLen} chars`
+    });
+  } else {
+    checks.push({
+      id: "desc_length",
+      label: "Meta Description Length",
+      passed: false,
+      severity: "error",
+      message: "Meta description is missing.",
+      suggestion: "Write a 120-160 character snippet summarizing clinical findings or treatment overview."
+    });
+  }
+  const kwSlugPart = kw.replace(/\s+/g, "-");
+  if (kw.length > 0 && slug.includes(kwSlugPart)) {
+    earnedWeight += 10;
+    checks.push({
+      id: "slug_keyword",
+      label: "Keyword in URL Slug",
+      passed: true,
+      severity: "good",
+      message: `URL slug contains focus keyword part (${kwSlugPart}).`,
+      value: `/blog/${slug}`
+    });
+  } else {
+    checks.push({
+      id: "slug_keyword",
+      label: "Keyword in URL Slug",
+      passed: false,
+      severity: "warning",
+      message: "URL slug does not include the target focus keyword.",
+      suggestion: `Update slug to include "${kwSlugPart}".`
+    });
+  }
+  const first100Words = words.slice(0, 100).join(" ").toLowerCase();
+  if (kw.length > 0 && first100Words.includes(kw)) {
+    earnedWeight += 8;
+    checks.push({
+      id: "intro_keyword",
+      label: "Keyword in Introduction",
+      passed: true,
+      severity: "good",
+      message: "Focus keyword appears in the first 100 words of content."
+    });
+  } else {
+    checks.push({
+      id: "intro_keyword",
+      label: "Keyword in Introduction",
+      passed: false,
+      severity: "warning",
+      message: "Focus keyword does not appear in the opening paragraph.",
+      suggestion: "Introduce your primary keyword early to reassure readers and crawler bots immediately."
+    });
+  }
+  const headingMatches = content.match(/^(?:#{2,3}\s+|<h[23][^>]*>)(.*?)(?:<\/h[23]>|$)/gim) || [];
+  const headingsText = headingMatches.join(" ").toLowerCase();
+  if (kw.length > 0 && headingsText.includes(kw)) {
+    earnedWeight += 8;
+    checks.push({
+      id: "subheading_keyword",
+      label: "Keyword in Subheadings (H2/H3)",
+      passed: true,
+      severity: "good",
+      message: "Focus keyword appears in at least one H2/H3 subheading.",
+      value: `${headingMatches.length} headings`
+    });
+  } else if (headingMatches.length === 0) {
+    checks.push({
+      id: "subheading_keyword",
+      label: "Keyword in Subheadings (H2/H3)",
+      passed: false,
+      severity: "warning",
+      message: "No H2/H3 subheadings found in article content.",
+      suggestion: "Use subheadings (## in Markdown) to break up medical content and organize sections."
+    });
+  } else {
+    checks.push({
+      id: "subheading_keyword",
+      label: "Keyword in Subheadings (H2/H3)",
+      passed: false,
+      severity: "warning",
+      message: "Subheadings exist but none include the focus keyword.",
+      suggestion: "Add your focus keyword or close synonym into at least one primary section heading."
+    });
+  }
+  if (wordCount >= 1e3) {
+    earnedWeight += 10;
+    checks.push({
+      id: "word_count",
+      label: "Content Length",
+      passed: true,
+      severity: "good",
+      message: `Excellent clinical in-depth coverage: ${wordCount} words (1000+ pillar standard).`,
+      value: `${wordCount} words`
+    });
+  } else if (wordCount >= 600) {
+    earnedWeight += 8;
+    checks.push({
+      id: "word_count",
+      label: "Content Length",
+      passed: true,
+      severity: "good",
+      message: `Solid content length: ${wordCount} words (recommended 600+ words).`,
+      value: `${wordCount} words`
+    });
+  } else if (wordCount >= 300) {
+    earnedWeight += 4;
+    checks.push({
+      id: "word_count",
+      label: "Content Length",
+      passed: false,
+      severity: "warning",
+      message: `Content is ${wordCount} words (short, recommend expanding to at least 600 words for clinical trust).`,
+      suggestion: "Expand your medical article with patient eligibility, recovery steps, or hospital credentials.",
+      value: `${wordCount} words`
+    });
+  } else {
+    checks.push({
+      id: "word_count",
+      label: "Content Length",
+      passed: false,
+      severity: "error",
+      message: `Thin content: ${wordCount} words (minimum 300 words required, 600+ recommended).`,
+      suggestion: "Thin pages rank poorly on Google Health. Write thorough, helpful medical explanations.",
+      value: `${wordCount} words`
+    });
+  }
+  if (kw.length > 0) {
+    if (keywordDensity >= 0.8 && keywordDensity <= 2.5) {
+      earnedWeight += 6;
+      checks.push({
+        id: "keyword_density",
+        label: "Keyword Density",
+        passed: true,
+        severity: "good",
+        message: `Keyword density is ${keywordDensity}% (${keywordOccurrences} matches, optimal 0.8% - 2.5%).`,
+        value: `${keywordDensity}%`
+      });
+    } else if (keywordDensity > 2.5) {
+      checks.push({
+        id: "keyword_density",
+        label: "Keyword Density",
+        passed: false,
+        severity: "warning",
+        message: `Keyword density is high at ${keywordDensity}% (${keywordOccurrences} matches). Risk of keyword stuffing penalty.`,
+        suggestion: "Use natural synonyms instead of repeatedly reusing the exact phrase.",
+        value: `${keywordDensity}%`
+      });
+    } else {
+      earnedWeight += 2;
+      checks.push({
+        id: "keyword_density",
+        label: "Keyword Density",
+        passed: false,
+        severity: "warning",
+        message: `Keyword density is low at ${keywordDensity}% (${keywordOccurrences} matches).`,
+        suggestion: `Use "${kw}" a couple more times throughout the body paragraphs.`,
+        value: `${keywordDensity}%`
+      });
+    }
+  }
+  if (input.featuredImageAlt && kw.length > 0 && imgAlt.includes(kw)) {
+    earnedWeight += 5;
+    checks.push({
+      id: "image_alt_keyword",
+      label: "Image Alt Text",
+      passed: true,
+      severity: "good",
+      message: "Featured image alt text contains the focus keyword.",
+      value: input.featuredImageAlt
+    });
+  } else if (input.featuredImageAlt) {
+    earnedWeight += 2;
+    checks.push({
+      id: "image_alt_keyword",
+      label: "Image Alt Text",
+      passed: false,
+      severity: "warning",
+      message: "Featured image has alt text, but does not contain the focus keyword.",
+      suggestion: "Include your primary keyword in the image alt attribute for Google Image SEO."
+    });
+  } else {
+    checks.push({
+      id: "image_alt_keyword",
+      label: "Image Alt Text",
+      passed: false,
+      severity: "warning",
+      message: "No alt text set for the featured image.",
+      suggestion: "Add descriptive alt text to improve accessibility and image search discovery."
+    });
+  }
+  const linkMatches = content.match(/\[([^\]]+)\]\(([^)]+)\)|<a\s+[^>]*href="([^"]*)"/g) || [];
+  if (linkMatches.length >= 2) {
+    earnedWeight += 5;
+    checks.push({
+      id: "links_presence",
+      label: "Link References",
+      passed: true,
+      severity: "good",
+      message: `Article contains ${linkMatches.length} link citations / internal pathways.`,
+      value: `${linkMatches.length} links`
+    });
+  } else if (linkMatches.length === 1) {
+    earnedWeight += 2;
+    checks.push({
+      id: "links_presence",
+      label: "Link References",
+      passed: false,
+      severity: "warning",
+      message: "Only 1 link found in article.",
+      suggestion: "Link to accredited partner hospitals or Akeezo free consultation forms.",
+      value: "1 link"
+    });
+  } else {
+    checks.push({
+      id: "links_presence",
+      label: "Link References",
+      passed: false,
+      severity: "warning",
+      message: "No internal or external reference links detected.",
+      suggestion: "Add links to relevant medical treatments, doctor directories, or scientific journals."
+    });
+  }
+  const finalScore = Math.min(100, Math.max(0, earnedWeight));
+  let grade = "poor";
+  if (finalScore >= 80)
+    grade = "optimal";
+  else if (finalScore >= 65)
+    grade = "good";
+  else if (finalScore >= 45)
+    grade = "fair";
+  else
+    grade = "poor";
+  const passedCount = checks.filter((c) => c.passed).length;
+  const warningCount = checks.filter((c) => !c.passed && c.severity === "warning").length;
+  const errorCount = checks.filter((c) => !c.passed && c.severity === "error").length;
+  return {
+    score: finalScore,
+    grade,
+    focusKeyword: kw,
+    wordCount,
+    readingTimeMinutes,
+    keywordDensity,
+    keywordOccurrences,
+    checks,
+    passedCount,
+    warningCount,
+    errorCount
+  };
+}
+
 // src/db/models/RouteEntry.ts
 var RouteEntrySchema2 = new import_mongoose2.Schema(
   {
@@ -299397,6 +299983,25 @@ var SiteSettingsSchema2 = new import_mongoose5.Schema(
       generateVariants: { type: Boolean, default: true },
       format: { type: String, default: "webp" },
       preserveOriginals: { type: Boolean, default: true }
+    },
+    carouselSlides: {
+      type: [
+        {
+          id: { type: String, required: true },
+          title: { type: String, required: true },
+          description: { type: String, required: true },
+          badgeText: { type: String, default: "" },
+          badgeStyle: { type: String, default: "orange" },
+          buttonText: { type: String, default: "Explore" },
+          buttonAction: { type: String, default: "calculator" },
+          buttonLink: { type: String, default: "" },
+          accentColor: { type: String, default: "orange" },
+          iconName: { type: String, default: "calculator" },
+          isActive: { type: Boolean, default: true },
+          order: { type: Number, default: 0 }
+        }
+      ],
+      default: DEFAULT_CAROUSEL_SLIDES
     },
     defaultLanguage: { type: String, default: "en" },
     defaultTimezone: { type: String, default: "Asia/Kolkata" },
@@ -300265,9 +300870,61 @@ ChangelogSchema.index({ version: 1 }, { unique: true });
 ChangelogSchema.index({ category: 1 });
 var ChangelogModel = import_mongoose19.default.models.Changelog || import_mongoose19.default.model("Changelog", ChangelogSchema);
 
-// src/ssr/renderer.ts
+// src/db/models/BlogPost.ts
 var import_mongoose20 = __toESM(require_mongoose2(), 1);
+var BlogPostSchema2 = new import_mongoose20.Schema(
+  {
+    title: { type: String, required: true, trim: true },
+    slug: { type: String, required: true, trim: true, unique: true },
+    excerpt: { type: String, default: "", trim: true },
+    content: { type: String, required: true },
+    category: { type: String, required: true, default: "Medical Travel Guide" },
+    tags: { type: [String], default: [] },
+    featuredImage: {
+      url: { type: String, default: "" },
+      alt: { type: String, default: "" },
+      caption: { type: String, default: "" }
+    },
+    author: {
+      name: { type: String, default: "Akeezo Medical Editorial Board" },
+      role: { type: String, default: "Clinical Content Specialist" },
+      avatarUrl: { type: String, default: "" }
+    },
+    status: {
+      type: String,
+      enum: ["draft", "review", "published", "archived"],
+      default: "draft"
+    },
+    publishedAt: { type: Date },
+    seo: {
+      focusKeyword: { type: String, default: "", trim: true },
+      seoTitle: { type: String, default: "", trim: true },
+      metaDescription: { type: String, default: "", trim: true },
+      canonicalUrl: { type: String, default: "" },
+      ogImage: { type: String, default: "" },
+      noIndex: { type: Boolean, default: false },
+      seoScore: { type: Number, default: 0, min: 0, max: 100 },
+      schemaType: { type: String, default: "MedicalWebPage" }
+    },
+    estimatedReadTime: { type: Number, default: 3 },
+    medicalDisclaimerEnabled: { type: Boolean, default: true },
+    viewsCount: { type: Number, default: 0 }
+  },
+  {
+    timestamps: true
+  }
+);
+BlogPostSchema2.index({ slug: 1 }, { unique: true });
+BlogPostSchema2.index({ status: 1, publishedAt: -1 });
+BlogPostSchema2.index({ category: 1 });
+BlogPostSchema2.index({ tags: 1 });
+BlogPostSchema2.index({ "seo.seoScore": -1 });
+var BlogPostModel = import_mongoose20.default.models.BlogPost || import_mongoose20.default.model("BlogPost", BlogPostSchema2);
+
+// src/ssr/renderer.ts
+var import_mongoose21 = __toESM(require_mongoose2(), 1);
 import fs2 from "node:fs/promises";
+import fsSync from "node:fs";
 import path from "node:path";
 import { fileURLToPath, pathToFileURL } from "node:url";
 import { PassThrough as PassThrough3 } from "node:stream";
@@ -300285,7 +300942,24 @@ function getSafePaths() {
 var safePaths = getSafePaths();
 var __filename = safePaths.filename;
 var __dirname2 = safePaths.dirname;
-var webRoot = path.resolve(__dirname2, "../../../web");
+function resolveWebRoot(baseDir) {
+  const candidates = [
+    path.resolve(process.cwd(), "apps/web"),
+    path.resolve(process.cwd(), "web"),
+    path.resolve(baseDir, "../web"),
+    path.resolve(baseDir, "apps/web"),
+    path.resolve(baseDir, "../../apps/web"),
+    path.resolve(baseDir, "../../../apps/web"),
+    path.resolve(baseDir, "../../../web")
+  ];
+  for (const c of candidates) {
+    if (fsSync.existsSync(c) && fsSync.existsSync(path.join(c, "package.json"))) {
+      return c;
+    }
+  }
+  return path.resolve(process.cwd(), "apps/web");
+}
+var webRoot = resolveWebRoot(__dirname2);
 var viteDevServer = null;
 async function getViteServer() {
   if (env.NODE_ENV === "production") {
@@ -300357,7 +301031,8 @@ function toSafeSiteSettings(doc) {
       address: "AKEEZO Healthcare Platform Private Limited, New Delhi, India 110001"
     },
     socialLinks: doc?.socialLinks,
-    integrations: doc?.integrations
+    integrations: doc?.integrations,
+    carouselSlides: doc?.carouselSlides && doc.carouselSlides.length > 0 ? doc.carouselSlides : DEFAULT_CAROUSEL_SLIDES
   });
 }
 function renderFallback500Html(siteSettings) {
@@ -300648,7 +301323,7 @@ async function handleSsr(req, res, next) {
     } else if (normalizedPath === "/changelog" || normalizedPath === "/changelogs") {
       statusCode = 200;
       let changelogs = [];
-      if (import_mongoose20.default.connection.readyState === 1) {
+      if (import_mongoose21.default.connection.readyState === 1) {
         changelogs = await ChangelogModel.find({
           status: "published",
           audience: { $in: ["all", "public"] }
@@ -300674,6 +301349,88 @@ async function handleSsr(req, res, next) {
         siteSettings,
         statusCode: 200
       };
+    } else if (normalizedPath === "/blog" || normalizedPath === "/articles") {
+      statusCode = 200;
+      let articles = [];
+      if (import_mongoose21.default.connection.readyState === 1) {
+        articles = await BlogPostModel.find({ status: "published" }).select("-content").sort({ publishedAt: -1 }).limit(20).lean();
+      }
+      dto = {
+        pageKind: "legal",
+        path: "/blog",
+        locale: "en",
+        seo: {
+          title: "Medical Travel & Healthcare Insights Blog | AKEEZO",
+          description: "Authoritative clinical insights, hospital selection guides, treatment cost comparisons, and patient recovery stories for medical travel in India.",
+          canonicalPath: "/blog",
+          robots: "index,follow",
+          schemaKind: "CollectionPage"
+        },
+        payload: {
+          documentId: "blog",
+          title: "Medical Travel & Healthcare Insights",
+          category: "Clinical Editorial",
+          articles
+        },
+        siteSettings,
+        statusCode: 200
+      };
+    } else if (normalizedPath.startsWith("/blog/")) {
+      const blogSlug = normalizedPath.replace(/^\/blog\//, "").replace(/\/$/, "").toLowerCase();
+      let articleDoc = null;
+      let relatedArticles = [];
+      if (import_mongoose21.default.connection.readyState === 1) {
+        articleDoc = await BlogPostModel.findOne({ slug: blogSlug, status: "published" }).lean();
+        if (articleDoc) {
+          relatedArticles = await BlogPostModel.find({
+            _id: { $ne: articleDoc._id },
+            category: articleDoc.category,
+            status: "published"
+          }).select("title slug excerpt category publishedAt estimatedReadTime").limit(3).lean();
+        }
+      }
+      if (articleDoc) {
+        statusCode = 200;
+        dto = {
+          pageKind: "legal",
+          path: normalizedPath,
+          locale: "en",
+          seo: {
+            title: `${articleDoc.seo?.seoTitle || articleDoc.title} | AKEEZO`,
+            description: articleDoc.seo?.metaDescription || articleDoc.excerpt,
+            canonicalPath: `/blog/${articleDoc.slug}`,
+            robots: articleDoc.seo?.noIndex ? "noindex,nofollow" : "index,follow",
+            schemaKind: articleDoc.seo?.schemaType || "MedicalWebPage",
+            ogMediaId: articleDoc.featuredImage?.url
+          },
+          payload: {
+            documentId: "blog-article",
+            title: articleDoc.title,
+            category: articleDoc.category,
+            article: articleDoc,
+            relatedArticles
+          },
+          siteSettings,
+          statusCode: 200
+        };
+      } else {
+        statusCode = 404;
+        dto = {
+          pageKind: "notFound",
+          path: normalizedPath,
+          locale: "en",
+          seo: {
+            title: "Article Not Found | AKEEZO Healthcare Platform",
+            description: "The requested medical guide or article could not be located.",
+            canonicalPath: normalizedPath,
+            robots: "noindex,nofollow",
+            schemaKind: "WebPage"
+          },
+          payload: {},
+          siteSettings,
+          statusCode: 404
+        };
+      }
     } else {
       statusCode = 404;
       dto = {
@@ -300868,7 +301625,7 @@ ${gtmBodySnippet}`);
 
 // src/api/caseManagementRoutes.ts
 var import_express = __toESM(require_express2(), 1);
-var import_mongoose22 = __toESM(require_mongoose2(), 1);
+var import_mongoose23 = __toESM(require_mongoose2(), 1);
 
 // src/services/stageGuards.ts
 async function evaluateStageGuards(caseId, toStage) {
@@ -301267,7 +302024,7 @@ async function findDuplicatePatients(query) {
 }
 
 // src/utils/auth.ts
-var import_mongoose21 = __toESM(require_mongoose2(), 1);
+var import_mongoose22 = __toESM(require_mongoose2(), 1);
 import crypto4 from "crypto";
 var JWT_SECRET = process.env.JWT_SECRET || "akeezo_super_secure_jwt_secret_token_2026";
 var TOKEN_EXPIRY_SECONDS = 60 * 60 * 12;
@@ -301441,7 +302198,7 @@ async function findUserByPhoneOrFallback(phone) {
   const digits = phone.replace(/\D/g, "");
   if (!digits || digits.length < 8) return null;
   const last10 = digits.slice(-10);
-  if (import_mongoose21.default.connection.readyState === 1) {
+  if (import_mongoose22.default.connection.readyState === 1) {
     try {
       const user = await UserModel.findOne({
         $or: [
@@ -301462,7 +302219,7 @@ async function findUserByPhoneOrFallback(phone) {
 }
 async function findUserByEmailOrFallback(email) {
   const normalized = email.toLowerCase().trim();
-  if (import_mongoose21.default.connection.readyState === 1) {
+  if (import_mongoose22.default.connection.readyState === 1) {
     try {
       const user = await UserModel.findOne({ email: normalized });
       if (user) return user;
@@ -301481,7 +302238,7 @@ async function findUserByIdentifierOrFallback(identifier) {
   return findUserByEmailOrFallback(trimmed);
 }
 async function findUserByIdOrFallback(id) {
-  if (import_mongoose21.default.connection.readyState === 1) {
+  if (import_mongoose22.default.connection.readyState === 1) {
     try {
       const user = await UserModel.findById(id);
       if (user) return user;
@@ -301975,7 +302732,7 @@ caseManagementRouter.get("/patients/duplicates", async (req, res) => {
 });
 caseManagementRouter.get("/patients", async (req, res) => {
   try {
-    if (import_mongoose22.default.connection.readyState === 1) {
+    if (import_mongoose23.default.connection.readyState === 1) {
       let patientFilter = {};
       if (req.user?.role === "partner") {
         if (!req.user.partnerId) {
@@ -302006,7 +302763,7 @@ caseManagementRouter.get("/patients", async (req, res) => {
 });
 caseManagementRouter.get("/partners", async (req, res) => {
   try {
-    if (import_mongoose22.default.connection.readyState === 1) {
+    if (import_mongoose23.default.connection.readyState === 1) {
       const filter = req.user?.role === "partner" && req.user.partnerId ? { _id: req.user.partnerId } : {};
       const partners = await PartnerModel.find(filter).sort({ name: 1 }).lean();
       if (partners.length > 0) return res.json({ data: partners });
@@ -302083,7 +302840,7 @@ caseManagementRouter.get("/partners/:id/statement", async (req, res) => {
 });
 caseManagementRouter.get("/hospitals", async (_req, res) => {
   try {
-    if (import_mongoose22.default.connection.readyState === 1) {
+    if (import_mongoose23.default.connection.readyState === 1) {
       const hospitals = await HospitalModel.find().sort({ name: 1 }).lean();
       if (hospitals.length > 0) return res.json({ data: hospitals });
     }
@@ -302129,7 +302886,7 @@ caseManagementRouter.post("/hospitals/:id/doctors", async (req, res) => {
 });
 caseManagementRouter.get("/cases", async (req, res) => {
   try {
-    if (import_mongoose22.default.connection.readyState === 1) {
+    if (import_mongoose23.default.connection.readyState === 1) {
       const filter = {};
       if (req.query.stage) filter.stage = req.query.stage;
       if (req.query.status) filter.status = req.query.status;
@@ -302163,7 +302920,7 @@ caseManagementRouter.get("/cases", async (req, res) => {
 });
 caseManagementRouter.get("/cases/board", async (req, res) => {
   try {
-    if (import_mongoose22.default.connection.readyState === 1) {
+    if (import_mongoose23.default.connection.readyState === 1) {
       const filter = { status: "open" };
       if (req.user?.role === "partner") {
         if (!req.user.partnerId) {
@@ -302216,7 +302973,7 @@ caseManagementRouter.post("/cases", async (req, res) => {
     const parsed = CreateCaseIntakeSchema.parse(req.body);
     let patientId;
     if (parsed.existingPatientId) {
-      patientId = new import_mongoose22.default.Types.ObjectId(parsed.existingPatientId);
+      patientId = new import_mongoose23.default.Types.ObjectId(parsed.existingPatientId);
     } else {
       const passportEncrypted = parsed.patient.passportNumber ? encryptSensitiveField(parsed.patient.passportNumber) : void 0;
       const passportHash = parsed.patient.passportNumber ? PatientModel.hashPassport(parsed.patient.passportNumber) : void 0;
@@ -302240,7 +302997,7 @@ caseManagementRouter.post("/cases", async (req, res) => {
     const newCase = await CaseModel.create({
       caseCode,
       patientId,
-      partnerId: parsed.partnerId ? new import_mongoose22.default.Types.ObjectId(parsed.partnerId) : void 0,
+      partnerId: parsed.partnerId ? new import_mongoose23.default.Types.ObjectId(parsed.partnerId) : void 0,
       source: parsed.source,
       caseType: parsed.caseType,
       specialty: parsed.specialty,
@@ -302252,7 +303009,7 @@ caseManagementRouter.post("/cases", async (req, res) => {
       budgetCurrency: parsed.budgetCurrency,
       patientInIndia: parsed.patientInIndia,
       stage: "new_referral",
-      ownerId: new import_mongoose22.default.Types.ObjectId(parsed.ownerId),
+      ownerId: new import_mongoose23.default.Types.ObjectId(parsed.ownerId),
       referredOn: parsed.referredOn ? new Date(parsed.referredOn) : /* @__PURE__ */ new Date(),
       feeDisclosedToPartner: parsed.feeDisclosedToPartner,
       feeDisclosedOn: parsed.feeDisclosedToPartner ? /* @__PURE__ */ new Date() : void 0
@@ -302270,7 +303027,7 @@ caseManagementRouter.post("/cases", async (req, res) => {
       entityId: newCase._id,
       caseId: newCase._id,
       action: "create",
-      actorId: new import_mongoose22.default.Types.ObjectId(parsed.ownerId),
+      actorId: new import_mongoose23.default.Types.ObjectId(parsed.ownerId),
       changes: { caseCode: [null, caseCode], stage: [null, "new_referral"] }
     });
     if (parsed.patient) {
@@ -302305,7 +303062,7 @@ caseManagementRouter.get("/cases/search", async (req, res) => {
     if (!q) {
       const filter = { status: "open" };
       if (req.user?.role === "partner") {
-        filter.partnerId = req.user.partnerId || new import_mongoose22.default.Types.ObjectId();
+        filter.partnerId = req.user.partnerId || new import_mongoose23.default.Types.ObjectId();
       }
       const allCases = await CaseModel.find(filter).populate("patientId").populate("partnerId", "name partnerCode").populate("ownerId", "name email").sort({ createdAt: -1 }).limit(50).lean();
       return res.json({ data: allCases });
@@ -302342,7 +303099,7 @@ caseManagementRouter.get("/cases/search", async (req, res) => {
     }
     const caseFilter = { $or: orClauses };
     if (req.user?.role === "partner") {
-      caseFilter.partnerId = req.user.partnerId || new import_mongoose22.default.Types.ObjectId();
+      caseFilter.partnerId = req.user.partnerId || new import_mongoose23.default.Types.ObjectId();
     }
     const cases = await CaseModel.find(caseFilter).populate("patientId").populate("partnerId", "name partnerCode").populate("ownerId", "name email").sort({ createdAt: -1 }).lean();
     res.json({ data: cases });
@@ -302353,9 +303110,9 @@ caseManagementRouter.get("/cases/search", async (req, res) => {
 caseManagementRouter.get("/cases/:id", async (req, res) => {
   try {
     let caseDoc = null;
-    if (import_mongoose22.default.connection.readyState === 1) {
+    if (import_mongoose23.default.connection.readyState === 1) {
       try {
-        if (import_mongoose22.default.Types.ObjectId.isValid(req.params.id)) {
+        if (import_mongoose23.default.Types.ObjectId.isValid(req.params.id)) {
           caseDoc = await CaseModel.findById(req.params.id).populate("patientId").populate("partnerId").populate("ownerId", "name email role").lean();
         }
         if (!caseDoc) {
@@ -303320,7 +304077,7 @@ caseManagementRouter.post("/migration/import", requireRole("admin"), async (req,
     }
     await CaseAuditLogModel.create({
       entityType: "MigrationImport",
-      entityId: new import_mongoose22.default.Types.ObjectId(),
+      entityId: new import_mongoose23.default.Types.ObjectId(),
       action: "create",
       changes: { importedSummary: [null, summary.counts] }
     });
@@ -303332,7 +304089,7 @@ caseManagementRouter.post("/migration/import", requireRole("admin"), async (req,
 
 // src/api/authRoutes.ts
 var import_express2 = __toESM(require_express2(), 1);
-var import_mongoose23 = __toESM(require_mongoose2(), 1);
+var import_mongoose24 = __toESM(require_mongoose2(), 1);
 import crypto6 from "crypto";
 
 // src/utils/otpManager.ts
@@ -303465,7 +304222,7 @@ authRouter.post("/login", async (req, res) => {
         lockedUntil = now + 15 * 60 * 1e3;
       }
       failedAttempts.set(lockKey, { count: currentCount, lockedUntil });
-      if (user && import_mongoose23.default.connection.readyState === 1) {
+      if (user && import_mongoose24.default.connection.readyState === 1) {
         try {
           await CaseAuditLogModel.create({
             entityType: "User",
@@ -303505,7 +304262,7 @@ authRouter.post("/login", async (req, res) => {
       await user.save();
     } catch {
     }
-    if (import_mongoose23.default.connection.readyState === 1) {
+    if (import_mongoose24.default.connection.readyState === 1) {
       try {
         const tokenHash = crypto6.createHash("sha256").update(token).digest("hex");
         const expiresAt = new Date(Date.now() + 12 * 60 * 60 * 1e3);
@@ -303528,7 +304285,7 @@ authRouter.post("/login", async (req, res) => {
       secure: process.env.NODE_ENV === "production",
       maxAge: 12 * 60 * 60 * 1e3
     });
-    if (import_mongoose23.default.connection.readyState === 1) {
+    if (import_mongoose24.default.connection.readyState === 1) {
       try {
         await CaseAuditLogModel.create({
           entityType: "User",
@@ -303576,7 +304333,7 @@ authRouter.post("/phone/otp", async (req, res) => {
     const userPhone = normalizePhone(parsed.phone);
     if (!user) {
       const digits = userPhone.replace(/\D/g, "");
-      if (import_mongoose23.default.connection.readyState === 1) {
+      if (import_mongoose24.default.connection.readyState === 1) {
         try {
           user = await UserModel.create({
             name: `Staff (${userPhone.slice(-4)})`,
@@ -303593,7 +304350,7 @@ authRouter.post("/phone/otp", async (req, res) => {
       }
       if (!user) {
         user = {
-          _id: new import_mongoose23.default.Types.ObjectId(),
+          _id: new import_mongoose24.default.Types.ObjectId(),
           name: `Staff (${userPhone.slice(-4)})`,
           email: `staff-${digits.slice(-6)}@akeezo.com`,
           phone: userPhone,
@@ -303627,7 +304384,7 @@ authRouter.post("/phone/otp", async (req, res) => {
       await user.save();
     } catch {
     }
-    if (import_mongoose23.default.connection.readyState === 1) {
+    if (import_mongoose24.default.connection.readyState === 1) {
       try {
         const tokenHash = crypto6.createHash("sha256").update(token).digest("hex");
         const expiresAt = new Date(Date.now() + 12 * 60 * 60 * 1e3);
@@ -303681,7 +304438,7 @@ authRouter.post("/email/otp", async (req, res) => {
     let user = await findUserByEmailOrFallback(parsed.email);
     if (!user) {
       const emailPrefix = parsed.email.split("@")[0];
-      if (import_mongoose23.default.connection.readyState === 1) {
+      if (import_mongoose24.default.connection.readyState === 1) {
         try {
           user = await UserModel.create({
             name: emailPrefix.charAt(0).toUpperCase() + emailPrefix.slice(1),
@@ -303698,7 +304455,7 @@ authRouter.post("/email/otp", async (req, res) => {
       }
       if (!user) {
         user = {
-          _id: new import_mongoose23.default.Types.ObjectId(),
+          _id: new import_mongoose24.default.Types.ObjectId(),
           name: emailPrefix.charAt(0).toUpperCase() + emailPrefix.slice(1),
           email: parsed.email.toLowerCase().trim(),
           phone: "+91 82876 39443",
@@ -303733,7 +304490,7 @@ authRouter.post("/email/otp", async (req, res) => {
       await user.save();
     } catch {
     }
-    if (import_mongoose23.default.connection.readyState === 1) {
+    if (import_mongoose24.default.connection.readyState === 1) {
       try {
         const tokenHash = crypto6.createHash("sha256").update(token).digest("hex");
         const expiresAt = new Date(Date.now() + 12 * 60 * 60 * 1e3);
@@ -303835,7 +304592,7 @@ var handleOtpVerify = async (req, res) => {
       await user.save();
     } catch {
     }
-    if (import_mongoose23.default.connection.readyState === 1) {
+    if (import_mongoose24.default.connection.readyState === 1) {
       try {
         const tokenHash = crypto6.createHash("sha256").update(token).digest("hex");
         const expiresAt = new Date(Date.now() + 12 * 60 * 60 * 1e3);
@@ -303858,7 +304615,7 @@ var handleOtpVerify = async (req, res) => {
       secure: process.env.NODE_ENV === "production",
       maxAge: 12 * 60 * 60 * 1e3
     });
-    if (import_mongoose23.default.connection.readyState === 1) {
+    if (import_mongoose24.default.connection.readyState === 1) {
       try {
         await CaseAuditLogModel.create({
           entityType: "User",
@@ -303906,7 +304663,7 @@ authRouter.post("/firebase", async (req, res) => {
       const emailPrefix = cleanEmail.split("@")[0];
       const isSuperAdminEmail = cleanEmail.includes("admin") || cleanEmail === "priti@akeezo.com" || cleanEmail === "yogesh@akeezo.com";
       const userRole = isSuperAdminEmail ? "admin" : "coordinator";
-      if (import_mongoose23.default.connection.readyState === 1) {
+      if (import_mongoose24.default.connection.readyState === 1) {
         try {
           user = await UserModel.create({
             name: emailPrefix.charAt(0).toUpperCase() + emailPrefix.slice(1),
@@ -303922,7 +304679,7 @@ authRouter.post("/firebase", async (req, res) => {
       }
       if (!user) {
         user = {
-          _id: new import_mongoose23.default.Types.ObjectId(),
+          _id: new import_mongoose24.default.Types.ObjectId(),
           name: emailPrefix.charAt(0).toUpperCase() + emailPrefix.slice(1),
           email: cleanEmail,
           role: userRole,
@@ -304022,7 +304779,7 @@ authRouter.post("/logout", requireAuth, async (req, res) => {
   const authHeader = req.headers.authorization;
   const token = authHeader?.startsWith("Bearer ") ? authHeader.split(" ")[1] : void 0;
   if (req.user) {
-    if (token && import_mongoose23.default.connection.readyState === 1) {
+    if (token && import_mongoose24.default.connection.readyState === 1) {
       try {
         const tokenHash = crypto6.createHash("sha256").update(token).digest("hex");
         await UserSessionModel.updateOne({ tokenHash }, { $set: { isValid: false } });
@@ -304045,7 +304802,7 @@ authRouter.post("/logout", requireAuth, async (req, res) => {
 
 // src/api/cmsAdminRoutes.ts
 var import_express3 = __toESM(require_express2(), 1);
-var import_mongoose24 = __toESM(require_mongoose2(), 1);
+var import_mongoose25 = __toESM(require_mongoose2(), 1);
 import fs4 from "node:fs";
 import path3 from "node:path";
 
@@ -304324,13 +305081,13 @@ var cmsAdminRouter = (0, import_express3.Router)();
 cmsAdminRouter.use(requireAuth);
 cmsAdminRouter.use(requireRole("admin"));
 async function logAdminActivity(actorId, entityType, entityId, action, changes, req, caseId) {
-  if (import_mongoose24.default.connection.readyState === 1) {
+  if (import_mongoose25.default.connection.readyState === 1) {
     try {
       await CaseAuditLogModel.create({
         occurredAt: /* @__PURE__ */ new Date(),
-        actorId: actorId && import_mongoose24.default.isValidObjectId(actorId) ? actorId : void 0,
+        actorId: actorId && import_mongoose25.default.isValidObjectId(actorId) ? actorId : void 0,
         entityType,
-        entityId: entityId && import_mongoose24.default.isValidObjectId(entityId) ? entityId : new import_mongoose24.default.Types.ObjectId(),
+        entityId: entityId && import_mongoose25.default.isValidObjectId(entityId) ? entityId : new import_mongoose25.default.Types.ObjectId(),
         caseId: caseId || (entityType === "case" ? entityId : void 0),
         action,
         changes,
@@ -304362,7 +305119,7 @@ cmsAdminRouter.get("/overview-stats", async (_req, res) => {
     let partnersCount = 4;
     let hospitalsCount = 6;
     let usersCount = 7;
-    if (import_mongoose24.default.connection.readyState === 1) {
+    if (import_mongoose25.default.connection.readyState === 1) {
       const [
         pCount,
         dCount,
@@ -304414,7 +305171,7 @@ cmsAdminRouter.get("/overview-stats", async (_req, res) => {
       status: e2.status || "received"
     }));
     let recentActivities = [];
-    if (import_mongoose24.default.connection.readyState === 1) {
+    if (import_mongoose25.default.connection.readyState === 1) {
       recentActivities = await CaseAuditLogModel.find().sort({ occurredAt: -1 }).limit(6).populate("actorId", "name role email").lean();
     }
     res.json({
@@ -304456,8 +305213,8 @@ cmsAdminRouter.get("/overview-stats", async (_req, res) => {
         recentEnquiries,
         recentActivities,
         system: {
-          environment: import_mongoose24.default.connection.readyState === 1 ? "production" : "demo-preview",
-          database: import_mongoose24.default.connection.readyState === 1 ? "connected" : "in-memory-fallback",
+          environment: import_mongoose25.default.connection.readyState === 1 ? "production" : "demo-preview",
+          database: import_mongoose25.default.connection.readyState === 1 ? "connected" : "in-memory-fallback",
           status: "healthy",
           timestamp: (/* @__PURE__ */ new Date()).toISOString()
         }
@@ -304579,7 +305336,7 @@ function processIntegrationsPayload(newIntegrations, existingIntegrations) {
 cmsAdminRouter.get("/site-settings", async (_req, res) => {
   try {
     let settings = null;
-    if (import_mongoose24.default.connection.readyState === 1) {
+    if (import_mongoose25.default.connection.readyState === 1) {
       const doc = await getActiveSiteSettingsDoc();
       if (doc) settings = doc.toObject ? doc.toObject() : doc;
     }
@@ -304611,9 +305368,13 @@ cmsAdminRouter.get("/site-settings", async (_req, res) => {
         navigation: {
           headerMenu: [],
           footerGroups: []
-        }
+        },
+        carouselSlides: DEFAULT_CAROUSEL_SLIDES
       };
     } else {
+      if (!settings.carouselSlides || settings.carouselSlides.length === 0) {
+        settings.carouselSlides = DEFAULT_CAROUSEL_SLIDES;
+      }
       if (!settings.websiteTheme) {
         settings.websiteTheme = {
           ...DEFAULT_WEBSITE_THEME,
@@ -304650,7 +305411,8 @@ cmsAdminRouter.get("/site-settings", async (_req, res) => {
         tagline: "Heal In India, Heal By Akeezo",
         websiteTheme: DEFAULT_WEBSITE_THEME,
         adminTheme: DEFAULT_ADMIN_THEME,
-        integrations: DEFAULT_PLATFORM_INTEGRATIONS
+        integrations: DEFAULT_PLATFORM_INTEGRATIONS,
+        carouselSlides: DEFAULT_CAROUSEL_SLIDES
       }
     });
   }
@@ -304725,6 +305487,7 @@ cmsAdminRouter.put(["/site-settings", "/settings/:section"], async (req, res) =>
     if (req.body.formsConfig !== void 0) updatePayload.formsConfig = req.body.formsConfig;
     if (req.body.defaultLanguage !== void 0) updatePayload.defaultLanguage = req.body.defaultLanguage;
     if (req.body.defaultTimezone !== void 0) updatePayload.defaultTimezone = req.body.defaultTimezone;
+    if (req.body.carouselSlides !== void 0) updatePayload.carouselSlides = req.body.carouselSlides;
     if (req.body.integrations !== void 0) {
       updatePayload.integrations = processIntegrationsPayload(req.body.integrations, existingObj?.integrations);
     }
@@ -304959,6 +305722,51 @@ cmsAdminRouter.post("/integrations/test/google-analytics", async (req, res) => {
     return res.status(500).json({ ok: false, error: err.message });
   }
 });
+cmsAdminRouter.get("/carousel-slides", async (_req, res) => {
+  try {
+    const doc = await getActiveSiteSettingsDoc();
+    const slides = doc?.carouselSlides && doc.carouselSlides.length > 0 ? doc.carouselSlides : DEFAULT_CAROUSEL_SLIDES;
+    res.json({ data: slides });
+  } catch (err) {
+    res.status(500).json({ error: { code: "FETCH_CAROUSEL_FAILED", message: err.message } });
+  }
+});
+cmsAdminRouter.put("/carousel-slides", async (req, res) => {
+  try {
+    const slides = Array.isArray(req.body) ? req.body : req.body?.slides;
+    if (!Array.isArray(slides)) {
+      return res.status(400).json({ error: { code: "INVALID_SLIDES", message: "Slides must be an array" } });
+    }
+    const updated = await updateActiveSiteSettings({ carouselSlides: slides });
+    await logAdminActivity(
+      req.user?._id,
+      "SiteSettings",
+      updated._id,
+      "update",
+      { carouselSlides: ["previous", "updated"] },
+      req
+    );
+    res.json({ data: updated.carouselSlides });
+  } catch (err) {
+    res.status(400).json({ error: { code: "UPDATE_CAROUSEL_FAILED", message: err.message } });
+  }
+});
+cmsAdminRouter.post("/carousel-slides/reset", async (req, res) => {
+  try {
+    const updated = await updateActiveSiteSettings({ carouselSlides: DEFAULT_CAROUSEL_SLIDES });
+    await logAdminActivity(
+      req.user?._id,
+      "SiteSettings",
+      updated._id,
+      "update",
+      { carouselSlides: ["previous", "reset_defaults"] },
+      req
+    );
+    res.json({ data: DEFAULT_CAROUSEL_SLIDES });
+  } catch (err) {
+    res.status(400).json({ error: { code: "RESET_CAROUSEL_FAILED", message: err.message } });
+  }
+});
 cmsAdminRouter.post("/theme/preset", async (req, res) => {
   try {
     const { presetId, target = "both" } = req.body;
@@ -305045,10 +305853,10 @@ cmsAdminRouter.get("/system-health", async (_req, res) => {
         heapUsedMb: Math.round(memUsage.heapUsed / 1024 / 1024)
       },
       database: {
-        status: import_mongoose24.default.connection.readyState === 1 ? "connected" : "disconnected",
-        host: import_mongoose24.default.connection.host || "127.0.0.1",
-        port: import_mongoose24.default.connection.port || 27017,
-        dbName: import_mongoose24.default.connection.name || "akeezo_local"
+        status: import_mongoose25.default.connection.readyState === 1 ? "connected" : "disconnected",
+        host: import_mongoose25.default.connection.host || "127.0.0.1",
+        port: import_mongoose25.default.connection.port || 27017,
+        dbName: import_mongoose25.default.connection.name || "akeezo_local"
       },
       timestamp: (/* @__PURE__ */ new Date()).toISOString()
     }
@@ -305455,7 +306263,7 @@ cmsAdminRouter.get("/media/stats", async (_req, res) => {
     let totalCurrentBytes = 0;
     let totalSavedBytes = 0;
     const formatBreakdown = { webp: 0, svg: 0, png: 0, jpeg: 0, pdf: 0, other: 0 };
-    if (import_mongoose24.default.connection.readyState === 1) {
+    if (import_mongoose25.default.connection.readyState === 1) {
       const allAssets = await MediaAssetModel.find().lean();
       totalAssets = allAssets.length;
       for (const a of allAssets) {
@@ -305635,7 +306443,7 @@ cmsAdminRouter.get("/media", async (req, res) => {
     const skip = (page - 1) * limit;
     let items = [];
     let total = 0;
-    if (import_mongoose24.default.connection.readyState === 1) {
+    if (import_mongoose25.default.connection.readyState === 1) {
       [items, total] = await Promise.all([
         MediaAssetModel.find(filter).sort(sortCriteria).skip(skip).limit(limit).lean(),
         MediaAssetModel.countDocuments(filter)
@@ -305979,7 +306787,7 @@ cmsAdminRouter.get("/enquiries/export/csv", async (req, res) => {
     await logAdminActivity(
       req.user?._id,
       "enquiry",
-      new import_mongoose24.default.Types.ObjectId(),
+      new import_mongoose25.default.Types.ObjectId(),
       "export",
       { count: [0, enquiries.length] },
       req
@@ -306069,7 +306877,7 @@ cmsAdminRouter.post("/enquiries/:id/convert-to-case", async (req, res) => {
     const count = await CaseModel.countDocuments();
     const caseCode = `CASE-2026-${String(count + 1).padStart(4, "0")}`;
     const defaultOwner = await UserModel.findOne({ role: { $in: ["administrator", "coordinator"] } });
-    const ownerId = defaultOwner?._id || new import_mongoose24.default.Types.ObjectId();
+    const ownerId = defaultOwner?._id || new import_mongoose25.default.Types.ObjectId();
     const specialtyMap = {
       medical_tourism: "general_surgery",
       cardiology: "cardiac_sciences",
@@ -306121,7 +306929,7 @@ cmsAdminRouter.post("/enquiries/:id/convert-to-case", async (req, res) => {
 cmsAdminRouter.get("/redirects", async (_req, res) => {
   try {
     let redirects = [];
-    if (import_mongoose24.default.connection.readyState === 1) {
+    if (import_mongoose25.default.connection.readyState === 1) {
       redirects = await RedirectModel.find().sort({ createdAt: -1 }).lean();
     }
     if (redirects.length === 0) {
@@ -306228,7 +307036,7 @@ cmsAdminRouter.delete("/redirects/:id", async (req, res) => {
 cmsAdminRouter.get("/users", async (_req, res) => {
   try {
     let users = [];
-    if (import_mongoose24.default.connection.readyState === 1) {
+    if (import_mongoose25.default.connection.readyState === 1) {
       users = await UserModel.find().sort({ createdAt: -1 }).select("-passwordHash").lean();
     }
     if (users.length === 0) {
@@ -306256,7 +307064,7 @@ var handleCreateUser = async (req, res) => {
       return res.status(400).json({ error: { code: "MISSING_FIELDS", message: "Name and email are required." } });
     }
     const normalizedEmail = email.toLowerCase().trim();
-    if (import_mongoose24.default.connection.readyState === 1) {
+    if (import_mongoose25.default.connection.readyState === 1) {
       const existing = await UserModel.findOne({ email: normalizedEmail });
       if (existing) {
         return res.status(409).json({ error: { code: "USER_EXISTS", message: `User with email '${normalizedEmail}' already exists.` } });
@@ -306265,7 +307073,7 @@ var handleCreateUser = async (req, res) => {
     const assignedPassword = password && password.trim().length >= 6 ? password.trim() : `Akeezo@${Math.floor(1e3 + Math.random() * 9e3)}!`;
     const passwordHash = hashPassword(assignedPassword);
     let newUser = null;
-    if (import_mongoose24.default.connection.readyState === 1) {
+    if (import_mongoose25.default.connection.readyState === 1) {
       newUser = await UserModel.create({
         name: name.trim(),
         email: normalizedEmail,
@@ -306278,7 +307086,7 @@ var handleCreateUser = async (req, res) => {
       });
     } else {
       newUser = {
-        _id: new import_mongoose24.default.Types.ObjectId().toString(),
+        _id: new import_mongoose25.default.Types.ObjectId().toString(),
         name: name.trim(),
         email: normalizedEmail,
         phone: phone?.trim() || "+91 82876 39443",
@@ -306565,7 +307373,7 @@ cmsAdminRouter.get("/activity", async (req, res) => {
     }
     const limit = Math.max(1, Math.min(100, parseInt(String(req.query.limit || "50"), 10)));
     let logs = [];
-    if (import_mongoose24.default.connection.readyState === 1) {
+    if (import_mongoose25.default.connection.readyState === 1) {
       logs = await CaseAuditLogModel.find(filter).sort({ occurredAt: -1 }).limit(limit).populate("actorId", "name email role").lean();
     }
     if (logs.length === 0) {
@@ -306598,7 +307406,7 @@ cmsAdminRouter.get("/activity", async (req, res) => {
   }
 });
 async function ensureSeedChangelogs() {
-  if (import_mongoose24.default.connection.readyState !== 1) return;
+  if (import_mongoose25.default.connection.readyState !== 1) return;
   try {
     const count = await ChangelogModel.countDocuments();
     if (count === 0) {
@@ -306874,6 +307682,477 @@ cmsAdminRouter.delete("/changelogs/:id", async (req, res) => {
     res.status(500).json({ error: { code: "DELETE_CHANGELOG_FAILED", message: err.message } });
   }
 });
+async function ensureSeedBlogPosts() {
+  if (import_mongoose25.default.connection.readyState !== 1) return;
+  try {
+    const count = await BlogPostModel.countDocuments();
+    if (count === 0) {
+      const postsToSeed = [
+        {
+          title: "Complete Guide to Robotic Knee Replacement in India: Cost, Technology & Recovery",
+          slug: "robotic-knee-replacement-in-india-cost-technology-guide",
+          category: "Orthopedics",
+          excerpt: "A complete clinical overview of robotic knee replacement in India. Compare Mako surgical robotics, premier JCI accredited hospital packages from $4,200, surgeon qualifications, and rapid recovery protocols.",
+          content: `For patients suffering from severe osteoarthritis, finding advanced joint care at an affordable cost is life-changing. **Robotic knee replacement in India** has emerged as a premier global choice, combining state-of-the-art robotic assistance with internationally board-certified orthopedic surgeons.
+
+## What is Robotic Knee Replacement and How Does it Work?
+
+Unlike traditional joint replacement surgery, robotic-assisted knee arthroplasty utilizes dynamic CT-based 3D modeling. Before the first incision is made, the surgeon maps the precise anatomical dimensions of the patient's knee joint.
+
+During the procedure:
+1. **Real-Time Sensor Feedback**: The robotic arm (such as Stryker's Mako or Smith & Nephew's NAVIO) assists the orthopedic surgeon within sub-millimeter precision boundaries.
+2. **Bone Sparing Precision**: Only diseased cartilage and bone are excised, preserving healthy surrounding ligaments, including the posterior cruciate ligament (PCL).
+3. **Balanced Soft-Tissue Tension**: The robotic system continuously calculates ligament tension through flexion and extension, ensuring natural joint kinematics.
+
+## Key Advantages of Robotic Knee Replacement in India
+
+Choosing robotic knee replacement in India provides distinct clinical and economic benefits:
+- **Sub-Millimeter Alignment**: Implant positioning accuracy within 0.5 mm and 0.5 degrees reduces postoperative wear and tear, dramatically increasing prosthetic longevity beyond 25 years.
+- **Smaller Surgical Incisions**: Minimally invasive approaches cause less trauma to the quadriceps muscle, resulting in significantly lower blood loss and reduced post-op pain.
+- **Same-Day Ambulatory Mobilization**: Over 85% of patients stand and take assisted steps within 6 to 12 hours after surgery.
+- **NABH & JCI Accredited Centers**: Premier hospital partners in New Delhi, Gurugram, Mumbai, and Chennai operate dedicated joint replacement suites with laminar air flow HEPA filtration (class 100).
+
+## Cost Comparison: India vs US, UK & UAE
+
+One of the most compelling aspects of medical travel to India is the comprehensive value. A unilateral robotic total knee replacement in the United States typically exceeds $38,000 to $55,000 without insurance. In the United Kingdom, private treatment ranges from \xA314,000 to \xA320,000.
+
+In India, a comprehensive all-inclusive package ranges between **$4,200 and $6,000 USD**. This comprehensive package typically includes:
+- Robotic surgical equipment consumables and Mako planning software fees
+- FDA-approved titanium / cobalt-chromium implants (Zimmer Biomet, Stryker, DePuy Synthes)
+- 4 to 5 days of private inpatient hospitalization
+- Pre-operative cardiopulmonary clearance diagnostics
+- Daily in-hospital physical therapy and initial rehabilitation
+
+## Recovery Timeline & Post-Op Physical Therapy
+
+Recovery is significantly accelerated compared to conventional manual techniques:
+- **Days 1 to 3**: In-hospital gait training with walker or crutches, pain management, and gentle range-of-motion exercises.
+- **Week 2**: Suture inspection, transition to single cane, and commencement of outpatient rehabilitation.
+- **Weeks 4 to 6**: Return to driving, non-strenuous daily activities, and clearance for long-distance commercial flights.
+
+To explore your personalized surgical estimate and receive a free clinical opinion from leading joint replacement surgeons, visit our [Akeezo Treatment Cost Estimator](/calculator) or review [Accredited Indian Orthopedic Hospitals](/hospitals).`,
+          tags: ["Orthopedics", "Robotic Knee", "Joint Replacement", "India Medical Travel", "Mako Surgery"],
+          featuredImage: {
+            url: "/hero/hero-bg.webp",
+            alt: "robotic knee replacement in india orthopedic surgery suite",
+            caption: "Advanced robotic-assisted orthopedic surgery at a JCI accredited Indian hospital."
+          },
+          author: {
+            name: "Dr. Arvind Chawla",
+            role: "Chief Orthopedic Consultant",
+            avatarUrl: ""
+          },
+          status: "published",
+          publishedAt: new Date(Date.now() - 5 * 24 * 60 * 60 * 1e3),
+          seo: {
+            focusKeyword: "robotic knee replacement in india",
+            seoTitle: "Robotic Knee Replacement in India: Cost, Technology & Recovery Guide",
+            metaDescription: "Explore robotic knee replacement in India. Compare Mako robotic technology, hospital packages from $4,200, surgeon credentials, and speedy recovery timelines.",
+            canonicalUrl: "/blog/robotic-knee-replacement-in-india-cost-technology-guide",
+            noIndex: false,
+            seoScore: 92,
+            schemaType: "MedicalWebPage"
+          },
+          estimatedReadTime: 4,
+          medicalDisclaimerEnabled: true,
+          viewsCount: 342
+        },
+        {
+          title: "Top Cardiac Surgery Hospitals in Delhi NCR: A Global Patient Guide",
+          slug: "cardiac-surgery-in-delhi-top-hospitals-costs",
+          category: "Cardiology",
+          excerpt: "Comprehensive guide to cardiac surgery in Delhi NCR. Compare heart bypass CABG surgery costs, pediatric cardiology centers, board-certified surgeons, and visa support.",
+          content: `When facing complex cardiovascular conditions, accessing world-class surgical expertise without prohibitive waiting lists or financial distress is critical. **Cardiac surgery in Delhi** has earned international renown, serving thousands of global patients annually.
+
+## Why Choose Cardiac Surgery in Delhi NCR?
+
+Delhi National Capital Region (NCR) hosts the highest density of Joint Commission International (JCI) and NABH-accredited heart institutes in South Asia:
+- **Pioneering Surgeons**: Indian cardiothoracic surgeons frequently boast 20 to 35 years of clinical experience, having performed over 10,000 coronary bypasses each.
+- **Beating Heart (Off-Pump) CABG**: Over 95% of coronary bypass operations in top Delhi centers are performed on a beating heart without placing the patient on a cardiopulmonary bypass pump, reducing neurological and renal complications.
+- **Minimally Invasive Cardiac Surgery (MICS)**: Valve repairs and single-vessel bypasses performed via 4-inch keyhole intercostal incisions rather than full sternotomy.
+
+## Benchmark Procedures & Packages in Delhi
+
+Typical packaged costs for cardiac procedures in Delhi NCR include:
+- **Coronary Artery Bypass Grafting (CABG)**: $4,500 to $6,500 USD (compared to $70,000+ in the US).
+- **Aortic / Mitral Valve Replacement (Tissue / Mechanical)**: $5,500 to $7,800 USD.
+- **Pediatric Heart Surgery (ASD / VSD / Tetralogy of Fallot)**: $4,200 to $6,200 USD.
+
+## Patient Logistics & Inbound Care Protocols
+
+Through Akeezo's dedicated care coordination desk, international cardiac patients receive:
+- Rapid priority Medical Visa (e-Med Visa) assistance with 48-hour hospital invitation letters.
+- Complimentary airport tarmac-to-hospital ambulance transfer.
+- Language interpretation services in Arabic, Russian, French, and Bengali.
+- Dedicated ICU stay followed by step-down cardiac telemetry monitoring.
+
+For immediate consultation, review [Accredited Indian Cardiology Institutes](/hospitals) or submit your recent ECG and angiogram reports to our clinical triage desk.`,
+          tags: ["Cardiology", "Heart Bypass", "CABG", "Delhi Hospitals", "Cardiac Surgery"],
+          featuredImage: {
+            url: "/hero/hero-bg.webp",
+            alt: "cardiac surgery in delhi premier heart institute operating theater",
+            caption: "State-of-the-art hybrid cardiac catheterization and operating suite in Delhi NCR."
+          },
+          author: {
+            name: "Dr. Sunita Rao",
+            role: "Cardiothoracic Surgery Advisor",
+            avatarUrl: ""
+          },
+          status: "published",
+          publishedAt: new Date(Date.now() - 9 * 24 * 60 * 60 * 1e3),
+          seo: {
+            focusKeyword: "cardiac surgery in delhi",
+            seoTitle: "Cardiac Surgery in Delhi: Top JCI Hospitals, CABG Costs & Specialists",
+            metaDescription: "Complete guide to cardiac surgery in Delhi. Compare heart bypass CABG surgery costs, pediatric cardiology centers, board-certified surgeons, and visa support.",
+            canonicalUrl: "/blog/cardiac-surgery-in-delhi-top-hospitals-costs",
+            noIndex: false,
+            seoScore: 88,
+            schemaType: "MedicalWebPage"
+          },
+          estimatedReadTime: 3,
+          medicalDisclaimerEnabled: true,
+          viewsCount: 289
+        },
+        {
+          title: "Bone Marrow Transplant in India: Clinical Protocols & International Patient Care",
+          slug: "bone-marrow-transplant-in-india-protocols",
+          category: "Oncology",
+          excerpt: "Comprehensive clinical guide to bone marrow transplant in India. Learn about allogeneic vs autologous BMT, HLA donor matching, BMT HEPA isolation suites, and cost savings of 70%.",
+          content: `For patients battling leukemia, lymphoma, multiple myeloma, aplastic anemia, or thalassemia major, a hematopoietic stem cell transplant offers a curative clinical pathway. Undergoing a **bone marrow transplant in India** provides access to internationally trained hematologists and world-class infection control suites at a fraction of Western costs.
+
+## Understanding Bone Marrow Transplant in India
+
+A bone marrow transplant (BMT) replaces damaged or diseased bone marrow with healthy blood-forming stem cells:
+- **Autologous BMT**: Uses the patient's own stem cells, harvested before high-dose conditioning chemotherapy.
+- **Allogeneic BMT**: Involves stem cells from a matched related donor (sibling), matched unrelated donor (MUD) via international marrow registries, or haploidentical (half-matched) family donors.
+
+## Dedicated BMT Infrastructure & Safety Protocols
+
+Infection prevention is the single most critical determinant of transplant success. Premier Indian BMT units feature:
+- Positive pressure HEPA-filtered rooms with 12 to 20 air changes per hour.
+- Dedicated laminar flow isolation corridors preventing cross-contamination.
+- In-house blood bank with leukocyte depletion, gamma irradiation, and apheresis technologies.
+- 24/7 dedicated BMT nursing care with strict barrier nursing protocols.
+
+## Cost and Duration of Stay
+
+While an allogeneic BMT in Western Europe or the US regularly exceeds $150,000 to $300,000 USD, in India comprehensive BMT packages average **$18,000 to $28,000 USD** for autologous transplants and **$25,000 to $38,000 USD** for allogeneic transplants.
+
+International patients typically plan for a 60 to 90-day total stay in India, including:
+1. **Pre-Transplant Workup (Days -14 to -7)**: Comprehensive organ function tests and donor HLA typing.
+2. **Conditioning Regimen (Days -7 to -1)**: Chemotherapy or immunotherapy to clear host marrow.
+3. **Stem Cell Infusion (Day 0)**: Painless intravenous infusion of stem cells.
+4. **Neutropenic Phase (Days +1 to +21)**: Intensive monitoring until engraftment occurs.
+5. **Post-Engraftment Recovery**: Outpatient convalescence before fit-to-fly clearance.
+
+Learn more about specialized oncology care on our [Hospital Directory](/hospitals) or contact our international medical travel coordinator for immediate case assessment.`,
+          tags: ["Oncology", "Bone Marrow Transplant", "BMT", "Hematology", "Cancer Care"],
+          featuredImage: {
+            url: "/hero/hero-bg.webp",
+            alt: "bone marrow transplant in india clinical isolation unit",
+            caption: "HEPA-filtered positive pressure BMT isolation suite at an accredited oncology center."
+          },
+          author: {
+            name: "Akeezo Medical Editorial Board",
+            role: "Clinical Oncology Desk",
+            avatarUrl: ""
+          },
+          status: "published",
+          publishedAt: new Date(Date.now() - 14 * 24 * 60 * 60 * 1e3),
+          seo: {
+            focusKeyword: "bone marrow transplant in india",
+            seoTitle: "Bone Marrow Transplant in India: Costs, Protocols & Top Centers",
+            metaDescription: "Guide to bone marrow transplant in India. Learn about allogeneic vs autologous BMT, HLA donor matching, BMT HEPA isolation suites, and cost savings of 70%.",
+            canonicalUrl: "/blog/bone-marrow-transplant-in-india-protocols",
+            noIndex: false,
+            seoScore: 85,
+            schemaType: "MedicalWebPage"
+          },
+          estimatedReadTime: 4,
+          medicalDisclaimerEnabled: true,
+          viewsCount: 198
+        }
+      ];
+      for (const p of postsToSeed) {
+        const audit = calculateSeoContentScore({
+          title: p.title,
+          slug: p.slug,
+          content: p.content,
+          focusKeyword: p.seo.focusKeyword,
+          seoTitle: p.seo.seoTitle,
+          metaDescription: p.seo.metaDescription,
+          featuredImageAlt: p.featuredImage.alt
+        });
+        p.seo.seoScore = audit.score;
+        await BlogPostModel.create(p);
+      }
+    }
+  } catch (err) {
+    console.warn("[Akeezo Seed Blog] Seed failed:", err);
+  }
+}
+cmsAdminRouter.get("/blog", async (req, res) => {
+  try {
+    await ensureSeedBlogPosts();
+    const page = Math.max(1, parseInt(req.query.page) || 1);
+    const limit = Math.min(100, Math.max(1, parseInt(req.query.limit) || 10));
+    const skip = (page - 1) * limit;
+    const filter = {};
+    if (req.query.search) {
+      const q = String(req.query.search).trim();
+      filter.$or = [
+        { title: { $regex: escapeRegex(q), $options: "i" } },
+        { slug: { $regex: escapeRegex(q), $options: "i" } },
+        { excerpt: { $regex: escapeRegex(q), $options: "i" } },
+        { "seo.focusKeyword": { $regex: escapeRegex(q), $options: "i" } },
+        { tags: { $regex: escapeRegex(q), $options: "i" } }
+      ];
+    }
+    if (req.query.category && req.query.category !== "all") {
+      filter.category = req.query.category;
+    }
+    if (req.query.status && req.query.status !== "all") {
+      filter.status = req.query.status;
+    }
+    if (req.query.minSeoScore) {
+      const minScore = parseInt(req.query.minSeoScore);
+      if (!isNaN(minScore)) {
+        filter["seo.seoScore"] = { $gte: minScore };
+      }
+    }
+    const sortField = req.query.sortField || "createdAt";
+    const sortDirection = req.query.sortDirection === "asc" ? 1 : -1;
+    const sort = { [sortField]: sortDirection };
+    const [docs, total] = await Promise.all([
+      BlogPostModel.find(filter).sort(sort).skip(skip).limit(limit).lean(),
+      BlogPostModel.countDocuments(filter)
+    ]);
+    res.json({
+      data: docs,
+      pagination: {
+        page,
+        limit,
+        total,
+        totalPages: Math.max(1, Math.ceil(total / limit))
+      }
+    });
+  } catch (err) {
+    res.status(500).json({ error: { code: "FETCH_BLOGS_FAILED", message: err.message } });
+  }
+});
+cmsAdminRouter.get("/blog/:id", async (req, res) => {
+  try {
+    const doc = await BlogPostModel.findById(req.params.id);
+    if (!doc) {
+      return res.status(404).json({ error: { code: "NOT_FOUND", message: "Blog post not found" } });
+    }
+    const seoAudit = calculateSeoContentScore({
+      title: doc.title,
+      slug: doc.slug,
+      content: doc.content,
+      focusKeyword: doc.seo?.focusKeyword || "",
+      seoTitle: doc.seo?.seoTitle,
+      metaDescription: doc.seo?.metaDescription,
+      featuredImageAlt: doc.featuredImage?.alt
+    });
+    res.json({ data: doc, seoAudit });
+  } catch (err) {
+    res.status(500).json({ error: { code: "FETCH_BLOG_FAILED", message: err.message } });
+  }
+});
+cmsAdminRouter.post("/blog", async (req, res) => {
+  try {
+    const parsed = CreateBlogPostDTO.safeParse(req.body);
+    if (!parsed.success) {
+      return res.status(400).json({
+        error: { code: "VALIDATION_FAILED", message: parsed.error.issues.map((i2) => i2.message).join(", ") }
+      });
+    }
+    const slug = parsed.data.slug.trim().toLowerCase();
+    const existing = await BlogPostModel.findOne({ slug });
+    if (existing) {
+      return res.status(409).json({
+        error: { code: "SLUG_EXISTS", message: `A blog article with slug "${slug}" already exists.` }
+      });
+    }
+    const seoAudit = calculateSeoContentScore({
+      title: parsed.data.title,
+      slug,
+      content: parsed.data.content,
+      focusKeyword: parsed.data.seo?.focusKeyword || "",
+      seoTitle: parsed.data.seo?.seoTitle,
+      metaDescription: parsed.data.seo?.metaDescription,
+      featuredImageAlt: parsed.data.featuredImage?.alt
+    });
+    const words = parsed.data.content.split(/\s+/).filter(Boolean).length;
+    const readTime = Math.max(1, Math.ceil(words / 200));
+    const publishedAt = parsed.data.status === "published" ? parsed.data.publishedAt ? new Date(parsed.data.publishedAt) : /* @__PURE__ */ new Date() : parsed.data.publishedAt ? new Date(parsed.data.publishedAt) : void 0;
+    const doc = await BlogPostModel.create({
+      ...parsed.data,
+      slug,
+      publishedAt,
+      estimatedReadTime: readTime,
+      seo: {
+        ...parsed.data.seo,
+        seoScore: seoAudit.score
+      }
+    });
+    await logAdminActivity(
+      req.user?._id,
+      "blog",
+      doc._id,
+      "create",
+      { title: ["", doc.title], slug: ["", doc.slug], status: ["", doc.status] },
+      req
+    );
+    res.status(201).json({ data: doc, seoAudit });
+  } catch (err) {
+    if (err.code === 11e3) {
+      return res.status(409).json({ error: { code: "SLUG_EXISTS", message: "Blog slug must be unique." } });
+    }
+    res.status(500).json({ error: { code: "CREATE_BLOG_FAILED", message: err.message } });
+  }
+});
+cmsAdminRouter.put("/blog/:id", async (req, res) => {
+  try {
+    const parsed = UpdateBlogPostDTO.safeParse(req.body);
+    if (!parsed.success) {
+      return res.status(400).json({
+        error: { code: "VALIDATION_FAILED", message: parsed.error.issues.map((i2) => i2.message).join(", ") }
+      });
+    }
+    const existing = await BlogPostModel.findById(req.params.id);
+    if (!existing) {
+      return res.status(404).json({ error: { code: "NOT_FOUND", message: "Blog post not found" } });
+    }
+    if (parsed.data.slug) {
+      const slug2 = parsed.data.slug.trim().toLowerCase();
+      const conflict = await BlogPostModel.findOne({ _id: { $ne: req.params.id }, slug: slug2 });
+      if (conflict) {
+        return res.status(409).json({
+          error: { code: "SLUG_EXISTS", message: `A blog article with slug "${slug2}" already exists.` }
+        });
+      }
+    }
+    const previous = existing.toObject ? existing.toObject() : existing;
+    const updateData = { ...parsed.data };
+    if (parsed.data.slug) {
+      updateData.slug = parsed.data.slug.trim().toLowerCase();
+    }
+    const title = updateData.title || existing.title;
+    const slug = updateData.slug || existing.slug;
+    const content = updateData.content || existing.content;
+    const focusKeyword = updateData.seo?.focusKeyword ?? existing.seo?.focusKeyword ?? "";
+    const seoTitle = updateData.seo?.seoTitle ?? existing.seo?.seoTitle ?? title;
+    const metaDescription = updateData.seo?.metaDescription ?? existing.seo?.metaDescription ?? "";
+    const featuredImageAlt = updateData.featuredImage?.alt ?? existing.featuredImage?.alt ?? "";
+    const seoAudit = calculateSeoContentScore({
+      title,
+      slug,
+      content,
+      focusKeyword,
+      seoTitle,
+      metaDescription,
+      featuredImageAlt
+    });
+    const words = content.split(/\s+/).filter(Boolean).length;
+    updateData.estimatedReadTime = Math.max(1, Math.ceil(words / 200));
+    if (!updateData.seo) {
+      updateData.seo = { ...existing.seo };
+    }
+    updateData.seo.seoScore = seoAudit.score;
+    if (updateData.status === "published" && !existing.publishedAt) {
+      updateData.publishedAt = /* @__PURE__ */ new Date();
+    }
+    const updated = await BlogPostModel.findByIdAndUpdate(
+      req.params.id,
+      { $set: updateData },
+      { new: true, runValidators: true }
+    );
+    await logAdminActivity(
+      req.user?._id,
+      "blog",
+      req.params.id,
+      "update",
+      {
+        title: [previous.title, updated?.title],
+        status: [previous.status, updated?.status],
+        seoScore: [previous.seo?.seoScore, updated?.seo?.seoScore]
+      },
+      req
+    );
+    res.json({ data: updated, seoAudit });
+  } catch (err) {
+    if (err.code === 11e3) {
+      return res.status(409).json({ error: { code: "SLUG_EXISTS", message: "Blog slug must be unique." } });
+    }
+    res.status(500).json({ error: { code: "UPDATE_BLOG_FAILED", message: err.message } });
+  }
+});
+cmsAdminRouter.post("/blog/:id/publish", async (req, res) => {
+  try {
+    const existing = await BlogPostModel.findById(req.params.id);
+    if (!existing) {
+      return res.status(404).json({ error: { code: "NOT_FOUND", message: "Blog post not found" } });
+    }
+    const nextStatus = existing.status === "published" ? "draft" : "published";
+    const updatePayload = { status: nextStatus };
+    if (nextStatus === "published" && !existing.publishedAt) {
+      updatePayload.publishedAt = /* @__PURE__ */ new Date();
+    }
+    const updated = await BlogPostModel.findByIdAndUpdate(
+      req.params.id,
+      { $set: updatePayload },
+      { new: true }
+    );
+    await logAdminActivity(
+      req.user?._id,
+      "blog",
+      req.params.id,
+      "update",
+      { status: [existing.status, nextStatus] },
+      req
+    );
+    res.json({ data: updated });
+  } catch (err) {
+    res.status(500).json({ error: { code: "TOGGLE_BLOG_STATUS_FAILED", message: err.message } });
+  }
+});
+cmsAdminRouter.delete("/blog/:id", async (req, res) => {
+  try {
+    const doc = await BlogPostModel.findByIdAndDelete(req.params.id);
+    if (!doc) {
+      return res.status(404).json({ error: { code: "NOT_FOUND", message: "Blog post not found" } });
+    }
+    await logAdminActivity(
+      req.user?._id,
+      "blog",
+      req.params.id,
+      "delete",
+      { title: [doc.title, "deleted"], slug: [doc.slug, "deleted"] },
+      req
+    );
+    res.json({ data: { success: true, deletedId: req.params.id } });
+  } catch (err) {
+    res.status(500).json({ error: { code: "DELETE_BLOG_FAILED", message: err.message } });
+  }
+});
+cmsAdminRouter.post("/blog/seo-audit", async (req, res) => {
+  try {
+    const audit = calculateSeoContentScore({
+      title: req.body.title || "",
+      slug: req.body.slug || "",
+      content: req.body.content || "",
+      focusKeyword: req.body.focusKeyword || "",
+      seoTitle: req.body.seoTitle,
+      metaDescription: req.body.metaDescription,
+      featuredImageAlt: req.body.featuredImageAlt
+    });
+    res.json({ data: audit });
+  } catch (err) {
+    res.status(500).json({ error: { code: "SEO_AUDIT_FAILED", message: err.message } });
+  }
+});
 cmsAdminRouter.get("/profile", async (req, res) => {
   try {
     const authHeader = req.headers.authorization;
@@ -306884,7 +308163,7 @@ cmsAdminRouter.get("/profile", async (req, res) => {
       if (parts.length === 3) {
         try {
           const payload = JSON.parse(Buffer.from(parts[1], "base64").toString("utf8"));
-          if (payload.userId && import_mongoose24.default.connection.readyState === 1) {
+          if (payload.userId && import_mongoose25.default.connection.readyState === 1) {
             const dbUser = await UserModel.findById(payload.userId).select("-passwordHash").lean();
             if (dbUser) user = dbUser;
           }
@@ -306922,7 +308201,7 @@ cmsAdminRouter.put("/profile", async (req, res) => {
         }
       }
     }
-    if (import_mongoose24.default.connection.readyState === 1) {
+    if (import_mongoose25.default.connection.readyState === 1) {
       const user = await UserModel.findById(userId);
       if (user) {
         if (req.body.name) user.name = req.body.name;
@@ -306959,7 +308238,7 @@ cmsAdminRouter.post("/profile/password", async (req, res) => {
       const payload = verifyToken(token);
       if (payload && payload.userId) userId = payload.userId;
     }
-    if (import_mongoose24.default.connection.readyState === 1) {
+    if (import_mongoose25.default.connection.readyState === 1) {
       const user = await UserModel.findById(userId);
       if (user) {
         const isMatch = verifyPassword(currentPassword, user.passwordHash);
@@ -306984,7 +308263,7 @@ var apiRouter = (0, import_express4.Router)();
 apiRouter.use("/auth", authRouter);
 apiRouter.use("/admin", cmsAdminRouter);
 apiRouter.get("/health", (_req, res) => {
-  const isDbConnected = import_mongoose25.default.connection.readyState === 1;
+  const isDbConnected = import_mongoose26.default.connection.readyState === 1;
   res.status(200).json({
     data: {
       status: isDbConnected ? "healthy" : "degraded",
@@ -306996,7 +308275,7 @@ apiRouter.get("/health", (_req, res) => {
 });
 apiRouter.get("/site", async (_req, res) => {
   try {
-    const settingsDoc = import_mongoose25.default.connection.readyState === 1 ? await SiteSettings.findOne({ environment: "development" }).lean() || await SiteSettings.findOne().lean() : null;
+    const settingsDoc = import_mongoose26.default.connection.readyState === 1 ? await SiteSettings.findOne({ environment: "development" }).lean() || await SiteSettings.findOne().lean() : null;
     const siteSettings = toSafeSiteSettings(settingsDoc);
     res.json({ data: siteSettings });
   } catch (err) {
@@ -307005,7 +308284,7 @@ apiRouter.get("/site", async (_req, res) => {
 });
 apiRouter.get("/changelogs", async (req, res) => {
   try {
-    if (import_mongoose25.default.connection.readyState !== 1) {
+    if (import_mongoose26.default.connection.readyState !== 1) {
       return res.json({ data: [] });
     }
     const filter = {
@@ -307022,6 +308301,70 @@ apiRouter.get("/changelogs", async (req, res) => {
     res.status(500).json({ error: { code: "FETCH_PUBLIC_CHANGELOGS_FAILED", message: err.message } });
   }
 });
+apiRouter.get("/blog", async (req, res) => {
+  try {
+    if (import_mongoose26.default.connection.readyState !== 1) {
+      return res.json({ data: [], pagination: { page: 1, limit: 10, total: 0, totalPages: 0 } });
+    }
+    const page = Math.max(1, parseInt(req.query.page) || 1);
+    const limit = Math.min(50, Math.max(1, parseInt(req.query.limit) || 10));
+    const skip = (page - 1) * limit;
+    const filter = { status: "published" };
+    if (req.query.category && req.query.category !== "all") {
+      filter.category = req.query.category;
+    }
+    if (req.query.tag) {
+      filter.tags = req.query.tag;
+    }
+    if (req.query.search) {
+      const q = String(req.query.search).trim();
+      filter.$or = [
+        { title: { $regex: q, $options: "i" } },
+        { excerpt: { $regex: q, $options: "i" } },
+        { "seo.focusKeyword": { $regex: q, $options: "i" } }
+      ];
+    }
+    const [docs, total] = await Promise.all([
+      BlogPostModel.find(filter).select("-content").sort({ publishedAt: -1 }).skip(skip).limit(limit).lean(),
+      BlogPostModel.countDocuments(filter)
+    ]);
+    res.json({
+      data: docs,
+      pagination: {
+        page,
+        limit,
+        total,
+        totalPages: Math.max(1, Math.ceil(total / limit))
+      }
+    });
+  } catch (err) {
+    res.status(500).json({ error: { code: "FETCH_BLOG_FAILED", message: err.message } });
+  }
+});
+apiRouter.get("/blog/:slug", async (req, res) => {
+  try {
+    if (import_mongoose26.default.connection.readyState !== 1) {
+      return res.status(503).json({ error: { code: "DATABASE_UNAVAILABLE", message: "Database disconnected" } });
+    }
+    const slug = req.params.slug.trim().toLowerCase();
+    const doc = await BlogPostModel.findOneAndUpdate(
+      { slug, status: "published" },
+      { $inc: { viewsCount: 1 } },
+      { new: true }
+    ).lean();
+    if (!doc) {
+      return res.status(404).json({ error: { code: "ARTICLE_NOT_FOUND", message: "Article not found or not published" } });
+    }
+    const related = await BlogPostModel.find({
+      _id: { $ne: doc._id },
+      category: doc.category,
+      status: "published"
+    }).select("title slug excerpt category featuredImage publishedAt estimatedReadTime").limit(3).lean();
+    res.json({ data: doc, related });
+  } catch (err) {
+    res.status(500).json({ error: { code: "FETCH_ARTICLE_FAILED", message: err.message } });
+  }
+});
 apiRouter.get("/route", async (req, res) => {
   try {
     const rawPath = typeof req.query.path === "string" ? req.query.path : "/";
@@ -307029,7 +308372,7 @@ apiRouter.get("/route", async (req, res) => {
     const normalizedPath = rawPath.length > 1 && rawPath.endsWith("/") ? rawPath.slice(0, -1) : rawPath;
     let settingsDoc = null;
     let routeEntry = null;
-    if (import_mongoose25.default.connection.readyState === 1) {
+    if (import_mongoose26.default.connection.readyState === 1) {
       settingsDoc = await SiteSettings.findOne({ environment: "development" }).lean() || await SiteSettings.findOne().lean();
       routeEntry = await RouteEntry.findOne({ locale, path: normalizedPath }).lean();
     }
@@ -307355,7 +308698,7 @@ app.use((req, _res, next) => {
   if (req.path.includes("health")) {
     return next();
   }
-  if (import_mongoose26.default.connection.readyState === 0 && !isTestEnv) {
+  if (import_mongoose27.default.connection.readyState === 0 && !isTestEnv) {
     connectDB().catch((err) => {
       console.warn("[Akeezo MongoDB] Non-blocking connect notice:", err?.message);
     });
@@ -307415,7 +308758,7 @@ if (!isServerless2) {
     }
     try {
       let html = await fs5.promises.readFile(indexPath, "utf-8");
-      if (import_mongoose26.default.connection.readyState === 1) {
+      if (import_mongoose27.default.connection.readyState === 1) {
         const targetEnv = env.NODE_ENV || "development";
         const doc = await SiteSettings.findOne({ environment: targetEnv }).lean() || await SiteSettings.findOne({ environment: "development" }).lean() || await SiteSettings.findOne().lean();
         const adminTheme = doc?.adminTheme;
@@ -307460,7 +308803,7 @@ ${themeCss}
     if (req.path.startsWith("/api") || req.path.startsWith("/v1") || req.path.startsWith("/admin") || req.path.startsWith("/case-management") || req.path.startsWith("/uploads")) {
       return next();
     }
-    if (import_mongoose26.default.connection.readyState !== 1) return next();
+    if (import_mongoose27.default.connection.readyState !== 1) return next();
     try {
       const rawPath = req.path.toLowerCase().replace(/\/+$/, "") || "/";
       const redirect = await RedirectModel.findOne({ sourcePath: rawPath, enabled: true }).lean();

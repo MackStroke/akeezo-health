@@ -1,10 +1,11 @@
 import React, { useState } from "react";
-import { Palette, FileText, Globe, ExternalLink, ShieldCheck } from "lucide-react";
+import { Palette, FileText, Globe, ExternalLink, ShieldCheck, Sliders } from "lucide-react";
 import { SiteSettingsTab } from "./SiteSettingsTab.js";
 import { PageContentTab } from "./PageContentTab.js";
+import { HeroCarouselManager } from "./HeroCarouselManager.js";
 
 export const WebsiteManagementView: React.FC = () => {
-  const [activeTab, setActiveTab] = useState<"settings" | "pages">("settings");
+  const [activeTab, setActiveTab] = useState<"settings" | "carousel" | "pages">("settings");
 
   return (
     <div className="space-y-6 font-sans">
@@ -52,6 +53,19 @@ export const WebsiteManagementView: React.FC = () => {
 
         <button
           type="button"
+          onClick={() => setActiveTab("carousel")}
+          className={`px-4 py-3 text-xs font-bold border-b-2 flex items-center gap-2 transition ${
+            activeTab === "carousel"
+              ? "border-[#007A6C] text-[#007A6C] bg-[#E6F8F6]/60 rounded-t-lg"
+              : "border-transparent text-slate-500 hover:text-slate-800 hover:bg-slate-50"
+          }`}
+        >
+          <Sliders className="w-4 h-4 text-[#007A6C]" />
+          <span>Feature Carousel</span>
+        </button>
+
+        <button
+          type="button"
           onClick={() => setActiveTab("pages")}
           className={`px-4 py-3 text-xs font-bold border-b-2 flex items-center gap-2 transition ${
             activeTab === "pages"
@@ -67,6 +81,7 @@ export const WebsiteManagementView: React.FC = () => {
       {/* Tab Panels */}
       <div className="bg-white rounded-2xl border border-slate-200 p-6 shadow-xs">
         {activeTab === "settings" && <SiteSettingsTab />}
+        {activeTab === "carousel" && <HeroCarouselManager />}
         {activeTab === "pages" && <PageContentTab />}
       </div>
     </div>

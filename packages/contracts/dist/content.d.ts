@@ -81,13 +81,6 @@ export declare const ContentRevisionSchema: z.ZodObject<{
     createdBy: z.ZodDefault<z.ZodString>;
     createdAt: z.ZodString;
 }, "strip", z.ZodTypeAny, {
-    createdAt: string;
-    entityType: string;
-    entityId: string;
-    locale: string;
-    revisionNumber: number;
-    schemaVersion: number;
-    payload: Record<string, unknown>;
     seo: {
         title: string;
         description: string;
@@ -96,17 +89,19 @@ export declare const ContentRevisionSchema: z.ZodObject<{
         schemaKind: string;
         ogMediaId?: string | null | undefined;
     };
+    createdAt: string;
+    entityType: string;
+    entityId: string;
+    locale: string;
+    revisionNumber: number;
+    schemaVersion: number;
+    payload: Record<string, unknown>;
     sourceReferences: string[];
     createdBy: string;
     _id?: string | undefined;
     reviewedBy?: string | null | undefined;
     reviewedAt?: string | null | undefined;
 }, {
-    createdAt: string;
-    entityType: string;
-    entityId: string;
-    revisionNumber: number;
-    payload: Record<string, unknown>;
     seo: {
         title: string;
         description: string;
@@ -115,6 +110,11 @@ export declare const ContentRevisionSchema: z.ZodObject<{
         robots?: string | undefined;
         schemaKind?: string | undefined;
     };
+    createdAt: string;
+    entityType: string;
+    entityId: string;
+    revisionNumber: number;
+    payload: Record<string, unknown>;
     _id?: string | undefined;
     locale?: string | undefined;
     schemaVersion?: number | undefined;

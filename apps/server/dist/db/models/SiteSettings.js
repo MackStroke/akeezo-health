@@ -1,4 +1,5 @@
 import mongoose, { Schema } from "mongoose";
+import { DEFAULT_CAROUSEL_SLIDES } from "@akeezo/contracts";
 const SiteSettingsSchema = new Schema({
     environment: { type: String, default: "development", unique: true, required: true },
     brandName: { type: String, default: "AKEEZO", required: true },
@@ -173,6 +174,25 @@ const SiteSettingsSchema = new Schema({
         generateVariants: { type: Boolean, default: true },
         format: { type: String, default: "webp" },
         preserveOriginals: { type: Boolean, default: true }
+    },
+    carouselSlides: {
+        type: [
+            {
+                id: { type: String, required: true },
+                title: { type: String, required: true },
+                description: { type: String, required: true },
+                badgeText: { type: String, default: "" },
+                badgeStyle: { type: String, default: "orange" },
+                buttonText: { type: String, default: "Explore" },
+                buttonAction: { type: String, default: "calculator" },
+                buttonLink: { type: String, default: "" },
+                accentColor: { type: String, default: "orange" },
+                iconName: { type: String, default: "calculator" },
+                isActive: { type: Boolean, default: true },
+                order: { type: Number, default: 0 }
+            }
+        ],
+        default: DEFAULT_CAROUSEL_SLIDES
     },
     defaultLanguage: { type: String, default: "en" },
     defaultTimezone: { type: String, default: "Asia/Kolkata" },

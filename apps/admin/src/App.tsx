@@ -79,7 +79,7 @@ const tabPathMap: Record<AdminTab, string> = {
 function getTabFromPath(pathname: string): AdminTab {
   const clean = pathname.replace(/\/$/, "");
   if (clean === "/admin" || clean === "/admin/overview") return "overview";
-  if (clean.startsWith("/admin/content")) return "content";
+  if (clean.startsWith("/admin/content") || clean.startsWith("/admin/blog")) return "content";
   if (clean.startsWith("/admin/media")) return "media";
   if (clean.startsWith("/admin/enquiries") || clean.startsWith("/admin/leads")) return "enquiries";
   if (clean.startsWith("/admin/seo")) return "seo";
@@ -116,6 +116,7 @@ const SuperAdminDashboard: React.FC = () => {
   const [profileModalOpen, setProfileModalOpen] = useState(false);
   const [profileModalInitialTab, setProfileModalInitialTab] = useState<"profile" | "security">("profile");
   const [openChangelogModal, setOpenChangelogModal] = useState(false);
+  const [openBlogModal, setOpenBlogModal] = useState(false);
 
   // Sync tab with URL
   const selectTab = useCallback((tab: AdminTab) => {
@@ -244,6 +245,11 @@ const SuperAdminDashboard: React.FC = () => {
         }}
         onStartTour={() => startTour("akeezo_admin_tour", ADMIN_TOUR_STEPS, true)}
         onCreatePage={() => selectTab("content")}
+        onCreateBlogPost={() => {
+          setOpenBlogModal(true);
+          window.history.pushState(null, "", "/admin/blog");
+          selectTab("content");
+        }}
         onCreateEnquiry={() => selectTab("enquiries")}
         onInviteUser={() => selectTab("users")}
         onRecordChangelog={() => {
@@ -280,8 +286,17 @@ const SuperAdminDashboard: React.FC = () => {
             />
           )}
 
-          {/* Module 2: Content (Pages & Navigation) */}
-          {activeTab === "content" && <ContentView />}
+          {/* Module 2: Content (Pages, Blog & Navigation) */}
+          {activeTab === "content" && (
+            <ContentView
+              initialSubTab={
+                typeof window !== "undefined" && window.location.pathname.startsWith("/admin/blog")
+                  ? "blog"
+                  : undefined
+              }
+              initialCreateModal={openBlogModal}
+            />
+          )}
 
           {/* Module 3: Media Library */}
           {activeTab === "media" && <MediaLibraryView />}

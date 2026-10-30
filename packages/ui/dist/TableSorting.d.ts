@@ -2,7 +2,8 @@ import React from "react";
 export type SortDirection = "asc" | "desc" | null;
 export interface SortHeaderProps<T = string> {
     field: T;
-    label: string;
+    label?: string;
+    children?: React.ReactNode;
     currentSortField?: T | null;
     currentField?: T | null;
     currentSortDirection?: SortDirection;
@@ -14,7 +15,7 @@ export interface SortHeaderProps<T = string> {
 /**
  * Clickable accessible table column header with visual ascending/descending/neutral indicator
  */
-export declare function SortHeader<T = string>({ field, label, currentSortField, currentField, currentSortDirection, currentDirection, onSort, className, align, }: SortHeaderProps<T>): React.JSX.Element;
+export declare function SortHeader<T = string>({ field, label, children, currentSortField, currentField, currentSortDirection, currentDirection, onSort, className, align, }: SortHeaderProps<T>): React.JSX.Element;
 /**
  * Safely resolves nested property path (e.g. "actorId.name" or "patientId.fullName")
  */

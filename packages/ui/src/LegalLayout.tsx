@@ -21,7 +21,9 @@ const LEGAL_DOCS = [
   { path: "/disclaimer", title: "Medical Disclaimer", subtitle: "Non-Clinical Role & Physician Authority" },
   { path: "/consent", title: "Patient Consent", subtitle: "Cross-Border PHI Transfer & Care Authorization" },
   { path: "/refund-policy", title: "Refund Policy", subtitle: "Service Surety & Money-Back Commitment" },
-  { path: "/grievance-officer", title: "Grievance Officer", subtitle: "Complaint Redressal under IT Act & DPDP" }
+  { path: "/grievance-officer", title: "Grievance Officer", subtitle: "Complaint Redressal under IT Act & DPDP" },
+  { path: "/changelog", title: "Release Changelog", subtitle: "Official Platform Updates & Notes" },
+  { path: "/blog", title: "Medical Blog & Guides", subtitle: "Clinical Insights & Hospital Comparisons" }
 ];
 
 export const LegalLayout: React.FC<LegalLayoutProps> = ({

@@ -1,14 +1,16 @@
 import fs from "node:fs/promises";
+import fsSync from "node:fs";
 import path from "node:path";
 import { fileURLToPath, pathToFileURL } from "node:url";
 import { PassThrough } from "node:stream";
 import type { Request, Response, NextFunction } from "express";
 import mongoose from "mongoose";
-import { RouteEntry, ContentRevision, SiteSettings, ChangelogModel } from "../db/models/index.js";
+import { RouteEntry, ContentRevision, SiteSettings, ChangelogModel, BlogPostModel } from "../db/models/index.js";
 import {
   type PublicRouteResponseDTO,
   type SiteSettings as SiteSettingsDTO,
   SiteSettingsSchema,
+  DEFAULT_CAROUSEL_SLIDES,
   type SeoMetadata,
   generateWebsiteThemeCss,
   getGoogleFontUrl
@@ -29,7 +31,26 @@ function getSafePaths(): { filename: string; dirname: string } {
 const safePaths = getSafePaths();
 const __filename: string = safePaths.filename;
 const __dirname: string = safePaths.dirname;
-const webRoot = path.resolve(__dirname, "../../../web");
+
+function resolveWebRoot(baseDir: string): string {
+  const candidates = [
+    path.resolve(process.cwd(), "apps/web"),
+    path.resolve(process.cwd(), "web"),
+    path.resolve(baseDir, "../web"),
+    path.resolve(baseDir, "apps/web"),
+    path.resolve(baseDir, "../../apps/web"),
+    path.resolve(baseDir, "../../../apps/web"),
+    path.resolve(baseDir, "../../../web"),
+  ];
+  for (const c of candidates) {
+    if (fsSync.existsSync(c) && fsSync.existsSync(path.join(c, "package.json"))) {
+      return c;
+    }
+  }
+  return path.resolve(process.cwd(), "apps/web");
+}
+
+const webRoot = resolveWebRoot(__dirname);
 
 let viteDevServer: any = null;
 
@@ -105,7 +126,8 @@ export function toSafeSiteSettings(doc: any): SiteSettingsDTO {
       address: "AKEEZO Healthcare Platform Private Limited, New Delhi, India 110001"
     },
     socialLinks: doc?.socialLinks,
-    integrations: doc?.integrations
+    integrations: doc?.integrations,
+    carouselSlides: doc?.carouselSlides && doc.carouselSlides.length > 0 ? doc.carouselSlides : DEFAULT_CAROUSEL_SLIDES
   });
 }
 
@@ -465,6 +487,98 @@ export async function handleSsr(req: Request, res: Response, next: NextFunction)
         siteSettings,
         statusCode: 200,
       };
+    } else if (normalizedPath === "/blog" || normalizedPath === "/articles") {
+      statusCode = 200;
+      let articles: any[] = [];
+      if (mongoose.connection.readyState === 1) {
+        articles = await BlogPostModel.find({ status: "published" })
+          .select("-content")
+          .sort({ publishedAt: -1 })
+          .limit(20)
+          .lean();
+      }
+      dto = {
+        pageKind: "legal",
+        path: "/blog",
+        locale: "en",
+        seo: {
+          title: "Medical Travel & Healthcare Insights Blog | AKEEZO",
+          description:
+            "Authoritative clinical insights, hospital selection guides, treatment cost comparisons, and patient recovery stories for medical travel in India.",
+          canonicalPath: "/blog",
+          robots: "index,follow",
+          schemaKind: "CollectionPage",
+        },
+        payload: {
+          documentId: "blog",
+          title: "Medical Travel & Healthcare Insights",
+          category: "Clinical Editorial",
+          articles,
+        },
+        siteSettings,
+        statusCode: 200,
+      };
+    } else if (normalizedPath.startsWith("/blog/")) {
+      const blogSlug = normalizedPath.replace(/^\/blog\//, "").replace(/\/$/, "").toLowerCase();
+      let articleDoc: any = null;
+      let relatedArticles: any[] = [];
+
+      if (mongoose.connection.readyState === 1) {
+        articleDoc = await BlogPostModel.findOne({ slug: blogSlug, status: "published" }).lean();
+        if (articleDoc) {
+          relatedArticles = await BlogPostModel.find({
+            _id: { $ne: articleDoc._id },
+            category: articleDoc.category,
+            status: "published",
+          })
+            .select("title slug excerpt category publishedAt estimatedReadTime")
+            .limit(3)
+            .lean();
+        }
+      }
+
+      if (articleDoc) {
+        statusCode = 200;
+        dto = {
+          pageKind: "legal",
+          path: normalizedPath,
+          locale: "en",
+          seo: {
+            title: `${articleDoc.seo?.seoTitle || articleDoc.title} | AKEEZO`,
+            description: articleDoc.seo?.metaDescription || articleDoc.excerpt,
+            canonicalPath: `/blog/${articleDoc.slug}`,
+            robots: articleDoc.seo?.noIndex ? "noindex,nofollow" : "index,follow",
+            schemaKind: articleDoc.seo?.schemaType || "MedicalWebPage",
+            ogMediaId: articleDoc.featuredImage?.url,
+          },
+          payload: {
+            documentId: "blog-article",
+            title: articleDoc.title,
+            category: articleDoc.category,
+            article: articleDoc,
+            relatedArticles,
+          },
+          siteSettings,
+          statusCode: 200,
+        };
+      } else {
+        statusCode = 404;
+        dto = {
+          pageKind: "notFound",
+          path: normalizedPath,
+          locale: "en",
+          seo: {
+            title: "Article Not Found | AKEEZO Healthcare Platform",
+            description: "The requested medical guide or article could not be located.",
+            canonicalPath: normalizedPath,
+            robots: "noindex,nofollow",
+            schemaKind: "WebPage",
+          },
+          payload: {},
+          siteSettings,
+          statusCode: 404,
+        };
+      }
     } else {
       // Genuine 404
       statusCode = 404;

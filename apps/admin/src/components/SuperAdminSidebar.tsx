@@ -64,7 +64,7 @@ export const SuperAdminSidebar: React.FC<SidebarProps> = ({
       id: "content" as AdminTab,
       label: "Content",
       icon: FileText,
-      badge: "Pages & Nav",
+      badge: "Pages & Blog",
       badgeColor: "bg-[#00C7BE]/20 text-[#00C7BE] border-[#00C7BE]/40",
       path: "/admin/content",
     },

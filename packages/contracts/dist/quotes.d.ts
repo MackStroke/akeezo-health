@@ -35,9 +35,9 @@ export declare const QuoteSchema: z.ZodObject<{
     updatedAt: z.ZodString;
 }, "strip", z.ZodTypeAny, {
     id: string;
-    caseId: string;
     createdAt: string;
     updatedAt: string;
+    caseId: string;
     version: number;
     hospitalId: string;
     currency: string;
@@ -63,9 +63,9 @@ export declare const QuoteSchema: z.ZodObject<{
     rejectionReason?: string | null | undefined;
 }, {
     id: string;
-    caseId: string;
     createdAt: string;
     updatedAt: string;
+    caseId: string;
     hospitalId: string;
     recipientId: string;
     amountMinMinor: number;
@@ -207,9 +207,9 @@ export declare const QuoteComparisonItemSchema: z.ZodObject<{
         updatedAt: z.ZodString;
     }, "strip", z.ZodTypeAny, {
         id: string;
-        caseId: string;
         createdAt: string;
         updatedAt: string;
+        caseId: string;
         version: number;
         hospitalId: string;
         currency: string;
@@ -235,9 +235,9 @@ export declare const QuoteComparisonItemSchema: z.ZodObject<{
         rejectionReason?: string | null | undefined;
     }, {
         id: string;
-        caseId: string;
         createdAt: string;
         updatedAt: string;
+        caseId: string;
         hospitalId: string;
         recipientId: string;
         amountMinMinor: number;
@@ -271,9 +271,9 @@ export declare const QuoteComparisonItemSchema: z.ZodObject<{
     isLowestPrice: boolean;
     quote?: {
         id: string;
-        caseId: string;
         createdAt: string;
         updatedAt: string;
+        caseId: string;
         version: number;
         hospitalId: string;
         currency: string;
@@ -305,9 +305,9 @@ export declare const QuoteComparisonItemSchema: z.ZodObject<{
     recipientStatus: "received" | "requested" | "awaiting_reply" | "declined" | "no_response" | "expired";
     quote?: {
         id: string;
-        caseId: string;
         createdAt: string;
         updatedAt: string;
+        caseId: string;
         hospitalId: string;
         recipientId: string;
         amountMinMinor: number;

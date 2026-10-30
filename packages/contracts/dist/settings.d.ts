@@ -202,14 +202,14 @@ export declare const GoogleCloudConfigSchema: z.ZodObject<{
     storageBucket: z.ZodDefault<z.ZodString>;
     status: z.ZodDefault<z.ZodEnum<["connected", "unconfigured", "error"]>>;
 }, "strip", z.ZodTypeAny, {
-    status: "connected" | "unconfigured" | "error";
+    status: "error" | "connected" | "unconfigured";
     enabled: boolean;
     projectId: string;
     clientEmail: string;
     region: string;
     storageBucket: string;
 }, {
-    status?: "connected" | "unconfigured" | "error" | undefined;
+    status?: "error" | "connected" | "unconfigured" | undefined;
     enabled?: boolean | undefined;
     projectId?: string | undefined;
     clientEmail?: string | undefined;
@@ -240,7 +240,7 @@ export declare const GeminiApiConfigSchema: z.ZodObject<{
     status: z.ZodDefault<z.ZodEnum<["active", "unconfigured", "error"]>>;
     lastTestedAt: z.ZodOptional<z.ZodString>;
 }, "strip", z.ZodTypeAny, {
-    status: "unconfigured" | "error" | "active";
+    status: "error" | "unconfigured" | "active";
     enabled: boolean;
     apiKey: string;
     apiKeyMasked: string;
@@ -248,7 +248,7 @@ export declare const GeminiApiConfigSchema: z.ZodObject<{
     temperature: number;
     lastTestedAt?: string | undefined;
 }, {
-    status?: "unconfigured" | "error" | "active" | undefined;
+    status?: "error" | "unconfigured" | "active" | undefined;
     enabled?: boolean | undefined;
     apiKey?: string | undefined;
     apiKeyMasked?: string | undefined;
@@ -290,14 +290,14 @@ export declare const PlatformIntegrationsSchema: z.ZodObject<{
         storageBucket: z.ZodDefault<z.ZodString>;
         status: z.ZodDefault<z.ZodEnum<["connected", "unconfigured", "error"]>>;
     }, "strip", z.ZodTypeAny, {
-        status: "connected" | "unconfigured" | "error";
+        status: "error" | "connected" | "unconfigured";
         enabled: boolean;
         projectId: string;
         clientEmail: string;
         region: string;
         storageBucket: string;
     }, {
-        status?: "connected" | "unconfigured" | "error" | undefined;
+        status?: "error" | "connected" | "unconfigured" | undefined;
         enabled?: boolean | undefined;
         projectId?: string | undefined;
         clientEmail?: string | undefined;
@@ -326,7 +326,7 @@ export declare const PlatformIntegrationsSchema: z.ZodObject<{
         status: z.ZodDefault<z.ZodEnum<["active", "unconfigured", "error"]>>;
         lastTestedAt: z.ZodOptional<z.ZodString>;
     }, "strip", z.ZodTypeAny, {
-        status: "unconfigured" | "error" | "active";
+        status: "error" | "unconfigured" | "active";
         enabled: boolean;
         apiKey: string;
         apiKeyMasked: string;
@@ -334,7 +334,7 @@ export declare const PlatformIntegrationsSchema: z.ZodObject<{
         temperature: number;
         lastTestedAt?: string | undefined;
     }, {
-        status?: "unconfigured" | "error" | "active" | undefined;
+        status?: "error" | "unconfigured" | "active" | undefined;
         enabled?: boolean | undefined;
         apiKey?: string | undefined;
         apiKeyMasked?: string | undefined;
@@ -365,7 +365,7 @@ export declare const PlatformIntegrationsSchema: z.ZodObject<{
         containerId: string;
     };
     googleCloud: {
-        status: "connected" | "unconfigured" | "error";
+        status: "error" | "connected" | "unconfigured";
         enabled: boolean;
         projectId: string;
         clientEmail: string;
@@ -378,7 +378,7 @@ export declare const PlatformIntegrationsSchema: z.ZodObject<{
         testEventCode: string;
     };
     gemini: {
-        status: "unconfigured" | "error" | "active";
+        status: "error" | "unconfigured" | "active";
         enabled: boolean;
         apiKey: string;
         apiKeyMasked: string;
@@ -401,7 +401,7 @@ export declare const PlatformIntegrationsSchema: z.ZodObject<{
         containerId?: string | undefined;
     } | undefined;
     googleCloud?: {
-        status?: "connected" | "unconfigured" | "error" | undefined;
+        status?: "error" | "connected" | "unconfigured" | undefined;
         enabled?: boolean | undefined;
         projectId?: string | undefined;
         clientEmail?: string | undefined;
@@ -414,7 +414,7 @@ export declare const PlatformIntegrationsSchema: z.ZodObject<{
         testEventCode?: string | undefined;
     } | undefined;
     gemini?: {
-        status?: "unconfigured" | "error" | "active" | undefined;
+        status?: "error" | "unconfigured" | "active" | undefined;
         enabled?: boolean | undefined;
         apiKey?: string | undefined;
         apiKeyMasked?: string | undefined;
@@ -434,6 +434,48 @@ export declare const PlatformIntegrationsSchema: z.ZodObject<{
 }>;
 export type PlatformIntegrations = z.infer<typeof PlatformIntegrationsSchema>;
 export declare const DEFAULT_PLATFORM_INTEGRATIONS: PlatformIntegrations;
+export declare const CarouselSlideSchema: z.ZodObject<{
+    id: z.ZodString;
+    title: z.ZodString;
+    description: z.ZodString;
+    badgeText: z.ZodString;
+    badgeStyle: z.ZodDefault<z.ZodString>;
+    buttonText: z.ZodString;
+    buttonAction: z.ZodDefault<z.ZodString>;
+    buttonLink: z.ZodDefault<z.ZodOptional<z.ZodString>>;
+    accentColor: z.ZodDefault<z.ZodString>;
+    iconName: z.ZodDefault<z.ZodString>;
+    isActive: z.ZodDefault<z.ZodBoolean>;
+    order: z.ZodDefault<z.ZodNumber>;
+}, "strip", z.ZodTypeAny, {
+    id: string;
+    title: string;
+    description: string;
+    order: number;
+    accentColor: string;
+    badgeText: string;
+    badgeStyle: string;
+    buttonText: string;
+    buttonAction: string;
+    buttonLink: string;
+    iconName: string;
+    isActive: boolean;
+}, {
+    id: string;
+    title: string;
+    description: string;
+    badgeText: string;
+    buttonText: string;
+    order?: number | undefined;
+    accentColor?: string | undefined;
+    badgeStyle?: string | undefined;
+    buttonAction?: string | undefined;
+    buttonLink?: string | undefined;
+    iconName?: string | undefined;
+    isActive?: boolean | undefined;
+}>;
+export type CarouselSlide = z.infer<typeof CarouselSlideSchema>;
+export declare const DEFAULT_CAROUSEL_SLIDES: CarouselSlide[];
 export declare const SiteSettingsSchema: z.ZodObject<{
     brandName: z.ZodDefault<z.ZodString>;
     tagline: z.ZodDefault<z.ZodString>;
@@ -621,14 +663,14 @@ export declare const SiteSettingsSchema: z.ZodObject<{
             storageBucket: z.ZodDefault<z.ZodString>;
             status: z.ZodDefault<z.ZodEnum<["connected", "unconfigured", "error"]>>;
         }, "strip", z.ZodTypeAny, {
-            status: "connected" | "unconfigured" | "error";
+            status: "error" | "connected" | "unconfigured";
             enabled: boolean;
             projectId: string;
             clientEmail: string;
             region: string;
             storageBucket: string;
         }, {
-            status?: "connected" | "unconfigured" | "error" | undefined;
+            status?: "error" | "connected" | "unconfigured" | undefined;
             enabled?: boolean | undefined;
             projectId?: string | undefined;
             clientEmail?: string | undefined;
@@ -657,7 +699,7 @@ export declare const SiteSettingsSchema: z.ZodObject<{
             status: z.ZodDefault<z.ZodEnum<["active", "unconfigured", "error"]>>;
             lastTestedAt: z.ZodOptional<z.ZodString>;
         }, "strip", z.ZodTypeAny, {
-            status: "unconfigured" | "error" | "active";
+            status: "error" | "unconfigured" | "active";
             enabled: boolean;
             apiKey: string;
             apiKeyMasked: string;
@@ -665,7 +707,7 @@ export declare const SiteSettingsSchema: z.ZodObject<{
             temperature: number;
             lastTestedAt?: string | undefined;
         }, {
-            status?: "unconfigured" | "error" | "active" | undefined;
+            status?: "error" | "unconfigured" | "active" | undefined;
             enabled?: boolean | undefined;
             apiKey?: string | undefined;
             apiKeyMasked?: string | undefined;
@@ -696,7 +738,7 @@ export declare const SiteSettingsSchema: z.ZodObject<{
             containerId: string;
         };
         googleCloud: {
-            status: "connected" | "unconfigured" | "error";
+            status: "error" | "connected" | "unconfigured";
             enabled: boolean;
             projectId: string;
             clientEmail: string;
@@ -709,7 +751,7 @@ export declare const SiteSettingsSchema: z.ZodObject<{
             testEventCode: string;
         };
         gemini: {
-            status: "unconfigured" | "error" | "active";
+            status: "error" | "unconfigured" | "active";
             enabled: boolean;
             apiKey: string;
             apiKeyMasked: string;
@@ -732,7 +774,7 @@ export declare const SiteSettingsSchema: z.ZodObject<{
             containerId?: string | undefined;
         } | undefined;
         googleCloud?: {
-            status?: "connected" | "unconfigured" | "error" | undefined;
+            status?: "error" | "connected" | "unconfigured" | undefined;
             enabled?: boolean | undefined;
             projectId?: string | undefined;
             clientEmail?: string | undefined;
@@ -745,7 +787,7 @@ export declare const SiteSettingsSchema: z.ZodObject<{
             testEventCode?: string | undefined;
         } | undefined;
         gemini?: {
-            status?: "unconfigured" | "error" | "active" | undefined;
+            status?: "error" | "unconfigured" | "active" | undefined;
             enabled?: boolean | undefined;
             apiKey?: string | undefined;
             apiKeyMasked?: string | undefined;
@@ -831,6 +873,46 @@ export declare const SiteSettingsSchema: z.ZodObject<{
         address?: string | undefined;
     }>>;
     socialLinks: z.ZodOptional<z.ZodRecord<z.ZodString, z.ZodString>>;
+    carouselSlides: z.ZodDefault<z.ZodOptional<z.ZodArray<z.ZodObject<{
+        id: z.ZodString;
+        title: z.ZodString;
+        description: z.ZodString;
+        badgeText: z.ZodString;
+        badgeStyle: z.ZodDefault<z.ZodString>;
+        buttonText: z.ZodString;
+        buttonAction: z.ZodDefault<z.ZodString>;
+        buttonLink: z.ZodDefault<z.ZodOptional<z.ZodString>>;
+        accentColor: z.ZodDefault<z.ZodString>;
+        iconName: z.ZodDefault<z.ZodString>;
+        isActive: z.ZodDefault<z.ZodBoolean>;
+        order: z.ZodDefault<z.ZodNumber>;
+    }, "strip", z.ZodTypeAny, {
+        id: string;
+        title: string;
+        description: string;
+        order: number;
+        accentColor: string;
+        badgeText: string;
+        badgeStyle: string;
+        buttonText: string;
+        buttonAction: string;
+        buttonLink: string;
+        iconName: string;
+        isActive: boolean;
+    }, {
+        id: string;
+        title: string;
+        description: string;
+        badgeText: string;
+        buttonText: string;
+        order?: number | undefined;
+        accentColor?: string | undefined;
+        badgeStyle?: string | undefined;
+        buttonAction?: string | undefined;
+        buttonLink?: string | undefined;
+        iconName?: string | undefined;
+        isActive?: boolean | undefined;
+    }>, "many">>>;
 }, "strip", z.ZodTypeAny, {
     phone: string;
     brandName: string;
@@ -897,6 +979,20 @@ export declare const SiteSettingsSchema: z.ZodObject<{
         contentBackground: string;
         cardBackground: string;
     };
+    carouselSlides: {
+        id: string;
+        title: string;
+        description: string;
+        order: number;
+        accentColor: string;
+        badgeText: string;
+        badgeStyle: string;
+        buttonText: string;
+        buttonAction: string;
+        buttonLink: string;
+        iconName: string;
+        isActive: boolean;
+    }[];
     primaryColor?: string | undefined;
     secondaryColor?: string | undefined;
     accentColor?: string | undefined;
@@ -911,7 +1007,7 @@ export declare const SiteSettingsSchema: z.ZodObject<{
             containerId: string;
         };
         googleCloud: {
-            status: "connected" | "unconfigured" | "error";
+            status: "error" | "connected" | "unconfigured";
             enabled: boolean;
             projectId: string;
             clientEmail: string;
@@ -924,7 +1020,7 @@ export declare const SiteSettingsSchema: z.ZodObject<{
             testEventCode: string;
         };
         gemini: {
-            status: "unconfigured" | "error" | "active";
+            status: "error" | "unconfigured" | "active";
             enabled: boolean;
             apiKey: string;
             apiKeyMasked: string;
@@ -1048,7 +1144,7 @@ export declare const SiteSettingsSchema: z.ZodObject<{
             containerId?: string | undefined;
         } | undefined;
         googleCloud?: {
-            status?: "connected" | "unconfigured" | "error" | undefined;
+            status?: "error" | "connected" | "unconfigured" | undefined;
             enabled?: boolean | undefined;
             projectId?: string | undefined;
             clientEmail?: string | undefined;
@@ -1061,7 +1157,7 @@ export declare const SiteSettingsSchema: z.ZodObject<{
             testEventCode?: string | undefined;
         } | undefined;
         gemini?: {
-            status?: "unconfigured" | "error" | "active" | undefined;
+            status?: "error" | "unconfigured" | "active" | undefined;
             enabled?: boolean | undefined;
             apiKey?: string | undefined;
             apiKeyMasked?: string | undefined;
@@ -1105,6 +1201,20 @@ export declare const SiteSettingsSchema: z.ZodObject<{
         address?: string | undefined;
     } | undefined;
     socialLinks?: Record<string, string> | undefined;
+    carouselSlides?: {
+        id: string;
+        title: string;
+        description: string;
+        badgeText: string;
+        buttonText: string;
+        order?: number | undefined;
+        accentColor?: string | undefined;
+        badgeStyle?: string | undefined;
+        buttonAction?: string | undefined;
+        buttonLink?: string | undefined;
+        iconName?: string | undefined;
+        isActive?: boolean | undefined;
+    }[] | undefined;
 }>;
 export type SiteSettings = z.infer<typeof SiteSettingsSchema>;
 export declare function sanitizeCssValue(val?: string): string;

@@ -5,7 +5,8 @@ export type SortDirection = "asc" | "desc" | null;
 
 export interface SortHeaderProps<T = string> {
   field: T;
-  label: string;
+  label?: string;
+  children?: React.ReactNode;
   currentSortField?: T | null;
   currentField?: T | null;
   currentSortDirection?: SortDirection;
@@ -21,6 +22,7 @@ export interface SortHeaderProps<T = string> {
 export function SortHeader<T = string>({
   field,
   label,
+  children,
   currentSortField,
   currentField,
   currentSortDirection,
@@ -29,6 +31,8 @@ export function SortHeader<T = string>({
   className = "",
   align = "left",
 }: SortHeaderProps<T>) {
+  const displayLabel = children || label;
+  const labelText = label || (typeof children === "string" ? children : "");
   const activeField = currentSortField !== undefined ? currentSortField : currentField;
   const activeDirection = currentSortDirection !== undefined ? currentSortDirection : currentDirection;
   const isActive = activeField === field && activeDirection !== null && activeDirection !== undefined;
@@ -54,11 +58,11 @@ export function SortHeader<T = string>({
         className={`flex items-center gap-1.5 font-bold uppercase tracking-wider text-[11px] transition group focus:outline-none focus:ring-1 focus:ring-[#007A6C] rounded px-1 -mx-1 ${alignClass} ${
           isActive ? "text-[#007A6C]" : "text-slate-500 hover:text-slate-800"
         }`}
-        title={`Sort by ${label} (${
+        title={`Sort by ${labelText} (${
           isActive ? (isAsc ? "sorted ascending — click to invert" : "sorted descending — click to reset") : "click to sort"
         })`}
       >
-        <span>{label}</span>
+        <span>{displayLabel}</span>
         <span className="shrink-0 transition-transform">
           {isAsc ? (
             <ArrowUp className="w-3.5 h-3.5 text-[#007A6C]" />

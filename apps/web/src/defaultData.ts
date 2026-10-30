@@ -2,7 +2,8 @@ import {
   type PublicRouteResponseDTO,
   type SiteSettings,
   DEFAULT_WEBSITE_THEME,
-  DEFAULT_ADMIN_THEME
+  DEFAULT_ADMIN_THEME,
+  DEFAULT_CAROUSEL_SLIDES
 } from "@akeezo/contracts";
 
 export const DEFAULT_SITE_SETTINGS: SiteSettings = {
@@ -47,7 +48,8 @@ export const DEFAULT_SITE_SETTINGS: SiteSettings = {
   dpoContact: {
     email: "dpo@akeezo.com",
     address: "AKEEZO Healthcare Platform Private Limited, New Delhi, India 110001"
-  }
+  },
+  carouselSlides: DEFAULT_CAROUSEL_SLIDES
 };
 
 export function getDefaultRouteData(path = "/"): PublicRouteResponseDTO {

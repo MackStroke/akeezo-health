@@ -35,9 +35,9 @@ export declare const EpisodeSchema: z.ZodObject<{
 }, "strip", z.ZodTypeAny, {
     status: "completed" | "active" | "planned" | "paused" | "cancelled";
     id: string;
-    caseId: string;
     createdAt: string;
     updatedAt: string;
+    caseId: string;
     version: number;
     hospitalId: string;
     sequenceNo: number;
@@ -63,9 +63,9 @@ export declare const EpisodeSchema: z.ZodObject<{
     billingFinalisedAt?: string | null | undefined;
 }, {
     id: string;
-    caseId: string;
     createdAt: string;
     updatedAt: string;
+    caseId: string;
     hospitalId: string;
     sequenceNo: number;
     episodeType: "other" | "consultation_only" | "opd_cycle" | "day_care" | "ipd" | "diagnostic" | "follow_up";
@@ -136,9 +136,9 @@ export declare const CreateEpisodeSeriesSchema: z.ZodObject<{
     expectedAmountPerCycleMinor: z.ZodNullable<z.ZodOptional<z.ZodNumber>>;
     notes: z.ZodOptional<z.ZodString>;
 }, "strip", z.ZodTypeAny, {
+    label: string;
     caseId: string;
     episodeType: "other" | "consultation_only" | "opd_cycle" | "day_care" | "ipd" | "diagnostic" | "follow_up";
-    label: string;
     plannedTotal: number;
     defaultHospitalId: string;
     firstCycleDate: string;
@@ -147,8 +147,8 @@ export declare const CreateEpisodeSeriesSchema: z.ZodObject<{
     defaultDoctorId?: string | null | undefined;
     expectedAmountPerCycleMinor?: number | null | undefined;
 }, {
-    caseId: string;
     label: string;
+    caseId: string;
     plannedTotal: number;
     defaultHospitalId: string;
     firstCycleDate: string;

@@ -21,6 +21,7 @@ import {
   Settings,
   Compass,
   Tag,
+  BookOpen,
 } from "lucide-react";
 import { useAuth } from "../context/AuthContext.js";
 import { AdminTab } from "./SuperAdminSidebar.js";
@@ -35,6 +36,7 @@ interface HeaderProps {
   onOpenSecurity: () => void;
   onStartTour?: () => void;
   onCreatePage?: () => void;
+  onCreateBlogPost?: () => void;
   onCreateEnquiry?: () => void;
   onInviteUser?: () => void;
   onRecordChangelog?: () => void;
@@ -50,6 +52,7 @@ export const SuperAdminHeader: React.FC<HeaderProps> = ({
   onOpenSecurity,
   onStartTour,
   onCreatePage,
+  onCreateBlogPost,
   onCreateEnquiry,
   onInviteUser,
   onRecordChangelog,
@@ -270,6 +273,21 @@ export const SuperAdminHeader: React.FC<HeaderProps> = ({
               >
                 <FileText className="w-4 h-4 text-[#007A6C]" />
                 <span className="font-semibold">New Page</span>
+              </button>
+
+              <button
+                onClick={() => {
+                  setCreateDropdownOpen(false);
+                  if (onCreateBlogPost) onCreateBlogPost();
+                  else {
+                    window.history.pushState(null, "", "/admin/blog");
+                    onSelectTab("content");
+                  }
+                }}
+                className="w-full text-left px-3.5 py-2 hover:bg-slate-50 flex items-center gap-2.5 text-slate-700 hover:text-slate-900"
+              >
+                <BookOpen className="w-4 h-4 text-[#00C7BE]" />
+                <span className="font-semibold">New Blog Article</span>
               </button>
 
               <button

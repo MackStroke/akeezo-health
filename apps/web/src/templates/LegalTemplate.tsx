@@ -34,6 +34,216 @@ export const LegalTemplate: React.FC<LegalTemplateProps> = ({ data }) => {
 
   const renderContent = () => {
     switch (path) {
+      case "/blog": {
+        const articles: any[] = (data.payload as any)?.articles || [];
+        return (
+          <div className="space-y-8 text-ink">
+            {/* Blog Directory Hero Banner */}
+            <div
+              style={{
+                backgroundColor: "rgba(0, 199, 190, 0.08)",
+                border: `1px solid ${colors.primaryTeal}`,
+                borderRadius: "12px",
+                padding: "24px",
+              }}
+            >
+              <div className="flex items-center gap-2 mb-2">
+                <span
+                  style={{
+                    backgroundColor: colors.actionTeal,
+                    color: "#ffffff",
+                    fontSize: "0.75rem",
+                    fontWeight: 800,
+                    padding: "3px 8px",
+                    borderRadius: "4px",
+                    textTransform: "uppercase",
+                    letterSpacing: "0.05em",
+                  }}
+                >
+                  Clinical Insights & Travel
+                </span>
+                <span className="text-xs font-semibold text-actionTeal">
+                  Evidence-Based Medicine • Hospital Comparisons • Patient Guides
+                </span>
+              </div>
+              <h2 style={{ fontSize: "1.25rem", fontWeight: 800, color: colors.darkNavy, margin: "0 0 8px 0" }}>
+                Akeezo Healthcare Insights & Patient Guides
+              </h2>
+              <p style={{ margin: 0, color: colors.darkNavy, fontSize: "0.9375rem", lineHeight: 1.6 }}>
+                Authoritative articles reviewed by healthcare professionals, covering cutting-edge robotic surgical technologies, cardiac and oncology protocols, treatment cost benchmarks in India, and cross-border recovery timelines.
+              </p>
+            </div>
+
+            {/* Articles Grid */}
+            {articles.length === 0 ? (
+              <div className="p-8 text-center text-slate-500 bg-white rounded-xl border border-slate-200">
+                No blog articles published yet. Check back soon for clinical updates.
+              </div>
+            ) : (
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                {articles.map((article: any) => (
+                  <div
+                    key={article._id || article.slug}
+                    className="p-6 bg-white rounded-2xl border border-slate-200 shadow-xs flex flex-col justify-between hover:shadow-md hover:border-[#007A6C]/40 transition group"
+                  >
+                    <div className="space-y-3">
+                      <div className="flex items-center justify-between text-xs">
+                        <span className="font-bold uppercase tracking-wider text-[11px] text-[#007A6C] bg-teal-50 px-2.5 py-0.5 rounded-full border border-[#00C7BE]/30">
+                          {article.category}
+                        </span>
+                        <span className="text-slate-400 font-semibold">
+                          {article.estimatedReadTime || 3} min read
+                        </span>
+                      </div>
+
+                      <h3 className="text-lg font-bold text-slate-900 group-hover:text-[#007A6C] transition line-clamp-2">
+                        <a href={`/blog/${article.slug}`}>{article.title}</a>
+                      </h3>
+
+                      <p className="text-xs text-slate-600 line-clamp-3 leading-relaxed">
+                        {article.excerpt || "Comprehensive medical guide detailing treatment protocols, accredited hospital selection, and patient recovery."}
+                      </p>
+                    </div>
+
+                    <div className="pt-4 mt-4 border-t border-slate-100 flex items-center justify-between text-xs">
+                      <div className="text-slate-500">
+                        By <strong className="text-slate-800">{article.author?.name || "Akeezo Medical Board"}</strong>
+                      </div>
+                      <a
+                        href={`/blog/${article.slug}`}
+                        className="font-bold text-[#007A6C] group-hover:text-[#005F54] flex items-center gap-1"
+                      >
+                        <span>Read Guide</span>
+                        <span>→</span>
+                      </a>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            )}
+          </div>
+        );
+      }
+      case "/changelog":
+      case "/changelogs": {
+        const changelogs: any[] = (data.payload as any)?.changelogs || [];
+        return (
+          <div className="space-y-8 text-ink">
+            {/* Header Assurance Banner */}
+            <div
+              style={{
+                backgroundColor: "rgba(0, 199, 190, 0.08)",
+                border: `1px solid ${colors.primaryTeal}`,
+                borderRadius: "12px",
+                padding: "24px",
+              }}
+            >
+              <div className="flex items-center gap-2 mb-2">
+                <span
+                  style={{
+                    backgroundColor: colors.actionTeal,
+                    color: "#ffffff",
+                    fontSize: "0.75rem",
+                    fontWeight: 800,
+                    padding: "3px 8px",
+                    borderRadius: "4px",
+                    textTransform: "uppercase",
+                    letterSpacing: "0.05em",
+                  }}
+                >
+                  Platform Transparency
+                </span>
+                <span className="text-xs font-semibold text-actionTeal">
+                  Continuous Delivery • Clinical Compliance • Enterprise Security
+                </span>
+              </div>
+              <h2 style={{ fontSize: "1.25rem", fontWeight: 800, color: colors.darkNavy, margin: "0 0 8px 0" }}>
+                Akeezo Healthcare Engineering & Product Releases
+              </h2>
+              <p style={{ margin: 0, color: colors.darkNavy, fontSize: "0.9375rem", lineHeight: 1.6 }}>
+                Official release notes and technical milestones documenting new medical travel capabilities, EHR integrations, DPDP security controls, and performance enhancements across the Akeezo ecosystem.
+              </p>
+            </div>
+
+            {/* Releases Timeline */}
+            {changelogs.length === 0 ? (
+              <div className="p-8 text-center text-slate-500 bg-white rounded-xl border border-slate-200">
+                No public release notes published yet.
+              </div>
+            ) : (
+              <div className="space-y-6">
+                {changelogs.map((entry: any) => (
+                  <div
+                    key={entry._id || entry.version}
+                    className="p-6 bg-white rounded-2xl border border-slate-200 shadow-xs space-y-4"
+                  >
+                    <div className="flex flex-wrap items-center justify-between gap-3 pb-3 border-b border-slate-100">
+                      <div className="flex items-center gap-2.5">
+                        <span className="font-mono text-base font-black px-3 py-1 rounded-lg bg-teal-50 text-[#007A6C] border border-[#00C7BE]/30">
+                          {entry.version}
+                        </span>
+                        <span className="text-xs uppercase font-bold tracking-wider px-2.5 py-0.5 rounded-full bg-slate-100 text-slate-700">
+                          {entry.category}
+                        </span>
+                      </div>
+                      <div className="text-xs text-slate-400 font-semibold">
+                        Released: {new Date(entry.releaseDate).toLocaleDateString("en-US", { year: "numeric", month: "short", day: "numeric" })}
+                      </div>
+                    </div>
+
+                    <div>
+                      <h3 className="text-lg font-black text-slate-900 mb-1">
+                        {entry.title}
+                      </h3>
+                      {entry.summary && (
+                        <p className="text-sm text-slate-600 leading-relaxed">
+                          {entry.summary}
+                        </p>
+                      )}
+                    </div>
+
+                    {entry.items && entry.items.length > 0 && (
+                      <div className="space-y-2 pt-2">
+                        <h4 className="text-xs font-bold uppercase tracking-wider text-slate-400">
+                          Key Changes & Improvements
+                        </h4>
+                        <ul className="space-y-2">
+                          {entry.items.map((item: any, idx: number) => (
+                            <li key={idx} className="flex items-start gap-2 text-xs text-slate-700 leading-relaxed">
+                              <span className="mt-1 w-1.5 h-1.5 rounded-full bg-[#007A6C] shrink-0" />
+                              <div className="flex-1">
+                                {item.badge && (
+                                  <span className="inline-block mr-1.5 px-1.5 py-0.5 bg-slate-100 border border-slate-200 rounded text-[10px] font-bold text-slate-600">
+                                    {item.badge}
+                                  </span>
+                                )}
+                                <span>{item.text}</span>
+                              </div>
+                            </li>
+                          ))}
+                        </ul>
+                      </div>
+                    )}
+
+                    {entry.modules && entry.modules.length > 0 && (
+                      <div className="flex flex-wrap items-center gap-1.5 pt-2">
+                        {entry.modules.map((mod: string, mIdx: number) => (
+                          <span
+                            key={mIdx}
+                            className="text-[10px] font-semibold px-2 py-0.5 bg-slate-50 text-slate-500 rounded-md border border-slate-200"
+                          >
+                            #{mod}
+                          </span>
+                        ))}
+                      </div>
+                    )}
+                  </div>
+                ))}
+              </div>
+            )}
+          </div>
+        );
+      }
       case "/privacy":
         return (
           <div className="space-y-8 text-ink">
@@ -1278,7 +1488,134 @@ export const LegalTemplate: React.FC<LegalTemplateProps> = ({ data }) => {
           </div>
         );
 
-      default:
+      default: {
+        if (path.startsWith("/blog/")) {
+          const article = (data.payload as any)?.article;
+          const related = (data.payload as any)?.relatedArticles || [];
+          if (!article) {
+            return (
+              <div className="p-8 text-center text-slate-500 bg-white rounded-xl border border-slate-200">
+                Article not found. Please browse our <a href="/blog" className="text-[#007A6C] underline font-bold">medical blog directory</a>.
+              </div>
+            );
+          }
+          return (
+            <div className="space-y-8 text-ink">
+              {/* Article Header */}
+              <div className="space-y-3 pb-6 border-b border-slate-200">
+                <div className="flex flex-wrap items-center gap-2 text-xs">
+                  <a href="/blog" className="text-[#007A6C] hover:underline font-bold">
+                    ← Back to All Guides
+                  </a>
+                  <span className="text-slate-300">•</span>
+                  <span className="font-bold uppercase tracking-wider text-[11px] text-[#007A6C] bg-teal-50 px-2.5 py-0.5 rounded-full border border-[#00C7BE]/30">
+                    {article.category}
+                  </span>
+                  <span className="text-slate-300">•</span>
+                  <span className="text-slate-500 font-semibold">
+                    {article.estimatedReadTime || 4} min read
+                  </span>
+                  <span className="text-slate-300">•</span>
+                  <span className="text-slate-500">
+                    Published: {new Date(article.publishedAt || article.createdAt).toLocaleDateString("en-US", { year: "numeric", month: "short", day: "numeric" })}
+                  </span>
+                </div>
+
+                <h1 className="text-2xl md:text-3xl font-black text-slate-900 tracking-tight leading-snug">
+                  {article.title}
+                </h1>
+
+                {article.excerpt && (
+                  <p className="text-sm text-slate-600 leading-relaxed font-medium bg-slate-50 p-4 rounded-xl border-l-4 border-[#007A6C]">
+                    {article.excerpt}
+                  </p>
+                )}
+
+                <div className="flex items-center gap-3 pt-2 text-xs text-slate-500">
+                  <div className="w-8 h-8 rounded-full bg-[#007A6C] text-white flex items-center justify-center font-bold text-xs">
+                    {article.author?.name ? article.author.name[0] : "A"}
+                  </div>
+                  <div>
+                    <div className="font-bold text-slate-900">{article.author?.name || "Akeezo Medical Editorial Board"}</div>
+                    <div className="text-[11px] text-slate-400">{article.author?.role || "Clinical Content Specialist"}</div>
+                  </div>
+                </div>
+              </div>
+
+              {/* Article Body (Markdown Parsed) */}
+              <div
+                className="prose prose-slate max-w-none text-sm leading-relaxed space-y-4"
+                dangerouslySetInnerHTML={{
+                  __html: (article.content || "")
+                    .replace(/^### (.*$)/gim, '<h3 style="font-size:1.15rem;font-weight:800;color:#061E1B;margin-top:20px;margin-bottom:8px;">$1</h3>')
+                    .replace(/^## (.*$)/gim, '<h2 style="font-size:1.35rem;font-weight:800;color:#061E1B;margin-top:28px;margin-bottom:12px;border-bottom:1px solid #E2E8F0;padding-bottom:6px;">$1</h2>')
+                    .replace(/\*\*(.*?)\*\*/g, '<strong style="color:#061E1B;">$1</strong>')
+                    .replace(/\[(.*?)\]\((.*?)\)/g, '<a href="$2" style="color:#007A6C;text-decoration:underline;font-weight:600;">$1</a>')
+                    .replace(/^- (.*$)/gim, '<li style="margin-left:20px;list-style-type:disc;margin-bottom:4px;">$1</li>')
+                    .replace(/\n\n/g, '<p style="margin-bottom:14px;color:#334155;line-height:1.75;"></p>')
+                }}
+              />
+
+              {/* Statutory Medical Disclaimer */}
+              {article.medicalDisclaimerEnabled !== false && (
+                <div className="p-4 bg-amber-50/70 border border-amber-200 rounded-xl text-xs text-amber-900 space-y-1">
+                  <div className="font-bold flex items-center gap-1.5 text-amber-950">
+                    <span>Clinical Information Disclaimer</span>
+                  </div>
+                  <p className="leading-relaxed">
+                    This medical article is prepared for educational and informational purposes under Akeezo Medical Guidelines. It is not intended as medical advice or substitute for clinical diagnosis. Consult a board-certified physician or contact our 24/7 care desk for personalized treatment consultation.
+                  </p>
+                </div>
+              )}
+
+              {/* Inbound Consultation Callout */}
+              <div className="p-6 bg-gradient-to-r from-[#061E1B] via-teal-950 to-[#061E1B] text-white rounded-2xl border border-[#00C7BE]/30 flex flex-col sm:flex-row sm:items-center justify-between gap-4 shadow-sm">
+                <div className="space-y-1">
+                  <span className="text-[10px] font-bold uppercase tracking-widest text-[#00C7BE]">
+                    Heal In India with Akeezo
+                  </span>
+                  <h3 className="text-base font-bold text-white">
+                    Need a Free Clinical Assessment & Hospital Estimate?
+                  </h3>
+                  <p className="text-xs text-teal-100/80 max-w-xl">
+                    Share your medical reports with our clinical triage board. Receive personalized treatment packages from premier JCI-accredited Indian hospitals within 24 hours.
+                  </p>
+                </div>
+                <a
+                  href="/calculator"
+                  className="px-4 py-2.5 bg-[#FF6B00] hover:bg-[#e05f00] text-white text-xs font-bold rounded-xl shadow-xs transition whitespace-nowrap text-center"
+                >
+                  Get Free Treatment Quote →
+                </a>
+              </div>
+
+              {/* Related Articles */}
+              {related.length > 0 && (
+                <div className="space-y-3 pt-6 border-t border-slate-200">
+                  <h3 className="text-sm font-bold uppercase tracking-wider text-slate-500">
+                    Related Medical Guides
+                  </h3>
+                  <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+                    {related.map((rel: any) => (
+                      <a
+                        key={rel._id || rel.slug}
+                        href={`/blog/${rel.slug}`}
+                        className="p-3 bg-white rounded-xl border border-slate-200 hover:border-[#007A6C] transition text-xs space-y-1 block"
+                      >
+                        <span className="text-[10px] uppercase font-bold text-[#007A6C]">
+                          {rel.category}
+                        </span>
+                        <div className="font-bold text-slate-800 line-clamp-2">
+                          {rel.title}
+                        </div>
+                      </a>
+                    ))}
+                  </div>
+                </div>
+              )}
+            </div>
+          );
+        }
         return (
           <div className="space-y-4 text-ink">
             <h2 style={{ fontSize: "1.5rem", fontWeight: 700, color: colors.darkNavy, marginBottom: "16px" }}>
@@ -1290,6 +1627,7 @@ export const LegalTemplate: React.FC<LegalTemplateProps> = ({ data }) => {
             </p>
           </div>
         );
+      }
     }
   };
 
@@ -1331,7 +1669,28 @@ export const LegalTemplate: React.FC<LegalTemplateProps> = ({ data }) => {
           subtitle: "Statutory grievance redressal under Rule 3(2) IT Rules 2021 & Section 13 DPDP Act 2023.",
           category: "Compliance & Governance"
         };
+      case "/changelog":
+      case "/changelogs":
+        return {
+          title: "Platform Changelog & Release Notes",
+          subtitle: "Official software updates, medical travel feature releases, and technical milestones across Akeezo.",
+          category: "System Updates"
+        };
+      case "/blog":
+      case "/articles":
+        return {
+          title: "Medical Travel & Healthcare Insights",
+          subtitle: "Authoritative clinical guides, hospital comparisons, and patient stories.",
+          category: "Clinical Editorial"
+        };
       default:
+        if (path.startsWith("/blog/")) {
+          return {
+            title: (data.payload as any)?.title || "Medical Travel Guide",
+            subtitle: "Akeezo Healthcare Platform Clinical Insights.",
+            category: (data.payload as any)?.category || "Clinical Guide"
+          };
+        }
         return {
           title: "Legal Policy",
           subtitle: "AKEEZO Healthcare Platform documentation.",

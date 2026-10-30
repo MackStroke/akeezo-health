@@ -3,7 +3,9 @@ import { ArrowUp, ArrowDown, ChevronsUpDown } from "lucide-react";
 /**
  * Clickable accessible table column header with visual ascending/descending/neutral indicator
  */
-export function SortHeader({ field, label, currentSortField, currentField, currentSortDirection, currentDirection, onSort, className = "", align = "left", }) {
+export function SortHeader({ field, label, children, currentSortField, currentField, currentSortDirection, currentDirection, onSort, className = "", align = "left", }) {
+    const displayLabel = children || label;
+    const labelText = label || (typeof children === "string" ? children : "");
     const activeField = currentSortField !== undefined ? currentSortField : currentField;
     const activeDirection = currentSortDirection !== undefined ? currentSortDirection : currentDirection;
     const isActive = activeField === field && activeDirection !== null && activeDirection !== undefined;
@@ -14,7 +16,7 @@ export function SortHeader({ field, label, currentSortField, currentField, curre
         : align === "center"
             ? "justify-center text-center mx-auto"
             : "justify-start text-left";
-    return (_jsx("th", { scope: "col", className: `py-3 px-4 select-none ${className}`, "aria-sort": isAsc ? "ascending" : isDesc ? "descending" : "none", children: _jsxs("button", { type: "button", onClick: () => onSort(field), className: `flex items-center gap-1.5 font-bold uppercase tracking-wider text-[11px] transition group focus:outline-none focus:ring-1 focus:ring-[#007A6C] rounded px-1 -mx-1 ${alignClass} ${isActive ? "text-[#007A6C]" : "text-slate-500 hover:text-slate-800"}`, title: `Sort by ${label} (${isActive ? (isAsc ? "sorted ascending — click to invert" : "sorted descending — click to reset") : "click to sort"})`, children: [_jsx("span", { children: label }), _jsx("span", { className: "shrink-0 transition-transform", children: isAsc ? (_jsx(ArrowUp, { className: "w-3.5 h-3.5 text-[#007A6C]" })) : isDesc ? (_jsx(ArrowDown, { className: "w-3.5 h-3.5 text-[#007A6C]" })) : (_jsx(ChevronsUpDown, { className: "w-3.5 h-3.5 text-slate-300 group-hover:text-slate-500" })) })] }) }));
+    return (_jsx("th", { scope: "col", className: `py-3 px-4 select-none ${className}`, "aria-sort": isAsc ? "ascending" : isDesc ? "descending" : "none", children: _jsxs("button", { type: "button", onClick: () => onSort(field), className: `flex items-center gap-1.5 font-bold uppercase tracking-wider text-[11px] transition group focus:outline-none focus:ring-1 focus:ring-[#007A6C] rounded px-1 -mx-1 ${alignClass} ${isActive ? "text-[#007A6C]" : "text-slate-500 hover:text-slate-800"}`, title: `Sort by ${labelText} (${isActive ? (isAsc ? "sorted ascending — click to invert" : "sorted descending — click to reset") : "click to sort"})`, children: [_jsx("span", { children: displayLabel }), _jsx("span", { className: "shrink-0 transition-transform", children: isAsc ? (_jsx(ArrowUp, { className: "w-3.5 h-3.5 text-[#007A6C]" })) : isDesc ? (_jsx(ArrowDown, { className: "w-3.5 h-3.5 text-[#007A6C]" })) : (_jsx(ChevronsUpDown, { className: "w-3.5 h-3.5 text-slate-300 group-hover:text-slate-500" })) })] }) }));
 }
 /**
  * Safely resolves nested property path (e.g. "actorId.name" or "patientId.fullName")
