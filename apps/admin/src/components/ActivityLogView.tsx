@@ -10,6 +10,7 @@ import {
   ViewToggle,
   ViewMode,
 } from "./TablePagination";
+import { ChangelogView } from "./ChangelogView.js";
 import {
   History,
   Search,
@@ -24,6 +25,7 @@ import {
   FileText,
   RotateCcw,
   Sparkles,
+  Tag,
 } from "lucide-react";
 
 interface ActivityItem {
@@ -42,7 +44,23 @@ interface ActivityItem {
   createdAt: string;
 }
 
-export const ActivityLogView: React.FC = () => {
+interface ActivityLogViewProps {
+  initialTab?: "activity" | "changelog";
+  initialCreateModal?: boolean;
+}
+
+export const ActivityLogView: React.FC<ActivityLogViewProps> = ({
+  initialTab = "activity",
+  initialCreateModal = false,
+}) => {
+  const [activeSubTab, setActiveSubTab] = useState<"activity" | "changelog">(initialTab);
+
+  useEffect(() => {
+    if (initialTab) {
+      setActiveSubTab(initialTab);
+    }
+  }, [initialTab]);
+
   const [activities, setActivities] = useState<ActivityItem[]>([]);
   const [loading, setLoading] = useState(true);
   const [searchQuery, setSearchQuery] = useState("");
@@ -144,8 +162,65 @@ export const ActivityLogView: React.FC = () => {
 
   return (
     <div className="space-y-6 font-sans">
-      {/* 1. Header Banner */}
-      <div className="bg-gradient-to-r from-[#061E1B] via-teal-950 to-[#061E1B] rounded-2xl p-6 text-white shadow-md border border-[#00C7BE]/30 flex flex-col md:flex-row md:items-center justify-between gap-4">
+      {/* Sub-Tab Navigation Switcher */}
+      <div className="flex items-center justify-between border-b border-slate-200 pb-3 gap-3">
+        <div className="flex items-center gap-2">
+          <button
+            type="button"
+            onClick={() => {
+              setActiveSubTab("activity");
+              if (typeof window !== "undefined") {
+                window.history.pushState(null, "", "/admin/activity");
+              }
+            }}
+            className={`inline-flex items-center gap-2 px-4 py-2 rounded-xl text-xs font-bold transition-all shadow-2xs ${
+              activeSubTab === "activity"
+                ? "bg-[#007A6C] text-white shadow-sm"
+                : "bg-white text-slate-600 hover:text-slate-900 hover:bg-slate-50 border border-slate-200"
+            }`}
+          >
+            <History className="w-4 h-4" />
+            <span>System Audit Trail</span>
+          </button>
+
+          <button
+            type="button"
+            onClick={() => {
+              setActiveSubTab("changelog");
+              if (typeof window !== "undefined") {
+                window.history.pushState(null, "", "/admin/changelog");
+              }
+            }}
+            className={`inline-flex items-center gap-2 px-4 py-2 rounded-xl text-xs font-bold transition-all shadow-2xs ${
+              activeSubTab === "changelog"
+                ? "bg-[#007A6C] text-white shadow-sm"
+                : "bg-white text-slate-600 hover:text-slate-900 hover:bg-slate-50 border border-slate-200"
+            }`}
+          >
+            <Tag className="w-4 h-4" />
+            <span>Platform Changelog & Releases</span>
+          </button>
+        </div>
+
+        {activeSubTab === "changelog" && (
+          <a
+            href="/changelog"
+            target="_blank"
+            rel="noreferrer"
+            className="hidden sm:inline-flex items-center gap-1.5 text-xs text-[#007A6C] hover:text-[#005F54] font-semibold hover:underline"
+          >
+            <span>View Public /changelog</span>
+            <ArrowRight className="w-3.5 h-3.5" />
+          </a>
+        )}
+      </div>
+
+      {activeSubTab === "changelog" ? (
+        <ChangelogView initialCreateModal={initialCreateModal} />
+      ) : (
+        <>
+          {/* 1. Header Banner */}
+          <div className="bg-gradient-to-r from-[#061E1B] via-teal-950 to-[#061E1B] rounded-2xl p-6 text-white shadow-md border border-[#00C7BE]/30 flex flex-col md:flex-row md:items-center justify-between gap-4">
         <div className="space-y-1">
           <div className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-[11px] font-bold bg-[#007A6C]/50 text-[#00C7BE] border border-[#00C7BE]/30">
             <History className="w-3.5 h-3.5 text-[#00C7BE]" />
@@ -555,6 +630,8 @@ export const ActivityLogView: React.FC = () => {
           </div>
         )}
       </div>
+      </>
+      )}
     </div>
   );
 };

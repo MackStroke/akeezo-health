@@ -20,6 +20,7 @@ import {
   Sparkles,
   Settings,
   Compass,
+  Tag,
 } from "lucide-react";
 import { useAuth } from "../context/AuthContext.js";
 import { AdminTab } from "./SuperAdminSidebar.js";
@@ -36,6 +37,7 @@ interface HeaderProps {
   onCreatePage?: () => void;
   onCreateEnquiry?: () => void;
   onInviteUser?: () => void;
+  onRecordChangelog?: () => void;
 }
 
 export const SuperAdminHeader: React.FC<HeaderProps> = ({
@@ -50,6 +52,7 @@ export const SuperAdminHeader: React.FC<HeaderProps> = ({
   onCreatePage,
   onCreateEnquiry,
   onInviteUser,
+  onRecordChangelog,
 }) => {
   const { user, logout } = useAuth();
   const [profileDropdownOpen, setProfileDropdownOpen] = useState(false);
@@ -302,6 +305,21 @@ export const SuperAdminHeader: React.FC<HeaderProps> = ({
               >
                 <Users className="w-4 h-4 text-indigo-600" />
                 <span className="font-semibold">Invite User</span>
+              </button>
+
+              <button
+                onClick={() => {
+                  setCreateDropdownOpen(false);
+                  if (onRecordChangelog) onRecordChangelog();
+                  else {
+                    window.history.pushState(null, "", "/admin/changelog");
+                    onSelectTab("activity");
+                  }
+                }}
+                className="w-full text-left px-3.5 py-2 hover:bg-slate-50 flex items-center gap-2.5 text-slate-700 hover:text-slate-900 border-t border-slate-100"
+              >
+                <Tag className="w-4 h-4 text-emerald-600" />
+                <span className="font-semibold">Record Changelog</span>
               </button>
             </div>
           )}

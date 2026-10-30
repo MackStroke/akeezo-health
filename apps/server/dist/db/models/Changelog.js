@@ -38,6 +38,6 @@ const ChangelogSchema = new Schema({
 });
 ChangelogSchema.index({ releaseDate: -1 });
 ChangelogSchema.index({ status: 1, releaseDate: -1 });
-ChangelogSchema.index({ version: 1 });
+ChangelogSchema.index({ version: 1 }, { unique: true });
 ChangelogSchema.index({ category: 1 });
 export const ChangelogModel = mongoose.models.Changelog || mongoose.model("Changelog", ChangelogSchema);

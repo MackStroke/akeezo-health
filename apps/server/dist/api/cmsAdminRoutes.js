@@ -2537,6 +2537,13 @@ cmsAdminRouter.post("/changelogs", async (req, res) => {
                 error: { code: "VALIDATION_FAILED", message: parsed.error.issues.map((i) => i.message).join(", ") },
             });
         }
+        const versionStr = parsed.data.version.trim();
+        const existingVersion = await ChangelogModel.findOne({ version: versionStr });
+        if (existingVersion) {
+            return res.status(409).json({
+                error: { code: "VERSION_EXISTS", message: `Version ${versionStr} already exists. Please specify a unique release version.` },
+            });
+        }
         const user = req.user;
         const doc = await ChangelogModel.create({
             ...parsed.data,
@@ -2548,6 +2555,11 @@ cmsAdminRouter.post("/changelogs", async (req, res) => {
         res.status(201).json({ data: doc });
     }
     catch (err) {
+        if (err.code === 11000) {
+            return res.status(409).json({
+                error: { code: "VERSION_EXISTS", message: "A changelog with this version already exists." },
+            });
+        }
         res.status(500).json({ error: { code: "CREATE_CHANGELOG_FAILED", message: err.message } });
     }
 });
@@ -2564,6 +2576,18 @@ cmsAdminRouter.put("/changelogs/:id", async (req, res) => {
         if (!existing) {
             return res.status(404).json({ error: { code: "NOT_FOUND", message: "Changelog entry not found" } });
         }
+        if (parsed.data.version) {
+            const versionStr = parsed.data.version.trim();
+            const conflict = await ChangelogModel.findOne({
+                _id: { $ne: req.params.id },
+                version: versionStr,
+            });
+            if (conflict) {
+                return res.status(409).json({
+                    error: { code: "VERSION_EXISTS", message: `Version ${versionStr} is already used by another changelog entry.` },
+                });
+            }
+        }
         const previousData = existing.toObject ? existing.toObject() : existing;
         const updatePayload = { ...parsed.data };
         if (parsed.data.releaseDate) {
@@ -2577,6 +2601,11 @@ cmsAdminRouter.put("/changelogs/:id", async (req, res) => {
         res.json({ data: updated });
     }
     catch (err) {
+        if (err.code === 11000) {
+            return res.status(409).json({
+                error: { code: "VERSION_EXISTS", message: "A changelog with this version already exists." },
+            });
+        }
         res.status(500).json({ error: { code: "UPDATE_CHANGELOG_FAILED", message: err.message } });
     }
 });

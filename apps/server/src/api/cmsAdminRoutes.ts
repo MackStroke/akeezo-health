@@ -2953,6 +2953,14 @@ cmsAdminRouter.post("/changelogs", async (req: Request, res: Response) => {
       });
     }
 
+    const versionStr = parsed.data.version.trim();
+    const existingVersion = await ChangelogModel.findOne({ version: versionStr });
+    if (existingVersion) {
+      return res.status(409).json({
+        error: { code: "VERSION_EXISTS", message: `Version ${versionStr} already exists. Please specify a unique release version.` },
+      });
+    }
+
     const user = (req as any).user;
     const doc = await ChangelogModel.create({
       ...parsed.data,
@@ -2972,6 +2980,11 @@ cmsAdminRouter.post("/changelogs", async (req: Request, res: Response) => {
 
     res.status(201).json({ data: doc });
   } catch (err: any) {
+    if (err.code === 11000) {
+      return res.status(409).json({
+        error: { code: "VERSION_EXISTS", message: "A changelog with this version already exists." },
+      });
+    }
     res.status(500).json({ error: { code: "CREATE_CHANGELOG_FAILED", message: err.message } });
   }
 });
@@ -2989,6 +3002,19 @@ cmsAdminRouter.put("/changelogs/:id", async (req: Request, res: Response) => {
     const existing = await ChangelogModel.findById(req.params.id);
     if (!existing) {
       return res.status(404).json({ error: { code: "NOT_FOUND", message: "Changelog entry not found" } });
+    }
+
+    if (parsed.data.version) {
+      const versionStr = parsed.data.version.trim();
+      const conflict = await ChangelogModel.findOne({
+        _id: { $ne: req.params.id },
+        version: versionStr,
+      });
+      if (conflict) {
+        return res.status(409).json({
+          error: { code: "VERSION_EXISTS", message: `Version ${versionStr} is already used by another changelog entry.` },
+        });
+      }
     }
 
     const previousData = existing.toObject ? existing.toObject() : existing;
@@ -3017,6 +3043,11 @@ cmsAdminRouter.put("/changelogs/:id", async (req: Request, res: Response) => {
 
     res.json({ data: updated });
   } catch (err: any) {
+    if (err.code === 11000) {
+      return res.status(409).json({
+        error: { code: "VERSION_EXISTS", message: "A changelog with this version already exists." },
+      });
+    }
     res.status(500).json({ error: { code: "UPDATE_CHANGELOG_FAILED", message: err.message } });
   }
 });

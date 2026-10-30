@@ -84,7 +84,7 @@ function getTabFromPath(pathname: string): AdminTab {
   if (clean.startsWith("/admin/enquiries") || clean.startsWith("/admin/leads")) return "enquiries";
   if (clean.startsWith("/admin/seo")) return "seo";
   if (clean.startsWith("/admin/users") || clean.startsWith("/admin/rbac")) return "users";
-  if (clean.startsWith("/admin/activity")) return "activity";
+  if (clean.startsWith("/admin/activity") || clean.startsWith("/admin/changelog")) return "activity";
   if (clean.startsWith("/admin/settings") || clean.startsWith("/admin/integrations")) return "settings";
   if (clean.startsWith("/admin/case-management")) return "cases-admin";
   return "overview";
@@ -115,6 +115,7 @@ const SuperAdminDashboard: React.FC = () => {
   // Profile & Security Modal State
   const [profileModalOpen, setProfileModalOpen] = useState(false);
   const [profileModalInitialTab, setProfileModalInitialTab] = useState<"profile" | "security">("profile");
+  const [openChangelogModal, setOpenChangelogModal] = useState(false);
 
   // Sync tab with URL
   const selectTab = useCallback((tab: AdminTab) => {
@@ -245,6 +246,11 @@ const SuperAdminDashboard: React.FC = () => {
         onCreatePage={() => selectTab("content")}
         onCreateEnquiry={() => selectTab("enquiries")}
         onInviteUser={() => selectTab("users")}
+        onRecordChangelog={() => {
+          setOpenChangelogModal(true);
+          window.history.pushState(null, "", "/admin/changelog");
+          selectTab("activity");
+        }}
       />
 
       {/* 2. Main Workspace Shell: Locked Sidebar + Scrollable Viewport */}
@@ -289,8 +295,17 @@ const SuperAdminDashboard: React.FC = () => {
           {/* Module 6: Users & Roles */}
           {activeTab === "users" && <UsersRolesView />}
 
-          {/* Module 7: Activity Log */}
-          {activeTab === "activity" && <ActivityLogView />}
+          {/* Module 7: Activity Log & Platform Changelogs */}
+          {activeTab === "activity" && (
+            <ActivityLogView
+              initialTab={
+                typeof window !== "undefined" && window.location.pathname.startsWith("/admin/changelog")
+                  ? "changelog"
+                  : undefined
+              }
+              initialCreateModal={openChangelogModal}
+            />
+          )}
 
           {/* Module 8: System Settings & Integrations */}
           {activeTab === "settings" && (

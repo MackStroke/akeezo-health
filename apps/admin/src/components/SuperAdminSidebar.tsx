@@ -98,6 +98,8 @@ export const SuperAdminSidebar: React.FC<SidebarProps> = ({
       id: "activity" as AdminTab,
       label: "Activity Log",
       icon: History,
+      badge: "Changelog",
+      badgeColor: "bg-emerald-500/20 text-emerald-300 border-emerald-500/30",
       path: "/admin/activity",
     },
     {

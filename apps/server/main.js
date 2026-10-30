@@ -112259,10 +112259,10 @@ var require_connection2 = __commonJS({
         });
       });
     };
-    async function _wrapUserTransaction(fn, session, mongoose26) {
+    async function _wrapUserTransaction(fn, session, mongoose27) {
       try {
-        const res = mongoose26.transactionAsyncLocalStorage == null ? await fn(session) : await new Promise((resolve) => {
-          mongoose26.transactionAsyncLocalStorage.run(
+        const res = mongoose27.transactionAsyncLocalStorage == null ? await fn(session) : await new Promise((resolve) => {
+          mongoose27.transactionAsyncLocalStorage.run(
             { session },
             () => resolve(fn(session))
           );
@@ -124779,7 +124779,7 @@ var require_mongoose = __commonJS({
     Mongoose.prototype.ConnectionStates = STATES;
     Mongoose.prototype.driver = driver;
     Mongoose.prototype.setDriver = function setDriver(driver2) {
-      const _mongoose = this instanceof Mongoose ? this : mongoose26;
+      const _mongoose = this instanceof Mongoose ? this : mongoose27;
       if (_mongoose.__driver === driver2) {
         return _mongoose;
       }
@@ -124797,7 +124797,7 @@ var require_mongoose = __commonJS({
         }
       }
       if (driver2.SchemaTypes != null) {
-        Object.assign(mongoose26.Schema.Types, driver2.SchemaTypes);
+        Object.assign(mongoose27.Schema.Types, driver2.SchemaTypes);
       }
       const Connection = driver2.Connection;
       const oldDefaultConnection = _mongoose.connections[0];
@@ -124815,7 +124815,7 @@ var require_mongoose = __commonJS({
       return _mongoose;
     };
     Mongoose.prototype.set = function getsetOptions(key, value) {
-      const _mongoose = this instanceof Mongoose ? this : mongoose26;
+      const _mongoose = this instanceof Mongoose ? this : mongoose27;
       if (arguments.length === 1 && typeof key !== "object") {
         if (VALID_OPTIONS.indexOf(key) === -1) {
           const error2 = new SetOptionError();
@@ -124876,7 +124876,7 @@ var require_mongoose = __commonJS({
     };
     Mongoose.prototype.get = Mongoose.prototype.set;
     Mongoose.prototype.createConnection = function createConnection(uri, options) {
-      const _mongoose = this instanceof Mongoose ? this : mongoose26;
+      const _mongoose = this instanceof Mongoose ? this : mongoose27;
       const Connection = _mongoose.__driver.Connection;
       const conn = new Connection(_mongoose);
       _mongoose.connections.push(conn);
@@ -124891,7 +124891,7 @@ var require_mongoose = __commonJS({
       if (typeof options === "function" || arguments.length >= 3 && typeof arguments[2] === "function") {
         throw new MongooseError("Mongoose.prototype.connect() no longer accepts a callback");
       }
-      const _mongoose = this instanceof Mongoose ? this : mongoose26;
+      const _mongoose = this instanceof Mongoose ? this : mongoose27;
       if (_mongoose.connection == null) {
         _createDefaultConnection(_mongoose);
       }
@@ -124902,7 +124902,7 @@ var require_mongoose = __commonJS({
       if (arguments.length >= 1 && typeof arguments[0] === "function") {
         throw new MongooseError("Mongoose.prototype.disconnect() no longer accepts a callback");
       }
-      const _mongoose = this instanceof Mongoose ? this : mongoose26;
+      const _mongoose = this instanceof Mongoose ? this : mongoose27;
       const remaining = _mongoose.connections.length;
       if (remaining <= 0) {
         return;
@@ -124910,18 +124910,18 @@ var require_mongoose = __commonJS({
       await Promise.all(_mongoose.connections.map((conn) => conn.close()));
     };
     Mongoose.prototype.startSession = function startSession() {
-      const _mongoose = this instanceof Mongoose ? this : mongoose26;
+      const _mongoose = this instanceof Mongoose ? this : mongoose27;
       return _mongoose.connection.startSession.apply(_mongoose.connection, arguments);
     };
     Mongoose.prototype.pluralize = function pluralize(fn) {
-      const _mongoose = this instanceof Mongoose ? this : mongoose26;
+      const _mongoose = this instanceof Mongoose ? this : mongoose27;
       if (arguments.length > 0) {
         _mongoose._pluralize = fn;
       }
       return _mongoose._pluralize;
     };
     Mongoose.prototype.model = function model(name, schema, collection, options) {
-      const _mongoose = this instanceof Mongoose ? this : mongoose26;
+      const _mongoose = this instanceof Mongoose ? this : mongoose27;
       if (typeof schema === "string") {
         collection = schema;
         schema = false;
@@ -124969,7 +124969,7 @@ var require_mongoose = __commonJS({
       return model2;
     };
     Mongoose.prototype._model = function _model(name, schema, collection, options) {
-      const _mongoose = this instanceof Mongoose ? this : mongoose26;
+      const _mongoose = this instanceof Mongoose ? this : mongoose27;
       let model;
       if (typeof name === "function") {
         model = name;
@@ -125008,25 +125008,25 @@ var require_mongoose = __commonJS({
       return model;
     };
     Mongoose.prototype.deleteModel = function deleteModel(name) {
-      const _mongoose = this instanceof Mongoose ? this : mongoose26;
+      const _mongoose = this instanceof Mongoose ? this : mongoose27;
       _mongoose.connection.deleteModel(name);
       delete _mongoose.models[name];
       return _mongoose;
     };
     Mongoose.prototype.modelNames = function modelNames() {
-      const _mongoose = this instanceof Mongoose ? this : mongoose26;
+      const _mongoose = this instanceof Mongoose ? this : mongoose27;
       const names = Object.keys(_mongoose.models);
       return names;
     };
     Mongoose.prototype._applyPlugins = function _applyPlugins(schema, options) {
-      const _mongoose = this instanceof Mongoose ? this : mongoose26;
+      const _mongoose = this instanceof Mongoose ? this : mongoose27;
       options = options || {};
       options.applyPluginsToDiscriminators = _mongoose.options && _mongoose.options.applyPluginsToDiscriminators || false;
       options.applyPluginsToChildSchemas = typeof (_mongoose.options && _mongoose.options.applyPluginsToChildSchemas) === "boolean" ? _mongoose.options.applyPluginsToChildSchemas : true;
       applyPlugins(schema, _mongoose.plugins, options, "$globalPluginsApplied");
     };
     Mongoose.prototype.plugin = function plugin(fn, opts) {
-      const _mongoose = this instanceof Mongoose ? this : mongoose26;
+      const _mongoose = this instanceof Mongoose ? this : mongoose27;
       _mongoose.plugins.push([fn, opts]);
       return _mongoose;
     };
@@ -125076,14 +125076,14 @@ var require_mongoose = __commonJS({
     Mongoose.prototype.DocumentProvider = require_documentProvider();
     Mongoose.prototype.ObjectId = SchemaTypes.ObjectId;
     Mongoose.prototype.isValidObjectId = function isValidObjectId(v) {
-      const _mongoose = this instanceof Mongoose ? this : mongoose26;
+      const _mongoose = this instanceof Mongoose ? this : mongoose27;
       return _mongoose.Types.ObjectId.isValid(v);
     };
     Mongoose.prototype.isObjectIdOrHexString = function isObjectIdOrHexString(v) {
       return isBsonType(v, "ObjectId") || typeof v === "string" && objectIdHexRegexp.test(v);
     };
     Mongoose.prototype.syncIndexes = function syncIndexes(options) {
-      const _mongoose = this instanceof Mongoose ? this : mongoose26;
+      const _mongoose = this instanceof Mongoose ? this : mongoose27;
       return _mongoose.connection.syncIndexes(options);
     };
     Mongoose.prototype.Decimal128 = SchemaTypes.Decimal128;
@@ -125103,15 +125103,15 @@ var require_mongoose = __commonJS({
     Mongoose.prototype.skipMiddlewareFunction = Kareem.skipWrappedFunction;
     Mongoose.prototype.overwriteMiddlewareResult = Kareem.overwriteResult;
     Mongoose.prototype.omitUndefined = require_omitUndefined();
-    function _createDefaultConnection(mongoose27) {
-      if (mongoose27.connection) {
+    function _createDefaultConnection(mongoose28) {
+      if (mongoose28.connection) {
         return;
       }
-      const conn = mongoose27.createConnection();
+      const conn = mongoose28.createConnection();
       conn[defaultConnectionSymbol] = true;
-      conn.models = mongoose27.models;
+      conn.models = mongoose28.models;
     }
-    var mongoose26 = module.exports = exports = new Mongoose({
+    var mongoose27 = module.exports = exports = new Mongoose({
       [defaultMongooseSymbol]: true
     });
   }
@@ -125123,10 +125123,10 @@ var require_lib9 = __commonJS({
     "use strict";
     var mongodbDriver = require_node_mongodb_native();
     require_driver().set(mongodbDriver);
-    var mongoose26 = require_mongoose();
-    mongoose26.setDriver(mongodbDriver);
-    mongoose26.Mongoose.prototype.mongo = require_lib6();
-    module.exports = mongoose26;
+    var mongoose27 = require_mongoose();
+    mongoose27.setDriver(mongodbDriver);
+    mongoose27.Mongoose.prototype.mongo = require_lib6();
+    module.exports = mongoose27;
   }
 });
 
@@ -125134,55 +125134,55 @@ var require_lib9 = __commonJS({
 var require_mongoose2 = __commonJS({
   "../../node_modules/mongoose/index.js"(exports, module) {
     "use strict";
-    var mongoose26 = require_lib9();
-    module.exports = mongoose26;
-    module.exports.default = mongoose26;
-    module.exports.mongoose = mongoose26;
-    module.exports.cast = mongoose26.cast;
-    module.exports.STATES = mongoose26.STATES;
-    module.exports.setDriver = mongoose26.setDriver;
-    module.exports.set = mongoose26.set;
-    module.exports.get = mongoose26.get;
-    module.exports.createConnection = mongoose26.createConnection;
-    module.exports.connect = mongoose26.connect;
-    module.exports.disconnect = mongoose26.disconnect;
-    module.exports.startSession = mongoose26.startSession;
-    module.exports.pluralize = mongoose26.pluralize;
-    module.exports.model = mongoose26.model;
-    module.exports.deleteModel = mongoose26.deleteModel;
-    module.exports.modelNames = mongoose26.modelNames;
-    module.exports.plugin = mongoose26.plugin;
-    module.exports.connections = mongoose26.connections;
-    module.exports.version = mongoose26.version;
-    module.exports.Aggregate = mongoose26.Aggregate;
-    module.exports.Mongoose = mongoose26.Mongoose;
-    module.exports.Schema = mongoose26.Schema;
-    module.exports.SchemaType = mongoose26.SchemaType;
-    module.exports.SchemaTypes = mongoose26.SchemaTypes;
-    module.exports.VirtualType = mongoose26.VirtualType;
-    module.exports.Types = mongoose26.Types;
-    module.exports.Query = mongoose26.Query;
-    module.exports.Model = mongoose26.Model;
-    module.exports.Document = mongoose26.Document;
-    module.exports.ObjectId = mongoose26.ObjectId;
-    module.exports.isValidObjectId = mongoose26.isValidObjectId;
-    module.exports.isObjectIdOrHexString = mongoose26.isObjectIdOrHexString;
-    module.exports.syncIndexes = mongoose26.syncIndexes;
-    module.exports.Decimal128 = mongoose26.Decimal128;
-    module.exports.Mixed = mongoose26.Mixed;
-    module.exports.Date = mongoose26.Date;
-    module.exports.Number = mongoose26.Number;
-    module.exports.Error = mongoose26.Error;
-    module.exports.MongooseError = mongoose26.MongooseError;
-    module.exports.now = mongoose26.now;
-    module.exports.CastError = mongoose26.CastError;
-    module.exports.SchemaTypeOptions = mongoose26.SchemaTypeOptions;
-    module.exports.mongo = mongoose26.mongo;
-    module.exports.mquery = mongoose26.mquery;
-    module.exports.sanitizeFilter = mongoose26.sanitizeFilter;
-    module.exports.trusted = mongoose26.trusted;
-    module.exports.skipMiddlewareFunction = mongoose26.skipMiddlewareFunction;
-    module.exports.overwriteMiddlewareResult = mongoose26.overwriteMiddlewareResult;
+    var mongoose27 = require_lib9();
+    module.exports = mongoose27;
+    module.exports.default = mongoose27;
+    module.exports.mongoose = mongoose27;
+    module.exports.cast = mongoose27.cast;
+    module.exports.STATES = mongoose27.STATES;
+    module.exports.setDriver = mongoose27.setDriver;
+    module.exports.set = mongoose27.set;
+    module.exports.get = mongoose27.get;
+    module.exports.createConnection = mongoose27.createConnection;
+    module.exports.connect = mongoose27.connect;
+    module.exports.disconnect = mongoose27.disconnect;
+    module.exports.startSession = mongoose27.startSession;
+    module.exports.pluralize = mongoose27.pluralize;
+    module.exports.model = mongoose27.model;
+    module.exports.deleteModel = mongoose27.deleteModel;
+    module.exports.modelNames = mongoose27.modelNames;
+    module.exports.plugin = mongoose27.plugin;
+    module.exports.connections = mongoose27.connections;
+    module.exports.version = mongoose27.version;
+    module.exports.Aggregate = mongoose27.Aggregate;
+    module.exports.Mongoose = mongoose27.Mongoose;
+    module.exports.Schema = mongoose27.Schema;
+    module.exports.SchemaType = mongoose27.SchemaType;
+    module.exports.SchemaTypes = mongoose27.SchemaTypes;
+    module.exports.VirtualType = mongoose27.VirtualType;
+    module.exports.Types = mongoose27.Types;
+    module.exports.Query = mongoose27.Query;
+    module.exports.Model = mongoose27.Model;
+    module.exports.Document = mongoose27.Document;
+    module.exports.ObjectId = mongoose27.ObjectId;
+    module.exports.isValidObjectId = mongoose27.isValidObjectId;
+    module.exports.isObjectIdOrHexString = mongoose27.isObjectIdOrHexString;
+    module.exports.syncIndexes = mongoose27.syncIndexes;
+    module.exports.Decimal128 = mongoose27.Decimal128;
+    module.exports.Mixed = mongoose27.Mixed;
+    module.exports.Date = mongoose27.Date;
+    module.exports.Number = mongoose27.Number;
+    module.exports.Error = mongoose27.Error;
+    module.exports.MongooseError = mongoose27.MongooseError;
+    module.exports.now = mongoose27.now;
+    module.exports.CastError = mongoose27.CastError;
+    module.exports.SchemaTypeOptions = mongoose27.SchemaTypeOptions;
+    module.exports.mongo = mongoose27.mongo;
+    module.exports.mquery = mongoose27.mquery;
+    module.exports.sanitizeFilter = mongoose27.sanitizeFilter;
+    module.exports.trusted = mongoose27.trusted;
+    module.exports.skipMiddlewareFunction = mongoose27.skipMiddlewareFunction;
+    module.exports.overwriteMiddlewareResult = mongoose27.overwriteMiddlewareResult;
   }
 });
 
@@ -297685,7 +297685,7 @@ var EnvSchema = external_exports.object({
 var env = EnvSchema.parse(process.env);
 
 // src/main.ts
-var import_mongoose25 = __toESM(require_mongoose2(), 1);
+var import_mongoose26 = __toESM(require_mongoose2(), 1);
 
 // src/db/connection.ts
 var import_mongoose = __toESM(require_mongoose2(), 1);
@@ -297720,7 +297720,7 @@ async function connectDB() {
 
 // src/api/routes.ts
 var import_express4 = __toESM(require_express2(), 1);
-var import_mongoose24 = __toESM(require_mongoose2(), 1);
+var import_mongoose25 = __toESM(require_mongoose2(), 1);
 
 // src/db/models/RouteEntry.ts
 var import_mongoose2 = __toESM(require_mongoose2(), 1);
@@ -300261,11 +300261,12 @@ var ChangelogSchema = new import_mongoose19.Schema(
 );
 ChangelogSchema.index({ releaseDate: -1 });
 ChangelogSchema.index({ status: 1, releaseDate: -1 });
-ChangelogSchema.index({ version: 1 });
+ChangelogSchema.index({ version: 1 }, { unique: true });
 ChangelogSchema.index({ category: 1 });
 var ChangelogModel = import_mongoose19.default.models.Changelog || import_mongoose19.default.model("Changelog", ChangelogSchema);
 
 // src/ssr/renderer.ts
+var import_mongoose20 = __toESM(require_mongoose2(), 1);
 import fs2 from "node:fs/promises";
 import path from "node:path";
 import { fileURLToPath, pathToFileURL } from "node:url";
@@ -300644,6 +300645,35 @@ async function handleSsr(req, res, next) {
         siteSettings,
         statusCode: 200
       };
+    } else if (normalizedPath === "/changelog" || normalizedPath === "/changelogs") {
+      statusCode = 200;
+      let changelogs = [];
+      if (import_mongoose20.default.connection.readyState === 1) {
+        changelogs = await ChangelogModel.find({
+          status: "published",
+          audience: { $in: ["all", "public"] }
+        }).sort({ releaseDate: -1 }).limit(30).lean();
+      }
+      dto = {
+        pageKind: "legal",
+        path: "/changelog",
+        locale: "en",
+        seo: {
+          title: "Platform Changelog & Release Notes | AKEEZO Healthcare Platform",
+          description: "Follow the latest updates, clinical feature additions, integrations, and security releases across the AKEEZO Healthcare Platform.",
+          canonicalPath: "/changelog",
+          robots: "index,follow",
+          schemaKind: "WebPage"
+        },
+        payload: {
+          documentId: "changelog",
+          title: "Platform Changelog & Release Notes",
+          category: "System Updates",
+          changelogs
+        },
+        siteSettings,
+        statusCode: 200
+      };
     } else {
       statusCode = 404;
       dto = {
@@ -300838,7 +300868,7 @@ ${gtmBodySnippet}`);
 
 // src/api/caseManagementRoutes.ts
 var import_express = __toESM(require_express2(), 1);
-var import_mongoose21 = __toESM(require_mongoose2(), 1);
+var import_mongoose22 = __toESM(require_mongoose2(), 1);
 
 // src/services/stageGuards.ts
 async function evaluateStageGuards(caseId, toStage) {
@@ -301237,7 +301267,7 @@ async function findDuplicatePatients(query) {
 }
 
 // src/utils/auth.ts
-var import_mongoose20 = __toESM(require_mongoose2(), 1);
+var import_mongoose21 = __toESM(require_mongoose2(), 1);
 import crypto4 from "crypto";
 var JWT_SECRET = process.env.JWT_SECRET || "akeezo_super_secure_jwt_secret_token_2026";
 var TOKEN_EXPIRY_SECONDS = 60 * 60 * 12;
@@ -301411,7 +301441,7 @@ async function findUserByPhoneOrFallback(phone) {
   const digits = phone.replace(/\D/g, "");
   if (!digits || digits.length < 8) return null;
   const last10 = digits.slice(-10);
-  if (import_mongoose20.default.connection.readyState === 1) {
+  if (import_mongoose21.default.connection.readyState === 1) {
     try {
       const user = await UserModel.findOne({
         $or: [
@@ -301432,7 +301462,7 @@ async function findUserByPhoneOrFallback(phone) {
 }
 async function findUserByEmailOrFallback(email) {
   const normalized = email.toLowerCase().trim();
-  if (import_mongoose20.default.connection.readyState === 1) {
+  if (import_mongoose21.default.connection.readyState === 1) {
     try {
       const user = await UserModel.findOne({ email: normalized });
       if (user) return user;
@@ -301451,7 +301481,7 @@ async function findUserByIdentifierOrFallback(identifier) {
   return findUserByEmailOrFallback(trimmed);
 }
 async function findUserByIdOrFallback(id) {
-  if (import_mongoose20.default.connection.readyState === 1) {
+  if (import_mongoose21.default.connection.readyState === 1) {
     try {
       const user = await UserModel.findById(id);
       if (user) return user;
@@ -301945,7 +301975,7 @@ caseManagementRouter.get("/patients/duplicates", async (req, res) => {
 });
 caseManagementRouter.get("/patients", async (req, res) => {
   try {
-    if (import_mongoose21.default.connection.readyState === 1) {
+    if (import_mongoose22.default.connection.readyState === 1) {
       let patientFilter = {};
       if (req.user?.role === "partner") {
         if (!req.user.partnerId) {
@@ -301976,7 +302006,7 @@ caseManagementRouter.get("/patients", async (req, res) => {
 });
 caseManagementRouter.get("/partners", async (req, res) => {
   try {
-    if (import_mongoose21.default.connection.readyState === 1) {
+    if (import_mongoose22.default.connection.readyState === 1) {
       const filter = req.user?.role === "partner" && req.user.partnerId ? { _id: req.user.partnerId } : {};
       const partners = await PartnerModel.find(filter).sort({ name: 1 }).lean();
       if (partners.length > 0) return res.json({ data: partners });
@@ -302053,7 +302083,7 @@ caseManagementRouter.get("/partners/:id/statement", async (req, res) => {
 });
 caseManagementRouter.get("/hospitals", async (_req, res) => {
   try {
-    if (import_mongoose21.default.connection.readyState === 1) {
+    if (import_mongoose22.default.connection.readyState === 1) {
       const hospitals = await HospitalModel.find().sort({ name: 1 }).lean();
       if (hospitals.length > 0) return res.json({ data: hospitals });
     }
@@ -302099,7 +302129,7 @@ caseManagementRouter.post("/hospitals/:id/doctors", async (req, res) => {
 });
 caseManagementRouter.get("/cases", async (req, res) => {
   try {
-    if (import_mongoose21.default.connection.readyState === 1) {
+    if (import_mongoose22.default.connection.readyState === 1) {
       const filter = {};
       if (req.query.stage) filter.stage = req.query.stage;
       if (req.query.status) filter.status = req.query.status;
@@ -302133,7 +302163,7 @@ caseManagementRouter.get("/cases", async (req, res) => {
 });
 caseManagementRouter.get("/cases/board", async (req, res) => {
   try {
-    if (import_mongoose21.default.connection.readyState === 1) {
+    if (import_mongoose22.default.connection.readyState === 1) {
       const filter = { status: "open" };
       if (req.user?.role === "partner") {
         if (!req.user.partnerId) {
@@ -302186,7 +302216,7 @@ caseManagementRouter.post("/cases", async (req, res) => {
     const parsed = CreateCaseIntakeSchema.parse(req.body);
     let patientId;
     if (parsed.existingPatientId) {
-      patientId = new import_mongoose21.default.Types.ObjectId(parsed.existingPatientId);
+      patientId = new import_mongoose22.default.Types.ObjectId(parsed.existingPatientId);
     } else {
       const passportEncrypted = parsed.patient.passportNumber ? encryptSensitiveField(parsed.patient.passportNumber) : void 0;
       const passportHash = parsed.patient.passportNumber ? PatientModel.hashPassport(parsed.patient.passportNumber) : void 0;
@@ -302210,7 +302240,7 @@ caseManagementRouter.post("/cases", async (req, res) => {
     const newCase = await CaseModel.create({
       caseCode,
       patientId,
-      partnerId: parsed.partnerId ? new import_mongoose21.default.Types.ObjectId(parsed.partnerId) : void 0,
+      partnerId: parsed.partnerId ? new import_mongoose22.default.Types.ObjectId(parsed.partnerId) : void 0,
       source: parsed.source,
       caseType: parsed.caseType,
       specialty: parsed.specialty,
@@ -302222,7 +302252,7 @@ caseManagementRouter.post("/cases", async (req, res) => {
       budgetCurrency: parsed.budgetCurrency,
       patientInIndia: parsed.patientInIndia,
       stage: "new_referral",
-      ownerId: new import_mongoose21.default.Types.ObjectId(parsed.ownerId),
+      ownerId: new import_mongoose22.default.Types.ObjectId(parsed.ownerId),
       referredOn: parsed.referredOn ? new Date(parsed.referredOn) : /* @__PURE__ */ new Date(),
       feeDisclosedToPartner: parsed.feeDisclosedToPartner,
       feeDisclosedOn: parsed.feeDisclosedToPartner ? /* @__PURE__ */ new Date() : void 0
@@ -302240,7 +302270,7 @@ caseManagementRouter.post("/cases", async (req, res) => {
       entityId: newCase._id,
       caseId: newCase._id,
       action: "create",
-      actorId: new import_mongoose21.default.Types.ObjectId(parsed.ownerId),
+      actorId: new import_mongoose22.default.Types.ObjectId(parsed.ownerId),
       changes: { caseCode: [null, caseCode], stage: [null, "new_referral"] }
     });
     if (parsed.patient) {
@@ -302275,7 +302305,7 @@ caseManagementRouter.get("/cases/search", async (req, res) => {
     if (!q) {
       const filter = { status: "open" };
       if (req.user?.role === "partner") {
-        filter.partnerId = req.user.partnerId || new import_mongoose21.default.Types.ObjectId();
+        filter.partnerId = req.user.partnerId || new import_mongoose22.default.Types.ObjectId();
       }
       const allCases = await CaseModel.find(filter).populate("patientId").populate("partnerId", "name partnerCode").populate("ownerId", "name email").sort({ createdAt: -1 }).limit(50).lean();
       return res.json({ data: allCases });
@@ -302312,7 +302342,7 @@ caseManagementRouter.get("/cases/search", async (req, res) => {
     }
     const caseFilter = { $or: orClauses };
     if (req.user?.role === "partner") {
-      caseFilter.partnerId = req.user.partnerId || new import_mongoose21.default.Types.ObjectId();
+      caseFilter.partnerId = req.user.partnerId || new import_mongoose22.default.Types.ObjectId();
     }
     const cases = await CaseModel.find(caseFilter).populate("patientId").populate("partnerId", "name partnerCode").populate("ownerId", "name email").sort({ createdAt: -1 }).lean();
     res.json({ data: cases });
@@ -302323,9 +302353,9 @@ caseManagementRouter.get("/cases/search", async (req, res) => {
 caseManagementRouter.get("/cases/:id", async (req, res) => {
   try {
     let caseDoc = null;
-    if (import_mongoose21.default.connection.readyState === 1) {
+    if (import_mongoose22.default.connection.readyState === 1) {
       try {
-        if (import_mongoose21.default.Types.ObjectId.isValid(req.params.id)) {
+        if (import_mongoose22.default.Types.ObjectId.isValid(req.params.id)) {
           caseDoc = await CaseModel.findById(req.params.id).populate("patientId").populate("partnerId").populate("ownerId", "name email role").lean();
         }
         if (!caseDoc) {
@@ -303290,7 +303320,7 @@ caseManagementRouter.post("/migration/import", requireRole("admin"), async (req,
     }
     await CaseAuditLogModel.create({
       entityType: "MigrationImport",
-      entityId: new import_mongoose21.default.Types.ObjectId(),
+      entityId: new import_mongoose22.default.Types.ObjectId(),
       action: "create",
       changes: { importedSummary: [null, summary.counts] }
     });
@@ -303302,7 +303332,7 @@ caseManagementRouter.post("/migration/import", requireRole("admin"), async (req,
 
 // src/api/authRoutes.ts
 var import_express2 = __toESM(require_express2(), 1);
-var import_mongoose22 = __toESM(require_mongoose2(), 1);
+var import_mongoose23 = __toESM(require_mongoose2(), 1);
 import crypto6 from "crypto";
 
 // src/utils/otpManager.ts
@@ -303435,7 +303465,7 @@ authRouter.post("/login", async (req, res) => {
         lockedUntil = now + 15 * 60 * 1e3;
       }
       failedAttempts.set(lockKey, { count: currentCount, lockedUntil });
-      if (user && import_mongoose22.default.connection.readyState === 1) {
+      if (user && import_mongoose23.default.connection.readyState === 1) {
         try {
           await CaseAuditLogModel.create({
             entityType: "User",
@@ -303475,7 +303505,7 @@ authRouter.post("/login", async (req, res) => {
       await user.save();
     } catch {
     }
-    if (import_mongoose22.default.connection.readyState === 1) {
+    if (import_mongoose23.default.connection.readyState === 1) {
       try {
         const tokenHash = crypto6.createHash("sha256").update(token).digest("hex");
         const expiresAt = new Date(Date.now() + 12 * 60 * 60 * 1e3);
@@ -303498,7 +303528,7 @@ authRouter.post("/login", async (req, res) => {
       secure: process.env.NODE_ENV === "production",
       maxAge: 12 * 60 * 60 * 1e3
     });
-    if (import_mongoose22.default.connection.readyState === 1) {
+    if (import_mongoose23.default.connection.readyState === 1) {
       try {
         await CaseAuditLogModel.create({
           entityType: "User",
@@ -303546,7 +303576,7 @@ authRouter.post("/phone/otp", async (req, res) => {
     const userPhone = normalizePhone(parsed.phone);
     if (!user) {
       const digits = userPhone.replace(/\D/g, "");
-      if (import_mongoose22.default.connection.readyState === 1) {
+      if (import_mongoose23.default.connection.readyState === 1) {
         try {
           user = await UserModel.create({
             name: `Staff (${userPhone.slice(-4)})`,
@@ -303563,7 +303593,7 @@ authRouter.post("/phone/otp", async (req, res) => {
       }
       if (!user) {
         user = {
-          _id: new import_mongoose22.default.Types.ObjectId(),
+          _id: new import_mongoose23.default.Types.ObjectId(),
           name: `Staff (${userPhone.slice(-4)})`,
           email: `staff-${digits.slice(-6)}@akeezo.com`,
           phone: userPhone,
@@ -303597,7 +303627,7 @@ authRouter.post("/phone/otp", async (req, res) => {
       await user.save();
     } catch {
     }
-    if (import_mongoose22.default.connection.readyState === 1) {
+    if (import_mongoose23.default.connection.readyState === 1) {
       try {
         const tokenHash = crypto6.createHash("sha256").update(token).digest("hex");
         const expiresAt = new Date(Date.now() + 12 * 60 * 60 * 1e3);
@@ -303651,7 +303681,7 @@ authRouter.post("/email/otp", async (req, res) => {
     let user = await findUserByEmailOrFallback(parsed.email);
     if (!user) {
       const emailPrefix = parsed.email.split("@")[0];
-      if (import_mongoose22.default.connection.readyState === 1) {
+      if (import_mongoose23.default.connection.readyState === 1) {
         try {
           user = await UserModel.create({
             name: emailPrefix.charAt(0).toUpperCase() + emailPrefix.slice(1),
@@ -303668,7 +303698,7 @@ authRouter.post("/email/otp", async (req, res) => {
       }
       if (!user) {
         user = {
-          _id: new import_mongoose22.default.Types.ObjectId(),
+          _id: new import_mongoose23.default.Types.ObjectId(),
           name: emailPrefix.charAt(0).toUpperCase() + emailPrefix.slice(1),
           email: parsed.email.toLowerCase().trim(),
           phone: "+91 82876 39443",
@@ -303703,7 +303733,7 @@ authRouter.post("/email/otp", async (req, res) => {
       await user.save();
     } catch {
     }
-    if (import_mongoose22.default.connection.readyState === 1) {
+    if (import_mongoose23.default.connection.readyState === 1) {
       try {
         const tokenHash = crypto6.createHash("sha256").update(token).digest("hex");
         const expiresAt = new Date(Date.now() + 12 * 60 * 60 * 1e3);
@@ -303805,7 +303835,7 @@ var handleOtpVerify = async (req, res) => {
       await user.save();
     } catch {
     }
-    if (import_mongoose22.default.connection.readyState === 1) {
+    if (import_mongoose23.default.connection.readyState === 1) {
       try {
         const tokenHash = crypto6.createHash("sha256").update(token).digest("hex");
         const expiresAt = new Date(Date.now() + 12 * 60 * 60 * 1e3);
@@ -303828,7 +303858,7 @@ var handleOtpVerify = async (req, res) => {
       secure: process.env.NODE_ENV === "production",
       maxAge: 12 * 60 * 60 * 1e3
     });
-    if (import_mongoose22.default.connection.readyState === 1) {
+    if (import_mongoose23.default.connection.readyState === 1) {
       try {
         await CaseAuditLogModel.create({
           entityType: "User",
@@ -303876,7 +303906,7 @@ authRouter.post("/firebase", async (req, res) => {
       const emailPrefix = cleanEmail.split("@")[0];
       const isSuperAdminEmail = cleanEmail.includes("admin") || cleanEmail === "priti@akeezo.com" || cleanEmail === "yogesh@akeezo.com";
       const userRole = isSuperAdminEmail ? "admin" : "coordinator";
-      if (import_mongoose22.default.connection.readyState === 1) {
+      if (import_mongoose23.default.connection.readyState === 1) {
         try {
           user = await UserModel.create({
             name: emailPrefix.charAt(0).toUpperCase() + emailPrefix.slice(1),
@@ -303892,7 +303922,7 @@ authRouter.post("/firebase", async (req, res) => {
       }
       if (!user) {
         user = {
-          _id: new import_mongoose22.default.Types.ObjectId(),
+          _id: new import_mongoose23.default.Types.ObjectId(),
           name: emailPrefix.charAt(0).toUpperCase() + emailPrefix.slice(1),
           email: cleanEmail,
           role: userRole,
@@ -303992,7 +304022,7 @@ authRouter.post("/logout", requireAuth, async (req, res) => {
   const authHeader = req.headers.authorization;
   const token = authHeader?.startsWith("Bearer ") ? authHeader.split(" ")[1] : void 0;
   if (req.user) {
-    if (token && import_mongoose22.default.connection.readyState === 1) {
+    if (token && import_mongoose23.default.connection.readyState === 1) {
       try {
         const tokenHash = crypto6.createHash("sha256").update(token).digest("hex");
         await UserSessionModel.updateOne({ tokenHash }, { $set: { isValid: false } });
@@ -304015,7 +304045,7 @@ authRouter.post("/logout", requireAuth, async (req, res) => {
 
 // src/api/cmsAdminRoutes.ts
 var import_express3 = __toESM(require_express2(), 1);
-var import_mongoose23 = __toESM(require_mongoose2(), 1);
+var import_mongoose24 = __toESM(require_mongoose2(), 1);
 import fs4 from "node:fs";
 import path3 from "node:path";
 
@@ -304294,13 +304324,13 @@ var cmsAdminRouter = (0, import_express3.Router)();
 cmsAdminRouter.use(requireAuth);
 cmsAdminRouter.use(requireRole("admin"));
 async function logAdminActivity(actorId, entityType, entityId, action, changes, req, caseId) {
-  if (import_mongoose23.default.connection.readyState === 1) {
+  if (import_mongoose24.default.connection.readyState === 1) {
     try {
       await CaseAuditLogModel.create({
         occurredAt: /* @__PURE__ */ new Date(),
-        actorId: actorId && import_mongoose23.default.isValidObjectId(actorId) ? actorId : void 0,
+        actorId: actorId && import_mongoose24.default.isValidObjectId(actorId) ? actorId : void 0,
         entityType,
-        entityId: entityId && import_mongoose23.default.isValidObjectId(entityId) ? entityId : new import_mongoose23.default.Types.ObjectId(),
+        entityId: entityId && import_mongoose24.default.isValidObjectId(entityId) ? entityId : new import_mongoose24.default.Types.ObjectId(),
         caseId: caseId || (entityType === "case" ? entityId : void 0),
         action,
         changes,
@@ -304332,7 +304362,7 @@ cmsAdminRouter.get("/overview-stats", async (_req, res) => {
     let partnersCount = 4;
     let hospitalsCount = 6;
     let usersCount = 7;
-    if (import_mongoose23.default.connection.readyState === 1) {
+    if (import_mongoose24.default.connection.readyState === 1) {
       const [
         pCount,
         dCount,
@@ -304384,7 +304414,7 @@ cmsAdminRouter.get("/overview-stats", async (_req, res) => {
       status: e2.status || "received"
     }));
     let recentActivities = [];
-    if (import_mongoose23.default.connection.readyState === 1) {
+    if (import_mongoose24.default.connection.readyState === 1) {
       recentActivities = await CaseAuditLogModel.find().sort({ occurredAt: -1 }).limit(6).populate("actorId", "name role email").lean();
     }
     res.json({
@@ -304426,8 +304456,8 @@ cmsAdminRouter.get("/overview-stats", async (_req, res) => {
         recentEnquiries,
         recentActivities,
         system: {
-          environment: import_mongoose23.default.connection.readyState === 1 ? "production" : "demo-preview",
-          database: import_mongoose23.default.connection.readyState === 1 ? "connected" : "in-memory-fallback",
+          environment: import_mongoose24.default.connection.readyState === 1 ? "production" : "demo-preview",
+          database: import_mongoose24.default.connection.readyState === 1 ? "connected" : "in-memory-fallback",
           status: "healthy",
           timestamp: (/* @__PURE__ */ new Date()).toISOString()
         }
@@ -304549,7 +304579,7 @@ function processIntegrationsPayload(newIntegrations, existingIntegrations) {
 cmsAdminRouter.get("/site-settings", async (_req, res) => {
   try {
     let settings = null;
-    if (import_mongoose23.default.connection.readyState === 1) {
+    if (import_mongoose24.default.connection.readyState === 1) {
       const doc = await getActiveSiteSettingsDoc();
       if (doc) settings = doc.toObject ? doc.toObject() : doc;
     }
@@ -305015,10 +305045,10 @@ cmsAdminRouter.get("/system-health", async (_req, res) => {
         heapUsedMb: Math.round(memUsage.heapUsed / 1024 / 1024)
       },
       database: {
-        status: import_mongoose23.default.connection.readyState === 1 ? "connected" : "disconnected",
-        host: import_mongoose23.default.connection.host || "127.0.0.1",
-        port: import_mongoose23.default.connection.port || 27017,
-        dbName: import_mongoose23.default.connection.name || "akeezo_local"
+        status: import_mongoose24.default.connection.readyState === 1 ? "connected" : "disconnected",
+        host: import_mongoose24.default.connection.host || "127.0.0.1",
+        port: import_mongoose24.default.connection.port || 27017,
+        dbName: import_mongoose24.default.connection.name || "akeezo_local"
       },
       timestamp: (/* @__PURE__ */ new Date()).toISOString()
     }
@@ -305425,7 +305455,7 @@ cmsAdminRouter.get("/media/stats", async (_req, res) => {
     let totalCurrentBytes = 0;
     let totalSavedBytes = 0;
     const formatBreakdown = { webp: 0, svg: 0, png: 0, jpeg: 0, pdf: 0, other: 0 };
-    if (import_mongoose23.default.connection.readyState === 1) {
+    if (import_mongoose24.default.connection.readyState === 1) {
       const allAssets = await MediaAssetModel.find().lean();
       totalAssets = allAssets.length;
       for (const a of allAssets) {
@@ -305605,7 +305635,7 @@ cmsAdminRouter.get("/media", async (req, res) => {
     const skip = (page - 1) * limit;
     let items = [];
     let total = 0;
-    if (import_mongoose23.default.connection.readyState === 1) {
+    if (import_mongoose24.default.connection.readyState === 1) {
       [items, total] = await Promise.all([
         MediaAssetModel.find(filter).sort(sortCriteria).skip(skip).limit(limit).lean(),
         MediaAssetModel.countDocuments(filter)
@@ -305949,7 +305979,7 @@ cmsAdminRouter.get("/enquiries/export/csv", async (req, res) => {
     await logAdminActivity(
       req.user?._id,
       "enquiry",
-      new import_mongoose23.default.Types.ObjectId(),
+      new import_mongoose24.default.Types.ObjectId(),
       "export",
       { count: [0, enquiries.length] },
       req
@@ -306039,7 +306069,7 @@ cmsAdminRouter.post("/enquiries/:id/convert-to-case", async (req, res) => {
     const count = await CaseModel.countDocuments();
     const caseCode = `CASE-2026-${String(count + 1).padStart(4, "0")}`;
     const defaultOwner = await UserModel.findOne({ role: { $in: ["administrator", "coordinator"] } });
-    const ownerId = defaultOwner?._id || new import_mongoose23.default.Types.ObjectId();
+    const ownerId = defaultOwner?._id || new import_mongoose24.default.Types.ObjectId();
     const specialtyMap = {
       medical_tourism: "general_surgery",
       cardiology: "cardiac_sciences",
@@ -306091,7 +306121,7 @@ cmsAdminRouter.post("/enquiries/:id/convert-to-case", async (req, res) => {
 cmsAdminRouter.get("/redirects", async (_req, res) => {
   try {
     let redirects = [];
-    if (import_mongoose23.default.connection.readyState === 1) {
+    if (import_mongoose24.default.connection.readyState === 1) {
       redirects = await RedirectModel.find().sort({ createdAt: -1 }).lean();
     }
     if (redirects.length === 0) {
@@ -306198,7 +306228,7 @@ cmsAdminRouter.delete("/redirects/:id", async (req, res) => {
 cmsAdminRouter.get("/users", async (_req, res) => {
   try {
     let users = [];
-    if (import_mongoose23.default.connection.readyState === 1) {
+    if (import_mongoose24.default.connection.readyState === 1) {
       users = await UserModel.find().sort({ createdAt: -1 }).select("-passwordHash").lean();
     }
     if (users.length === 0) {
@@ -306226,7 +306256,7 @@ var handleCreateUser = async (req, res) => {
       return res.status(400).json({ error: { code: "MISSING_FIELDS", message: "Name and email are required." } });
     }
     const normalizedEmail = email.toLowerCase().trim();
-    if (import_mongoose23.default.connection.readyState === 1) {
+    if (import_mongoose24.default.connection.readyState === 1) {
       const existing = await UserModel.findOne({ email: normalizedEmail });
       if (existing) {
         return res.status(409).json({ error: { code: "USER_EXISTS", message: `User with email '${normalizedEmail}' already exists.` } });
@@ -306235,7 +306265,7 @@ var handleCreateUser = async (req, res) => {
     const assignedPassword = password && password.trim().length >= 6 ? password.trim() : `Akeezo@${Math.floor(1e3 + Math.random() * 9e3)}!`;
     const passwordHash = hashPassword(assignedPassword);
     let newUser = null;
-    if (import_mongoose23.default.connection.readyState === 1) {
+    if (import_mongoose24.default.connection.readyState === 1) {
       newUser = await UserModel.create({
         name: name.trim(),
         email: normalizedEmail,
@@ -306248,7 +306278,7 @@ var handleCreateUser = async (req, res) => {
       });
     } else {
       newUser = {
-        _id: new import_mongoose23.default.Types.ObjectId().toString(),
+        _id: new import_mongoose24.default.Types.ObjectId().toString(),
         name: name.trim(),
         email: normalizedEmail,
         phone: phone?.trim() || "+91 82876 39443",
@@ -306535,7 +306565,7 @@ cmsAdminRouter.get("/activity", async (req, res) => {
     }
     const limit = Math.max(1, Math.min(100, parseInt(String(req.query.limit || "50"), 10)));
     let logs = [];
-    if (import_mongoose23.default.connection.readyState === 1) {
+    if (import_mongoose24.default.connection.readyState === 1) {
       logs = await CaseAuditLogModel.find(filter).sort({ occurredAt: -1 }).limit(limit).populate("actorId", "name email role").lean();
     }
     if (logs.length === 0) {
@@ -306568,7 +306598,7 @@ cmsAdminRouter.get("/activity", async (req, res) => {
   }
 });
 async function ensureSeedChangelogs() {
-  if (import_mongoose23.default.connection.readyState !== 1) return;
+  if (import_mongoose24.default.connection.readyState !== 1) return;
   try {
     const count = await ChangelogModel.countDocuments();
     if (count === 0) {
@@ -306715,6 +306745,13 @@ cmsAdminRouter.post("/changelogs", async (req, res) => {
         error: { code: "VALIDATION_FAILED", message: parsed.error.issues.map((i2) => i2.message).join(", ") }
       });
     }
+    const versionStr = parsed.data.version.trim();
+    const existingVersion = await ChangelogModel.findOne({ version: versionStr });
+    if (existingVersion) {
+      return res.status(409).json({
+        error: { code: "VERSION_EXISTS", message: `Version ${versionStr} already exists. Please specify a unique release version.` }
+      });
+    }
     const user = req.user;
     const doc = await ChangelogModel.create({
       ...parsed.data,
@@ -306732,6 +306769,11 @@ cmsAdminRouter.post("/changelogs", async (req, res) => {
     );
     res.status(201).json({ data: doc });
   } catch (err) {
+    if (err.code === 11e3) {
+      return res.status(409).json({
+        error: { code: "VERSION_EXISTS", message: "A changelog with this version already exists." }
+      });
+    }
     res.status(500).json({ error: { code: "CREATE_CHANGELOG_FAILED", message: err.message } });
   }
 });
@@ -306746,6 +306788,18 @@ cmsAdminRouter.put("/changelogs/:id", async (req, res) => {
     const existing = await ChangelogModel.findById(req.params.id);
     if (!existing) {
       return res.status(404).json({ error: { code: "NOT_FOUND", message: "Changelog entry not found" } });
+    }
+    if (parsed.data.version) {
+      const versionStr = parsed.data.version.trim();
+      const conflict = await ChangelogModel.findOne({
+        _id: { $ne: req.params.id },
+        version: versionStr
+      });
+      if (conflict) {
+        return res.status(409).json({
+          error: { code: "VERSION_EXISTS", message: `Version ${versionStr} is already used by another changelog entry.` }
+        });
+      }
     }
     const previousData = existing.toObject ? existing.toObject() : existing;
     const updatePayload = { ...parsed.data };
@@ -306770,6 +306824,11 @@ cmsAdminRouter.put("/changelogs/:id", async (req, res) => {
     );
     res.json({ data: updated });
   } catch (err) {
+    if (err.code === 11e3) {
+      return res.status(409).json({
+        error: { code: "VERSION_EXISTS", message: "A changelog with this version already exists." }
+      });
+    }
     res.status(500).json({ error: { code: "UPDATE_CHANGELOG_FAILED", message: err.message } });
   }
 });
@@ -306825,7 +306884,7 @@ cmsAdminRouter.get("/profile", async (req, res) => {
       if (parts.length === 3) {
         try {
           const payload = JSON.parse(Buffer.from(parts[1], "base64").toString("utf8"));
-          if (payload.userId && import_mongoose23.default.connection.readyState === 1) {
+          if (payload.userId && import_mongoose24.default.connection.readyState === 1) {
             const dbUser = await UserModel.findById(payload.userId).select("-passwordHash").lean();
             if (dbUser) user = dbUser;
           }
@@ -306863,7 +306922,7 @@ cmsAdminRouter.put("/profile", async (req, res) => {
         }
       }
     }
-    if (import_mongoose23.default.connection.readyState === 1) {
+    if (import_mongoose24.default.connection.readyState === 1) {
       const user = await UserModel.findById(userId);
       if (user) {
         if (req.body.name) user.name = req.body.name;
@@ -306900,7 +306959,7 @@ cmsAdminRouter.post("/profile/password", async (req, res) => {
       const payload = verifyToken(token);
       if (payload && payload.userId) userId = payload.userId;
     }
-    if (import_mongoose23.default.connection.readyState === 1) {
+    if (import_mongoose24.default.connection.readyState === 1) {
       const user = await UserModel.findById(userId);
       if (user) {
         const isMatch = verifyPassword(currentPassword, user.passwordHash);
@@ -306925,7 +306984,7 @@ var apiRouter = (0, import_express4.Router)();
 apiRouter.use("/auth", authRouter);
 apiRouter.use("/admin", cmsAdminRouter);
 apiRouter.get("/health", (_req, res) => {
-  const isDbConnected = import_mongoose24.default.connection.readyState === 1;
+  const isDbConnected = import_mongoose25.default.connection.readyState === 1;
   res.status(200).json({
     data: {
       status: isDbConnected ? "healthy" : "degraded",
@@ -306937,7 +306996,7 @@ apiRouter.get("/health", (_req, res) => {
 });
 apiRouter.get("/site", async (_req, res) => {
   try {
-    const settingsDoc = import_mongoose24.default.connection.readyState === 1 ? await SiteSettings.findOne({ environment: "development" }).lean() || await SiteSettings.findOne().lean() : null;
+    const settingsDoc = import_mongoose25.default.connection.readyState === 1 ? await SiteSettings.findOne({ environment: "development" }).lean() || await SiteSettings.findOne().lean() : null;
     const siteSettings = toSafeSiteSettings(settingsDoc);
     res.json({ data: siteSettings });
   } catch (err) {
@@ -306946,7 +307005,7 @@ apiRouter.get("/site", async (_req, res) => {
 });
 apiRouter.get("/changelogs", async (req, res) => {
   try {
-    if (import_mongoose24.default.connection.readyState !== 1) {
+    if (import_mongoose25.default.connection.readyState !== 1) {
       return res.json({ data: [] });
     }
     const filter = {
@@ -306970,7 +307029,7 @@ apiRouter.get("/route", async (req, res) => {
     const normalizedPath = rawPath.length > 1 && rawPath.endsWith("/") ? rawPath.slice(0, -1) : rawPath;
     let settingsDoc = null;
     let routeEntry = null;
-    if (import_mongoose24.default.connection.readyState === 1) {
+    if (import_mongoose25.default.connection.readyState === 1) {
       settingsDoc = await SiteSettings.findOne({ environment: "development" }).lean() || await SiteSettings.findOne().lean();
       routeEntry = await RouteEntry.findOne({ locale, path: normalizedPath }).lean();
     }
@@ -307296,7 +307355,7 @@ app.use((req, _res, next) => {
   if (req.path.includes("health")) {
     return next();
   }
-  if (import_mongoose25.default.connection.readyState === 0 && !isTestEnv) {
+  if (import_mongoose26.default.connection.readyState === 0 && !isTestEnv) {
     connectDB().catch((err) => {
       console.warn("[Akeezo MongoDB] Non-blocking connect notice:", err?.message);
     });
@@ -307356,7 +307415,7 @@ if (!isServerless2) {
     }
     try {
       let html = await fs5.promises.readFile(indexPath, "utf-8");
-      if (import_mongoose25.default.connection.readyState === 1) {
+      if (import_mongoose26.default.connection.readyState === 1) {
         const targetEnv = env.NODE_ENV || "development";
         const doc = await SiteSettings.findOne({ environment: targetEnv }).lean() || await SiteSettings.findOne({ environment: "development" }).lean() || await SiteSettings.findOne().lean();
         const adminTheme = doc?.adminTheme;
@@ -307401,7 +307460,7 @@ ${themeCss}
     if (req.path.startsWith("/api") || req.path.startsWith("/v1") || req.path.startsWith("/admin") || req.path.startsWith("/case-management") || req.path.startsWith("/uploads")) {
       return next();
     }
-    if (import_mongoose25.default.connection.readyState !== 1) return next();
+    if (import_mongoose26.default.connection.readyState !== 1) return next();
     try {
       const rawPath = req.path.toLowerCase().replace(/\/+$/, "") || "/";
       const redirect = await RedirectModel.findOne({ sourcePath: rawPath, enabled: true }).lean();

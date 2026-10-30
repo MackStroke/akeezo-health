@@ -1,12 +1,79 @@
 import React, { useState } from "react";
 import type { SiteSettings } from "@akeezo/contracts";
-import { ChevronDown, Search, Check, X, Globe2 } from "lucide-react";
+import {
+  ChevronDown,
+  Search,
+  Check,
+  X,
+  Globe2,
+  Crosshair,
+  HeartPulse,
+  HeartHandshake,
+  Brain,
+  Dna,
+  Bone,
+  Smile,
+  Activity,
+  Building2,
+  MapPin,
+  ShieldCheck,
+  Stethoscope,
+  Award
+} from "lucide-react";
 import {
   COUNTRIES,
   LANGUAGES,
   DIRECTORY_TABS,
   type CountryOption
 } from "./navigationData.js";
+
+const getTreatmentIcon = (name: string, category: string) => {
+  const lowerName = name.toLowerCase();
+  const lowerCat = category.toLowerCase();
+
+  if (lowerName.includes("cyberknife") || lowerCat.includes("oncology")) {
+    return <Crosshair className="w-4 h-4" />;
+  }
+  if (lowerName.includes("heart") || lowerName.includes("bypass") || lowerCat.includes("cardiac")) {
+    return <HeartPulse className="w-4 h-4" />;
+  }
+  if (lowerName.includes("liver") || lowerName.includes("transplant") || lowerCat.includes("transplant")) {
+    return <HeartHandshake className="w-4 h-4" />;
+  }
+  if (lowerName.includes("brain") || lowerCat.includes("neuro")) {
+    return <Brain className="w-4 h-4" />;
+  }
+  if (lowerName.includes("marrow") || lowerCat.includes("hematology")) {
+    return <Dna className="w-4 h-4" />;
+  }
+  if (lowerName.includes("dental") || lowerCat.includes("dental")) {
+    return <Smile className="w-4 h-4" />;
+  }
+  if (lowerName.includes("knee") || lowerName.includes("hip") || lowerCat.includes("orthoped")) {
+    return <Bone className="w-4 h-4" />;
+  }
+  return <Activity className="w-4 h-4" />;
+};
+
+const getDoctorIcon = (_name: string, role: string) => {
+  const lowerRole = role.toLowerCase();
+  if (lowerRole.includes("cardiac") || lowerRole.includes("cardiovascular")) {
+    return <HeartPulse className="w-4 h-4" />;
+  }
+  if (lowerRole.includes("liver") || lowerRole.includes("transplant")) {
+    return <HeartHandshake className="w-4 h-4" />;
+  }
+  if (lowerRole.includes("neuro")) {
+    return <Brain className="w-4 h-4" />;
+  }
+  if (lowerRole.includes("oncology")) {
+    return <Crosshair className="w-4 h-4" />;
+  }
+  if (lowerRole.includes("orthopedic") || lowerRole.includes("joint")) {
+    return <Bone className="w-4 h-4" />;
+  }
+  return <Stethoscope className="w-4 h-4" />;
+};
 
 export interface SiteFooterProps {
   siteSettings?: Partial<SiteSettings>;
@@ -109,9 +176,21 @@ export const SiteFooter: React.FC<SiteFooterProps> = ({ siteSettings = {} }) => 
                   rel="noopener noreferrer"
                   className="group rounded-xl border border-border p-3.5 hover:border-action hover:bg-surface-teal/30 transition-all cursor-pointer block"
                 >
-                  <div className="text-[11px] font-semibold text-action uppercase tracking-wider mb-1">{item.category}</div>
-                  <div className="text-sm font-bold text-ink group-hover:text-action">{item.name}</div>
-                  <div className="text-xs text-ink-muted mt-1.5">Free Clinical Opinion & Estimate →</div>
+                  <div className="flex items-center justify-between gap-2 mb-2">
+                    <div className="w-8 h-8 rounded-lg bg-surface-teal text-action flex items-center justify-center shrink-0 group-hover:bg-action group-hover:text-white transition-colors">
+                      {getTreatmentIcon(item.name, item.category)}
+                    </div>
+                    <div className="text-[11px] font-semibold text-action uppercase tracking-wider truncate">
+                      {item.category}
+                    </div>
+                  </div>
+                  <div className="text-sm font-bold text-ink group-hover:text-action transition-colors leading-snug">
+                    {item.name}
+                  </div>
+                  <div className="text-xs text-ink-muted mt-2 flex items-center gap-1 group-hover:text-action transition-colors">
+                    <span>Free Clinical Opinion &amp; Estimate</span>
+                    <span className="transition-transform group-hover:translate-x-0.5">&rarr;</span>
+                  </div>
                 </a>
               ))}
             </div>
@@ -127,9 +206,22 @@ export const SiteFooter: React.FC<SiteFooterProps> = ({ siteSettings = {} }) => 
                   rel="noopener noreferrer"
                   className="group rounded-xl border border-border p-3.5 hover:border-action hover:bg-surface-teal/30 transition-all cursor-pointer block"
                 >
-                  <div className="text-xs text-action font-semibold mb-0.5">{item.location}</div>
-                  <div className="text-sm font-bold text-ink group-hover:text-action">{item.name}</div>
-                  <div className="text-xs text-ink-muted mt-1">NABH / JCI Accredited Quaternary</div>
+                  <div className="flex items-center justify-between gap-2 mb-2">
+                    <div className="w-8 h-8 rounded-lg bg-surface-teal text-action flex items-center justify-center shrink-0 group-hover:bg-action group-hover:text-white transition-colors">
+                      <Building2 className="w-4 h-4" />
+                    </div>
+                    <div className="text-xs text-action font-semibold flex items-center gap-1 truncate">
+                      <MapPin className="w-3 h-3 shrink-0" />
+                      <span>{item.location}</span>
+                    </div>
+                  </div>
+                  <div className="text-sm font-bold text-ink group-hover:text-action transition-colors leading-snug">
+                    {item.name}
+                  </div>
+                  <div className="text-xs text-ink-muted mt-2 flex items-center gap-1.5">
+                    <ShieldCheck className="w-3.5 h-3.5 text-action shrink-0" />
+                    <span>NABH / JCI Accredited Quaternary</span>
+                  </div>
                 </a>
               ))}
             </div>
@@ -145,9 +237,22 @@ export const SiteFooter: React.FC<SiteFooterProps> = ({ siteSettings = {} }) => 
                   rel="noopener noreferrer"
                   className="group rounded-xl border border-border p-3.5 hover:border-action hover:bg-surface-teal/30 transition-all cursor-pointer block"
                 >
-                  <div className="text-xs text-ink-muted font-medium mb-0.5">{item.experience}</div>
-                  <div className="text-sm font-bold text-ink group-hover:text-action">{item.name}</div>
-                  <div className="text-xs text-action font-semibold mt-1">{item.role}</div>
+                  <div className="flex items-center justify-between gap-2 mb-2">
+                    <div className="w-8 h-8 rounded-lg bg-surface-teal text-action flex items-center justify-center shrink-0 group-hover:bg-action group-hover:text-white transition-colors">
+                      {getDoctorIcon(item.name, item.role)}
+                    </div>
+                    <div className="text-xs text-ink-muted font-medium flex items-center gap-1 bg-surface-muted px-2 py-0.5 rounded-full border border-border">
+                      <Award className="w-3 h-3 text-action shrink-0" />
+                      <span>{item.experience}</span>
+                    </div>
+                  </div>
+                  <div className="text-sm font-bold text-ink group-hover:text-action transition-colors leading-snug">
+                    {item.name}
+                  </div>
+                  <div className="text-xs text-action font-semibold mt-2 flex items-center gap-1.5 truncate">
+                    <Stethoscope className="w-3.5 h-3.5 shrink-0 text-action/70" />
+                    <span className="truncate">{item.role}</span>
+                  </div>
                 </a>
               ))}
             </div>
@@ -163,9 +268,22 @@ export const SiteFooter: React.FC<SiteFooterProps> = ({ siteSettings = {} }) => 
                   rel="noopener noreferrer"
                   className="group rounded-xl border border-border p-3.5 hover:border-action hover:bg-surface-teal/30 transition-all cursor-pointer block"
                 >
-                  <div className="text-lg mb-1">{item.flag}</div>
-                  <div className="text-sm font-bold text-ink group-hover:text-action">{item.name}</div>
-                  <div className="text-xs text-ink-muted mt-1">{item.count}</div>
+                  <div className="flex items-center justify-between gap-2 mb-2">
+                    <div className="w-8 h-8 rounded-lg bg-surface-teal flex items-center justify-center text-base shrink-0 group-hover:bg-action group-hover:text-white transition-colors">
+                      {item.flag}
+                    </div>
+                    <div className="text-xs text-action font-semibold flex items-center gap-1 bg-surface-teal/50 px-2 py-0.5 rounded-full border border-border-teal/40">
+                      <MapPin className="w-3 h-3 shrink-0" />
+                      <span>India Hub</span>
+                    </div>
+                  </div>
+                  <div className="text-sm font-bold text-ink group-hover:text-action transition-colors leading-snug">
+                    {item.name}
+                  </div>
+                  <div className="text-xs text-ink-muted mt-2 flex items-center gap-1.5">
+                    <Building2 className="w-3.5 h-3.5 text-action shrink-0" />
+                    <span>{item.count}</span>
+                  </div>
                 </a>
               ))}
             </div>
