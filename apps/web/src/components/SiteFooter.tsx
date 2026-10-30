@@ -386,8 +386,8 @@ export const SiteFooter: React.FC<SiteFooterProps> = ({ siteSettings = {} }) => 
 
         <hr className="border-border my-6" />
 
-        {/* Bottom Bar: Copyright, Country/Language Switcher & Grievance */}
-        <div className="flex flex-col sm:flex-row items-center justify-between gap-4 text-xs text-ink-muted">
+        {/* Bottom Bar: Copyright, Social Media, Country/Language Switcher & Grievance */}
+        <div className="flex flex-col md:flex-row items-center justify-between gap-4 text-xs text-ink-muted">
           <a
             href="/"
             aria-label="Akeezo Healthcare Platform Home"
@@ -396,6 +396,118 @@ export const SiteFooter: React.FC<SiteFooterProps> = ({ siteSettings = {} }) => 
             <img src="/logo/favicon.svg" alt="Akeezo" className="size-5" />
             <span>{`© ${new Date().getFullYear()} ${legalEntity}. All rights reserved.`}</span>
           </a>
+
+          {/* Social Media Links */}
+          <div className="flex gap-4 text-lg items-center">
+            <a
+              target="_blank"
+              rel="noopener noreferrer me"
+              aria-label="TikTok"
+              title="TikTok"
+              href={siteSettings.socialLinks?.tiktok || "https://www.tiktok.com/@akeezohealth"}
+            >
+              <img
+                alt="TikTok"
+                loading="lazy"
+                width={24}
+                height={20}
+                decoding="async"
+                className="cursor-pointer md:h-6 h-4 hover:opacity-80 transition-opacity"
+                style={{ color: "transparent" }}
+                src="/v2/home-page/social-media/footer icon-3.svg"
+              />
+            </a>
+            <a
+              target="_blank"
+              rel="noopener noreferrer me"
+              aria-label="Instagram"
+              title="Instagram"
+              href={siteSettings.socialLinks?.instagram || "https://www.instagram.com/akeezohealth/"}
+            >
+              <img
+                alt="Instagram"
+                loading="lazy"
+                width={24}
+                height={20}
+                decoding="async"
+                className="cursor-pointer md:h-6 h-4 hover:opacity-80 transition-opacity"
+                style={{ color: "transparent" }}
+                src="/v2/home-page/social-media/footer icon.svg"
+              />
+            </a>
+            <a
+              target="_blank"
+              rel="noopener noreferrer me"
+              aria-label="Facebook"
+              title="Facebook"
+              href={siteSettings.socialLinks?.facebook || "https://www.facebook.com/akeezohealth"}
+            >
+              <img
+                alt="Facebook"
+                loading="lazy"
+                width={24}
+                height={20}
+                decoding="async"
+                className="cursor-pointer md:h-6 h-4 hover:opacity-80 transition-opacity"
+                style={{ color: "transparent" }}
+                src="/v2/home-page/social-media/footer icon-1.svg"
+              />
+            </a>
+            <a
+              target="_blank"
+              rel="noopener noreferrer me"
+              aria-label="Youtube"
+              title="Youtube"
+              href={siteSettings.socialLinks?.youtube || "https://youtube.com/@akeezohealth"}
+            >
+              <img
+                alt="Youtube"
+                loading="lazy"
+                width={24}
+                height={20}
+                decoding="async"
+                className="cursor-pointer md:h-6 h-4 hover:opacity-80 transition-opacity"
+                style={{ color: "transparent" }}
+                src="/v2/home-page/social-media/footer icon-2.svg"
+              />
+            </a>
+            <a
+              target="_blank"
+              rel="noopener noreferrer me"
+              aria-label="X"
+              title="X"
+              href={siteSettings.socialLinks?.twitter || siteSettings.socialLinks?.x || "https://x.com/akeezohealth"}
+            >
+              <img
+                alt="X"
+                loading="lazy"
+                width={24}
+                height={20}
+                decoding="async"
+                className="cursor-pointer md:h-6 h-4 hover:opacity-80 transition-opacity"
+                style={{ color: "transparent" }}
+                src="/v2/home-page/social-media/footer icon-x.svg"
+              />
+            </a>
+            <a
+              target="_blank"
+              rel="noopener noreferrer me"
+              aria-label="LinkedIn"
+              title="LinkedIn"
+              href={siteSettings.socialLinks?.linkedin || "https://www.linkedin.com/company/akeezo/"}
+            >
+              <img
+                alt="LinkedIn"
+                loading="lazy"
+                width={24}
+                height={20}
+                decoding="async"
+                className="cursor-pointer md:h-6 h-4 hover:opacity-80 transition-opacity"
+                style={{ color: "transparent" }}
+                src="/v2/home-page/social-media/footer icon-linkedin.svg"
+              />
+            </a>
+          </div>
 
           <div className="flex items-center gap-4 flex-wrap">
             {/* Regional Country / Currency / Language Switcher Button (Moved to Footer) */}

@@ -27,6 +27,7 @@ import {
   Code2,
   Zap,
 } from "lucide-react";
+import { useAuth } from "../context/AuthContext.js";
 import { ThemeStudioView } from "./ThemeStudioView.js";
 
 export interface SettingsViewProps {
@@ -34,11 +35,20 @@ export interface SettingsViewProps {
 }
 
 export const SettingsView: React.FC<SettingsViewProps> = ({ initialTab }) => {
+  const { token } = useAuth();
   const [activeTab, setActiveTab] = useState<
     "general" | "branding" | "forms" | "integrations" | "health"
   >(initialTab || "general");
 
-  const [settings, setSettings] = useState<any>(null);
+  const [settings, setSettings] = useState<any>({
+    brandName: "AKEEZO",
+    tagline: "Heal In India, Heal By Akeezo",
+    legalEntityName: "AKEEZO Healthcare Platform Private Limited",
+    emergencyHelpline: "+91 82876 39443",
+    contactEmail: "care@akeezo.com",
+    integrations: {},
+    formsConfig: {},
+  });
   const [loading, setLoading] = useState(true);
   const [savingSection, setSavingSection] = useState(false);
   const [saveSuccess, setSaveSuccess] = useState("");
@@ -58,20 +68,32 @@ export const SettingsView: React.FC<SettingsViewProps> = ({ initialTab }) => {
     "all" | "gtm" | "gcp" | "meta" | "gemini" | "ga"
   >("all");
 
+  const getAuthHeaders = () => {
+    const authToken =
+      token ||
+      (typeof window !== "undefined" ? localStorage.getItem("akeezo_auth_token") : null);
+    return {
+      "Content-Type": "application/json",
+      ...(authToken ? { Authorization: `Bearer ${authToken}` } : {}),
+    };
+  };
+
   useEffect(() => {
     fetchSettings();
-  }, []);
+  }, [token]);
 
   useEffect(() => {
     if (activeTab === "health") {
       fetchSystemHealth();
     }
-  }, [activeTab]);
+  }, [activeTab, token]);
 
   const fetchSettings = async () => {
     try {
       setLoading(true);
-      const res = await fetch("/api/v1/admin/site-settings");
+      const res = await fetch("/api/v1/admin/site-settings", {
+        headers: getAuthHeaders(),
+      });
       if (res.ok) {
         const json = await res.json();
         setSettings(json.data || {});
@@ -86,7 +108,9 @@ export const SettingsView: React.FC<SettingsViewProps> = ({ initialTab }) => {
   const fetchSystemHealth = async () => {
     try {
       setLoadingHealth(true);
-      const res = await fetch("/api/v1/admin/system-health");
+      const res = await fetch("/api/v1/admin/system-health", {
+        headers: getAuthHeaders(),
+      });
       if (res.ok) {
         const json = await res.json();
         setHealth(json.data);
@@ -106,7 +130,7 @@ export const SettingsView: React.FC<SettingsViewProps> = ({ initialTab }) => {
     try {
       const res = await fetch(`/api/v1/admin/settings/${section}`, {
         method: "PUT",
-        headers: { "Content-Type": "application/json" },
+        headers: getAuthHeaders(),
         body: JSON.stringify(payload),
       });
 
@@ -140,7 +164,7 @@ export const SettingsView: React.FC<SettingsViewProps> = ({ initialTab }) => {
     try {
       const res = await fetch(`/api/v1/admin/integrations/test/${endpoint}`, {
         method: "POST",
-        headers: { "Content-Type": "application/json" },
+        headers: getAuthHeaders(),
         body: JSON.stringify(payload),
       });
       const json = await res.json();

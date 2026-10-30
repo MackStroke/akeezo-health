@@ -116,6 +116,20 @@ describe("Website Audit Task 4: SiteHeader & SiteFooter Audit & Feedback Message
       "Footer must render Gemini AI search link"
     );
     assert.ok(footerHtml.includes("https://grok.com/?q="), "Footer must render Grok AI search link");
+
+    // Social media links
+    assert.ok(footerHtml.includes('aria-label="TikTok"'), "Footer must render TikTok link");
+    assert.ok(footerHtml.includes('aria-label="Instagram"'), "Footer must render Instagram link");
+    assert.ok(footerHtml.includes('aria-label="Facebook"'), "Footer must render Facebook link");
+    assert.ok(footerHtml.includes('aria-label="Youtube"'), "Footer must render Youtube link");
+    assert.ok(footerHtml.includes('aria-label="X"'), "Footer must render X link");
+    assert.ok(footerHtml.includes('aria-label="LinkedIn"'), "Footer must render LinkedIn link");
+    assert.ok(footerHtml.includes("/v2/home-page/social-media/footer icon-3.svg"), "Footer must render TikTok svg");
+    assert.ok(footerHtml.includes("/v2/home-page/social-media/footer icon.svg"), "Footer must render Instagram svg");
+    assert.ok(footerHtml.includes("/v2/home-page/social-media/footer icon-1.svg"), "Footer must render Facebook svg");
+    assert.ok(footerHtml.includes("/v2/home-page/social-media/footer icon-2.svg"), "Footer must render Youtube svg");
+    assert.ok(footerHtml.includes("/v2/home-page/social-media/footer icon-x.svg"), "Footer must render X svg");
+    assert.ok(footerHtml.includes("/v2/home-page/social-media/footer icon-linkedin.svg"), "Footer must render LinkedIn svg");
   });
 
   it("SiteHeader mobile menu and modals render clickable logo, clickable phone, and accessible forms", () => {

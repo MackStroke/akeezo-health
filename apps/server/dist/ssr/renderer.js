@@ -552,7 +552,7 @@ ${gtmHeadSnippet}${gaHeadSnippet}${metaPixelHeadSnippet}    <script>window.__INI
 `;
         let htmlWithHead = template.replace("<!--ssr-head-->", headInjection);
         if (gtmBodySnippet) {
-            htmlWithHead = htmlWithHead.replace(/<body[^>]*>/i, (bodyMatch) => `\${bodyMatch}\n\${gtmBodySnippet}`);
+            htmlWithHead = htmlWithHead.replace(/<body[^>]*>/i, (bodyMatch) => `${bodyMatch}\n${gtmBodySnippet}`);
         }
         const [htmlStart, htmlEnd] = htmlWithHead.split("<!--ssr-outlet-->");
         if (!htmlEnd) {
