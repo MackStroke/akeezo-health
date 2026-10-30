@@ -183,6 +183,28 @@ export function getDefaultRouteData(path = "/"): PublicRouteResponseDTO {
     };
   }
 
+  if (normalized === "/doctors" || normalized.startsWith("/doctors/")) {
+    return {
+      pageKind: "doctorDirectory",
+      path: normalized,
+      locale: "en",
+      seo: {
+        title: "World-Class Doctors | Find Best Specialists Worldwide | AKEEZO",
+        description:
+          "Search, compare, and connect with premier surgeons and medical specialists globally. Direct hospital pricing, accredited experts, and free assistance.",
+        canonicalPath: "/doctors",
+        robots: "index,follow",
+        schemaKind: "MedicalWebPage"
+      },
+      payload: {
+        headline: "World-Class Doctors, Personally Matched for You",
+        subheadline: "Search, compare, and connect with leading specialists across the globe."
+      },
+      siteSettings: DEFAULT_SITE_SETTINGS,
+      statusCode: 200
+    };
+  }
+
   if (normalized === "/") {
     return {
       pageKind: "home",

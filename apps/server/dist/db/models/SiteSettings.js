@@ -135,6 +135,15 @@ const SiteSettingsSchema = new Schema({
         smtpHostMasked: { type: String, default: "smtp.sendgrid.net (Configured)" },
         storageBucketMasked: { type: String, default: "gs://akeezo-vault-prod (Protected)" }
     },
+    mediaSettings: {
+        autoOptimizeOnUpload: { type: Boolean, default: true },
+        quality: { type: Number, default: 80 },
+        maxWidth: { type: Number, default: 1920 },
+        maxHeight: { type: Number, default: 1920 },
+        generateVariants: { type: Boolean, default: true },
+        format: { type: String, default: "webp" },
+        preserveOriginals: { type: Boolean, default: true }
+    },
     defaultLanguage: { type: String, default: "en" },
     defaultTimezone: { type: String, default: "Asia/Kolkata" },
     version: { type: Number, default: 1 }

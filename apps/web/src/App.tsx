@@ -7,6 +7,7 @@ import { ServerErrorTemplate } from "./templates/ServerErrorTemplate.js";
 import { CalculatorTemplate } from "./templates/CalculatorTemplate.js";
 import { TreatmentsTemplate } from "./templates/TreatmentsTemplate.js";
 import { HospitalsTemplate } from "./templates/HospitalsTemplate.js";
+import { DoctorsTemplate } from "./templates/DoctorsTemplate.js";
 import { getDefaultRouteData } from "./defaultData.js";
 
 export interface AppProps {
@@ -114,6 +115,9 @@ export function App({ data }: AppProps) {
       case "hospitalDirectory":
       case "hospitalDetail":
         return <HospitalsTemplate data={currentData} />;
+      case "doctorDirectory":
+      case "doctorDetail":
+        return <DoctorsTemplate data={currentData} />;
       case "legal":
         return <LegalTemplate data={currentData} />;
       case "serverError":

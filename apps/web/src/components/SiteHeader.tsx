@@ -243,7 +243,7 @@ export const SiteHeader: React.FC<SiteHeaderProps> = ({
               <a href="/hospitals" className="transition-colors hover:text-action py-1">
                 Hospitals
               </a>
-              <a href="/#doctors" className="transition-colors hover:text-action py-1">
+              <a href="/doctors" className="transition-colors hover:text-action py-1">
                 Specialists
               </a>
               <a href="/#destinations" className="transition-colors hover:text-action py-1">
@@ -355,7 +355,7 @@ export const SiteHeader: React.FC<SiteHeaderProps> = ({
                   <ChevronRight className="size-4 text-ink-muted" />
                 </a>
                 <a
-                  href="/#doctors"
+                  href="/doctors"
                   onClick={() => setIsMobileMenuOpen(false)}
                   className="flex items-center justify-between py-2 hover:text-action"
                 >

@@ -1,11 +1,11 @@
 import fs from "node:fs";
 import path from "node:path";
-import crypto from "node:crypto";
 import { Router } from "express";
 import mongoose from "mongoose";
 import { SiteSettings, Page, ContentRevision, RouteEntry, EnquiryModel, PatientModel, CaseModel, CaseAuditLogModel, HospitalModel, PartnerModel, UserModel, MediaAssetModel, RedirectModel, } from "../db/models/index.js";
 import { hashPassword, verifyPassword, escapeRegex, verifyToken, requireAuth, requireRole, FALLBACK_USERS, } from "../utils/auth.js";
-import { DEFAULT_WEBSITE_THEME, DEFAULT_ADMIN_THEME, THEME_PRESETS, sanitizeCssValue } from "@akeezo/contracts";
+import { DEFAULT_WEBSITE_THEME, DEFAULT_ADMIN_THEME, THEME_PRESETS, sanitizeCssValue, DEFAULT_MEDIA_OPTIMIZATION_SETTINGS, MediaOptimizationSettingsSchema, } from "@akeezo/contracts";
+import { optimizeMediaBuffer, saveOptimizedFilesToDisk, optimizeExistingMediaDoc, getActiveMediaSettings, } from "../services/mediaOptimizationService.js";
 import { syncUserToFirebase } from "../firebase.js";
 import { env } from "../config/env.js";
 export const cmsAdminRouter = Router();
@@ -847,8 +847,187 @@ cmsAdminRouter.put("/navigation", async (req, res) => {
     }
 });
 // ==========================================
-// 4. MEDIA LIBRARY MANAGEMENT
+// 4. MEDIA LIBRARY MANAGEMENT & WEB OPTIMIZATION
 // ==========================================
+// GET /api/v1/admin/media/settings
+cmsAdminRouter.get("/media/settings", async (_req, res) => {
+    try {
+        const settings = await getActiveMediaSettings();
+        res.json({ data: settings });
+    }
+    catch (err) {
+        res.status(500).json({ error: { code: "FETCH_MEDIA_SETTINGS_FAILED", message: err.message } });
+    }
+});
+// PUT /api/v1/admin/media/settings
+cmsAdminRouter.put("/media/settings", async (req, res) => {
+    try {
+        const validated = MediaOptimizationSettingsSchema.parse(req.body);
+        const existingDoc = await getActiveSiteSettingsDoc();
+        const existingObj = existingDoc ? (existingDoc.toObject ? existingDoc.toObject() : existingDoc) : null;
+        const updatePayload = {
+            mediaSettings: {
+                ...(existingObj?.mediaSettings || DEFAULT_MEDIA_OPTIMIZATION_SETTINGS),
+                ...validated,
+            },
+        };
+        const updated = await updateActiveSiteSettings(updatePayload);
+        await logAdminActivity(req.user?._id, "SiteSettings", updated._id, "update", { mediaSettings: ["previous", validated] }, req);
+        res.json({
+            data: updated.mediaSettings || validated,
+            message: "Media optimization settings updated successfully.",
+        });
+    }
+    catch (err) {
+        res.status(400).json({ error: { code: "UPDATE_MEDIA_SETTINGS_FAILED", message: err.message } });
+    }
+});
+// GET /api/v1/admin/media/stats
+cmsAdminRouter.get("/media/stats", async (_req, res) => {
+    try {
+        let totalAssets = 0;
+        let optimizedAssets = 0;
+        let unoptimizedAssets = 0;
+        let totalOriginalBytes = 0;
+        let totalCurrentBytes = 0;
+        let totalSavedBytes = 0;
+        const formatBreakdown = { webp: 0, svg: 0, png: 0, jpeg: 0, pdf: 0, other: 0 };
+        if (mongoose.connection.readyState === 1) {
+            const allAssets = await MediaAssetModel.find().lean();
+            totalAssets = allAssets.length;
+            for (const a of allAssets) {
+                const mime = (a.mimeType || "").toLowerCase();
+                if (mime === "image/webp")
+                    formatBreakdown.webp = (formatBreakdown.webp || 0) + 1;
+                else if (mime === "image/svg+xml")
+                    formatBreakdown.svg = (formatBreakdown.svg || 0) + 1;
+                else if (mime === "image/png")
+                    formatBreakdown.png = (formatBreakdown.png || 0) + 1;
+                else if (mime === "image/jpeg" || mime === "image/jpg")
+                    formatBreakdown.jpeg = (formatBreakdown.jpeg || 0) + 1;
+                else if (mime === "application/pdf")
+                    formatBreakdown.pdf = (formatBreakdown.pdf || 0) + 1;
+                else
+                    formatBreakdown.other = (formatBreakdown.other || 0) + 1;
+                const isOptimized = a.isWebOptimized || mime === "image/webp" || mime === "image/svg+xml";
+                if (isOptimized) {
+                    optimizedAssets++;
+                }
+                else if (mime === "image/png" || mime === "image/jpeg" || mime === "image/jpg") {
+                    unoptimizedAssets++;
+                }
+                const currentSize = a.sizeBytes || 0;
+                const origSize = a.originalSizeBytes || currentSize;
+                totalCurrentBytes += currentSize;
+                totalOriginalBytes += origSize;
+                if (origSize > currentSize) {
+                    totalSavedBytes += (origSize - currentSize);
+                }
+            }
+        }
+        const savingsPercent = totalOriginalBytes > totalCurrentBytes && totalOriginalBytes > 0
+            ? Math.round(((totalOriginalBytes - totalCurrentBytes) / totalOriginalBytes) * 100)
+            : 0;
+        res.json({
+            data: {
+                totalAssets,
+                optimizedAssets,
+                unoptimizedAssets,
+                totalSavedBytes,
+                savingsPercent,
+                totalOriginalBytes,
+                totalCurrentBytes,
+                formatBreakdown,
+            },
+        });
+    }
+    catch (err) {
+        res.status(500).json({ error: { code: "FETCH_MEDIA_STATS_FAILED", message: err.message } });
+    }
+});
+// POST /api/v1/admin/media/optimize-all (Batch optimize unoptimized raster images)
+cmsAdminRouter.post("/media/optimize-all", async (req, res) => {
+    try {
+        const uploadsDir = path.resolve(process.cwd(), "uploads");
+        const settings = await getActiveMediaSettings();
+        const candidates = await MediaAssetModel.find({
+            mimeType: { $in: ["image/jpeg", "image/jpg", "image/png"] },
+            isWebOptimized: { $ne: true },
+        });
+        if (candidates.length === 0) {
+            return res.json({
+                data: {
+                    processedCount: 0,
+                    failedCount: 0,
+                    totalSavedBytes: 0,
+                    savingsKb: "0.0",
+                    message: "All images are already web-optimized in WebP format.",
+                },
+            });
+        }
+        let processedCount = 0;
+        let failedCount = 0;
+        let totalSavedBytes = 0;
+        for (const doc of candidates) {
+            try {
+                const prevSize = doc.sizeBytes;
+                const updated = await optimizeExistingMediaDoc(doc, uploadsDir, settings);
+                processedCount++;
+                const saved = (updated.originalSizeBytes || prevSize) - updated.sizeBytes;
+                if (saved > 0)
+                    totalSavedBytes += saved;
+            }
+            catch (err) {
+                failedCount++;
+            }
+        }
+        if (candidates[0]) {
+            await logAdminActivity(req.user?._id, "media", candidates[0]._id, "update", { batchOptimization: [candidates.length, processedCount] }, req);
+        }
+        res.json({
+            data: {
+                processedCount,
+                failedCount,
+                totalSavedBytes,
+                savingsKb: (totalSavedBytes / 1024).toFixed(1),
+                message: `Batch optimization complete: ${processedCount} asset(s) converted to WebP. Saved ${(totalSavedBytes / 1024).toFixed(1)} KB payload.`,
+            },
+        });
+    }
+    catch (err) {
+        res.status(500).json({ error: { code: "BATCH_OPTIMIZATION_FAILED", message: err.message } });
+    }
+});
+// POST /api/v1/admin/media/:id/optimize (Single asset WebP transcode)
+cmsAdminRouter.post("/media/:id/optimize", async (req, res) => {
+    try {
+        const doc = await MediaAssetModel.findById(req.params.id);
+        if (!doc) {
+            return res.status(404).json({ error: { code: "NOT_FOUND", message: "Media asset not found." } });
+        }
+        if (doc.mimeType === "image/svg+xml") {
+            return res.json({ data: doc, message: "SVG vector format is already web-optimized and lightweight." });
+        }
+        if (doc.mimeType === "application/pdf") {
+            return res.status(400).json({ error: { code: "INVALID_TARGET", message: "PDF documents cannot be converted to WebP." } });
+        }
+        const uploadsDir = path.resolve(process.cwd(), "uploads");
+        const settings = await getActiveMediaSettings();
+        const updated = await optimizeExistingMediaDoc(doc, uploadsDir, settings);
+        await logAdminActivity(req.user?._id, "media", updated._id, "update", { optimization: ["unoptimized", `WebP (-${updated.optimizationSavingsPercent}%)`] }, req);
+        const docObj = updated.toObject();
+        res.json({
+            data: {
+                ...docObj,
+                storageUrl: docObj.url,
+            },
+            message: `Asset converted to WebP! Reduced by ${updated.optimizationSavingsPercent}% (${(((updated.originalSizeBytes || updated.sizeBytes) - updated.sizeBytes) / 1024).toFixed(1)} KB saved).`,
+        });
+    }
+    catch (err) {
+        res.status(400).json({ error: { code: "OPTIMIZATION_FAILED", message: err.message } });
+    }
+});
 // GET /api/v1/admin/media
 cmsAdminRouter.get("/media", async (req, res) => {
     try {
@@ -861,7 +1040,30 @@ cmsAdminRouter.get("/media", async (req, res) => {
                 { caption: { $regex: q, $options: "i" } },
             ];
         }
-        if (req.query.type) {
+        // Optimization status filter
+        if (req.query.optimizationStatus) {
+            const optStatus = String(req.query.optimizationStatus).toLowerCase();
+            if (optStatus === "optimized") {
+                filter.$or = [
+                    { isWebOptimized: true },
+                    { mimeType: { $in: ["image/webp", "image/svg+xml"] } },
+                ];
+            }
+            else if (optStatus === "unoptimized") {
+                filter.isWebOptimized = { $ne: true };
+                filter.mimeType = { $in: ["image/jpeg", "image/jpg", "image/png"] };
+            }
+            else if (optStatus === "webp") {
+                filter.mimeType = "image/webp";
+            }
+            else if (optStatus === "svg") {
+                filter.mimeType = "image/svg+xml";
+            }
+            else if (optStatus === "document") {
+                filter.mimeType = { $in: ["application/pdf", "text/plain"] };
+            }
+        }
+        else if (req.query.type) {
             const t = String(req.query.type).toLowerCase();
             if (t === "image") {
                 filter.mimeType = { $regex: "^image/" };
@@ -873,23 +1075,27 @@ cmsAdminRouter.get("/media", async (req, res) => {
                 filter.mimeType = "image/svg+xml";
             }
         }
+        // Sorting
+        const sortField = String(req.query.sortBy || "createdAt");
+        const sortOrder = req.query.sortOrder === "asc" ? 1 : -1;
+        const sortCriteria = { [sortField]: sortOrder };
         const page = Math.max(1, parseInt(String(req.query.page || "1"), 10));
-        const limit = Math.max(1, Math.min(50, parseInt(String(req.query.limit || "20"), 10)));
+        const limit = Math.max(1, Math.min(100, parseInt(String(req.query.limit || "20"), 10)));
         const skip = (page - 1) * limit;
         let items = [];
         let total = 0;
         if (mongoose.connection.readyState === 1) {
             [items, total] = await Promise.all([
                 MediaAssetModel.find(filter)
-                    .sort({ createdAt: -1 })
+                    .sort(sortCriteria)
                     .skip(skip)
                     .limit(limit)
                     .lean(),
                 MediaAssetModel.countDocuments(filter),
             ]);
         }
-        // If database is empty, seed initial verified official brand SVGs
-        if (items.length === 0 && page === 1 && !req.query.search && !req.query.type) {
+        // Seed initial brand SVGs if empty and first page
+        if (items.length === 0 && page === 1 && !req.query.search && !req.query.type && !req.query.optimizationStatus) {
             items = [
                 {
                     _id: "media_1",
@@ -898,6 +1104,8 @@ cmsAdminRouter.get("/media", async (req, res) => {
                     mimeType: "image/svg+xml",
                     sizeBytes: 4522,
                     url: "/logo/favicon.svg",
+                    isWebOptimized: true,
+                    optimizationSavingsPercent: 0,
                     altText: "Akeezo Healthcare Icon Mark",
                     caption: "Primary mark for browser tab and compact header",
                     referencedIn: [{ entityType: "page", entityId: "home", field: "headerLogo" }],
@@ -910,6 +1118,8 @@ cmsAdminRouter.get("/media", async (req, res) => {
                     mimeType: "image/svg+xml",
                     sizeBytes: 36466,
                     url: "/logo/logo with tagline-dark.svg",
+                    isWebOptimized: true,
+                    optimizationSavingsPercent: 0,
                     altText: "Akeezo Health Full Logo with Tagline (Dark Background)",
                     caption: "White lettering with Brand Teal and Orange icon",
                     referencedIn: [{ entityType: "SiteSettings", entityId: "default", field: "logoVariants.dark" }],
@@ -922,6 +1132,8 @@ cmsAdminRouter.get("/media", async (req, res) => {
                     mimeType: "image/svg+xml",
                     sizeBytes: 36458,
                     url: "/logo/logo with tagline-light.svg",
+                    isWebOptimized: true,
+                    optimizationSavingsPercent: 0,
                     altText: "Akeezo Health Full Logo with Tagline (Light Background)",
                     caption: "Dark lettering with Brand Teal and Orange icon",
                     referencedIn: [{ entityType: "SiteSettings", entityId: "default", field: "logoVariants.light" }],
@@ -930,8 +1142,23 @@ cmsAdminRouter.get("/media", async (req, res) => {
             ];
             total = items.length;
         }
+        // Normalize items with dual properties (url + storageUrl), category, variants
+        const normalizedItems = items.map((doc) => {
+            const mime = (doc.mimeType || "").toLowerCase();
+            const isSvg = mime === "image/svg+xml";
+            const isDoc = mime === "application/pdf" || mime.includes("word");
+            const isWebp = mime === "image/webp";
+            return {
+                ...doc,
+                storageUrl: doc.url || doc.storageUrl,
+                fileCategory: isSvg ? "svg" : isDoc ? "document" : "image",
+                isWebOptimized: Boolean(doc.isWebOptimized || isWebp || isSvg),
+                optimizationSavingsPercent: doc.optimizationSavingsPercent || 0,
+                variants: doc.variants || [],
+            };
+        });
         res.json({
-            data: items,
+            data: normalizedItems,
             pagination: {
                 page,
                 limit,
@@ -944,17 +1171,22 @@ cmsAdminRouter.get("/media", async (req, res) => {
         res.status(500).json({ error: { code: "FETCH_MEDIA_FAILED", message: err.message } });
     }
 });
-// POST /api/v1/admin/media/upload (Safe Base64 upload with size and extension validation)
+// POST /api/v1/admin/media/upload (Safe Base64 upload with WebP Auto-Optimization & Vector Sanitization)
 cmsAdminRouter.post("/media/upload", async (req, res) => {
     try {
-        const { originalFilename, mimeType, dataBase64, altText, caption } = req.body;
-        if (!originalFilename || !mimeType || !dataBase64) {
+        const originalFilename = req.body.originalFilename;
+        const mimeType = req.body.mimeType;
+        const rawBase64 = req.body.dataBase64 || req.body.fileData;
+        const altText = req.body.altText;
+        const caption = req.body.caption;
+        if (!originalFilename || !mimeType || !rawBase64) {
             return res.status(400).json({
-                error: { code: "INVALID_UPLOAD", message: "originalFilename, mimeType, and dataBase64 are required." },
+                error: { code: "INVALID_UPLOAD", message: "originalFilename, mimeType, and file data are required." },
             });
         }
         const ALLOWED_MIME_TYPES = [
             "image/jpeg",
+            "image/jpg",
             "image/png",
             "image/webp",
             "image/svg+xml",
@@ -966,54 +1198,62 @@ cmsAdminRouter.post("/media/upload", async (req, res) => {
                 error: { code: "UNSUPPORTED_TYPE", message: `MIME type '${mimeType}' is not supported.` },
             });
         }
-        const rawBuffer = Buffer.from(dataBase64, "base64");
+        const base64Clean = String(rawBase64).replace(/^data:[^;]+;base64,/, "");
+        const rawBuffer = Buffer.from(base64Clean, "base64");
         if (rawBuffer.length > 10 * 1024 * 1024) {
             return res.status(400).json({
                 error: { code: "FILE_TOO_LARGE", message: "File exceeds 10MB limit." },
             });
         }
-        let cleanBuffer = rawBuffer;
-        // SVG sanitization
-        if (mimeType.toLowerCase() === "image/svg+xml") {
-            let svgText = rawBuffer.toString("utf8");
-            svgText = svgText
-                .replace(/<script\b[^<]*(?:(?!<\/script>)<[^<]*)*<\/script>/gi, "")
-                .replace(/on\w+\s*=\s*["'][^"']*["']/gi, "")
-                .replace(/javascript:/gi, "");
-            cleanBuffer = Buffer.from(svgText, "utf8");
-        }
-        const MIME_TO_EXTENSION = {
-            "image/jpeg": ".jpg",
-            "image/png": ".png",
-            "image/webp": ".webp",
-            "image/svg+xml": ".svg",
-            "image/gif": ".gif",
-            "application/pdf": ".pdf",
-        };
-        const ext = MIME_TO_EXTENSION[mimeType.toLowerCase()] || ".png";
-        const fileHash = crypto.createHash("sha256").update(cleanBuffer).digest("hex").slice(0, 16);
-        const storedFilename = `${fileHash}${ext}`;
         const uploadsDir = path.resolve(process.cwd(), "uploads");
-        if (!fs.existsSync(uploadsDir)) {
-            fs.mkdirSync(uploadsDir, { recursive: true });
-        }
-        const targetFilePath = path.join(uploadsDir, storedFilename);
-        fs.writeFileSync(targetFilePath, cleanBuffer);
-        const publicUrl = `/uploads/${storedFilename}`;
+        const settings = await getActiveMediaSettings();
+        // Run modern web optimization pipeline
+        const optResult = await optimizeMediaBuffer(rawBuffer, originalFilename, mimeType, settings);
+        saveOptimizedFilesToDisk(uploadsDir, optResult);
         const mediaDoc = await MediaAssetModel.create({
             originalFilename,
-            storedFilename,
-            mimeType,
-            sizeBytes: cleanBuffer.length,
-            url: publicUrl,
+            storedFilename: optResult.storedFilename,
+            mimeType: optResult.mimeType,
+            sizeBytes: optResult.sizeBytes,
+            originalSizeBytes: optResult.originalSizeBytes,
+            originalMimeType: optResult.originalMimeType,
+            isWebOptimized: optResult.isWebOptimized,
+            optimizationSavingsPercent: optResult.optimizationSavingsPercent,
+            optimizedAt: optResult.isWebOptimized ? new Date() : undefined,
+            width: optResult.width,
+            height: optResult.height,
+            url: optResult.url,
+            originalUrl: optResult.originalUrl,
+            variants: optResult.variants.map((v) => ({
+                variant: v.variant,
+                url: v.url,
+                width: v.width,
+                height: v.height,
+                sizeBytes: v.sizeBytes,
+                mimeType: v.mimeType,
+            })),
             altText: altText || originalFilename.replace(/\.[^/.]+$/, ""),
             caption: caption || "",
             referencedIn: [],
         });
-        await logAdminActivity(req.user?._id, "media", mediaDoc._id, "create", { originalFilename: ["", originalFilename], sizeBytes: [0, cleanBuffer.length] }, req);
+        await logAdminActivity(req.user?._id, "media", mediaDoc._id, "create", {
+            originalFilename: ["", originalFilename],
+            sizeBytes: [optResult.originalSizeBytes, optResult.sizeBytes],
+            optimizedFormat: ["", optResult.mimeType],
+        }, req);
+        const docObj = mediaDoc.toObject();
+        const message = optResult.isWebOptimized
+            ? optResult.fileCategory === "svg"
+                ? "SVG vector sanitized and uploaded securely."
+                : `Image converted & web-optimized to WebP (-${optResult.optimizationSavingsPercent}% size reduction)!`
+            : "Media asset uploaded and saved safely.";
         res.status(201).json({
-            data: mediaDoc,
-            message: "Media asset uploaded and stored safely.",
+            data: {
+                ...docObj,
+                storageUrl: docObj.url,
+                fileCategory: optResult.fileCategory,
+            },
+            message,
         });
     }
     catch (err) {
@@ -1029,7 +1269,16 @@ cmsAdminRouter.patch("/media/:id", async (req, res) => {
                 caption: req.body.caption,
             },
         }, { new: true });
-        res.json({ data: updated });
+        if (!updated) {
+            return res.status(404).json({ error: { code: "NOT_FOUND", message: "Media asset not found." } });
+        }
+        const docObj = updated.toObject();
+        res.json({
+            data: {
+                ...docObj,
+                storageUrl: docObj.url,
+            },
+        });
     }
     catch (err) {
         res.status(400).json({ error: { code: "UPDATE_MEDIA_FAILED", message: err.message } });
@@ -1058,6 +1307,19 @@ cmsAdminRouter.delete("/media/:id", async (req, res) => {
                 fs.unlinkSync(filePath);
             }
             catch { }
+        }
+        // Also remove variants from disk
+        if (media.variants && media.variants.length > 0) {
+            for (const v of media.variants) {
+                const vFilename = path.basename(v.url);
+                const vPath = path.join(uploadsDir, vFilename);
+                if (fs.existsSync(vPath)) {
+                    try {
+                        fs.unlinkSync(vPath);
+                    }
+                    catch { }
+                }
+            }
         }
         await MediaAssetModel.deleteOne({ _id: media._id });
         await logAdminActivity(req.user?._id, "media", media._id, "delete", { filename: [media.originalFilename, "deleted"] }, req);

@@ -10,6 +10,7 @@ import { ServerErrorTemplate } from "@akeezo/web/src/templates/ServerErrorTempla
 import { CalculatorTemplate } from "@akeezo/web/src/templates/CalculatorTemplate.js";
 import { TreatmentsTemplate } from "@akeezo/web/src/templates/TreatmentsTemplate.js";
 import { HospitalsTemplate } from "@akeezo/web/src/templates/HospitalsTemplate.js";
+import { DoctorsTemplate } from "@akeezo/web/src/templates/DoctorsTemplate.js";
 import { SiteHeader } from "@akeezo/web/src/components/SiteHeader.js";
 import { SiteFooter } from "@akeezo/web/src/components/SiteFooter.js";
 import { renderFallback500Html } from "../ssr/renderer.js";
@@ -181,5 +182,24 @@ describe("Website Audit Task 10: Hospitals Directory Page Structure", () => {
         assert.ok(html.includes("Recently Viewed Hospital"), "Must render recently viewed hospitals section");
         assert.ok(html.includes("Explore Hospitals"), "Must render explore all hospitals grid");
         assert.ok(html.includes("Medanta"), "Must render Medanta Hospital");
+    });
+});
+describe("Website Audit Task 11: Doctors Directory Page Structure", () => {
+    it("Doctors page resolves with doctorDirectory and renders hero, search, top doctors slider, recently viewed, and promotional banners", () => {
+        const data = getDefaultRouteData("/doctors");
+        assert.equal(data.pageKind, "doctorDirectory");
+        assert.equal(data.seo.title, "World-Class Doctors | Find Best Specialists Worldwide | AKEEZO");
+        const html = renderToString(React.createElement(DoctorsTemplate, { data }));
+        assert.ok(html.includes("World-Class Doctors"), "Must render hero headline");
+        assert.ok(html.includes("Explore doctors by name"), "Must render search placeholder");
+        assert.ok(html.includes("Top Doctors"), "Must render top doctors section");
+        assert.ok(html.includes("Prof. Dr. Bulent Cihantimur"), "Must render Bulent Cihantimur");
+        assert.ok(html.includes("Prof. Dr. Semra Kahraman"), "Must render Semra Kahraman");
+        assert.ok(html.includes("Dr. Ashok Rajgopal"), "Must render Ashok Rajgopal");
+        assert.ok(html.includes("AKEEZO Care"), "Must render AKEEZO branding");
+        assert.ok(html.includes("Is Absolutely Free"), "Must render free banner headline");
+        assert.ok(html.includes("Recently Viewed Doctors"), "Must render recently viewed doctors section");
+        assert.ok(html.includes("Top Doctors Globally"), "Must render explore all doctors grid");
+        assert.ok(html.includes("Prof. Dr. Francesco Rubino"), "Must render Francesco Rubino");
     });
 });

@@ -29,8 +29,25 @@ function getSafePaths(): { filename: string; dirname: string } {
 const safePaths = getSafePaths();
 const __filename: string = safePaths.filename;
 const __dirname: string = safePaths.dirname;
-const webPublicDir = path.resolve(__dirname, "../../web/public");
-const webClientDistDir = path.resolve(__dirname, "../../web/dist/client");
+
+function resolveExistingDir(candidates: string[]): string {
+  for (const c of candidates) {
+    if (fs.existsSync(c)) return c;
+  }
+  return candidates[0];
+}
+
+const webPublicDir = resolveExistingDir([
+  path.resolve(__dirname, "../web/public"),
+  path.resolve(__dirname, "../../web/public"),
+  path.resolve(process.cwd(), "apps/web/public"),
+]);
+
+const webClientDistDir = resolveExistingDir([
+  path.resolve(__dirname, "../web/dist/client"),
+  path.resolve(__dirname, "../../web/dist/client"),
+  path.resolve(process.cwd(), "apps/web/dist/client"),
+]);
 
 const isServerless =
   Boolean(process.env.VERCEL) ||
@@ -38,8 +55,7 @@ const isServerless =
   Boolean(process.env.VERCEL_REGION) ||
   Boolean(process.env.NOW_REGION) ||
   Boolean(process.env.AWS_LAMBDA_FUNCTION_NAME) ||
-  Boolean(process.env.LAMBDA_TASK_ROOT) ||
-  process.env.NODE_ENV === "production";
+  Boolean(process.env.LAMBDA_TASK_ROOT);
 
 const isTestEnv =
   process.env.NODE_ENV === "test" ||
@@ -127,14 +143,22 @@ if (!isServerless) {
   }
 
   // 1. Internal Case Management Operations Portal (Dedicated CMS for patient leads, stages, quotes & commissions)
-  const caseManagementDistDir = path.resolve(__dirname, "../../case-management/dist");
+  const caseManagementDistDir = resolveExistingDir([
+    path.resolve(__dirname, "../case-management/dist"),
+    path.resolve(__dirname, "../../case-management/dist"),
+    path.resolve(process.cwd(), "apps/case-management/dist"),
+  ]);
   app.use("/case-management", express.static(caseManagementDistDir));
   app.get(["/case-management", "/case-management/*"], (_req, res) => {
     res.sendFile(path.join(caseManagementDistDir, "index.html"));
   });
 
   // 2. Akeezo Website Management & Super Admin Portal (Overall website CMS, lead collector, and Case Management oversight)
-  const adminDistDir = path.resolve(__dirname, "../../admin/dist");
+  const adminDistDir = resolveExistingDir([
+    path.resolve(__dirname, "../admin/dist"),
+    path.resolve(__dirname, "../../admin/dist"),
+    path.resolve(process.cwd(), "apps/admin/dist"),
+  ]);
 
   // Server-side Super Admin Gate: Intercept non-super-admin sessions and prevent access to /admin
   app.use(["/admin", "/admin/*"], (req, res, next) => {

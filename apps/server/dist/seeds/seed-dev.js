@@ -107,6 +107,17 @@ const SEED_PAGES = [
             headline: "World-Class Hospitals, Personally Matched for You",
             subheadline: "Find the Best Hospitals for Your Treatment, Anywhere in the World"
         }
+    },
+    {
+        slug: "doctors",
+        path: "/doctors",
+        pageKind: "doctorDirectory",
+        title: "World-Class Doctors | Find Best Specialists Worldwide | AKEEZO",
+        description: "Search, compare, and connect with premier surgeons and medical specialists globally. Direct hospital pricing, accredited experts, and free assistance.",
+        payload: {
+            headline: "World-Class Doctors, Personally Matched for You",
+            subheadline: "Search, compare, and connect with leading specialists across the globe."
+        }
     }
 ];
 export async function seedDev() {

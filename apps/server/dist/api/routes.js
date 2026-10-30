@@ -157,6 +157,28 @@ apiRouter.get("/route", async (req, res) => {
                 res.json({ data: hospitalsDto });
                 return;
             }
+            if (normalizedPath === "/doctors" || normalizedPath.startsWith("/doctors/")) {
+                const doctorsDto = {
+                    pageKind: "doctorDirectory",
+                    path: normalizedPath,
+                    locale,
+                    seo: {
+                        title: "World-Class Doctors | Find Best Specialists Worldwide | AKEEZO",
+                        description: "Search, compare, and connect with premier surgeons and medical specialists globally. Direct hospital pricing, accredited experts, and free assistance.",
+                        canonicalPath: "/doctors",
+                        robots: "index,follow",
+                        schemaKind: "MedicalWebPage"
+                    },
+                    payload: {
+                        headline: "World-Class Doctors, Personally Matched for You",
+                        subheadline: "Search, compare, and connect with leading specialists across the globe."
+                    },
+                    siteSettings,
+                    statusCode: 200
+                };
+                res.json({ data: doctorsDto });
+                return;
+            }
             // Check legal compliance pages
             const LEGAL_SEO_MAP = {
                 "/privacy": {
