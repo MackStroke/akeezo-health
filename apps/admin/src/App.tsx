@@ -85,7 +85,7 @@ function getTabFromPath(pathname: string): AdminTab {
   if (clean.startsWith("/admin/seo")) return "seo";
   if (clean.startsWith("/admin/users") || clean.startsWith("/admin/rbac")) return "users";
   if (clean.startsWith("/admin/activity")) return "activity";
-  if (clean.startsWith("/admin/settings")) return "settings";
+  if (clean.startsWith("/admin/settings") || clean.startsWith("/admin/integrations")) return "settings";
   if (clean.startsWith("/admin/case-management")) return "cases-admin";
   return "overview";
 }
@@ -292,8 +292,16 @@ const SuperAdminDashboard: React.FC = () => {
           {/* Module 7: Activity Log */}
           {activeTab === "activity" && <ActivityLogView />}
 
-          {/* Module 8: System Settings */}
-          {activeTab === "settings" && <SettingsView />}
+          {/* Module 8: System Settings & Integrations */}
+          {activeTab === "settings" && (
+            <SettingsView
+              initialTab={
+                typeof window !== "undefined" && window.location.pathname.startsWith("/admin/integrations")
+                  ? "integrations"
+                  : undefined
+              }
+            />
+          )}
 
           {/* Integrated Case Management CMS Super Admin View */}
           {activeTab === "cases-admin" && <CaseManagementSuperAdminView />}

@@ -91,7 +91,8 @@ export function toSafeSiteSettings(doc) {
             email: "dpo@akeezo.com",
             address: "AKEEZO Healthcare Platform Private Limited, New Delhi, India 110001"
         },
-        socialLinks: doc?.socialLinks
+        socialLinks: doc?.socialLinks,
+        integrations: doc?.integrations
     });
 }
 export function renderFallback500Html(siteSettings) {
@@ -455,6 +456,70 @@ export async function handleSsr(req, res, next) {
         const canonicalUrl = dto.seo.canonicalPath.startsWith("http")
             ? dto.seo.canonicalPath
             : `${origin}${dto.seo.canonicalPath.startsWith("/") ? "" : "/"}${dto.seo.canonicalPath}`;
+        // 4a. Third-Party Integrations Injection
+        const integrations = dto.siteSettings?.integrations;
+        // Google Tag Manager
+        let gtmHeadSnippet = "";
+        let gtmBodySnippet = "";
+        if (integrations?.googleTagManager?.enabled && integrations.googleTagManager.containerId) {
+            const gtmId = escapeHtml(integrations.googleTagManager.containerId.trim());
+            gtmHeadSnippet = `
+    <!-- Google Tag Manager -->
+    <script>(function(w,d,s,l,i){w[l]=w[l]||[];w[l].push({'gtm.start':
+    new Date().getTime(),event:'gtm.js'});var f=d.getElementsByTagName(s)[0],
+    j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
+    'https://www.googletagmanager.com/gtm.js?id='+i+dl;f.parentNode.insertBefore(j,f);
+    })(window,document,'script','dataLayer','${gtmId}');</script>
+    <!-- End Google Tag Manager -->\n`;
+            gtmBodySnippet = `
+    <!-- Google Tag Manager (noscript) -->
+    <noscript><iframe src="https://www.googletagmanager.com/ns.html?id=${gtmId}"
+    height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
+    <!-- End Google Tag Manager (noscript) -->\n`;
+        }
+        // Google Analytics (GA4)
+        let gaHeadSnippet = "";
+        const gaMeasurementId = (integrations?.googleAnalytics?.measurementId ||
+            integrations?.googleAnalyticsId ||
+            "").trim();
+        if (integrations?.googleAnalytics?.enabled && gaMeasurementId) {
+            const gaId = escapeHtml(gaMeasurementId);
+            const anonymize = integrations.googleAnalytics.anonymizeIp !== false;
+            const configOpts = anonymize ? ", { 'anonymize_ip': true }" : "";
+            gaHeadSnippet = `
+    <!-- Google Analytics -->
+    <script async src="https://www.googletagmanager.com/gtag/js?id=${gaId}"></script>
+    <script>
+      window.dataLayer = window.dataLayer || [];
+      function gtag(){dataLayer.push(arguments);}
+      gtag('js', new Date());
+      gtag('config', '${gaId}'${configOpts});
+    </script>
+    <!-- End Google Analytics -->\n`;
+        }
+        // Meta Pixel
+        let metaPixelHeadSnippet = "";
+        if (integrations?.metaPixel?.enabled && integrations.metaPixel.pixelId) {
+            const pixelId = escapeHtml(integrations.metaPixel.pixelId.trim());
+            metaPixelHeadSnippet = `
+    <!-- Meta Pixel Code -->
+    <script>
+    !function(f,b,e,v,n,t,s)
+    {if(f.fbq)return;n=f.fbq=function(){n.callMethod?
+    n.callMethod.apply(n,arguments):n.queue.push(arguments)};
+    if(!f._fbq)f._fbq=n;n.push=n;n.loaded=!0;n.version='2.0';
+    n.queue=[];t=b.createElement(e);t.async=!0;
+    t.src=v;s=b.getElementsByTagName(e)[0];
+    s.parentNode.insertBefore(t,s)}(window, document,'script',
+    'https://connect.facebook.net/en_US/fbevents.js');
+    fbq('init', '${pixelId}');
+    fbq('track', 'PageView');
+    </script>
+    <noscript><img height="1" width="1" style="display:none"
+    src="https://www.facebook.com/tr?id=${pixelId}&ev=PageView&noscript=1"
+    /></noscript>
+    <!-- End Meta Pixel Code -->\n`;
+        }
         const safeInitialDataJson = JSON.stringify(dto).replace(/</g, "\\u003c");
         const dynamicThemeCss = generateWebsiteThemeCss(dto.siteSettings?.websiteTheme);
         const isDark = dto.siteSettings?.websiteTheme?.mode === "dark";
@@ -483,9 +548,12 @@ export async function handleSsr(req, res, next) {
 ${fontLinkHtml}    <style id="akeezo-dynamic-theme">
 ${dynamicThemeCss}
     </style>
-    <script>window.__INITIAL_DATA__ = ${safeInitialDataJson};</script>
+${gtmHeadSnippet}${gaHeadSnippet}${metaPixelHeadSnippet}    <script>window.__INITIAL_DATA__ = ${safeInitialDataJson};</script>
 `;
-        const htmlWithHead = template.replace("<!--ssr-head-->", headInjection);
+        let htmlWithHead = template.replace("<!--ssr-head-->", headInjection);
+        if (gtmBodySnippet) {
+            htmlWithHead = htmlWithHead.replace(/<body[^>]*>/i, (bodyMatch) => `\${bodyMatch}\n\${gtmBodySnippet}`);
+        }
         const [htmlStart, htmlEnd] = htmlWithHead.split("<!--ssr-outlet-->");
         if (!htmlEnd) {
             res.status(500).send("Template missing <!--ssr-outlet-->");

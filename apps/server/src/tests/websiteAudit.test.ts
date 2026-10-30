@@ -104,6 +104,18 @@ describe("Website Audit Task 4: SiteHeader & SiteFooter Audit & Feedback Message
       footerHtml.includes('href="/"') && footerHtml.includes('aria-label="Akeezo Healthcare Platform Home"'),
       "Footer brand logo must be wrapped in a link pointing to home"
     );
+
+    // Ask AI About AKEEZO search engine links
+    assert.ok(footerHtml.includes("Ask AI About AKEEZO"), "Footer must include Ask AI About AKEEZO heading");
+    assert.ok(footerHtml.includes("https://chatgpt.com/?q="), "Footer must render ChatGPT AI search link");
+    assert.ok(footerHtml.includes("https://claude.ai/new?q="), "Footer must render Claude AI search link");
+    assert.ok(footerHtml.includes("https://www.perplexity.ai/search/new?q="), "Footer must render Perplexity AI search link");
+    assert.ok(
+      footerHtml.includes("https://www.google.com/search?udm=50&amp;q=") ||
+        footerHtml.includes("https://www.google.com/search?udm=50&q="),
+      "Footer must render Gemini AI search link"
+    );
+    assert.ok(footerHtml.includes("https://grok.com/?q="), "Footer must render Grok AI search link");
   });
 
   it("SiteHeader mobile menu and modals render clickable logo, clickable phone, and accessible forms", () => {
