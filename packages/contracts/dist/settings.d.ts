@@ -558,4 +558,31 @@ export declare function generateWebsiteThemeCss(theme?: Partial<WebsiteTheme>): 
 export declare function generateAdminThemeCss(theme?: Partial<AdminTheme>): string;
 export declare function extractPrimaryFontName(fontFamily?: string): string | null;
 export declare function getGoogleFontUrl(fontFamily?: string): string | null;
+export declare const MediaOptimizationSettingsSchema: z.ZodObject<{
+    autoOptimizeOnUpload: z.ZodDefault<z.ZodBoolean>;
+    quality: z.ZodDefault<z.ZodNumber>;
+    maxWidth: z.ZodDefault<z.ZodNumber>;
+    maxHeight: z.ZodDefault<z.ZodNumber>;
+    generateVariants: z.ZodDefault<z.ZodBoolean>;
+    format: z.ZodDefault<z.ZodEnum<["webp", "original"]>>;
+    preserveOriginals: z.ZodDefault<z.ZodBoolean>;
+}, "strip", z.ZodTypeAny, {
+    autoOptimizeOnUpload: boolean;
+    quality: number;
+    maxWidth: number;
+    maxHeight: number;
+    generateVariants: boolean;
+    format: "webp" | "original";
+    preserveOriginals: boolean;
+}, {
+    autoOptimizeOnUpload?: boolean | undefined;
+    quality?: number | undefined;
+    maxWidth?: number | undefined;
+    maxHeight?: number | undefined;
+    generateVariants?: boolean | undefined;
+    format?: "webp" | "original" | undefined;
+    preserveOriginals?: boolean | undefined;
+}>;
+export type MediaOptimizationSettings = z.infer<typeof MediaOptimizationSettingsSchema>;
+export declare const DEFAULT_MEDIA_OPTIMIZATION_SETTINGS: MediaOptimizationSettings;
 //# sourceMappingURL=settings.d.ts.map

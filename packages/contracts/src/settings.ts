@@ -599,3 +599,29 @@ export function getGoogleFontUrl(fontFamily?: string): string | null {
   return `https://fonts.googleapis.com/css2?family=${encoded}:wght@300;400;500;600;700;800;900&display=swap`;
 }
 
+// ==========================================
+// MEDIA WEB OPTIMIZATION SETTINGS SCHEMA
+// ==========================================
+export const MediaOptimizationSettingsSchema = z.object({
+  autoOptimizeOnUpload: z.boolean().default(true),
+  quality: z.number().min(1).max(100).default(80),
+  maxWidth: z.number().min(100).max(4096).default(1920),
+  maxHeight: z.number().min(100).max(4096).default(1920),
+  generateVariants: z.boolean().default(true),
+  format: z.enum(["webp", "original"]).default("webp"),
+  preserveOriginals: z.boolean().default(true),
+});
+
+export type MediaOptimizationSettings = z.infer<typeof MediaOptimizationSettingsSchema>;
+
+export const DEFAULT_MEDIA_OPTIMIZATION_SETTINGS: MediaOptimizationSettings = {
+  autoOptimizeOnUpload: true,
+  quality: 80,
+  maxWidth: 1920,
+  maxHeight: 1920,
+  generateVariants: true,
+  format: "webp",
+  preserveOriginals: true,
+};
+
+
