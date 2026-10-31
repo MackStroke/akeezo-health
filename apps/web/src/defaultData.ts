@@ -119,7 +119,7 @@ export function getDefaultRouteData(path = "/"): PublicRouteResponseDTO {
     };
   }
 
-  if (normalized === "/cost-calculator" || normalized === "/calculator") {
+  if (normalized === "/cost-calculator" || normalized === "/calculator" || normalized === "/cma-planner") {
     return {
       pageKind: "calculatorLanding",
       path: normalized,
@@ -142,20 +142,35 @@ export function getDefaultRouteData(path = "/"): PublicRouteResponseDTO {
   }
 
   if (normalized === "/treatments" || normalized.startsWith("/treatments/")) {
+    const slug = normalized.startsWith("/treatments/")
+      ? normalized.replace(/^\/treatments\/?/, "").split("/")[0]
+      : "";
+    const isDetail = Boolean(slug);
+    const formattedTitle = slug
+      ? slug
+          .split("-")
+          .map((w) => w.charAt(0).toUpperCase() + w.slice(1))
+          .join(" ")
+      : "Medical Treatments Worldwide";
+
     return {
-      pageKind: "treatmentDirectory",
+      pageKind: isDetail ? "treatmentDetail" : "treatmentDirectory",
       path: normalized,
       locale: "en",
       seo: {
-        title: "Medical Treatments Worldwide | Find Best Treatment Options | AKEEZO",
-        description:
-          "Discover comprehensive medical treatments worldwide. Compare prices, read reviews, and find accredited international healthcare options with AKEEZO.",
-        canonicalPath: "/treatments",
+        title: isDetail
+          ? `${formattedTitle} Abroad | Find Best Treatment Options | AKEEZO`
+          : "Medical Treatments Worldwide | Find Best Treatment Options | AKEEZO",
+        description: isDetail
+          ? `Discover accredited international hospitals and pricing for ${formattedTitle}. Compare options and plan your treatment abroad with AKEEZO.`
+          : "Discover comprehensive medical treatments worldwide. Compare prices, read reviews, and find accredited international healthcare options with AKEEZO.",
+        canonicalPath: normalized,
         robots: "index,follow",
         schemaKind: "MedicalWebPage"
       },
       payload: {
-        headline: "Find The Best Treatments Worldwide",
+        slug: slug || undefined,
+        headline: isDetail ? formattedTitle : "Find The Best Treatments Worldwide",
         subheadline: "World-class care, anywhere in the world."
       },
       siteSettings: DEFAULT_SITE_SETTINGS,

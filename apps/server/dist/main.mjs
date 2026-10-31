@@ -301205,7 +301205,7 @@ async function handleSsr(req, res, next) {
         statusCode: routeEntry.statusCode || 200
       };
       statusCode = dto.statusCode;
-    } else if (normalizedPath === "/cost-calculator" || normalizedPath === "/calculator") {
+    } else if (normalizedPath === "/cost-calculator" || normalizedPath === "/calculator" || normalizedPath === "/cma-planner") {
       statusCode = 200;
       dto = {
         pageKind: "calculatorLanding",
@@ -301224,19 +301224,23 @@ async function handleSsr(req, res, next) {
       };
     } else if (normalizedPath === "/treatments" || normalizedPath.startsWith("/treatments/")) {
       statusCode = 200;
+      const slug = normalizedPath.startsWith("/treatments/") ? normalizedPath.replace(/^\/treatments\/?/, "").split("/")[0] : "";
+      const isDetail = Boolean(slug);
+      const formattedTitle = slug ? slug.split("-").map((w) => w.charAt(0).toUpperCase() + w.slice(1)).join(" ") : "Medical Treatments Worldwide";
       dto = {
-        pageKind: "treatmentDirectory",
+        pageKind: isDetail ? "treatmentDetail" : "treatmentDirectory",
         path: normalizedPath,
         locale: "en",
         seo: {
-          title: "Medical Treatments Worldwide | Find Best Treatment Options | AKEEZO",
-          description: "Discover comprehensive medical treatments worldwide. Compare prices, read reviews, and find accredited international healthcare options with AKEEZO.",
-          canonicalPath: "/treatments",
+          title: isDetail ? `${formattedTitle} Abroad | Accredited Hospitals & Pricing | AKEEZO` : "Medical Treatments Worldwide | Find Best Treatment Options | AKEEZO",
+          description: isDetail ? `Compare ${formattedTitle} costs abroad, find accredited international hospitals, and get free treatment planning with AKEEZO.` : "Discover comprehensive medical treatments worldwide. Compare prices, read reviews, and find accredited international healthcare options with AKEEZO.",
+          canonicalPath: normalizedPath,
           robots: "index,follow",
           schemaKind: "MedicalWebPage"
         },
         payload: {
-          headline: "Find The Best Treatments Worldwide",
+          slug: slug || void 0,
+          headline: isDetail ? formattedTitle : "Find The Best Treatments Worldwide",
           subheadline: "World-class care, anywhere in the world."
         },
         siteSettings,
@@ -301349,7 +301353,7 @@ async function handleSsr(req, res, next) {
         siteSettings,
         statusCode: 200
       };
-    } else if (normalizedPath === "/blog" || normalizedPath === "/articles") {
+    } else if (normalizedPath === "/blog" || normalizedPath === "/blogs" || normalizedPath === "/articles") {
       statusCode = 200;
       let articles = [];
       if (import_mongoose21.default.connection.readyState === 1) {

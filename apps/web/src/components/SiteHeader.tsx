@@ -6,7 +6,6 @@ import {
   ChevronDown,
   ChevronRight,
   Calculator,
-  Menu,
   Check,
   PhoneCall,
   Phone,
@@ -41,6 +40,7 @@ export const SiteHeader: React.FC<SiteHeaderProps> = ({
 }) => {
   // Mobile drawer state
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
+  const [navSearchQuery, setNavSearchQuery] = useState("");
 
   // Regional Currency & Language Switcher State
   const [selectedCountry, setSelectedCountry] = useState<CountryOption>(COUNTRIES[0]);
@@ -215,62 +215,122 @@ export const SiteHeader: React.FC<SiteHeaderProps> = ({
         </div>
       )}
 
-      {/* 2. Main Sticky Navigation Header */}
-      <header className="sticky top-0 z-50 h-18 sm:h-20 border-b border-border/80 bg-white/95 backdrop-blur-md transition-shadow shadow-2xs font-sans text-ink">
-        <div className="mx-auto flex h-full max-w-[1280px] items-center justify-between px-4 sm:px-8">
-          <div className="flex items-center gap-7 lg:gap-9">
-            {/* Full Size Official Brand Logo */}
-            <a href="/" className="flex items-center shrink-0 transition-opacity hover:opacity-95 py-1">
+      {/* 2. Main Sticky Navigation Header - Reference Two-Tier Structure */}
+      <header className="sticky top-0 z-[51] border-b shadow-xs transition-colors duration-300 bg-[#f9fbff] font-sans text-ink">
+        {/* Tier 1: Upper Main Navigation Bar */}
+        <div className="mx-auto flex min-w-0 max-w-7xl items-center gap-3 px-4 py-1.5 lg:min-h-[64px] lg:gap-6 lg:px-6">
+          <div className="flex min-w-0 flex-1 items-center gap-4 lg:gap-8">
+            {/* Desktop Brand Logo */}
+            <a
+              className="lg:flex hidden shrink-0 items-center transition-opacity hover:opacity-95"
+              aria-label="Akeezo Healthcare Platform Home"
+              href="/"
+            >
               <img
-                src="/logo/logo with tagline-dark.svg"
                 alt="AKEEZO - Heal In India, Heal By Akeezo"
-                width={190}
-                height={60}
-                className="h-10 sm:h-12 w-auto max-w-[170px] sm:max-w-[210px] md:max-w-[230px] object-contain"
+                width={270}
+                height={34}
+                decoding="async"
+                fetchPriority="low"
+                className="object-contain lg:w-[273px] max-h-11 w-auto"
+                src="/logo/logo with tagline-dark.svg"
               />
             </a>
 
-            {/* Desktop Navigation - Privacy Policy / Compliance strictly removed */}
-            <nav className="hidden lg:flex items-center gap-6 xl:gap-7 text-[13.5px] font-semibold text-ink-muted">
-              <button
-                type="button"
-                onClick={() => setIsExploreOpen(true)}
-                className="flex items-center gap-1 transition-colors hover:text-action cursor-pointer py-1"
+            {/* Mobile Brand Logo */}
+            <a
+              className="lg:hidden flex shrink-0 items-center transition-opacity hover:opacity-95"
+              aria-label="Akeezo Healthcare Platform Home"
+              href="/"
+            >
+              <img
+                alt="AKEEZO - Heal In India, Heal By Akeezo"
+                width={159}
+                height={34}
+                decoding="async"
+                fetchPriority="low"
+                className="object-contain w-[159px] max-h-9"
+                src="/logo/logo with tagline-dark.svg"
+              />
+            </a>
+
+            {/* Desktop Live Search Bar */}
+            <div
+              aria-hidden="false"
+              className="hidden min-w-0 max-w-xl flex-1 lg:block transition-opacity duration-200 ease-out opacity-100"
+            >
+              <form
+                onSubmit={(e) => {
+                  e.preventDefault();
+                  const q = navSearchQuery.trim();
+                  if (q) {
+                    window.location.href = `/treatments?q=${encodeURIComponent(q)}`;
+                  }
+                }}
+                className="hidden z-40 md:flex flex-1 w-full max-w-[8000px] relative"
               >
-                <span>Treatments</span>
-                <ChevronDown className="size-3.5 text-ink-muted/80" />
-              </button>
-              <a href="/hospitals" className="transition-colors hover:text-action py-1">
-                Hospitals
-              </a>
-              <a href="/doctors" className="transition-colors hover:text-action py-1">
-                Specialists
-              </a>
-              <a href="/#destinations" className="transition-colors hover:text-action py-1">
-                Destinations
-              </a>
-              <a href="/about" className="transition-colors hover:text-action py-1">
-                About
-              </a>
-              <button
-                type="button"
-                onClick={() => setIsCalculatorOpen(true)}
-                className="flex items-center gap-1 transition-colors text-action hover:text-action-hover cursor-pointer py-1 font-bold"
-              >
-                <Calculator className="size-3.5 text-brand-orange" />
-                <span>Calculate Price</span>
-              </button>
-            </nav>
+                <div className="relative z-40 flex w-full items-center rounded-full bg-white shadow-[1px_0px_4px_rgba(0,0,0,0.12)] border border-border/60 outline-none focus-within:border-action">
+                  <div className="pl-3"></div>
+                  <input
+                    placeholder="Search treatments, hospitals, doctors…"
+                    className="w-full h-[48px] text-md py-3 px-4 bg-transparent border-0 focus:ring-0 outline-none focus:border-0 rounded-full focus:outline-none text-ink placeholder:text-ink-muted/70"
+                    autoComplete="off"
+                    type="text"
+                    value={navSearchQuery}
+                    onChange={(e) => setNavSearchQuery(e.target.value)}
+                  />
+                  <button
+                    type="submit"
+                    aria-label="Submit search"
+                    className="bg-brand-orange hover:bg-brand-orange-alt w-[36px] h-[36px] flex items-center justify-center shrink-0 rounded-full mr-1.5 transition-colors cursor-pointer text-white shadow-xs"
+                  >
+                    <svg
+                      className="w-[12px] h-[12px]"
+                      width="11"
+                      height="11"
+                      viewBox="0 0 11 11"
+                      fill="none"
+                      xmlns="http://www.w3.org/2000/svg"
+                    >
+                      <path
+                        d="M8.2535 8.26993L10.1272 10.1436M9.53528 4.97272C9.53528 6.18279 9.05458 7.34329 8.19894 8.19894C7.34329 9.05458 6.18278 9.53528 4.97272 9.53528C3.76265 9.53528 2.60215 9.05458 1.7465 8.19894C0.890853 7.34329 0.410156 6.18279 0.410156 4.97272C0.410156 3.76265 0.890853 2.60215 1.7465 1.7465C2.60215 0.890853 3.76265 0.410156 4.97272 0.410156C6.18278 0.410156 7.34329 0.890853 8.19894 1.7465C9.05458 2.60215 9.53528 3.76265 9.53528 4.97272Z"
+                        stroke="white"
+                        strokeWidth="0.821159"
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                      ></path>
+                    </svg>
+                  </button>
+                </div>
+              </form>
+            </div>
           </div>
 
-          <div className="flex items-center gap-2.5 sm:gap-3">
-            {/* Live WhatsApp / Phone Helpline with Active Pulse */}
+          {/* Right Action Items */}
+          <div className="flex min-w-0 shrink items-center gap-3 lg:gap-4">
+            {/* Treatment Selector Dropdown Pill */}
+            <div className="min-w-0 max-w-[10rem] shrink max-[400px]:max-w-[8.5rem] lg:max-w-[15rem]">
+              <div className="w-full relative z-[5] m-1 inline-block">
+                <div className="cursor-pointer">
+                  <button
+                    type="button"
+                    onClick={() => setIsExploreOpen(true)}
+                    title="Select Treatment"
+                    className="relative flex cursor-pointer select-none items-center justify-between rounded-full transition-colors duration-200 bg-white text-action hover:text-action-hover border-[0.5px] h-9 px-4 text-sm gap-2 w-full border-action/40 hover:border-action max-[400px]:h-8 max-[400px]:gap-1 max-[400px]:px-2.5 max-[400px]:text-[13px] shadow-2xs font-semibold"
+                  >
+                    <span className="flex-1 truncate whitespace-nowrap text-left capitalize">Select Treatment</span>
+                    <ChevronDown className="lucide lucide-chevron-down size-4 shrink-0 transition-transform duration-200 text-ink-muted" aria-hidden="true" />
+                  </button>
+                </div>
+              </div>
+            </div>
+
+            {/* 24/7 Desk Helpline for direct phone assistance */}
             <a
-              href={`https://wa.me/${phoneClean}?text=Hello%20Akeezo%20Care%20Desk`}
-              target="_blank"
-              rel="noopener noreferrer"
-              aria-label={`Contact Akeezo 24/7 care helpline on WhatsApp: ${phone}`}
-              className="hidden md:inline-flex items-center gap-2 rounded-full border border-border bg-white px-3 sm:px-3.5 py-1.5 text-xs font-bold text-ink shadow-2xs transition-all hover:border-action hover:bg-surface-teal/30 hover:text-action focus-visible:outline-2 focus-visible:outline-action"
+              href={`tel:${phoneClean}`}
+              title={`Call 24/7 Desk: ${phone}`}
+              aria-label={`Call 24/7 Desk: ${phone}`}
+              className="hidden xl:inline-flex items-center gap-1.5 rounded-full border border-border bg-white px-3 py-1.5 text-xs font-bold text-ink shadow-2xs hover:border-action hover:bg-surface-teal/30 hover:text-action transition-all"
             >
               <span className="relative flex size-2 shrink-0">
                 <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-emerald-400 opacity-75"></span>
@@ -280,28 +340,103 @@ export const SiteHeader: React.FC<SiteHeaderProps> = ({
               <span className="font-bold text-action tracking-tight">{phone}</span>
             </a>
 
-            {/* Primary Care Quote CTA with Cost Estimation */}
+            {/* "Get Free Quote" CTA button */}
             <button
               type="button"
               onClick={() => setIsCalculatorOpen(true)}
-              className="inline-flex h-9 sm:h-10 items-center justify-center rounded-full bg-brand-orange hover:bg-brand-orange-alt px-3.5 sm:px-5 text-xs sm:text-[13px] font-bold text-white shadow-md shadow-brand-orange/20 transition-all focus-visible:outline-2 focus-visible:outline-brand-orange cursor-pointer shrink-0"
+              className="hidden sm:inline-flex h-[36px] items-center justify-center rounded-full bg-brand-orange hover:bg-brand-orange-alt px-3.5 text-xs font-bold text-white shadow-xs transition-all cursor-pointer whitespace-nowrap shrink-0"
             >
-              <Calculator className="size-3.5 sm:size-4 mr-1.5 hidden sm:inline-block" />
+              <Calculator className="size-3.5 mr-1" />
               <span>Get Free Quote</span>
             </button>
 
-            {/* Mobile Hamburger Menu Toggle */}
+            {/* Desktop Language Switcher & Sign In Button */}
+            <div className="hidden shrink-0 items-center gap-3 lg:flex">
+              <button
+                type="button"
+                aria-label="Change language"
+                data-cy="country-lang-switcher-icon"
+                onClick={() => setIsCountryLangOpen(true)}
+                className="shrink-0 transition-opacity hover:opacity-70 cursor-pointer p-1"
+                title={`Change language / currency (${selectedCountry.currencyCode})`}
+              >
+                <img
+                  alt="Language Switcher"
+                  width="24"
+                  height="24"
+                  src="/v2/translate-icon.png"
+                  className="object-contain"
+                  onError={(e) => {
+                    (e.target as HTMLElement).style.display = "none";
+                  }}
+                />
+              </button>
+              <span aria-hidden="true" className="h-5 w-px shrink-0 bg-gray-300"></span>
+              <div>
+                <button
+                  type="button"
+                  onClick={() => setIsPatientModalOpen(true)}
+                  className="group/btn gap-2 whitespace-nowrap rounded-full font-normal transition-colors duration-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 bg-black text-white ring-1 ring-transparent hover:ring-brand md:px-[21px] px-[16px] py-[8px] md:w-max w-full h-max md:text-[14px] text-[10px] md:!w-[104px] md:!px-2 !h-[36px] flex items-center justify-center cursor-pointer font-semibold shadow-xs"
+                >
+                  Sign in
+                </button>
+              </div>
+            </div>
+
+            {/* Mobile Menu Toggle Button */}
             <button
               type="button"
-              onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
-              className="inline-flex lg:hidden p-2 text-ink-muted hover:text-ink hover:bg-surface-muted rounded-lg transition-colors cursor-pointer"
               aria-label="Toggle navigation menu"
-              aria-expanded={isMobileMenuOpen}
+              onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
+              className="flex shrink-0 items-center justify-center lg:hidden p-1.5 text-ink-muted hover:text-ink cursor-pointer"
             >
-              <Menu className="size-6" />
+              <svg width="26" height="26" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <path d="M3.75 6H20.25M3.75 12H20.25M3.75 18H20.25" stroke="#1D1D1D" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"></path>
+              </svg>
             </button>
           </div>
         </div>
+
+        {/* Tier 2: Sub Navigation Link Bar */}
+        <nav className="hidden border-t border-gray-100 lg:block bg-white/70 backdrop-blur-xs">
+          <div className="mx-auto flex max-w-7xl flex-wrap items-center gap-x-6 gap-y-1.5 px-6 py-3.5 text-sm">
+            <button
+              type="button"
+              onClick={() => setIsCalculatorOpen(true)}
+              className="whitespace-nowrap text-[0.95em] font-semibold text-brand-orange hover:text-brand-orange-alt transition-colors cursor-pointer flex items-center gap-1.5 py-0.5"
+            >
+              <Calculator className="size-3.5 text-brand-orange" />
+              <span>Plan my Journey (Calculate Price)</span>
+            </button>
+            <a className="whitespace-nowrap text-[0.95em] font-medium text-[#1d1d1d] hover:text-action transition-colors py-0.5" href="/doctors">
+              Doctors &amp; Specialists
+            </a>
+            <a className="whitespace-nowrap text-[0.95em] font-medium text-[#1d1d1d] hover:text-action transition-colors py-0.5" href="/hospitals">
+              Hospitals
+            </a>
+            <a className="whitespace-nowrap text-[0.95em] font-medium text-[#8b5cf6] hover:text-[#7c4de8] transition-colors py-0.5" href="/treatments">
+              Treatments
+            </a>
+            <a className="whitespace-nowrap text-[0.95em] font-medium text-[#1d1d1d] hover:text-action transition-colors py-0.5" href="/#destinations">
+              Destinations
+            </a>
+            <a className="whitespace-nowrap text-[0.95em] font-medium text-[#1d1d1d] hover:text-action transition-colors py-0.5" href="/blog">
+              Blogs
+            </a>
+            <a className="whitespace-nowrap text-[0.95em] font-medium text-[#1d1d1d] hover:text-action transition-colors py-0.5" href="/#opinion">
+              Community
+            </a>
+            <a className="whitespace-nowrap text-[0.95em] font-medium text-[#1d1d1d] hover:text-action transition-colors py-0.5" href="/about">
+              About Us
+            </a>
+          </div>
+        </nav>
+
+        {/* Google Translate Integration Container */}
+        <div id="google_translate_container" aria-hidden="true" className="sr-only">
+          <div id="google_translate_element"></div>
+        </div>
+        <div className="text-left"></div>
       </header>
 
       {/* Mobile Slide-over Menu Drawer */}
