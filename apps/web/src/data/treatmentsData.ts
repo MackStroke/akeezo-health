@@ -7,6 +7,10 @@ export interface TreatmentItem {
   image: string;
   fallbackImage: string;
   category: "Surgical" | "Fertility & Reproductive" | "Wellness & Holistic" | "Specialized Care" | "Dermatology & Aesthetics";
+  procedures?: string[];
+  avgCostAbroad?: string;
+  avgCostHome?: string;
+  recoveryTime?: string;
 }
 
 export const ALL_TREATMENTS: TreatmentItem[] = [
@@ -14,11 +18,22 @@ export const ALL_TREATMENTS: TreatmentItem[] = [
     id: "cosmetic-plastic-surgery",
     title: "Cosmetic/Plastic Surgery",
     slug: "cosmetic-plastic-surgery",
-    description: "Explore cosmetic surgery medical tourism. Rhinoplasty, liposuction, facelifts, BBL &amp; more at top-rated hospitals abroad. Save up to 70% with free treatment planning.",
+    description: "Explore cosmetic surgery medical tourism. Rhinoplasty, liposuction, facelifts, BBL & more at top-rated hospitals abroad. Save up to 70% with free treatment planning.",
     href: "/treatments/cosmetic-plastic-surgery",
     image: "/uploads/treatments/cosmetic-plastic-surgery.webp",
     fallbackImage: "https://d162jy5nwnavsz.cloudfront.net/speciality/cosmetic-plastic-surgery-1774526835264.webp",
-    category: "Dermatology & Aesthetics"
+    category: "Dermatology & Aesthetics",
+    procedures: [
+      "Rhinoplasty (Nose Reshaping)",
+      "Liposuction (360 HD & VASER)",
+      "Facelift & Neck Lift",
+      "Breast Augmentation & Lift",
+      "Abdominoplasty (Tummy Tuck)",
+      "Blepharoplasty (Eyelid Surgery)"
+    ],
+    avgCostAbroad: "$2,500 - $6,500",
+    avgCostHome: "$12,000 - $25,000",
+    recoveryTime: "7 - 14 days"
   },
   {
     id: "surrogacy",
@@ -28,7 +43,17 @@ export const ALL_TREATMENTS: TreatmentItem[] = [
     href: "/treatments/surrogacy",
     image: "/uploads/treatments/surrogacy.png",
     fallbackImage: "https://d162jy5nwnavsz.cloudfront.net/procedures/surrogacy-1772017955888.png",
-    category: "Fertility & Reproductive"
+    category: "Fertility & Reproductive",
+    procedures: [
+      "Gestational Surrogacy Coordination",
+      "Egg & Sperm Donor Matching",
+      "In Vitro Fertilization (IVF-ICSI)",
+      "Preimplantation Genetic Testing (PGT-A)",
+      "Comprehensive Legal Documentation & Parentage Orders"
+    ],
+    avgCostAbroad: "$30,000 - $55,000",
+    avgCostHome: "$120,000 - $180,000",
+    recoveryTime: "Full program duration: 12 - 14 months"
   },
   {
     id: "ivf-treatment",
@@ -38,7 +63,17 @@ export const ALL_TREATMENTS: TreatmentItem[] = [
     href: "/treatments/ivf-treatment",
     image: "/uploads/treatments/ivf-treatment.webp",
     fallbackImage: "https://d162jy5nwnavsz.cloudfront.net/speciality/infertility-ivf-1774526618114.webp",
-    category: "Fertility & Reproductive"
+    category: "Fertility & Reproductive",
+    procedures: [
+      "In Vitro Fertilization (IVF)",
+      "Intracytoplasmic Sperm Injection (ICSI)",
+      "PGT-A / PGT-M Embryo Genetic Screening",
+      "Egg Freezing & Vitrification",
+      "Laser-Assisted Hatching & Blastocyst Culture"
+    ],
+    avgCostAbroad: "$2,800 - $5,500",
+    avgCostHome: "$16,000 - $26,000",
+    recoveryTime: "10 - 15 days in-country"
   },
   {
     id: "hair-transplant",
@@ -48,7 +83,17 @@ export const ALL_TREATMENTS: TreatmentItem[] = [
     href: "/treatments/hair-transplant",
     image: "/uploads/treatments/hair-transplant.webp",
     fallbackImage: "https://d162jy5nwnavsz.cloudfront.net/speciality/hair-transplant-1774690227673.webp",
-    category: "Dermatology & Aesthetics"
+    category: "Dermatology & Aesthetics",
+    procedures: [
+      "Sapphire FUE Hair Transplantation",
+      "Direct Hair Implantation (DHI)",
+      "Beard & Mustache Transplantation",
+      "Eyebrow Restoration",
+      "Stem Cell PRP Therapy & Graft Boosting"
+    ],
+    avgCostAbroad: "$1,600 - $3,500",
+    avgCostHome: "$9,000 - $16,000",
+    recoveryTime: "3 - 5 days"
   },
   {
     id: "orthopedics",
@@ -58,7 +103,17 @@ export const ALL_TREATMENTS: TreatmentItem[] = [
     href: "/treatments/orthopedics",
     image: "/uploads/treatments/orthopedics.webp",
     fallbackImage: "https://d162jy5nwnavsz.cloudfront.net/speciality/orthopedic-surgery-1774690251495.webp",
-    category: "Surgical"
+    category: "Surgical",
+    procedures: [
+      "Robotic Total Knee Replacement",
+      "Minimally Invasive Hip Replacement (Anterior)",
+      "ACL & PCL Reconstruction",
+      "Rotator Cuff Shoulder Repair",
+      "Spinal Decompression & Lumbar Fusion"
+    ],
+    avgCostAbroad: "$5,500 - $11,000",
+    avgCostHome: "$35,000 - $55,000",
+    recoveryTime: "10 - 18 days in-country"
   },
   {
     id: "dental-treatment",
@@ -68,7 +123,17 @@ export const ALL_TREATMENTS: TreatmentItem[] = [
     href: "/treatments/dental-treatment",
     image: "/uploads/treatments/dental-treatment.webp",
     fallbackImage: "https://d162jy5nwnavsz.cloudfront.net/speciality/dentistry-1774690270534.webp",
-    category: "Specialized Care"
+    category: "Specialized Care",
+    procedures: [
+      "All-on-4 / All-on-6 Dental Implants",
+      "Porcelain & E-max Veneers (Hollywood Smile)",
+      "Full Mouth Zirconia Reconstruction",
+      "Computer-Guided Implantology",
+      "Same-Day CAD/CAM Crown Fabrication"
+    ],
+    avgCostAbroad: "$3,500 - $8,500",
+    avgCostHome: "$25,000 - $50,000",
+    recoveryTime: "5 - 7 days"
   },
   {
     id: "cancer-treatment",
@@ -78,7 +143,17 @@ export const ALL_TREATMENTS: TreatmentItem[] = [
     href: "/treatments/cancer-treatment",
     image: "/uploads/treatments/cancer-treatment.webp",
     fallbackImage: "https://d162jy5nwnavsz.cloudfront.net/speciality/cancer-treatment-1774690289997.webp",
-    category: "Specialized Care"
+    category: "Specialized Care",
+    procedures: [
+      "Surgical Oncology & Tumor Resection",
+      "CyberKnife & TrueBeam Stereotactic Radiation",
+      "Immunotherapy & Targeted Molecular Therapy",
+      "CAR-T Cell Therapy Protocols",
+      "Genomic Next-Gen Sequencing (NGS) Profiling"
+    ],
+    avgCostAbroad: "$12,000 - $35,000",
+    avgCostHome: "$80,000 - $200,000",
+    recoveryTime: "3 - 6 weeks"
   },
   {
     id: "obesity-bariatric-surgery",
@@ -88,7 +163,17 @@ export const ALL_TREATMENTS: TreatmentItem[] = [
     href: "/treatments/obesity-bariatric-surgery",
     image: "/uploads/treatments/obesity-bariatric-surgery.webp",
     fallbackImage: "https://d162jy5nwnavsz.cloudfront.net/speciality/obesity-bariatric-surgery-1774526469443.webp",
-    category: "Surgical"
+    category: "Surgical",
+    procedures: [
+      "Laparoscopic Sleeve Gastrectomy",
+      "Roux-en-Y Gastric Bypass",
+      "Mini Gastric Bypass (OAGB)",
+      "Allurion Swallowable Gastric Balloon",
+      "Revisional Bariatric Surgery"
+    ],
+    avgCostAbroad: "$4,200 - $7,800",
+    avgCostHome: "$18,000 - $30,000",
+    recoveryTime: "7 - 10 days"
   },
   {
     id: "neurology",
@@ -98,7 +183,17 @@ export const ALL_TREATMENTS: TreatmentItem[] = [
     href: "/treatments/neurology",
     image: "/uploads/treatments/neurology.jpg",
     fallbackImage: "https://d162jy5nwnavsz.cloudfront.net/speciality/neurology-1771591210714.jpg",
-    category: "Specialized Care"
+    category: "Specialized Care",
+    procedures: [
+      "Deep Brain Stimulation (DBS) for Parkinson's",
+      "Minimally Invasive Craniotomy for Brain Tumors",
+      "Intraoperative MRI-Guided Neuro-Navigation",
+      "Spinal Cord Stimulation (SCS)",
+      "Comprehensive Epilepsy Monitoring & Surgery"
+    ],
+    avgCostAbroad: "$11,000 - $28,000",
+    avgCostHome: "$75,000 - $160,000",
+    recoveryTime: "14 - 21 days"
   },
   {
     id: "heart-care-surgery",
@@ -108,7 +203,17 @@ export const ALL_TREATMENTS: TreatmentItem[] = [
     href: "/treatments/heart-care-surgery",
     image: "/uploads/treatments/heart-care-surgery.jpg",
     fallbackImage: "https://d162jy5nwnavsz.cloudfront.net/speciality/heart-care-surgery-1771593715128.jpg",
-    category: "Surgical"
+    category: "Surgical",
+    procedures: [
+      "Coronary Artery Bypass Grafting (CABG)",
+      "Transcatheter Aortic Valve Implantation (TAVI/TAVR)",
+      "Mitral Valve Repair & Replacement",
+      "Complex Angioplasty & Drug-Eluting Stents",
+      "Electrophysiology Study & Radiofrequency Ablation"
+    ],
+    avgCostAbroad: "$8,500 - $22,000",
+    avgCostHome: "$70,000 - $140,000",
+    recoveryTime: "12 - 20 days"
   },
   {
     id: "organ-transplant",
@@ -118,27 +223,57 @@ export const ALL_TREATMENTS: TreatmentItem[] = [
     href: "/treatments/organ-transplant",
     image: "/uploads/treatments/organ-transplant.webp",
     fallbackImage: "https://d162jy5nwnavsz.cloudfront.net/speciality/organ-transplant-1774526814584.webp",
-    category: "Surgical"
+    category: "Surgical",
+    procedures: [
+      "Living Donor Kidney Transplantation",
+      "Living Donor Liver Transplantation",
+      "Autologous & Allogeneic Bone Marrow Transplant",
+      "Corneal Grafting & Keratoplasty",
+      "Post-Transplant Immunosuppression Regimens"
+    ],
+    avgCostAbroad: "$24,000 - $48,000",
+    avgCostHome: "$160,000 - $320,000",
+    recoveryTime: "4 - 8 weeks"
   },
   {
     id: "weight-loss-program",
     title: "Weight Loss Program",
     slug: "weight-loss-program",
-    description: "Medical weight loss programs abroad offer medically supervised, evidence-based weight management combining nutritional therapy, GLP-1 pharmacotherapy, behavioral coaching, exercise medicine, and body composition monitoring. Programs are designed for sustainable, healthy weight loss \u2014 not short-term dieting \u2014 and address the metabolic and psychological drivers of obesity. Comprehensive medical weight loss care is expensive and fragmented in many countries. A medically supervised weight loss program that costs $8,000 to $20,000 at home may be available for $2,000 to $6,000 abroad at equally qualified medical wellness centers with physicians, dietitians, and behavioral coaches. Leading international medical weight loss centers offer thorough metabolic and hormonal assessment, personalized nutrition and pharmacotherapy plans, and structured exercise programs with ongoing monitoring. Patients consistently report more individualized, science-based weight management than they found through commercial slimming programs at home. The physician's expertise in metabolic medicine and the program's long-term support structure are the most important factors. Confirm the program includes a clinical dietitian and behavioral health support. Sustained lifestyle changes in eating habits, physical activity, sleep quality, and stress management are the essential foundation for maintaining weight loss results long-term.",
+    description: "Medical weight loss programs abroad offer medically supervised, evidence-based weight management combining nutritional therapy, GLP-1 pharmacotherapy, behavioral coaching, exercise medicine, and body composition monitoring. Programs are designed for sustainable, healthy weight loss — not short-term dieting — and address the metabolic and psychological drivers of obesity. Comprehensive medical weight loss care is expensive and fragmented in many countries. A medically supervised weight loss program that costs $8,000 to $20,000 at home may be available for $2,000 to $6,000 abroad at equally qualified medical wellness centers with physicians, dietitians, and behavioral coaches. Leading international medical weight loss centers offer thorough metabolic and hormonal assessment, personalized nutrition and pharmacotherapy plans, and structured exercise programs with ongoing monitoring. Patients consistently report more individualized, science-based weight management than they found through commercial slimming programs at home. The physician's expertise in metabolic medicine and the program's long-term support structure are the most important factors. Confirm the program includes a clinical dietitian and behavioral health support. Sustained lifestyle changes in eating habits, physical activity, sleep quality, and stress management are the essential foundation for maintaining weight loss results long-term.",
     href: "/treatments/weight-loss-program",
     image: "/uploads/treatments/weight-loss-program.jpg",
     fallbackImage: "https://d162jy5nwnavsz.cloudfront.net/speciality/weight-loss-program-1771591767340.jpg",
-    category: "Wellness & Holistic"
+    category: "Wellness & Holistic",
+    procedures: [
+      "GLP-1 Receptor Agonist Weight Programs",
+      "Comprehensive Metabolic & Hormonal Profiling",
+      "DEXA Body Composition Analysis",
+      "Physician-Directed Medical Nutrition Therapy",
+      "Behavioral & Lifestyle Coaching Sessions"
+    ],
+    avgCostAbroad: "$1,800 - $4,500",
+    avgCostHome: "$7,500 - $18,000",
+    recoveryTime: "7 - 14 days"
   },
   {
     id: "addiction-treatment",
     title: "Addiction Treatment",
     slug: "addiction-treatment",
-    description: "Addiction treatment abroad offers medically supervised detox, behavioral therapy, and holistic rehabilitation programs for alcohol, drug, and behavioral addictions. International rehab centers combine psychiatric care, individual counseling, and group therapy to address root causes of addiction. The cost of addiction treatment is one of the biggest barriers to recovery in many countries. A 30-day residential program that costs $20,000 to $40,000 at home may be available for $4,000 to $8,000 abroad at equally accredited facilities with trained addiction psychiatrists and counselors. Leading international rehab centers offer shorter waiting times, personalized treatment plans, and dedicated international patient coordinators. Patients consistently report receiving more individualized attention and comprehensive care than they experienced at home. The treating physician's credentials and the facility's accreditation are the most critical factors. Confirm the center is staffed by board-certified addiction psychiatrists and licensed counselors. Aftercare planning is equally important \u2014 sustainable recovery depends on continued support, relapse prevention strategies, and follow-up care after discharge.",
+    description: "Addiction treatment abroad offers medically supervised detox, behavioral therapy, and holistic rehabilitation programs for alcohol, drug, and behavioral addictions. International rehab centers combine psychiatric care, individual counseling, and group therapy to address root causes of addiction. The cost of addiction treatment is one of the biggest barriers to recovery in many countries. A 30-day residential program that costs $20,000 to $40,000 at home may be available for $4,000 to $8,000 abroad at equally accredited facilities with trained addiction psychiatrists and counselors. Leading international rehab centers offer shorter waiting times, personalized treatment plans, and dedicated international patient coordinators. Patients consistently report receiving more individualized attention and comprehensive care than they experienced at home. The treating physician's credentials and the facility's accreditation are the most critical factors. Confirm the center is staffed by board-certified addiction psychiatrists and licensed counselors. Aftercare planning is equally important — sustainable recovery depends on continued support, relapse prevention strategies, and follow-up care after discharge.",
     href: "/treatments/addiction-treatment",
     image: "/uploads/treatments/addiction-treatment.jpg",
     fallbackImage: "https://d162jy5nwnavsz.cloudfront.net/speciality/addiction-treatment-1771584005606.jpg",
-    category: "Wellness & Holistic"
+    category: "Wellness & Holistic",
+    procedures: [
+      "Medically Supervised Clinical Detoxification",
+      "30/60/90-Day Residential Dual-Diagnosis Rehab",
+      "Cognitive Behavioral Therapy (CBT & DBT)",
+      "Trauma-Informed EMDR Therapy",
+      "Relapse Prevention & Continuing Aftercare"
+    ],
+    avgCostAbroad: "$3,800 - $8,200",
+    avgCostHome: "$20,000 - $45,000",
+    recoveryTime: "30 - 90 days"
   },
   {
     id: "yoga-meditation",
@@ -148,7 +283,17 @@ export const ALL_TREATMENTS: TreatmentItem[] = [
     href: "/treatments/yoga-meditation",
     image: "/uploads/treatments/yoga-meditation.jpg",
     fallbackImage: "https://d162jy5nwnavsz.cloudfront.net/speciality/yoga-meditation-1771591513382.jpg",
-    category: "Wellness & Holistic"
+    category: "Wellness & Holistic",
+    procedures: [
+      "14-Day Ayurvedic Panchakarma Detox Retreat",
+      "Daily Hatha & Ashtanga Asana Immersion",
+      "Pranayama & Mindfulness Meditation",
+      "Doctor-Led Ayurvedic Prakriti Diagnostics",
+      "Herbal Therapy & Organic Sattvic Nutrition"
+    ],
+    avgCostAbroad: "$1,100 - $2,900",
+    avgCostHome: "$5,500 - $14,000",
+    recoveryTime: "7 - 21 days"
   },
   {
     id: "vascular-surgery",
@@ -158,7 +303,17 @@ export const ALL_TREATMENTS: TreatmentItem[] = [
     href: "/treatments/vascular-surgery",
     image: "/uploads/treatments/vascular-surgery.webp",
     fallbackImage: "https://d162jy5nwnavsz.cloudfront.net/speciality/vascular-surgery-1774690434377.webp",
-    category: "Surgical"
+    category: "Surgical",
+    procedures: [
+      "Endovascular Aneurysm Repair (EVAR/TEVAR)",
+      "Endovenous Laser Varicose Vein Ablation (EVLA)",
+      "Carotid Endarterectomy & Stenting",
+      "Peripheral Arterial Angioplasty & Bypass",
+      "AV Fistula Creation for Dialysis"
+    ],
+    avgCostAbroad: "$7,500 - $18,000",
+    avgCostHome: "$45,000 - $85,000",
+    recoveryTime: "5 - 12 days"
   },
   {
     id: "urology",
@@ -168,17 +323,37 @@ export const ALL_TREATMENTS: TreatmentItem[] = [
     href: "/treatments/urology",
     image: "/uploads/treatments/urology.webp",
     fallbackImage: "https://d162jy5nwnavsz.cloudfront.net/speciality/urology-1774690464198.webp",
-    category: "Surgical"
+    category: "Surgical",
+    procedures: [
+      "Robotic-Assisted Radical Prostatectomy (da Vinci)",
+      "Holmium Laser Enucleation of Prostate (HoLEP)",
+      "RIRS Laser Kidney Stone Lithotripsy",
+      "Percutaneous Nephrolithotomy (PCNL)",
+      "Male Infertility TESE/Micro-TESE"
+    ],
+    avgCostAbroad: "$6,500 - $15,000",
+    avgCostHome: "$35,000 - $70,000",
+    recoveryTime: "5 - 10 days"
   },
   {
     id: "sports-medicine",
     title: "Sports Medicine",
     slug: "sports-medicine",
-    description: "Sports medicine treatment abroad offers expert care for athletic injuries, musculoskeletal conditions, and performance optimization. Specialist treatment covers ACL and ligament injuries, tendinopathy, cartilage damage, stress fractures, and return-to-sport rehabilitation by sports medicine physicians, orthopedic surgeons, and physiotherapists. Timely sports medicine care is difficult to access in many countries due to long waiting lists. Arthroscopic sports surgery that costs $15,000 to $30,000 at home may be available for $3,000 to $8,000 abroad at equally accredited centers with fellowship-trained sports medicine surgeons and sport-specific rehabilitation programs. Leading international sports medicine centers offer rapid specialist access, same-week arthroscopy or injection appointments, and sport-specific rehabilitation programs. Patients \u2014 from professional athletes to active individuals \u2014 consistently report receiving more comprehensive, individually tailored sports care than they experienced at home. The sports physician's subspecialty training and the rehabilitation team's sport-specific expertise are the most important factors. Confirm your surgeon has fellowship training in sports medicine or arthroscopy. Adherence to phased rehabilitation protocols, return-to-sport testing milestones, and injury prevention programs directly determines re-injury risk and athletic performance recovery.",
+    description: "Sports medicine treatment abroad offers expert care for athletic injuries, musculoskeletal conditions, and performance optimization. Specialist treatment covers ACL and ligament injuries, tendinopathy, cartilage damage, stress fractures, and return-to-sport rehabilitation by sports medicine physicians, orthopedic surgeons, and physiotherapists. Timely sports medicine care is difficult to access in many countries due to long waiting lists. Arthroscopic sports surgery that costs $15,000 to $30,000 at home may be available for $3,000 to $8,000 abroad at equally accredited centers with fellowship-trained sports medicine surgeons and sport-specific rehabilitation programs. Leading international sports medicine centers offer rapid specialist access, same-week arthroscopy or injection appointments, and sport-specific rehabilitation programs. Patients — from professional athletes to active individuals — consistently report receiving more comprehensive, individually tailored sports care than they experienced at home. The sports physician's subspecialty training and the rehabilitation team's sport-specific expertise are the most important factors. Confirm your surgeon has fellowship training in sports medicine or arthroscopy. Adherence to phased rehabilitation protocols, return-to-sport testing milestones, and injury prevention programs directly determines re-injury risk and athletic performance recovery.",
     href: "/treatments/sports-medicine",
     image: "/uploads/treatments/sports-medicine.webp",
     fallbackImage: "https://d162jy5nwnavsz.cloudfront.net/speciality/sports-medicine-1774526916992.webp",
-    category: "Specialized Care"
+    category: "Specialized Care",
+    procedures: [
+      "Arthroscopic Meniscal Repair",
+      "Anterior Cruciate Ligament (ACL) Reconstruction",
+      "Rotator Cuff & Labral Shoulder Repair",
+      "Platelet-Rich Plasma (PRP) & Orthobiologics",
+      "Biomechanical Gait Analysis & Return-to-Play Program"
+    ],
+    avgCostAbroad: "$3,200 - $7,500",
+    avgCostHome: "$16,000 - $32,000",
+    recoveryTime: "7 - 14 days"
   },
   {
     id: "skin-care",
@@ -188,17 +363,37 @@ export const ALL_TREATMENTS: TreatmentItem[] = [
     href: "/treatments/skin-care",
     image: "/uploads/treatments/skin-care.jpg",
     fallbackImage: "https://d162jy5nwnavsz.cloudfront.net/speciality/skin-care-1771591941516.jpg",
-    category: "Dermatology & Aesthetics"
+    category: "Dermatology & Aesthetics",
+    procedures: [
+      "Fractional CO2 Laser Resurfacing",
+      "Narrowband UVB Phototherapy for Vitiligo/Psoriasis",
+      "Botox & Hyaluronic Acid Fillers",
+      "Deep Chemical Peels & Melasma Protocols",
+      "Micro-Needling with Exosomes & PRP"
+    ],
+    avgCostAbroad: "$450 - $1,500",
+    avgCostHome: "$2,500 - $5,500",
+    recoveryTime: "3 - 7 days"
   },
   {
     id: "sexual-medicine-and-treatment",
     title: "Sexual Medicine and Treatment",
     slug: "sexual-medicine-and-treatment",
-    description: "Sexual medicine treatment abroad offers discreet, specialized care for erectile dysfunction, low libido, female sexual dysfunction, premature ejaculation, hormonal imbalances, and gender-affirming treatments at physician-led sexual health clinics. Treatments address physiological, hormonal, vascular, and psychological dimensions of sexual health with evidence-based approaches. Sexual health care remains stigmatized, underserved, and expensive in many countries. A comprehensive sexual medicine evaluation and treatment program that costs $5,000 to $15,000 at home may be available for $1,500 to $4,500 abroad at equally qualified clinics with certified sexual medicine physicians and urologists. Leading international sexual health clinics offer confidential consultations, advanced penile Doppler ultrasound, hormonal profiling, and integrated psychosexual therapy. Patients consistently report receiving more thorough, sensitive, and non-judgmental care than they found at home. The physician's certification in sexual medicine and the clinic's privacy standards are the most important factors. Confirm your doctor has recognized subspecialty training in sexual medicine. Psychosexual therapy, healthy relationship communication, and lifestyle optimization \u2014 including exercise, sleep, and stress management \u2014 are essential complements to any medical sexual health treatment.",
+    description: "Sexual medicine treatment abroad offers discreet, specialized care for erectile dysfunction, low libido, female sexual dysfunction, premature ejaculation, hormonal imbalances, and gender-affirming treatments at physician-led sexual health clinics. Treatments address physiological, hormonal, vascular, and psychological dimensions of sexual health with evidence-based approaches. Sexual health care remains stigmatized, underserved, and expensive in many countries. A comprehensive sexual medicine evaluation and treatment program that costs $5,000 to $15,000 at home may be available for $1,500 to $4,500 abroad at equally qualified clinics with certified sexual medicine physicians and urologists. Leading international sexual health clinics offer confidential consultations, advanced penile Doppler ultrasound, hormonal profiling, and integrated psychosexual therapy. Patients consistently report receiving more thorough, sensitive, and non-judgmental care than they found at home. The physician's certification in sexual medicine and the clinic's privacy standards are the most important factors. Confirm your doctor has recognized subspecialty training in sexual medicine. Psychosexual therapy, healthy relationship communication, and lifestyle optimization — including exercise, sleep, and stress management — are essential complements to any medical sexual health treatment.",
     href: "/treatments/sexual-medicine-and-treatment",
     image: "/uploads/treatments/sexual-medicine-and-treatment.jpg",
     fallbackImage: "https://d162jy5nwnavsz.cloudfront.net/speciality/sexual-medicine-and-treatment-1771591981331.jpg",
-    category: "Specialized Care"
+    category: "Specialized Care",
+    procedures: [
+      "Low-Intensity Extracorporeal Shockwave Therapy (Li-ESWT)",
+      "Inflatable Penile Prosthesis (IPP) Implantation",
+      "Platelet-Rich Plasma (P-Shot / O-Shot)",
+      "Comprehensive Endocrine & Bio-identical Hormone Optimization",
+      "Confidential Psychosexual Therapy & Counseling"
+    ],
+    avgCostAbroad: "$1,500 - $4,200",
+    avgCostHome: "$6,000 - $15,000",
+    recoveryTime: "3 - 7 days"
   },
   {
     id: "rehabilitation-and-medical-spa-treatment",
@@ -208,7 +403,17 @@ export const ALL_TREATMENTS: TreatmentItem[] = [
     href: "/treatments/rehabilitation-and-medical-spa-treatment",
     image: "/uploads/treatments/rehabilitation-and-medical-spa-treatment.webp",
     fallbackImage: "https://d162jy5nwnavsz.cloudfront.net/speciality/rehabilitation-and-medical-spa-treatment-1774526874040.webp",
-    category: "Wellness & Holistic"
+    category: "Wellness & Holistic",
+    procedures: [
+      "14-Day Post-Operative Inpatient Recuperation",
+      "Physician-Directed Thermal Balneotherapy",
+      "Aquatic Hydrotherapy & Spinal Decompression",
+      "Anti-Inflammatory Nutritional & Metabolic Detox",
+      "Advanced Physiotherapy & Soft-Tissue Remodeling"
+    ],
+    avgCostAbroad: "$3,800 - $8,500",
+    avgCostHome: "$16,000 - $35,000",
+    recoveryTime: "14 - 28 days"
   },
   {
     id: "rehabilitation",
@@ -218,7 +423,17 @@ export const ALL_TREATMENTS: TreatmentItem[] = [
     href: "/treatments/rehabilitation",
     image: "/uploads/treatments/rehabilitation.jpg",
     fallbackImage: "https://d162jy5nwnavsz.cloudfront.net/speciality/rehabilitation-1771592218538.jpg",
-    category: "Wellness & Holistic"
+    category: "Wellness & Holistic",
+    procedures: [
+      "Robotic Gait & Exoskeleton Training (Lokomat)",
+      "Post-Stroke Upper-Limb Rehabilitation (Armeo)",
+      "Intensive 4-Hour Daily Multidisciplinary Physiotherapy",
+      "Speech & Neuro-Cognitive Language Therapy",
+      "Vestibular & Balance Restoration Protocols"
+    ],
+    avgCostAbroad: "$4,500 - $12,000",
+    avgCostHome: "$28,000 - $65,000",
+    recoveryTime: "2 - 6 weeks"
   },
   {
     id: "radiology-ct-scans",
@@ -228,9 +443,24 @@ export const ALL_TREATMENTS: TreatmentItem[] = [
     href: "/treatments/radiology-ct-scans",
     image: "/uploads/treatments/radiology-ct-scans.jpg",
     fallbackImage: "https://d162jy5nwnavsz.cloudfront.net/speciality/radiology-ct-scans-1771592267484.jpg",
-    category: "Specialized Care"
-  },
+    category: "Specialized Care",
+    procedures: [
+      "Whole-Body 3T Multiparametric MRI",
+      "128/256-Slice Dual-Source Cardiac CT",
+      "FDG Whole-Body Oncology PET-CT Scan",
+      "Low-Dose High-Resolution Lung CT",
+      "Second-Opinion Teleradiology Reads by Subspecialists"
+    ],
+    avgCostAbroad: "$350 - $950",
+    avgCostHome: "$2,200 - $5,500",
+    recoveryTime: "Same-day reporting (24 - 48h)"
+  }
 ];
 
 export const TOP_TREATMENTS = ALL_TREATMENTS.slice(0, 8);
 
+export function getTreatmentBySlug(slug: string): TreatmentItem | undefined {
+  if (!slug) return undefined;
+  const clean = slug.toLowerCase().replace(/^\/treatments\/?/, "").replace(/\/$/, "");
+  return ALL_TREATMENTS.find((t) => t.slug.toLowerCase() === clean || t.id.toLowerCase() === clean);
+}
