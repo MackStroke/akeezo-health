@@ -5,6 +5,7 @@ import {
   DEFAULT_ADMIN_THEME,
   DEFAULT_CAROUSEL_SLIDES
 } from "@akeezo/contracts";
+import { ALL_BLOG_ARTICLES } from "./data/blogData.js";
 
 export const DEFAULT_SITE_SETTINGS: SiteSettings = {
   brandName: "AKEEZO",
@@ -239,6 +240,73 @@ export function getDefaultRouteData(path = "/"): PublicRouteResponseDTO {
         headline: "Hey! We're AKEEZO",
         subheadline:
           "We're a team of patient advocates, healthcare researchers, and travel experts — obsessed with one thing: making world-class medical care reachable for anyone, anywhere."
+      },
+      siteSettings: DEFAULT_SITE_SETTINGS,
+      statusCode: 200
+    };
+  }
+
+  if (normalized === "/blog" || normalized === "/blogs" || normalized === "/articles") {
+    return {
+      pageKind: "blogDirectory",
+      path: normalized,
+      locale: "en",
+      seo: {
+        title: "Medical Travel & Healthcare Insights Blog | AKEEZO",
+        description:
+          "Authoritative clinical insights, hospital selection guides, treatment cost comparisons, and patient recovery stories for medical travel in India.",
+        canonicalPath: "/blogs",
+        robots: "index,follow",
+        schemaKind: "CollectionPage"
+      },
+      payload: {
+        documentId: "blog",
+        title: "Medical Travel & Healthcare Insights",
+        category: "Clinical Editorial",
+        articles: ALL_BLOG_ARTICLES
+      },
+      siteSettings: DEFAULT_SITE_SETTINGS,
+      statusCode: 200
+    };
+  }
+
+  if (normalized.startsWith("/blog/") || normalized.startsWith("/blogs/") || normalized.startsWith("/articles/")) {
+    const slug = normalized.replace(/^\/(?:blog|blogs|articles)\//, "").replace(/\/$/, "").toLowerCase();
+    const foundArticle = ALL_BLOG_ARTICLES.find((a) => a.slug === slug);
+    const article = foundArticle || {
+      slug,
+      title: slug
+        .split("-")
+        .map((w) => w.charAt(0).toUpperCase() + w.slice(1))
+        .join(" "),
+      date: "2026-10-25",
+      excerpt: "Comprehensive medical travel guide detailing treatment protocols, accredited hospital selection, and patient recovery.",
+      image: "https://luxora-cms.s3.ap-south-1.amazonaws.com/cma-blogs/1793289557843-3of8glinqdt.jpg",
+      category: "Clinical Editorial",
+      author: { name: "Akeezo Medical Advisory Board", role: "Specialist Reviewer" }
+    };
+
+    return {
+      pageKind: "legal",
+      path: normalized,
+      locale: "en",
+      seo: {
+        title: `${article.title} | AKEEZO`,
+        description: article.excerpt || article.title,
+        canonicalPath: `/blogs/${article.slug}`,
+        robots: "index,follow",
+        schemaKind: "MedicalWebPage"
+      },
+      payload: {
+        documentId: "blog-article",
+        title: article.title,
+        category: article.category,
+        article: {
+          ...article,
+          content: `## Executive Clinical Overview\n\n${article.excerpt}\n\n## Medical Guidelines & Protocols\n\nWhen evaluating cross-border treatment options, ensuring hospital accreditation (NABH, JCI) and consulting board-certified surgeons is essential. Review our cost benchmarks and connect with clinical experts for personalized care plans.`,
+          medicalDisclaimerEnabled: true
+        },
+        relatedArticles: ALL_BLOG_ARTICLES.filter((a) => a.slug !== slug).slice(0, 3)
       },
       siteSettings: DEFAULT_SITE_SETTINGS,
       statusCode: 200

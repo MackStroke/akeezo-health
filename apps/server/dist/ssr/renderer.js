@@ -478,17 +478,17 @@ export async function handleSsr(req, res, next) {
                 articles = await BlogPostModel.find({ status: "published" })
                     .select("-content")
                     .sort({ publishedAt: -1 })
-                    .limit(20)
+                    .limit(50)
                     .lean();
             }
             dto = {
-                pageKind: "legal",
-                path: "/blog",
+                pageKind: "blogDirectory",
+                path: normalizedPath,
                 locale: "en",
                 seo: {
                     title: "Medical Travel & Healthcare Insights Blog | AKEEZO",
                     description: "Authoritative clinical insights, hospital selection guides, treatment cost comparisons, and patient recovery stories for medical travel in India.",
-                    canonicalPath: "/blog",
+                    canonicalPath: "/blogs",
                     robots: "index,follow",
                     schemaKind: "CollectionPage",
                 },
@@ -502,8 +502,13 @@ export async function handleSsr(req, res, next) {
                 statusCode: 200,
             };
         }
-        else if (normalizedPath.startsWith("/blog/")) {
-            const blogSlug = normalizedPath.replace(/^\/blog\//, "").replace(/\/$/, "").toLowerCase();
+        else if (normalizedPath.startsWith("/blog/") ||
+            normalizedPath.startsWith("/blogs/") ||
+            normalizedPath.startsWith("/articles/")) {
+            const blogSlug = normalizedPath
+                .replace(/^\/(?:blog|blogs|articles)\//, "")
+                .replace(/\/$/, "")
+                .toLowerCase();
             let articleDoc = null;
             let relatedArticles = [];
             if (mongoose.connection.readyState === 1) {
@@ -528,7 +533,7 @@ export async function handleSsr(req, res, next) {
                     seo: {
                         title: `${articleDoc.seo?.seoTitle || articleDoc.title} | AKEEZO`,
                         description: articleDoc.seo?.metaDescription || articleDoc.excerpt,
-                        canonicalPath: `/blog/${articleDoc.slug}`,
+                        canonicalPath: `/blogs/${articleDoc.slug}`,
                         robots: articleDoc.seo?.noIndex ? "noindex,nofollow" : "index,follow",
                         schemaKind: articleDoc.seo?.schemaType || "MedicalWebPage",
                         ogMediaId: articleDoc.featuredImage?.url,
@@ -539,6 +544,45 @@ export async function handleSsr(req, res, next) {
                         category: articleDoc.category,
                         article: articleDoc,
                         relatedArticles,
+                    },
+                    siteSettings,
+                    statusCode: 200,
+                };
+            }
+            else if (blogSlug.length > 2) {
+                const formattedTitle = blogSlug
+                    .split("-")
+                    .map((w) => w.charAt(0).toUpperCase() + w.slice(1))
+                    .join(" ");
+                statusCode = 200;
+                dto = {
+                    pageKind: "legal",
+                    path: normalizedPath,
+                    locale: "en",
+                    seo: {
+                        title: `${formattedTitle} | AKEEZO`,
+                        description: `Comprehensive medical travel and healthcare guide for ${formattedTitle}. Compare accredited hospital packages and patient recovery options.`,
+                        canonicalPath: `/blogs/${blogSlug}`,
+                        robots: "index,follow",
+                        schemaKind: "MedicalWebPage",
+                    },
+                    payload: {
+                        documentId: "blog-article",
+                        title: formattedTitle,
+                        category: "Clinical Editorial",
+                        article: {
+                            slug: blogSlug,
+                            title: formattedTitle,
+                            excerpt: `Comprehensive clinical insights and patient advisory guide for ${formattedTitle}.`,
+                            content: `## Clinical Guide: ${formattedTitle}\n\nMedical travel and cross-border healthcare planning require careful consideration of clinical credentials, accredited medical facilities (JCI, NABH), and transparent treatment estimates.\n\n## Standards of Care & Safety Checklists\n\nBefore finalizing medical travel arrangements:\n1. Verify hospital accreditation and international patient department amenities.\n2. Review surgeon credentials and board certifications.\n3. Request itemized cost quotes including inpatient care, medications, and physical therapy.\n4. Plan sufficient post-operative recovery time before air travel.\n\nContact our clinical triage board for personalized consultations and accredited hospital recommendations.`,
+                            publishedAt: new Date(),
+                            medicalDisclaimerEnabled: true,
+                            author: {
+                                name: "Akeezo Medical Advisory Board",
+                                role: "Specialist Clinical Reviewer",
+                            },
+                        },
+                        relatedArticles: [],
                     },
                     siteSettings,
                     statusCode: 200,

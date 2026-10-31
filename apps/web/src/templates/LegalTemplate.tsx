@@ -3,6 +3,7 @@ import type { PublicRouteResponseDTO } from "@akeezo/contracts";
 import { LegalLayout, colors } from "@akeezo/ui";
 import { SiteHeader } from "../components/SiteHeader.js";
 import { SiteFooter } from "../components/SiteFooter.js";
+import { BlogTemplate } from "./BlogTemplate.js";
 
 export interface LegalTemplateProps {
   data: PublicRouteResponseDTO;
@@ -10,6 +11,10 @@ export interface LegalTemplateProps {
 
 export const LegalTemplate: React.FC<LegalTemplateProps> = ({ data }) => {
   const { path, siteSettings } = data;
+
+  if (path === "/blog" || path === "/blogs" || path === "/articles") {
+    return <BlogTemplate data={data} />;
+  }
 
   const legalEntityName = siteSettings?.legalEntityName || "AKEEZO Healthcare Platform Private Limited";
   const careEmail = siteSettings?.careEmail || "care@akeezo.com";
@@ -1489,7 +1494,7 @@ export const LegalTemplate: React.FC<LegalTemplateProps> = ({ data }) => {
         );
 
       default: {
-        if (path.startsWith("/blog/")) {
+        if (path.startsWith("/blog/") || path.startsWith("/blogs/") || path.startsWith("/articles/")) {
           const article = (data.payload as any)?.article;
           const related = (data.payload as any)?.relatedArticles || [];
           if (!article) {
@@ -1684,7 +1689,7 @@ export const LegalTemplate: React.FC<LegalTemplateProps> = ({ data }) => {
           category: "Clinical Editorial"
         };
       default:
-        if (path.startsWith("/blog/")) {
+        if (path.startsWith("/blog/") || path.startsWith("/blogs/") || path.startsWith("/articles/")) {
           return {
             title: (data.payload as any)?.title || "Medical Travel Guide",
             subtitle: "Akeezo Healthcare Platform Clinical Insights.",
