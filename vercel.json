@@ -137,7 +137,7 @@
       "source": "/case-management/assets/(.*)",
       "destination": {
         "service": "case-management",
-        "path": "/assets/$1"
+        "path": "/case-management/assets/$1"
       }
     },
     {
@@ -150,22 +150,20 @@
     {
       "source": "/case-management",
       "destination": {
-        "service": "case-management",
-        "path": "/index.html"
+        "service": "case-management"
       }
     },
     {
       "source": "/case-management/(.*)",
       "destination": {
-        "service": "case-management",
-        "path": "/index.html"
+        "service": "case-management"
       }
     },
     {
       "source": "/admin/assets/(.*)",
       "destination": {
         "service": "admin",
-        "path": "/assets/$1"
+        "path": "/admin/assets/$1"
       }
     },
     {
@@ -178,15 +176,13 @@
     {
       "source": "/admin",
       "destination": {
-        "service": "admin",
-        "path": "/index.html"
+        "service": "admin"
       }
     },
     {
       "source": "/admin/(.*)",
       "destination": {
-        "service": "admin",
-        "path": "/index.html"
+        "service": "admin"
       }
     },
     {
