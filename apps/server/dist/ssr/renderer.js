@@ -646,7 +646,23 @@ export async function handleSsr(req, res, next) {
             }
         }
         if (!loadedViaVite) {
-            template = await fs.readFile(path.join(clientDist, "index.html"), "utf-8");
+            const templateCandidates = [
+                path.join(clientDist, "template.html"),
+                path.join(clientDist, "index.html"),
+                path.join(webRoot, "index.html")
+            ];
+            for (const tPath of templateCandidates) {
+                if (fsSync.existsSync(tPath)) {
+                    const content = await fs.readFile(tPath, "utf-8");
+                    if (content.includes("<!--ssr-outlet-->")) {
+                        template = content;
+                        break;
+                    }
+                }
+            }
+            if (!template && fsSync.existsSync(path.join(clientDist, "index.html"))) {
+                template = await fs.readFile(path.join(clientDist, "index.html"), "utf-8");
+            }
             const serverEntryUrl = pathToFileURL(path.join(serverDist, "entry-server.js")).href;
             const mod = await import(serverEntryUrl);
             render = mod.render;

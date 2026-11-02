@@ -1,5 +1,6 @@
 {
   "$schema": "https://openapi.vercel.sh/vercel.json",
+  "cleanUrls": true,
   "services": {
     "server": {
       "root": "apps/server",
@@ -10,6 +11,29 @@
       "root": "apps/case-management",
       "framework": "vite",
       "outputDirectory": "dist",
+      "cleanUrls": true,
+      "rewrites": [
+        {
+          "source": "/case-management/assets/(.*)",
+          "destination": "/assets/$1"
+        },
+        {
+          "source": "/case-management/(.*)",
+          "destination": "/index.html"
+        },
+        {
+          "source": "/case-management",
+          "destination": "/index.html"
+        },
+        {
+          "source": "/assets/(.*)",
+          "destination": "/assets/$1"
+        },
+        {
+          "source": "/(.*)",
+          "destination": "/index.html"
+        }
+      ],
       "bindings": [
         {
           "type": "service",
@@ -23,6 +47,29 @@
       "root": "apps/admin",
       "framework": "vite",
       "outputDirectory": "dist",
+      "cleanUrls": true,
+      "rewrites": [
+        {
+          "source": "/admin/assets/(.*)",
+          "destination": "/assets/$1"
+        },
+        {
+          "source": "/admin/(.*)",
+          "destination": "/index.html"
+        },
+        {
+          "source": "/admin",
+          "destination": "/index.html"
+        },
+        {
+          "source": "/assets/(.*)",
+          "destination": "/assets/$1"
+        },
+        {
+          "source": "/(.*)",
+          "destination": "/index.html"
+        }
+      ],
       "bindings": [
         {
           "type": "service",
@@ -36,6 +83,33 @@
       "root": "apps/web",
       "framework": "vite",
       "outputDirectory": "dist/client",
+      "cleanUrls": true,
+      "rewrites": [
+        {
+          "source": "/assets/(.*)",
+          "destination": "/assets/$1"
+        },
+        {
+          "source": "/logo/(.*)",
+          "destination": "/logo/$1"
+        },
+        {
+          "source": "/uploads/(.*)",
+          "destination": "/uploads/$1"
+        },
+        {
+          "source": "/v2/(.*)",
+          "destination": "/v2/$1"
+        },
+        {
+          "source": "/favicon.ico",
+          "destination": "/logo/favicon.svg"
+        },
+        {
+          "source": "/(.*)",
+          "destination": "/index.html"
+        }
+      ],
       "bindings": [
         {
           "type": "service",
@@ -60,27 +134,101 @@
       }
     },
     {
-      "source": "/case-management/(.*)",
+      "source": "/case-management/assets/(.*)",
       "destination": {
-        "service": "case-management"
+        "service": "case-management",
+        "path": "/assets/$1"
+      }
+    },
+    {
+      "source": "/case-management/(.*\\.(?:ico|png|jpg|jpeg|webp|svg|css|js|woff2|woff|ttf|json|txt|xml))",
+      "destination": {
+        "service": "case-management",
+        "path": "/$1"
       }
     },
     {
       "source": "/case-management",
       "destination": {
-        "service": "case-management"
+        "service": "case-management",
+        "path": "/index.html"
+      }
+    },
+    {
+      "source": "/case-management/(.*)",
+      "destination": {
+        "service": "case-management",
+        "path": "/index.html"
+      }
+    },
+    {
+      "source": "/admin/assets/(.*)",
+      "destination": {
+        "service": "admin",
+        "path": "/assets/$1"
+      }
+    },
+    {
+      "source": "/admin/(.*\\.(?:ico|png|jpg|jpeg|webp|svg|css|js|woff2|woff|ttf|json|txt|xml))",
+      "destination": {
+        "service": "admin",
+        "path": "/$1"
       }
     },
     {
       "source": "/admin",
       "destination": {
-        "service": "admin"
+        "service": "admin",
+        "path": "/index.html"
       }
     },
     {
       "source": "/admin/(.*)",
       "destination": {
-        "service": "admin"
+        "service": "admin",
+        "path": "/index.html"
+      }
+    },
+    {
+      "source": "/assets/(.*)",
+      "destination": {
+        "service": "web",
+        "path": "/assets/$1"
+      }
+    },
+    {
+      "source": "/logo/(.*)",
+      "destination": {
+        "service": "web",
+        "path": "/logo/$1"
+      }
+    },
+    {
+      "source": "/uploads/(.*)",
+      "destination": {
+        "service": "web",
+        "path": "/uploads/$1"
+      }
+    },
+    {
+      "source": "/v2/(.*)",
+      "destination": {
+        "service": "web",
+        "path": "/v2/$1"
+      }
+    },
+    {
+      "source": "/favicon.ico",
+      "destination": {
+        "service": "web",
+        "path": "/logo/favicon.svg"
+      }
+    },
+    {
+      "source": "/(.*\\.(?:ico|png|jpg|jpeg|webp|svg|css|js|woff2|woff|ttf|json|txt|xml))",
+      "destination": {
+        "service": "web",
+        "path": "/$1"
       }
     },
     {

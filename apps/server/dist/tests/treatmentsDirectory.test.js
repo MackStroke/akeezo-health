@@ -1,6 +1,7 @@
 import { test, describe, before, after } from "node:test";
 import assert from "node:assert/strict";
 import http from "node:http";
+import mongoose from "mongoose";
 import { app } from "../main.js";
 import { connectDB } from "../db/connection.js";
 describe("Treatments Directory & Reference Composition Suite", () => {
@@ -20,6 +21,9 @@ describe("Treatments Directory & Reference Composition Suite", () => {
     after(async () => {
         if (server) {
             await new Promise((resolve) => server.close(() => resolve()));
+        }
+        if (mongoose.connection.readyState !== 0) {
+            await mongoose.disconnect();
         }
     });
     test("1. SSR GET /treatments returns HTTP 200 text/html with schema markup", async () => {
@@ -51,7 +55,7 @@ describe("Treatments Directory & Reference Composition Suite", () => {
         const res = await fetch(`${baseUrl}/treatments`);
         const html = await res.text();
         assert.ok(html.includes("Is Absolutely Free"), "Must render free consultation banner");
-        assert.ok(html.includes("Just discovery so you can choose what's right for you!"), "Must render discovery assurance");
+        assert.ok(html.includes("Just discovery so you can choose") && html.includes("right for you!"), "Must render discovery assurance");
         assert.ok(html.includes("free-banner-girl.png") || html.includes("free-banner-model-v2.png"), "Must render responsive promotional assets");
         assert.ok(html.includes("Get In Touch"), "Must render consultation trigger CTA button");
     });

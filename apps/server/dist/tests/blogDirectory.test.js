@@ -1,6 +1,7 @@
 import { test, describe, before, after } from "node:test";
 import assert from "node:assert/strict";
 import http from "node:http";
+import mongoose from "mongoose";
 import { app } from "../main.js";
 import { connectDB } from "../db/connection.js";
 describe("Blog Directory Audited Composition Suite", () => {
@@ -20,6 +21,9 @@ describe("Blog Directory Audited Composition Suite", () => {
     after(async () => {
         if (server) {
             await new Promise((resolve) => server.close(() => resolve()));
+        }
+        if (mongoose.connection.readyState !== 0) {
+            await mongoose.disconnect();
         }
     });
     test("1. SSR GET /blogs returns HTTP 200 text/html with CollectionPage schema", async () => {
