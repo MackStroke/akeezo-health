@@ -51,3 +51,6 @@ coverage/
 artifacts/
 
 scratch/
+
+# Uploaded test & media assets
+apps/server/uploads/
