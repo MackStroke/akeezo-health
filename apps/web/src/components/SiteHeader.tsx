@@ -474,10 +474,13 @@ export const SiteHeader: React.FC<SiteHeaderProps> = ({
               <div>
                 <button
                   type="button"
+                  aria-label="Sign in"
+                  title="Sign in"
                   onClick={() => setIsPatientModalOpen(true)}
-                  className="group/btn gap-2 whitespace-nowrap rounded-full font-normal transition-colors duration-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 bg-black text-white ring-1 ring-transparent hover:ring-brand md:px-[21px] px-[16px] py-[8px] md:w-max w-full h-max md:text-[14px] text-[10px] md:!w-[104px] md:!px-2 !h-[36px] flex items-center justify-center cursor-pointer font-semibold shadow-xs"
+                  className="group/btn size-9 rounded-full transition-colors duration-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 bg-black text-white ring-1 ring-transparent hover:ring-brand flex items-center justify-center cursor-pointer shadow-xs"
                 >
-                  Sign in
+                  <User2 className="size-4.5 text-white transition-transform group-hover/btn:scale-105" aria-hidden="true" />
+                  <span className="sr-only">Sign in</span>
                 </button>
               </div>
             </div>

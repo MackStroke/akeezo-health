@@ -1,7 +1,7 @@
 import { Router } from "express";
 import mongoose from "mongoose";
 import { RouteEntry, ContentRevision, SiteSettings, ChangelogModel, BlogPostModel, EnquiryModel } from "../db/models/index.js";
-import { getDoctorDetail } from "@akeezo/contracts";
+import { getDoctorDetail, getHospitalDetail } from "@akeezo/contracts";
 import { toSafeSiteSettings } from "../ssr/renderer.js";
 import { caseManagementRouter } from "./caseManagementRoutes.js";
 import { authRouter } from "./authRoutes.js";
@@ -233,6 +233,56 @@ apiRouter.get("/route", async (req, res) => {
                 return;
             }
             if (normalizedPath === "/hospitals" || normalizedPath.startsWith("/hospitals/")) {
+                const slug = normalizedPath.startsWith("/hospitals/")
+                    ? normalizedPath.replace(/^\/hospitals\/?/, "").split("/")[0]
+                    : "";
+                const isDetail = Boolean(slug);
+                if (isDetail) {
+                    const hospital = getHospitalDetail(slug);
+                    if (hospital) {
+                        const detailDto = {
+                            pageKind: "hospitalDetail",
+                            path: normalizedPath,
+                            locale,
+                            seo: {
+                                title: `${hospital.name} in ${hospital.city}, ${hospital.country} | Hospital Details | AKEEZO`,
+                                description: hospital.summary ||
+                                    `Explore ${hospital.name} in ${hospital.city}, ${hospital.country}. Compare surgery costs, view accredited facilities, read verified patient reviews, and book free consultations.`,
+                                canonicalPath: `/hospitals/${hospital.slug}`,
+                                robots: "index,follow",
+                                schemaKind: "MedicalWebPage"
+                            },
+                            payload: {
+                                hospital,
+                                slug: hospital.slug,
+                                headline: hospital.name,
+                                subheadline: `${hospital.city}, ${hospital.country}`
+                            },
+                            siteSettings,
+                            statusCode: 200
+                        };
+                        res.json({ data: detailDto });
+                        return;
+                    }
+                    res.status(404).json({
+                        data: {
+                            pageKind: "notFound",
+                            path: normalizedPath,
+                            locale,
+                            seo: {
+                                title: "Hospital Not Found | AKEEZO Healthcare Platform",
+                                description: "The requested hospital profile could not be located. Explore our accredited international hospitals directory.",
+                                canonicalPath: "/hospitals",
+                                robots: "noindex,nofollow",
+                                schemaKind: "WebPage"
+                            },
+                            payload: {},
+                            siteSettings,
+                            statusCode: 404
+                        }
+                    });
+                    return;
+                }
                 const hospitalsDto = {
                     pageKind: "hospitalDirectory",
                     path: normalizedPath,
@@ -455,10 +505,19 @@ apiRouter.get("/doctors/:slug", (req, res) => {
     }
     res.json({ data: doctor });
 });
+// GET /api/v1/hospitals/:slug (Public Hospital Detail API)
+apiRouter.get("/hospitals/:slug", (req, res) => {
+    const hospital = getHospitalDetail(req.params.slug);
+    if (!hospital) {
+        res.status(404).json({ error: { code: "NOT_FOUND", message: "Hospital not found" } });
+        return;
+    }
+    res.json({ data: hospital });
+});
 // POST /api/v1/enquiries (Public Consultation & Lead Submission)
 apiRouter.post("/enquiries", async (req, res) => {
     try {
-        const { requesterName, phone, email, country, serviceType = "consultation", message, notes, sourcePath, doctorName, doctorSlug, hospital, procedure, consultationType, preferredDate, preferredSlot, } = req.body;
+        const { requesterName, phone, email, country, serviceType = "consultation", message, notes, sourcePath, doctorName, doctorSlug, hospital, hospitalName, hospitalSlug, procedure, consultationType, preferredDate, preferredSlot, } = req.body;
         if (!requesterName || !requesterName.trim()) {
             res.status(400).json({ error: { code: "VALIDATION_FAILED", message: "Patient name is required" } });
             return;
@@ -468,11 +527,13 @@ apiRouter.post("/enquiries", async (req, res) => {
             return;
         }
         const receiptSuffix = Math.random().toString(36).substring(2, 7).toUpperCase();
-        const receiptId = `AKZ-DOC-${Date.now().toString(36).toUpperCase()}-${receiptSuffix}`;
+        const prefix = hospitalSlug ? "AKZ-HSP" : (doctorSlug ? "AKZ-DOC" : "AKZ-ENQ");
+        const receiptId = `${prefix}-${Date.now().toString(36).toUpperCase()}-${receiptSuffix}`;
+        const targetHospital = hospitalName || hospital;
         const combinedNotes = [
             notes,
             doctorName ? `Doctor: ${doctorName} (${doctorSlug || ""})` : null,
-            hospital ? `Hospital: ${hospital}` : null,
+            targetHospital ? `Hospital: ${targetHospital} (${hospitalSlug || ""})` : null,
             procedure ? `Procedure: ${procedure}` : null,
             consultationType ? `Mode: ${consultationType}` : null,
             preferredDate ? `Preferred Date: ${preferredDate}` : null,
@@ -484,10 +545,10 @@ apiRouter.post("/enquiries", async (req, res) => {
             email: email?.trim(),
             phone: phone?.trim(),
             country: country?.trim() || "International",
-            serviceType: "consultation",
-            message: message?.trim() || `Consultation request for ${doctorName || "Specialist"}`,
+            serviceType: serviceType || "consultation",
+            message: message?.trim() || `Consultation request for ${targetHospital || doctorName || "Specialist"}`,
             notes: combinedNotes,
-            sourcePath: sourcePath || (doctorSlug ? `/doctors/${doctorSlug}` : "/doctors"),
+            sourcePath: sourcePath || (hospitalSlug ? `/hospitals/${hospitalSlug}` : (doctorSlug ? `/doctors/${doctorSlug}` : "/enquiries")),
             status: "received",
         });
         res.status(201).json({

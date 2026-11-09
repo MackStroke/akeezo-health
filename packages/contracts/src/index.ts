@@ -11,3 +11,4 @@ export * from "./changelog.js";
 export * from "./blog.js";
 export * from "./pageCms.js";
 export * from "./doctors.js";
+export * from "./hospitals.js";

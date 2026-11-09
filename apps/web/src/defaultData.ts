@@ -4,7 +4,8 @@ import {
   DEFAULT_WEBSITE_THEME,
   DEFAULT_ADMIN_THEME,
   DEFAULT_CAROUSEL_SLIDES,
-  getDoctorDetail
+  getDoctorDetail,
+  getHospitalDetail
 } from "@akeezo/contracts";
 import { ALL_BLOG_ARTICLES } from "./data/blogData.js";
 import { ALL_DOCTORS } from "./data/doctorsData.js";
@@ -182,6 +183,53 @@ export function getDefaultRouteData(path = "/"): PublicRouteResponseDTO {
   }
 
   if (normalized === "/hospitals" || normalized.startsWith("/hospitals/")) {
+    const slug = normalized.startsWith("/hospitals/") ? normalized.replace(/^\/hospitals\/?/, "").split("/")[0] : "";
+    if (slug) {
+      const hospital = getHospitalDetail(slug);
+      if (hospital) {
+        return {
+          pageKind: "hospitalDetail",
+          path: normalized,
+          locale: "en",
+          seo: {
+            title: `${hospital.name} in ${hospital.city}, ${hospital.country} | Hospital Details | AKEEZO`,
+            description:
+              hospital.summary ||
+              `Explore ${hospital.name} in ${hospital.city}, ${hospital.country}. Compare surgery costs, view accredited facilities, read verified patient reviews, and book free consultations.`,
+            canonicalPath: `/hospitals/${hospital.slug}`,
+            robots: "index,follow",
+            schemaKind: "MedicalWebPage"
+          },
+          payload: {
+            hospital,
+            slug: hospital.slug,
+            headline: hospital.name,
+            subheadline: `${hospital.city}, ${hospital.country}`
+          },
+          siteSettings: DEFAULT_SITE_SETTINGS,
+          statusCode: 200
+        };
+      }
+
+      return {
+        pageKind: "notFound",
+        path: normalized,
+        locale: "en",
+        seo: {
+          title: "404 - Hospital Not Found | AKEEZO Healthcare Platform",
+          description: "The requested hospital could not be found. Explore our accredited international hospital directory.",
+          canonicalPath: normalized,
+          robots: "noindex,nofollow",
+          schemaKind: "WebPage"
+        },
+        payload: {
+          message: "Hospital not found"
+        },
+        siteSettings: DEFAULT_SITE_SETTINGS,
+        statusCode: 404
+      };
+    }
+
     return {
       pageKind: "hospitalDirectory",
       path: normalized,

@@ -30,7 +30,11 @@ import {
   Activity,
   Layers,
   ChevronDown,
+  DollarSign,
+  Bed,
+  HelpCircle,
 } from "lucide-react";
+import { getHospitalDetail } from "@akeezo/contracts";
 import {
   TablePagination,
   SortHeader,
@@ -91,6 +95,25 @@ export const DirectoryModuleManager: React.FC<DirectoryModuleManagerProps> = ({ 
   const [editingItem, setEditingItem] = useState<any | null>(null);
   const [isNewItem, setIsNewItem] = useState(false);
   const [profileFormData, setProfileFormData] = useState<Record<string, any>>({});
+
+  // Hospital Sub-item Form States
+  const [newSurgeryCost, setNewSurgeryCost] = useState({
+    procedure: "",
+    category: "Cosmetic Surgery",
+    hospitalPriceUsd: "$2,500",
+    usUkPriceUsd: "$8,000",
+    savingsPercent: 65,
+    description: "Complete procedure including accredited surgeon and stay.",
+  });
+  const [newRoomType, setNewRoomType] = useState({
+    name: "",
+    description: "",
+    amenities: "Private Bathroom, Wi-Fi, Smart TV, Nurse Call",
+  });
+  const [newFaq, setNewFaq] = useState({
+    question: "",
+    answer: "",
+  });
 
   // Import Modal State
   const [isImportModalOpen, setIsImportModalOpen] = useState(false);
@@ -429,7 +452,23 @@ export const DirectoryModuleManager: React.FC<DirectoryModuleManagerProps> = ({ 
   const openProfileEditor = (item: any, updateHistory: boolean = true) => {
     setEditingItem(item);
     setIsNewItem(false);
-    setProfileFormData({ ...item });
+    let initialData = { ...item };
+    if (pageSlug === "hospitals" && item.slug) {
+      const fullDetail = getHospitalDetail(item.slug);
+      if (fullDetail) {
+        initialData = {
+          ...fullDetail,
+          ...item,
+          surgeriesCost: item.surgeriesCost && item.surgeriesCost.length > 0 ? item.surgeriesCost : fullDetail.surgeriesCost,
+          roomTypes: item.roomTypes && item.roomTypes.length > 0 ? item.roomTypes : fullDetail.roomTypes,
+          faqs: item.faqs && item.faqs.length > 0 ? item.faqs : fullDetail.faqs,
+          highlights: item.highlights && item.highlights.length > 0 ? item.highlights : fullDetail.highlights,
+          accessibilityFeatures: item.accessibilityFeatures && item.accessibilityFeatures.length > 0 ? item.accessibilityFeatures : fullDetail.accessibilityFeatures,
+          location: item.location || fullDetail.location,
+        };
+      }
+    }
+    setProfileFormData(initialData);
     setActiveProfileTab("basic");
     setCurrentView("profile");
 
@@ -463,15 +502,109 @@ export const DirectoryModuleManager: React.FC<DirectoryModuleManagerProps> = ({ 
       defaults.procedures = ["Cosmetic Consultation", "Surgical Evaluation"];
     } else if (pageSlug === "hospitals") {
       defaults.name = "";
-      defaults.city = "New Delhi";
-      defaults.country = "India";
-      defaults.accreditations = ["JCI", "NABH"];
-      defaults.bedsCount = 500;
-      defaults.rating = 4.8;
+      defaults.slug = "";
+      defaults.city = "Bangkok";
+      defaults.country = "Thailand";
+      defaults.address = "454 Charan Sanitwong Road, Bang O, Bang Phlat, Bangkok 10700";
+      defaults.phone = "+66 2 879 0300";
+      defaults.rankBadge = "Ranked #12 in Thailand - Newsweek World's Best Hospitals 2024";
+      defaults.accreditations = ["JCI", "ISO 9001", "HA Thailand"];
+      defaults.bedsCount = 400;
+      defaults.icuCount = 18;
+      defaults.operatingRooms = 42;
+      defaults.establishedYear = 1984;
+      defaults.dailyPatients = "2,000+ Patients Daily";
+      defaults.doctorsCount = "270+ Doctors";
+      defaults.nursesCount = "500+ Nurses";
+      defaults.rating = 75.21;
       defaults.reviewCount = 350;
-      defaults.specialties = ["Cardiac Surgery", "Oncology", "Orthopedics"];
-      defaults.image = "/uploads/hospitals/hospital-default.jpg";
-      defaults.description = "Premier multi-super-specialty hospital with modern clinical infrastructure.";
+      defaults.languagesSpoken = ["English", "Thai", "Arabic", "French", "German", "Mandarin", "Japanese"];
+      defaults.specialties = ["Cosmetic & Plastic Surgery", "Gender Affirmation", "Bariatric Surgery", "Dental & Maxillofacial", "Cardiology", "Orthopedics"];
+      defaults.image = "/uploads/hospitals/yanhee-main.webp";
+      defaults.images = [
+        "/uploads/hospitals/yanhee-main.webp",
+        "/uploads/hospitals/yanhee-entrance.webp",
+        "/uploads/hospitals/yanhee-ot.webp",
+        "/uploads/hospitals/yanhee-ward.webp"
+      ];
+      defaults.summary = "Founded in 1984, Yanhee International Hospital is one of Asia's premier multi-specialty medical destinations.";
+      defaults.aboutMarkdown = "Founded in 1984, Yanhee International Hospital has evolved from a modest outpatient clinic into a globally recognized tertiary healthcare landmark in Bangkok.";
+      defaults.highlights = [
+        "JCI-Accredited Excellence with patient safety benchmarks",
+        "Ranked #12 in Thailand - Newsweek World's Best Hospitals 2024",
+        "Over 75% of international patients are repeat visitors or direct referrals",
+        "English, Arabic, French, German, Mandarin, and Japanese interpreters"
+      ];
+      defaults.accessibilityFeatures = [
+        "Wheelchair-accessible entrances, elevators, and wide corridors throughout all wards",
+        "Dedicated international patient coordination center with airport transfer"
+      ];
+      defaults.surgeriesCost = [
+        {
+          id: "cost-1",
+          procedure: "Breast Augmentation (Mentor Implants)",
+          category: "Cosmetic Surgery",
+          hospitalPriceUsd: "$3,200",
+          usUkPriceUsd: "$8,500",
+          savingsPercent: 62,
+          description: "Mentor FDA-approved silicone implants including surgical fees, anesthesia, and overnight hospital stay."
+        },
+        {
+          id: "cost-2",
+          procedure: "Facelift (Full rhytidectomy)",
+          category: "Cosmetic Surgery",
+          hospitalPriceUsd: "$4,100",
+          usUkPriceUsd: "$12,000",
+          savingsPercent: 66,
+          description: "Comprehensive SMAS flap elevation, platysmaplasty, and 2 nights private room stay."
+        },
+        {
+          id: "cost-3",
+          procedure: "Rhinoplasty (Open structural)",
+          category: "Cosmetic Surgery",
+          hospitalPriceUsd: "$1,850",
+          usUkPriceUsd: "$7,200",
+          savingsPercent: 74,
+          description: "Open structural rhinoplasty with cartilage grafting, post-op splints, and specialist consultation."
+        },
+        {
+          id: "cost-4",
+          procedure: "Sleeve Gastrectomy (Bariatric)",
+          category: "Bariatric Surgery",
+          hospitalPriceUsd: "$6,500",
+          usUkPriceUsd: "$17,000",
+          savingsPercent: 62,
+          description: "Minimally invasive laparoscopic resection with multidisciplinary bariatric post-op follow-up."
+        }
+      ];
+      defaults.roomTypes = [
+        {
+          name: "VIP Single Suite",
+          description: "Spacious private bedroom with separate living room, en-suite bathroom, electric adjustable bed, and nurse call system.",
+          amenities: ["Private Bathroom", "High-speed Wi-Fi", "Two Smart TVs", "Refrigerator & Microwave", "Guest Sofa Bed", "Nurse Call System"]
+        },
+        {
+          name: "Deluxe Single Room",
+          description: "Comfortable private room designed for patient recovery and privacy, equipped with companion daybed and private en-suite bathroom.",
+          amenities: ["Private Bathroom", "Wi-Fi", "Smart TV", "Mini Refrigerator", "Companion Bed", "Direct Phone Line"]
+        }
+      ];
+      defaults.paymentMethods = [
+        "Cash (Thai Baht, US Dollars, Euros)",
+        "Credit Cards (Visa, MasterCard, JCB, UnionPay)",
+        "Direct Bank Wire Transfer (SWIFT)",
+        "International Travel & Medical Insurance Guarantees"
+      ];
+      defaults.faqs = [
+        {
+          question: "How long before surgery should I arrive in Bangkok?",
+          answer: "For most surgical procedures, we recommend arriving 1 to 2 days prior to your scheduled surgery date for in-person evaluations and lab tests."
+        },
+        {
+          question: "Does the hospital provide airport transfers?",
+          answer: "Yes, Yanhee International Hospital provides airport pickup and drop-off coordination from Suvarnabhumi (BKK) and Don Mueang (DMK) airports."
+        }
+      ];
     } else if (pageSlug === "treatments") {
       defaults.title = "";
       defaults.category = "Surgical";
@@ -758,7 +891,7 @@ export const DirectoryModuleManager: React.FC<DirectoryModuleManagerProps> = ({ 
                 : "hover:text-slate-900"
             }`}
           >
-            1. Core Information
+            {pageSlug === "hospitals" ? "1. Core & Accreditations" : "1. Core Information"}
           </button>
           <button
             type="button"
@@ -769,7 +902,7 @@ export const DirectoryModuleManager: React.FC<DirectoryModuleManagerProps> = ({ 
                 : "hover:text-slate-900"
             }`}
           >
-            2. Experience & Metrics
+            {pageSlug === "hospitals" ? "2. Capacity & Metrics" : "2. Experience & Metrics"}
           </button>
           <button
             type="button"
@@ -780,19 +913,57 @@ export const DirectoryModuleManager: React.FC<DirectoryModuleManagerProps> = ({ 
                 : "hover:text-slate-900"
             }`}
           >
-            3. Biography & Milestones
+            {pageSlug === "hospitals" ? "3. Narrative & Clinical" : "3. Biography & Milestones"}
           </button>
-          <button
-            type="button"
-            onClick={() => setActiveProfileTab("services")}
-            className={`px-4 py-2 rounded-lg transition shrink-0 ${
-              activeProfileTab === "services"
-                ? "bg-teal-50 text-[#007A6C] border-b-2 border-[#007A6C]"
-                : "hover:text-slate-900"
-            }`}
-          >
-            4. Procedures & Pricing
-          </button>
+          {pageSlug === "hospitals" ? (
+            <>
+              <button
+                type="button"
+                onClick={() => setActiveProfileTab("surgeries")}
+                className={`px-4 py-2 rounded-lg transition shrink-0 ${
+                  activeProfileTab === "surgeries"
+                    ? "bg-teal-50 text-[#007A6C] border-b-2 border-[#007A6C]"
+                    : "hover:text-slate-900"
+                }`}
+              >
+                4. Surgeries & Costs
+              </button>
+              <button
+                type="button"
+                onClick={() => setActiveProfileTab("rooms")}
+                className={`px-4 py-2 rounded-lg transition shrink-0 ${
+                  activeProfileTab === "rooms"
+                    ? "bg-teal-50 text-[#007A6C] border-b-2 border-[#007A6C]"
+                    : "hover:text-slate-900"
+                }`}
+              >
+                5. Facilities & Rooms
+              </button>
+              <button
+                type="button"
+                onClick={() => setActiveProfileTab("faqs")}
+                className={`px-4 py-2 rounded-lg transition shrink-0 ${
+                  activeProfileTab === "faqs"
+                    ? "bg-teal-50 text-[#007A6C] border-b-2 border-[#007A6C]"
+                    : "hover:text-slate-900"
+                }`}
+              >
+                6. Hospital FAQs
+              </button>
+            </>
+          ) : (
+            <button
+              type="button"
+              onClick={() => setActiveProfileTab("services")}
+              className={`px-4 py-2 rounded-lg transition shrink-0 ${
+                activeProfileTab === "services"
+                  ? "bg-teal-50 text-[#007A6C] border-b-2 border-[#007A6C]"
+                  : "hover:text-slate-900"
+              }`}
+            >
+              4. Procedures & Pricing
+            </button>
+          )}
         </div>
 
         {/* Form Body */}
@@ -902,6 +1073,62 @@ export const DirectoryModuleManager: React.FC<DirectoryModuleManagerProps> = ({ 
                 </div>
               </div>
 
+              {pageSlug === "hospitals" && (
+                <>
+                  <div className="md:col-span-2">
+                    <label className="block text-xs font-bold text-slate-700 mb-1">Full Physical Address</label>
+                    <input
+                      type="text"
+                      value={profileFormData.address || ""}
+                      onChange={(e) => setProfileFormData((prev) => ({ ...prev, address: e.target.value }))}
+                      placeholder="e.g. 454 Charan Sanitwong Road, Bang O, Bang Phlat, Bangkok 10700"
+                      className="w-full text-xs px-3.5 py-2.5 bg-slate-50 border border-slate-200 rounded-xl focus:bg-white focus:border-[#007A6C] outline-none"
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-xs font-bold text-slate-700 mb-1">Contact Phone</label>
+                    <input
+                      type="text"
+                      value={profileFormData.phone || ""}
+                      onChange={(e) => setProfileFormData((prev) => ({ ...prev, phone: e.target.value }))}
+                      placeholder="e.g. +66 2 879 0300"
+                      className="w-full text-xs px-3.5 py-2.5 bg-slate-50 border border-slate-200 rounded-xl focus:bg-white focus:border-[#007A6C] outline-none"
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-xs font-bold text-slate-700 mb-1">Prestigious Rank Badge</label>
+                    <input
+                      type="text"
+                      value={profileFormData.rankBadge || ""}
+                      onChange={(e) => setProfileFormData((prev) => ({ ...prev, rankBadge: e.target.value }))}
+                      placeholder="e.g. Ranked #12 in Thailand - Newsweek World's Best Hospitals 2024"
+                      className="w-full text-xs px-3.5 py-2.5 bg-slate-50 border border-slate-200 rounded-xl focus:bg-white focus:border-[#007A6C] outline-none"
+                    />
+                  </div>
+                  <div className="md:col-span-2">
+                    <label className="block text-xs font-bold text-slate-700 mb-1">Gallery Image URLs (one per line)</label>
+                    <textarea
+                      rows={3}
+                      value={
+                        Array.isArray(profileFormData.images)
+                          ? profileFormData.images.join("\n")
+                          : typeof profileFormData.images === "string"
+                          ? profileFormData.images
+                          : ""
+                      }
+                      onChange={(e) =>
+                        setProfileFormData((prev) => ({
+                          ...prev,
+                          images: e.target.value.split("\n").map((s) => s.trim()).filter(Boolean),
+                        }))
+                      }
+                      placeholder="/uploads/hospitals/yanhee-1.webp&#10;/uploads/hospitals/yanhee-2.webp"
+                      className="w-full text-xs p-3.5 bg-slate-50 border border-slate-200 rounded-xl focus:bg-white focus:border-[#007A6C] outline-none"
+                    />
+                  </div>
+                </>
+              )}
+
               <div className="flex items-center gap-4 pt-2">
                 <label className="flex items-center gap-2 cursor-pointer">
                   <input
@@ -928,119 +1155,682 @@ export const DirectoryModuleManager: React.FC<DirectoryModuleManagerProps> = ({ 
 
           {activeProfileTab === "metrics" && (
             <div className="grid grid-cols-1 md:grid-cols-3 gap-5">
-              <div>
-                <label className="block text-xs font-bold text-slate-700 mb-1">Experience (Years)</label>
-                <input
-                  type="number"
-                  value={profileFormData.experienceYears || 15}
-                  onChange={(e) => setProfileFormData((prev) => ({ ...prev, experienceYears: Number(e.target.value) }))}
-                  className="w-full text-xs px-3.5 py-2.5 bg-slate-50 border border-slate-200 rounded-xl focus:bg-white focus:border-[#007A6C] outline-none"
-                />
-              </div>
+              {pageSlug === "hospitals" ? (
+                <>
+                  <div>
+                    <label className="block text-xs font-bold text-slate-700 mb-1">Total Beds Capacity</label>
+                    <input
+                      type="number"
+                      value={profileFormData.bedsCount ?? 400}
+                      onChange={(e) => setProfileFormData((prev) => ({ ...prev, bedsCount: Number(e.target.value) }))}
+                      className="w-full text-xs px-3.5 py-2.5 bg-slate-50 border border-slate-200 rounded-xl focus:bg-white focus:border-[#007A6C] outline-none"
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-xs font-bold text-slate-700 mb-1">Intensive Care Unit (ICU) Beds</label>
+                    <input
+                      type="number"
+                      value={profileFormData.icuCount ?? 18}
+                      onChange={(e) => setProfileFormData((prev) => ({ ...prev, icuCount: Number(e.target.value) }))}
+                      className="w-full text-xs px-3.5 py-2.5 bg-slate-50 border border-slate-200 rounded-xl focus:bg-white focus:border-[#007A6C] outline-none"
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-xs font-bold text-slate-700 mb-1">Operating Theaters (OTs)</label>
+                    <input
+                      type="number"
+                      value={profileFormData.operatingRooms ?? 42}
+                      onChange={(e) => setProfileFormData((prev) => ({ ...prev, operatingRooms: Number(e.target.value) }))}
+                      className="w-full text-xs px-3.5 py-2.5 bg-slate-50 border border-slate-200 rounded-xl focus:bg-white focus:border-[#007A6C] outline-none"
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-xs font-bold text-slate-700 mb-1">Year Established</label>
+                    <input
+                      type="number"
+                      value={profileFormData.establishedYear ?? 1984}
+                      onChange={(e) => setProfileFormData((prev) => ({ ...prev, establishedYear: Number(e.target.value) }))}
+                      className="w-full text-xs px-3.5 py-2.5 bg-slate-50 border border-slate-200 rounded-xl focus:bg-white focus:border-[#007A6C] outline-none"
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-xs font-bold text-slate-700 mb-1">Daily Patient Inflow</label>
+                    <input
+                      type="text"
+                      value={profileFormData.dailyPatients || "2,000+ Patients Daily"}
+                      onChange={(e) => setProfileFormData((prev) => ({ ...prev, dailyPatients: e.target.value }))}
+                      className="w-full text-xs px-3.5 py-2.5 bg-slate-50 border border-slate-200 rounded-xl focus:bg-white focus:border-[#007A6C] outline-none"
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-xs font-bold text-slate-700 mb-1">Specialist Doctors Count</label>
+                    <input
+                      type="text"
+                      value={profileFormData.doctorsCount || "270+ Doctors"}
+                      onChange={(e) => setProfileFormData((prev) => ({ ...prev, doctorsCount: e.target.value }))}
+                      className="w-full text-xs px-3.5 py-2.5 bg-slate-50 border border-slate-200 rounded-xl focus:bg-white focus:border-[#007A6C] outline-none"
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-xs font-bold text-slate-700 mb-1">Registered Nurses Count</label>
+                    <input
+                      type="text"
+                      value={profileFormData.nursesCount || "500+ Registered Nurses"}
+                      onChange={(e) => setProfileFormData((prev) => ({ ...prev, nursesCount: e.target.value }))}
+                      className="w-full text-xs px-3.5 py-2.5 bg-slate-50 border border-slate-200 rounded-xl focus:bg-white focus:border-[#007A6C] outline-none"
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-xs font-bold text-slate-700 mb-1">Hospital Score / Rating</label>
+                    <input
+                      type="number"
+                      step="0.01"
+                      value={profileFormData.rating ?? 75.21}
+                      onChange={(e) => setProfileFormData((prev) => ({ ...prev, rating: Number(e.target.value) }))}
+                      className="w-full text-xs px-3.5 py-2.5 bg-slate-50 border border-slate-200 rounded-xl focus:bg-white focus:border-[#007A6C] outline-none"
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-xs font-bold text-slate-700 mb-1">Patient Reviews Count</label>
+                    <input
+                      type="number"
+                      value={profileFormData.reviewCount ?? 350}
+                      onChange={(e) => setProfileFormData((prev) => ({ ...prev, reviewCount: Number(e.target.value) }))}
+                      className="w-full text-xs px-3.5 py-2.5 bg-slate-50 border border-slate-200 rounded-xl focus:bg-white focus:border-[#007A6C] outline-none"
+                    />
+                  </div>
+                  <div className="md:col-span-3">
+                    <label className="block text-xs font-bold text-slate-700 mb-1">Languages Spoken (comma-separated)</label>
+                    <input
+                      type="text"
+                      value={Array.isArray(profileFormData.languagesSpoken) ? profileFormData.languagesSpoken.join(", ") : ""}
+                      onChange={(e) =>
+                        setProfileFormData((prev) => ({
+                          ...prev,
+                          languagesSpoken: e.target.value.split(",").map((s) => s.trim()).filter(Boolean),
+                        }))
+                      }
+                      placeholder="English, Thai, Arabic, French, German, Mandarin, Japanese"
+                      className="w-full text-xs px-3.5 py-2.5 bg-slate-50 border border-slate-200 rounded-xl focus:bg-white focus:border-[#007A6C] outline-none"
+                    />
+                  </div>
+                  <div className="md:col-span-3">
+                    <label className="block text-xs font-bold text-slate-700 mb-1">Accreditations & Certifications (comma-separated)</label>
+                    <input
+                      type="text"
+                      value={Array.isArray(profileFormData.accreditations) ? profileFormData.accreditations.join(", ") : ""}
+                      onChange={(e) =>
+                        setProfileFormData((prev) => ({
+                          ...prev,
+                          accreditations: e.target.value.split(",").map((s) => s.trim()).filter(Boolean),
+                        }))
+                      }
+                      placeholder="JCI, ISO 9001, HA Thailand"
+                      className="w-full text-xs px-3.5 py-2.5 bg-slate-50 border border-slate-200 rounded-xl focus:bg-white focus:border-[#007A6C] outline-none"
+                    />
+                  </div>
+                </>
+              ) : (
+                <>
+                  <div>
+                    <label className="block text-xs font-bold text-slate-700 mb-1">Experience (Years)</label>
+                    <input
+                      type="number"
+                      value={profileFormData.experienceYears || 15}
+                      onChange={(e) => setProfileFormData((prev) => ({ ...prev, experienceYears: Number(e.target.value) }))}
+                      className="w-full text-xs px-3.5 py-2.5 bg-slate-50 border border-slate-200 rounded-xl focus:bg-white focus:border-[#007A6C] outline-none"
+                    />
+                  </div>
 
-              <div>
-                <label className="block text-xs font-bold text-slate-700 mb-1">Average Star Rating (0 - 5.0)</label>
-                <input
-                  type="number"
-                  step="0.1"
-                  min="0"
-                  max="5"
-                  value={profileFormData.rating || 4.9}
-                  onChange={(e) => setProfileFormData((prev) => ({ ...prev, rating: Number(e.target.value) }))}
-                  className="w-full text-xs px-3.5 py-2.5 bg-slate-50 border border-slate-200 rounded-xl focus:bg-white focus:border-[#007A6C] outline-none"
-                />
-              </div>
+                  <div>
+                    <label className="block text-xs font-bold text-slate-700 mb-1">Average Star Rating (0 - 5.0)</label>
+                    <input
+                      type="number"
+                      step="0.1"
+                      min="0"
+                      max="5"
+                      value={profileFormData.rating || 4.9}
+                      onChange={(e) => setProfileFormData((prev) => ({ ...prev, rating: Number(e.target.value) }))}
+                      className="w-full text-xs px-3.5 py-2.5 bg-slate-50 border border-slate-200 rounded-xl focus:bg-white focus:border-[#007A6C] outline-none"
+                    />
+                  </div>
 
-              <div>
-                <label className="block text-xs font-bold text-slate-700 mb-1">Patient Reviews Count</label>
-                <input
-                  type="number"
-                  value={profileFormData.reviewCount || 100}
-                  onChange={(e) => setProfileFormData((prev) => ({ ...prev, reviewCount: Number(e.target.value) }))}
-                  className="w-full text-xs px-3.5 py-2.5 bg-slate-50 border border-slate-200 rounded-xl focus:bg-white focus:border-[#007A6C] outline-none"
-                />
-              </div>
+                  <div>
+                    <label className="block text-xs font-bold text-slate-700 mb-1">Patient Reviews Count</label>
+                    <input
+                      type="number"
+                      value={profileFormData.reviewCount || 100}
+                      onChange={(e) => setProfileFormData((prev) => ({ ...prev, reviewCount: Number(e.target.value) }))}
+                      className="w-full text-xs px-3.5 py-2.5 bg-slate-50 border border-slate-200 rounded-xl focus:bg-white focus:border-[#007A6C] outline-none"
+                    />
+                  </div>
 
-              <div>
-                <label className="block text-xs font-bold text-slate-700 mb-1">Consultation / Assessment Fee</label>
-                <input
-                  type="text"
-                  value={profileFormData.consultationFeeUsd || "$80 - $150"}
-                  onChange={(e) => setProfileFormData((prev) => ({ ...prev, consultationFeeUsd: e.target.value }))}
-                  className="w-full text-xs px-3.5 py-2.5 bg-slate-50 border border-slate-200 rounded-xl focus:bg-white focus:border-[#007A6C] outline-none"
-                />
-              </div>
+                  <div>
+                    <label className="block text-xs font-bold text-slate-700 mb-1">Consultation / Assessment Fee</label>
+                    <input
+                      type="text"
+                      value={profileFormData.consultationFeeUsd || "$80 - $150"}
+                      onChange={(e) => setProfileFormData((prev) => ({ ...prev, consultationFeeUsd: e.target.value }))}
+                      className="w-full text-xs px-3.5 py-2.5 bg-slate-50 border border-slate-200 rounded-xl focus:bg-white focus:border-[#007A6C] outline-none"
+                    />
+                  </div>
 
-              {pageSlug === "hospitals" && (
-                <div>
-                  <label className="block text-xs font-bold text-slate-700 mb-1">Beds Capacity</label>
-                  <input
-                    type="number"
-                    value={profileFormData.bedsCount || 500}
-                    onChange={(e) => setProfileFormData((prev) => ({ ...prev, bedsCount: Number(e.target.value) }))}
-                    className="w-full text-xs px-3.5 py-2.5 bg-slate-50 border border-slate-200 rounded-xl focus:bg-white focus:border-[#007A6C] outline-none"
-                  />
-                </div>
+                  <div className="md:col-span-2">
+                    <label className="block text-xs font-bold text-slate-700 mb-1">Accreditations (comma-separated)</label>
+                    <input
+                      type="text"
+                      value={Array.isArray(profileFormData.accreditations) ? profileFormData.accreditations.join(", ") : ""}
+                      onChange={(e) =>
+                        setProfileFormData((prev) => ({
+                          ...prev,
+                          accreditations: e.target.value.split(",").map((s) => s.trim()).filter(Boolean),
+                        }))
+                      }
+                      placeholder="JCI, NABH, ISO 15189, ESHRE"
+                      className="w-full text-xs px-3.5 py-2.5 bg-slate-50 border border-slate-200 rounded-xl focus:bg-white focus:border-[#007A6C] outline-none"
+                    />
+                  </div>
+                </>
               )}
-
-              <div className="md:col-span-3">
-                <label className="block text-xs font-bold text-slate-700 mb-1">Accreditations (comma-separated)</label>
-                <input
-                  type="text"
-                  value={Array.isArray(profileFormData.accreditations) ? profileFormData.accreditations.join(", ") : ""}
-                  onChange={(e) =>
-                    setProfileFormData((prev) => ({
-                      ...prev,
-                      accreditations: e.target.value.split(",").map((s) => s.trim()).filter(Boolean),
-                    }))
-                  }
-                  placeholder="JCI, NABH, ISO 15189, ESHRE"
-                  className="w-full text-xs px-3.5 py-2.5 bg-slate-50 border border-slate-200 rounded-xl focus:bg-white focus:border-[#007A6C] outline-none"
-                />
-              </div>
             </div>
           )}
 
           {activeProfileTab === "clinical" && (
             <div className="space-y-4">
-              <div>
-                <label className="block text-xs font-bold text-slate-700 mb-1">Clinical Biography / Summary</label>
-                <textarea
-                  rows={5}
-                  value={profileFormData.bio || profileFormData.description || ""}
-                  onChange={(e) => setProfileFormData((prev) => ({ ...prev, bio: e.target.value, description: e.target.value }))}
-                  placeholder="Enter detailed clinical narrative, background, and medical achievements..."
-                  className="w-full text-xs p-3.5 bg-slate-50 border border-slate-200 rounded-xl focus:bg-white focus:border-[#007A6C] outline-none"
-                />
+              {pageSlug === "hospitals" ? (
+                <>
+                  <div>
+                    <label className="block text-xs font-bold text-slate-700 mb-1">Short Hospital Summary</label>
+                    <textarea
+                      rows={3}
+                      value={profileFormData.summary || profileFormData.description || ""}
+                      onChange={(e) => setProfileFormData((prev) => ({ ...prev, summary: e.target.value, description: e.target.value }))}
+                      placeholder="Founded in 1984, Yanhee International Hospital is one of Asia's premier destinations for cosmetic surgery..."
+                      className="w-full text-xs p-3.5 bg-slate-50 border border-slate-200 rounded-xl focus:bg-white focus:border-[#007A6C] outline-none"
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-xs font-bold text-slate-700 mb-1">Comprehensive About / Narrative (Markdown)</label>
+                    <textarea
+                      rows={6}
+                      value={profileFormData.aboutMarkdown || ""}
+                      onChange={(e) => setProfileFormData((prev) => ({ ...prev, aboutMarkdown: e.target.value }))}
+                      placeholder="Detailed clinical history, department overviews, and quality standards..."
+                      className="w-full text-xs p-3.5 bg-slate-50 border border-slate-200 rounded-xl focus:bg-white focus:border-[#007A6C] outline-none font-mono"
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-xs font-bold text-slate-700 mb-1">
+                      Key Highlights & Accreditations (one per line)
+                    </label>
+                    <textarea
+                      rows={4}
+                      value={
+                        Array.isArray(profileFormData.highlights)
+                          ? profileFormData.highlights.join("\n")
+                          : typeof profileFormData.highlights === "string"
+                          ? profileFormData.highlights
+                          : ""
+                      }
+                      onChange={(e) =>
+                        setProfileFormData((prev) => ({
+                          ...prev,
+                          highlights: e.target.value.split("\n").filter(Boolean),
+                        }))
+                      }
+                      placeholder="JCI-Accredited Excellence&#10;Ranked #12 in Thailand by Newsweek&#10;Over 75% repeat or referral patients"
+                      className="w-full text-xs p-3.5 bg-slate-50 border border-slate-200 rounded-xl focus:bg-white focus:border-[#007A6C] outline-none"
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-xs font-bold text-slate-700 mb-1">
+                      Accessibility & Facilities Features (one per line)
+                    </label>
+                    <textarea
+                      rows={3}
+                      value={
+                        Array.isArray(profileFormData.accessibilityFeatures)
+                          ? profileFormData.accessibilityFeatures.join("\n")
+                          : typeof profileFormData.accessibilityFeatures === "string"
+                          ? profileFormData.accessibilityFeatures
+                          : ""
+                      }
+                      onChange={(e) =>
+                        setProfileFormData((prev) => ({
+                          ...prev,
+                          accessibilityFeatures: e.target.value.split("\n").filter(Boolean),
+                        }))
+                      }
+                      placeholder="Wheelchair-accessible ramps and elevators&#10;Barrier-free restrooms and wide entrance bays"
+                      className="w-full text-xs p-3.5 bg-slate-50 border border-slate-200 rounded-xl focus:bg-white focus:border-[#007A6C] outline-none"
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-xs font-bold text-slate-700 mb-1">Medical Specialties Known For (comma-separated)</label>
+                    <input
+                      type="text"
+                      value={Array.isArray(profileFormData.specialties) ? profileFormData.specialties.join(", ") : ""}
+                      onChange={(e) =>
+                        setProfileFormData((prev) => ({
+                          ...prev,
+                          specialties: e.target.value.split(",").map((s) => s.trim()).filter(Boolean),
+                        }))
+                      }
+                      placeholder="Cosmetic & Plastic Surgery, Gender Affirmation, Bariatric Surgery, Dental"
+                      className="w-full text-xs px-3.5 py-2.5 bg-slate-50 border border-slate-200 rounded-xl focus:bg-white focus:border-[#007A6C] outline-none"
+                    />
+                  </div>
+                </>
+              ) : (
+                <>
+                  <div>
+                    <label className="block text-xs font-bold text-slate-700 mb-1">Clinical Biography / Summary</label>
+                    <textarea
+                      rows={5}
+                      value={profileFormData.bio || profileFormData.description || ""}
+                      onChange={(e) => setProfileFormData((prev) => ({ ...prev, bio: e.target.value, description: e.target.value }))}
+                      placeholder="Enter detailed clinical narrative, background, and medical achievements..."
+                      className="w-full text-xs p-3.5 bg-slate-50 border border-slate-200 rounded-xl focus:bg-white focus:border-[#007A6C] outline-none"
+                    />
+                  </div>
+
+                  <div>
+                    <label className="block text-xs font-bold text-slate-700 mb-1">
+                      Key Milestones & Innovations (one per line)
+                    </label>
+                    <textarea
+                      rows={4}
+                      value={
+                        Array.isArray(profileFormData.milestones)
+                          ? profileFormData.milestones.join("\n")
+                          : typeof profileFormData.milestones === "string"
+                          ? profileFormData.milestones
+                          : ""
+                      }
+                      onChange={(e) =>
+                        setProfileFormData((prev) => ({
+                          ...prev,
+                          milestones: e.target.value.split("\n").filter(Boolean),
+                        }))
+                      }
+                      placeholder="First microinjection baby in Turkey&#10;First PGD pregnancy in the region"
+                      className="w-full text-xs p-3.5 bg-slate-50 border border-slate-200 rounded-xl focus:bg-white focus:border-[#007A6C] outline-none"
+                    />
+                  </div>
+                </>
+              )}
+            </div>
+          )}
+
+          {pageSlug === "hospitals" && activeProfileTab === "surgeries" && (
+            <div className="space-y-6">
+              <div className="flex items-center justify-between">
+                <div>
+                  <h4 className="text-sm font-bold text-slate-900">Surgeries & Cost Comparison Table</h4>
+                  <p className="text-xs text-slate-500">Manage procedure prices, US/UK comparison rates, and patient savings.</p>
+                </div>
+                <span className="text-xs px-2.5 py-1 bg-teal-50 text-[#007A6C] font-bold rounded-lg border border-teal-200">
+                  {Array.isArray(profileFormData.surgeriesCost) ? profileFormData.surgeriesCost.length : 0} Procedures Listed
+                </span>
               </div>
 
+              {/* Surgeries Table */}
+              <div className="border border-slate-200 rounded-xl overflow-hidden shadow-xs">
+                <table className="w-full text-left text-xs">
+                  <thead className="bg-slate-50 text-slate-700 font-bold border-b border-slate-200">
+                    <tr>
+                      <th className="py-2.5 px-3">Procedure</th>
+                      <th className="py-2.5 px-3">Category</th>
+                      <th className="py-2.5 px-3">Hospital Price (USD)</th>
+                      <th className="py-2.5 px-3">US / UK Price</th>
+                      <th className="py-2.5 px-3">Savings</th>
+                      <th className="py-2.5 px-3 text-right">Action</th>
+                    </tr>
+                  </thead>
+                  <tbody className="divide-y divide-slate-100">
+                    {(profileFormData.surgeriesCost || []).map((sc: any, idx: number) => (
+                      <tr key={sc.id || idx} className="hover:bg-slate-50/70">
+                        <td className="py-2 px-3 font-semibold text-slate-900">{sc.procedure}</td>
+                        <td className="py-2 px-3 text-slate-600">{sc.category || "General"}</td>
+                        <td className="py-2 px-3 font-bold text-[#007A6C]">{sc.hospitalPriceUsd}</td>
+                        <td className="py-2 px-3 text-slate-400 line-through">{sc.usUkPriceUsd}</td>
+                        <td className="py-2 px-3">
+                          <span className="inline-flex px-2 py-0.5 rounded-full text-[11px] font-bold bg-amber-50 text-amber-700 border border-amber-200">
+                            Save {sc.savingsPercent}%
+                          </span>
+                        </td>
+                        <td className="py-2 px-3 text-right">
+                          <button
+                            type="button"
+                            onClick={() => {
+                              const updated = (profileFormData.surgeriesCost || []).filter((_: any, i: number) => i !== idx);
+                              setProfileFormData((prev) => ({ ...prev, surgeriesCost: updated }));
+                            }}
+                            className="p-1 text-red-500 hover:text-red-700 rounded hover:bg-red-50"
+                            title="Delete Surgery Cost"
+                          >
+                            <Trash2 className="w-3.5 h-3.5" />
+                          </button>
+                        </td>
+                      </tr>
+                    ))}
+                    {(!profileFormData.surgeriesCost || profileFormData.surgeriesCost.length === 0) && (
+                      <tr>
+                        <td colSpan={6} className="py-6 text-center text-slate-400">
+                          No surgery prices listed yet. Add one below.
+                        </td>
+                      </tr>
+                    )}
+                  </tbody>
+                </table>
+              </div>
+
+              {/* Add Surgery Form */}
+              <div className="bg-slate-50 p-4 rounded-xl border border-slate-200 space-y-3">
+                <h5 className="text-xs font-bold text-slate-800 flex items-center gap-1.5">
+                  <Plus className="w-3.5 h-3.5 text-[#007A6C]" />
+                  <span>Add New Surgery / Procedure Pricing</span>
+                </h5>
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
+                  <div>
+                    <label className="block text-[11px] font-semibold text-slate-600 mb-1">Procedure Name</label>
+                    <input
+                      type="text"
+                      value={newSurgeryCost.procedure}
+                      onChange={(e) => setNewSurgeryCost((prev) => ({ ...prev, procedure: e.target.value }))}
+                      placeholder="e.g. Breast Augmentation (Mentor)"
+                      className="w-full text-xs px-3 py-2 bg-white border border-slate-200 rounded-lg outline-none focus:border-[#007A6C]"
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-[11px] font-semibold text-slate-600 mb-1">Category</label>
+                    <input
+                      type="text"
+                      value={newSurgeryCost.category}
+                      onChange={(e) => setNewSurgeryCost((prev) => ({ ...prev, category: e.target.value }))}
+                      placeholder="e.g. Cosmetic Surgery"
+                      className="w-full text-xs px-3 py-2 bg-white border border-slate-200 rounded-lg outline-none focus:border-[#007A6C]"
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-[11px] font-semibold text-slate-600 mb-1">Hospital Price (USD)</label>
+                    <input
+                      type="text"
+                      value={newSurgeryCost.hospitalPriceUsd}
+                      onChange={(e) => setNewSurgeryCost((prev) => ({ ...prev, hospitalPriceUsd: e.target.value }))}
+                      placeholder="e.g. $3,200"
+                      className="w-full text-xs px-3 py-2 bg-white border border-slate-200 rounded-lg outline-none focus:border-[#007A6C]"
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-[11px] font-semibold text-slate-600 mb-1">US / UK Price (USD)</label>
+                    <input
+                      type="text"
+                      value={newSurgeryCost.usUkPriceUsd}
+                      onChange={(e) => setNewSurgeryCost((prev) => ({ ...prev, usUkPriceUsd: e.target.value }))}
+                      placeholder="e.g. $8,500"
+                      className="w-full text-xs px-3 py-2 bg-white border border-slate-200 rounded-lg outline-none focus:border-[#007A6C]"
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-[11px] font-semibold text-slate-600 mb-1">Savings %</label>
+                    <input
+                      type="number"
+                      value={newSurgeryCost.savingsPercent}
+                      onChange={(e) => setNewSurgeryCost((prev) => ({ ...prev, savingsPercent: Number(e.target.value) }))}
+                      className="w-full text-xs px-3 py-2 bg-white border border-slate-200 rounded-lg outline-none focus:border-[#007A6C]"
+                    />
+                  </div>
+                  <div className="flex items-end">
+                    <button
+                      type="button"
+                      onClick={() => {
+                        if (!newSurgeryCost.procedure.trim()) return;
+                        const id = `cost-${Date.now()}`;
+                        const itemToAdd = { id, ...newSurgeryCost };
+                        setProfileFormData((prev) => ({
+                          ...prev,
+                          surgeriesCost: [...(prev.surgeriesCost || []), itemToAdd],
+                        }));
+                        setNewSurgeryCost({
+                          procedure: "",
+                          category: "Cosmetic Surgery",
+                          hospitalPriceUsd: "$2,500",
+                          usUkPriceUsd: "$8,000",
+                          savingsPercent: 65,
+                          description: "Complete procedure including accredited surgeon and stay.",
+                        });
+                      }}
+                      className="w-full py-2 bg-[#007A6C] hover:bg-[#006054] text-white text-xs font-bold rounded-lg transition flex items-center justify-center gap-1"
+                    >
+                      <Plus className="w-3.5 h-3.5" />
+                      <span>Add Procedure</span>
+                    </button>
+                  </div>
+                </div>
+              </div>
+            </div>
+          )}
+
+          {pageSlug === "hospitals" && activeProfileTab === "rooms" && (
+            <div className="space-y-6">
+              <div className="flex items-center justify-between">
+                <div>
+                  <h4 className="text-sm font-bold text-slate-900">Hospital Facilities & Room Suites</h4>
+                  <p className="text-xs text-slate-500">Configure private suites, deluxe patient rooms, and accepted payment methods.</p>
+                </div>
+              </div>
+
+              {/* Room Types */}
+              <div className="space-y-3">
+                <h5 className="text-xs font-bold text-slate-800">Active Patient Room Types</h5>
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+                  {(profileFormData.roomTypes || []).map((rt: any, idx: number) => (
+                    <div key={idx} className="p-3.5 bg-slate-50 rounded-xl border border-slate-200 relative">
+                      <button
+                        type="button"
+                        onClick={() => {
+                          const updated = (profileFormData.roomTypes || []).filter((_: any, i: number) => i !== idx);
+                          setProfileFormData((prev) => ({ ...prev, roomTypes: updated }));
+                        }}
+                        className="absolute top-3 right-3 text-red-500 hover:text-red-700"
+                        title="Remove Room Type"
+                      >
+                        <Trash2 className="w-3.5 h-3.5" />
+                      </button>
+                      <h6 className="text-xs font-bold text-slate-900">{rt.name}</h6>
+                      <p className="text-[11px] text-slate-600 mt-1 leading-relaxed">{rt.description}</p>
+                      {Array.isArray(rt.amenities) && rt.amenities.length > 0 && (
+                        <div className="flex flex-wrap gap-1 mt-2">
+                          {rt.amenities.map((a: string, ai: number) => (
+                            <span key={ai} className="px-2 py-0.5 bg-white text-slate-700 text-[10px] rounded border border-slate-200">
+                              {a}
+                            </span>
+                          ))}
+                        </div>
+                      )}
+                    </div>
+                  ))}
+                </div>
+              </div>
+
+              {/* Add Room Type Form */}
+              <div className="bg-slate-50 p-4 rounded-xl border border-slate-200 space-y-3">
+                <h5 className="text-xs font-bold text-slate-800 flex items-center gap-1.5">
+                  <Plus className="w-3.5 h-3.5 text-[#007A6C]" />
+                  <span>Add Room Suite Option</span>
+                </h5>
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+                  <div>
+                    <label className="block text-[11px] font-semibold text-slate-600 mb-1">Room Name</label>
+                    <input
+                      type="text"
+                      value={newRoomType.name}
+                      onChange={(e) => setNewRoomType((prev) => ({ ...prev, name: e.target.value }))}
+                      placeholder="e.g. VIP Single Suite"
+                      className="w-full text-xs px-3 py-2 bg-white border border-slate-200 rounded-lg outline-none focus:border-[#007A6C]"
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-[11px] font-semibold text-slate-600 mb-1">Amenities (comma-separated)</label>
+                    <input
+                      type="text"
+                      value={newRoomType.amenities}
+                      onChange={(e) => setNewRoomType((prev) => ({ ...prev, amenities: e.target.value }))}
+                      placeholder="Private Bathroom, Wi-Fi, Smart TV, Nurse Call"
+                      className="w-full text-xs px-3 py-2 bg-white border border-slate-200 rounded-lg outline-none focus:border-[#007A6C]"
+                    />
+                  </div>
+                  <div className="md:col-span-2">
+                    <label className="block text-[11px] font-semibold text-slate-600 mb-1">Description</label>
+                    <input
+                      type="text"
+                      value={newRoomType.description}
+                      onChange={(e) => setNewRoomType((prev) => ({ ...prev, description: e.target.value }))}
+                      placeholder="Spacious private room with electric hospital bed, guest daybed, and en-suite bath."
+                      className="w-full text-xs px-3 py-2 bg-white border border-slate-200 rounded-lg outline-none focus:border-[#007A6C]"
+                    />
+                  </div>
+                </div>
+                <button
+                  type="button"
+                  onClick={() => {
+                    if (!newRoomType.name.trim()) return;
+                    const itemToAdd = {
+                      name: newRoomType.name.trim(),
+                      description: newRoomType.description.trim(),
+                      amenities: newRoomType.amenities.split(",").map((s) => s.trim()).filter(Boolean),
+                    };
+                    setProfileFormData((prev) => ({
+                      ...prev,
+                      roomTypes: [...(prev.roomTypes || []), itemToAdd],
+                    }));
+                    setNewRoomType({
+                      name: "",
+                      description: "",
+                      amenities: "Private Bathroom, Wi-Fi, Smart TV, Nurse Call",
+                    });
+                  }}
+                  className="px-4 py-2 bg-[#007A6C] hover:bg-[#006054] text-white text-xs font-bold rounded-lg transition flex items-center gap-1.5"
+                >
+                  <Plus className="w-3.5 h-3.5" />
+                  <span>Add Room Type</span>
+                </button>
+              </div>
+
+              {/* Payment Methods */}
               <div>
-                <label className="block text-xs font-bold text-slate-700 mb-1">
-                  Key Milestones & Innovations (one per line)
-                </label>
+                <label className="block text-xs font-bold text-slate-700 mb-1">Accepted Payment Methods (one per line)</label>
                 <textarea
-                  rows={4}
+                  rows={3}
                   value={
-                    Array.isArray(profileFormData.milestones)
-                      ? profileFormData.milestones.join("\n")
-                      : typeof profileFormData.milestones === "string"
-                      ? profileFormData.milestones
+                    Array.isArray(profileFormData.paymentMethods)
+                      ? profileFormData.paymentMethods.join("\n")
+                      : typeof profileFormData.paymentMethods === "string"
+                      ? profileFormData.paymentMethods
                       : ""
                   }
                   onChange={(e) =>
                     setProfileFormData((prev) => ({
                       ...prev,
-                      milestones: e.target.value.split("\n").filter(Boolean),
+                      paymentMethods: e.target.value.split("\n").map((s) => s.trim()).filter(Boolean),
                     }))
                   }
-                  placeholder="First microinjection baby in Turkey&#10;First PGD pregnancy in the region"
+                  placeholder="Cash (Thai Baht, USD, EUR)&#10;Credit Cards (Visa, MasterCard, JCB)&#10;Bank Wire Transfer (SWIFT)"
                   className="w-full text-xs p-3.5 bg-slate-50 border border-slate-200 rounded-xl focus:bg-white focus:border-[#007A6C] outline-none"
                 />
               </div>
             </div>
           )}
 
-          {activeProfileTab === "services" && (
+          {pageSlug === "hospitals" && activeProfileTab === "faqs" && (
+            <div className="space-y-6">
+              <div className="flex items-center justify-between">
+                <div>
+                  <h4 className="text-sm font-bold text-slate-900">Hospital FAQs (Frequently Asked Questions)</h4>
+                  <p className="text-xs text-slate-500">Provide direct answers about arrival, transfers, visas, and aftercare.</p>
+                </div>
+                <span className="text-xs px-2.5 py-1 bg-teal-50 text-[#007A6C] font-bold rounded-lg border border-teal-200">
+                  {Array.isArray(profileFormData.faqs) ? profileFormData.faqs.length : 0} Questions
+                </span>
+              </div>
+
+              {/* FAQ Accordion List */}
+              <div className="space-y-2.5">
+                {(profileFormData.faqs || []).map((faq: any, idx: number) => (
+                  <div key={idx} className="p-3.5 bg-slate-50 rounded-xl border border-slate-200 relative">
+                    <button
+                      type="button"
+                      onClick={() => {
+                        const updated = (profileFormData.faqs || []).filter((_: any, i: number) => i !== idx);
+                        setProfileFormData((prev) => ({ ...prev, faqs: updated }));
+                      }}
+                      className="absolute top-3 right-3 text-red-500 hover:text-red-700"
+                      title="Delete FAQ"
+                    >
+                      <Trash2 className="w-3.5 h-3.5" />
+                    </button>
+                    <p className="text-xs font-bold text-slate-900 pr-6">Q: {faq.question}</p>
+                    <p className="text-[11px] text-slate-600 mt-1 leading-relaxed">A: {faq.answer}</p>
+                  </div>
+                ))}
+                {(!profileFormData.faqs || profileFormData.faqs.length === 0) && (
+                  <div className="py-6 text-center text-slate-400 text-xs">
+                    No FAQs added yet. Use the form below to add hospital questions.
+                  </div>
+                )}
+              </div>
+
+              {/* Add FAQ Form */}
+              <div className="bg-slate-50 p-4 rounded-xl border border-slate-200 space-y-3">
+                <h5 className="text-xs font-bold text-slate-800 flex items-center gap-1.5">
+                  <Plus className="w-3.5 h-3.5 text-[#007A6C]" />
+                  <span>Add New Hospital FAQ</span>
+                </h5>
+                <div>
+                  <label className="block text-[11px] font-semibold text-slate-600 mb-1">Question</label>
+                  <input
+                    type="text"
+                    value={newFaq.question}
+                    onChange={(e) => setNewFaq((prev) => ({ ...prev, question: e.target.value }))}
+                    placeholder="e.g. How long before surgery should I arrive in Bangkok?"
+                    className="w-full text-xs px-3 py-2 bg-white border border-slate-200 rounded-lg outline-none focus:border-[#007A6C]"
+                  />
+                </div>
+                <div>
+                  <label className="block text-[11px] font-semibold text-slate-600 mb-1">Answer</label>
+                  <textarea
+                    rows={3}
+                    value={newFaq.answer}
+                    onChange={(e) => setNewFaq((prev) => ({ ...prev, answer: e.target.value }))}
+                    placeholder="e.g. For most surgical procedures, we recommend arriving 1 to 2 days prior to your surgery date..."
+                    className="w-full text-xs p-3 bg-white border border-slate-200 rounded-lg outline-none focus:border-[#007A6C]"
+                  />
+                </div>
+                <button
+                  type="button"
+                  onClick={() => {
+                    if (!newFaq.question.trim() || !newFaq.answer.trim()) return;
+                    const itemToAdd = {
+                      question: newFaq.question.trim(),
+                      answer: newFaq.answer.trim(),
+                    };
+                    setProfileFormData((prev) => ({
+                      ...prev,
+                      faqs: [...(prev.faqs || []), itemToAdd],
+                    }));
+                    setNewFaq({ question: "", answer: "" });
+                  }}
+                  className="px-4 py-2 bg-[#007A6C] hover:bg-[#006054] text-white text-xs font-bold rounded-lg transition flex items-center gap-1.5"
+                >
+                  <Plus className="w-3.5 h-3.5" />
+                  <span>Add FAQ</span>
+                </button>
+              </div>
+            </div>
+          )}
+
+          {pageSlug !== "hospitals" && activeProfileTab === "services" && (
             <div className="space-y-4">
               <label className="block text-xs font-bold text-slate-700">
                 Offered Procedures & Services (comma-separated or items)

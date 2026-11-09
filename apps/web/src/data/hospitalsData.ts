@@ -271,3 +271,21 @@ export const HOSPITAL_TREATMENTS = [
   "Bariatric Surgery"
 ];
 
+
+
+export {
+  type HospitalDetail,
+  type HospitalSurgeryCostItem,
+  type HospitalRoomType,
+  type HospitalFaqItem,
+  type HospitalReviewItem,
+  type HospitalDoctorSummary,
+  YANHEE_HOSPITAL_DETAIL,
+  HOSPITAL_DETAILS_MAP,
+  buildHospitalDetailFromItem,
+} from "@akeezo/contracts";
+import { getHospitalDetail as contractsGetHospitalDetail, type HospitalDetail } from "@akeezo/contracts";
+
+export function getHospitalDetail(slug: string, customHospitals?: any[]): HospitalDetail | null {
+  return contractsGetHospitalDetail(slug, customHospitals || ALL_HOSPITALS);
+}

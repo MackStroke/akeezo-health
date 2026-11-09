@@ -7,6 +7,7 @@ import { ServerErrorTemplate } from "./templates/ServerErrorTemplate.js";
 import { CalculatorTemplate } from "./templates/CalculatorTemplate.js";
 import { TreatmentsTemplate } from "./templates/TreatmentsTemplate.js";
 import { HospitalsTemplate } from "./templates/HospitalsTemplate.js";
+import { HospitalDetailTemplate } from "./templates/HospitalDetailTemplate.js";
 import { DoctorsTemplate } from "./templates/DoctorsTemplate.js";
 import { DoctorDetailTemplate } from "./templates/DoctorDetailTemplate.js";
 import { AboutTemplate } from "./templates/AboutTemplate.js";
@@ -116,8 +117,9 @@ export function App({ data }: AppProps) {
       case "treatmentDetail":
         return <TreatmentsTemplate data={currentData} />;
       case "hospitalDirectory":
-      case "hospitalDetail":
         return <HospitalsTemplate data={currentData} />;
+      case "hospitalDetail":
+        return <HospitalDetailTemplate data={currentData} />;
       case "doctorDirectory":
         return <DoctorsTemplate data={currentData} />;
       case "doctorDetail":

@@ -251,10 +251,6 @@ export declare const DoctorsPagePayloadSchema: z.ZodObject<{
         consultationFeeUsd?: string | undefined;
     }>, "many">>;
 }, "strip", z.ZodTypeAny, {
-    headline: string;
-    subheadline: string;
-    searchPlaceholder: string;
-    featuredSpecialties: string[];
     doctors: {
         id: string;
         slug: string;
@@ -272,11 +268,11 @@ export declare const DoctorsPagePayloadSchema: z.ZodObject<{
         active: boolean;
         consultationFeeUsd: string;
     }[];
+    headline: string;
+    subheadline: string;
+    searchPlaceholder: string;
+    featuredSpecialties: string[];
 }, {
-    headline?: string | undefined;
-    subheadline?: string | undefined;
-    searchPlaceholder?: string | undefined;
-    featuredSpecialties?: string[] | undefined;
     doctors?: {
         id: string;
         slug: string;
@@ -294,6 +290,10 @@ export declare const DoctorsPagePayloadSchema: z.ZodObject<{
         active?: boolean | undefined;
         consultationFeeUsd?: string | undefined;
     }[] | undefined;
+    headline?: string | undefined;
+    subheadline?: string | undefined;
+    searchPlaceholder?: string | undefined;
+    featuredSpecialties?: string[] | undefined;
 }>;
 export type DoctorsPagePayload = z.infer<typeof DoctorsPagePayloadSchema>;
 export declare const HospitalCatalogueItemSchema: z.ZodObject<{

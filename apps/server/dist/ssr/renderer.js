@@ -5,7 +5,7 @@ import { fileURLToPath, pathToFileURL } from "node:url";
 import { PassThrough } from "node:stream";
 import mongoose from "mongoose";
 import { RouteEntry, ContentRevision, Page, SiteSettings, ChangelogModel, BlogPostModel } from "../db/models/index.js";
-import { SiteSettingsSchema, DEFAULT_CAROUSEL_SLIDES, generateWebsiteThemeCss, getGoogleFontUrl, getDoctorDetail } from "@akeezo/contracts";
+import { SiteSettingsSchema, DEFAULT_CAROUSEL_SLIDES, generateWebsiteThemeCss, getGoogleFontUrl, getDoctorDetail, getHospitalDetail } from "@akeezo/contracts";
 import { env } from "../config/env.js";
 function getSafePaths() {
     try {
@@ -399,28 +399,90 @@ export async function handleSsr(req, res, next) {
                 statusCode: 200
             };
         }
+        else if (normalizedPath === "/hospital" || normalizedPath.startsWith("/hospital/")) {
+            const sub = normalizedPath.replace(/^\/hospital\/?/, "");
+            res.redirect(301, sub ? `/hospitals/${sub}` : "/hospitals");
+            return;
+        }
         else if (normalizedPath === "/hospitals" || normalizedPath.startsWith("/hospitals/")) {
-            statusCode = 200;
+            const slug = normalizedPath.startsWith("/hospitals/")
+                ? normalizedPath.replace(/^\/hospitals\/?/, "").split("/")[0]
+                : "";
+            const isDetail = Boolean(slug);
             const revData = await getFallbackPageRevision("hospitals");
-            dto = {
-                pageKind: "hospitalDirectory",
-                path: normalizedPath,
-                locale: "en",
-                seo: revData?.seo || {
-                    title: "World-Class Hospitals | Personally Matched for You | AKEEZO",
-                    description: "Find and compare top accredited hospitals globally. Transparent estimates, verified patient satisfaction ratings, and complete care coordination with AKEEZO.",
-                    canonicalPath: "/hospitals",
-                    robots: "index,follow",
-                    schemaKind: "MedicalWebPage"
-                },
-                payload: {
-                    ...(revData?.payload || {}),
-                    headline: revData?.payload?.headline || "World-Class Hospitals, Personally Matched for You",
-                    subheadline: revData?.payload?.subheadline || "Find the Best Hospitals for Your Treatment, Anywhere in the World"
-                },
-                siteSettings,
-                statusCode: 200
-            };
+            const fallbackHospitals = revData?.payload?.hospitals;
+            if (isDetail) {
+                const hospital = getHospitalDetail(slug, fallbackHospitals);
+                if (hospital) {
+                    statusCode = 200;
+                    dto = {
+                        pageKind: "hospitalDetail",
+                        path: normalizedPath,
+                        locale: "en",
+                        seo: {
+                            title: `${hospital.name} in ${hospital.city}, ${hospital.country} | Hospital Details | AKEEZO`,
+                            description: hospital.summary ||
+                                `Explore ${hospital.name} in ${hospital.city}, ${hospital.country}. Compare surgery costs, view accredited facilities, read verified patient reviews, and book free consultations.`,
+                            canonicalPath: `/hospitals/${hospital.slug}`,
+                            robots: "index,follow",
+                            schemaKind: "MedicalWebPage"
+                        },
+                        payload: {
+                            hospital,
+                            slug: hospital.slug,
+                            headline: hospital.name,
+                            subheadline: `${hospital.city}, ${hospital.country}`,
+                            breadcrumbs: [
+                                { name: "Home", item: "/" },
+                                { name: "Hospitals", item: "/hospitals" },
+                                { name: hospital.name, item: `/hospitals/${hospital.slug}` }
+                            ]
+                        },
+                        siteSettings,
+                        statusCode: 200
+                    };
+                }
+                else {
+                    statusCode = 404;
+                    dto = {
+                        pageKind: "notFound",
+                        path: normalizedPath,
+                        locale: "en",
+                        seo: {
+                            title: "Hospital Not Found | AKEEZO Healthcare Platform",
+                            description: "The requested hospital profile could not be located. Explore our accredited international hospitals directory.",
+                            canonicalPath: "/hospitals",
+                            robots: "noindex,nofollow",
+                            schemaKind: "WebPage"
+                        },
+                        payload: {},
+                        siteSettings,
+                        statusCode: 404
+                    };
+                }
+            }
+            else {
+                statusCode = 200;
+                dto = {
+                    pageKind: "hospitalDirectory",
+                    path: normalizedPath,
+                    locale: "en",
+                    seo: revData?.seo || {
+                        title: "World-Class Hospitals | Personally Matched for You | AKEEZO",
+                        description: "Find and compare top accredited hospitals globally. Transparent estimates, verified patient satisfaction ratings, and complete care coordination with AKEEZO.",
+                        canonicalPath: "/hospitals",
+                        robots: "index,follow",
+                        schemaKind: "MedicalWebPage"
+                    },
+                    payload: {
+                        ...(revData?.payload || {}),
+                        headline: revData?.payload?.headline || "World-Class Hospitals, Personally Matched for You",
+                        subheadline: revData?.payload?.subheadline || "Find the Best Hospitals for Your Treatment, Anywhere in the World"
+                    },
+                    siteSettings,
+                    statusCode: 200
+                };
+            }
         }
         else if (normalizedPath === "/doctor" || normalizedPath.startsWith("/doctor/")) {
             const sub = normalizedPath.replace(/^\/doctor\/?/, "");
