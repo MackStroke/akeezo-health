@@ -15,6 +15,7 @@ import {
   ChevronRight,
   Sparkles,
   RefreshCw,
+  Share2,
   TrendingUp,
   TrendingDown,
   BarChart3,
