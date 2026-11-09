@@ -1343,7 +1343,8 @@ cmsAdminRouter.put("/pages/:slug/items/:itemId", async (req, res) => {
 cmsAdminRouter.delete("/pages/:slug/items/:itemId", async (req, res) => {
     try {
         const { slug, itemId } = req.params;
-        const { collectionKey: reqKey, publishImmediately = true } = req.body || {};
+        const reqKey = req.query.collectionKey || req.body?.collectionKey;
+        const publishImmediately = req.query.publishImmediately !== "false" && req.body?.publishImmediately !== false;
         const page = await Page.findOne({ slug, locale: "en" });
         if (!page) {
             return res.status(404).json({ error: { code: "PAGE_NOT_FOUND", message: `Page '${slug}' not found.` } });
@@ -1409,7 +1410,8 @@ cmsAdminRouter.delete("/pages/:slug/items/:itemId", async (req, res) => {
 cmsAdminRouter.patch("/pages/:slug/items/:itemId/toggle", async (req, res) => {
     try {
         const { slug, itemId } = req.params;
-        const { collectionKey: reqKey, publishImmediately = true } = req.body || {};
+        const reqKey = req.query.collectionKey || req.body?.collectionKey;
+        const publishImmediately = req.query.publishImmediately !== "false" && req.body?.publishImmediately !== false;
         const page = await Page.findOne({ slug, locale: "en" });
         if (!page) {
             return res.status(404).json({ error: { code: "PAGE_NOT_FOUND", message: `Page '${slug}' not found.` } });

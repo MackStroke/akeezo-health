@@ -1612,7 +1612,8 @@ cmsAdminRouter.put("/pages/:slug/items/:itemId", async (req: Request, res: Respo
 cmsAdminRouter.delete("/pages/:slug/items/:itemId", async (req: Request, res: Response) => {
   try {
     const { slug, itemId } = req.params;
-    const { collectionKey: reqKey, publishImmediately = true } = req.body || {};
+    const reqKey = (req.query.collectionKey as string) || req.body?.collectionKey;
+    const publishImmediately = req.query.publishImmediately !== "false" && req.body?.publishImmediately !== false;
 
     const page = await Page.findOne({ slug, locale: "en" });
     if (!page) {
@@ -1700,7 +1701,8 @@ cmsAdminRouter.delete("/pages/:slug/items/:itemId", async (req: Request, res: Re
 cmsAdminRouter.patch("/pages/:slug/items/:itemId/toggle", async (req: Request, res: Response) => {
   try {
     const { slug, itemId } = req.params;
-    const { collectionKey: reqKey, publishImmediately = true } = req.body || {};
+    const reqKey = (req.query.collectionKey as string) || req.body?.collectionKey;
+    const publishImmediately = req.query.publishImmediately !== "false" && req.body?.publishImmediately !== false;
 
     const page = await Page.findOne({ slug, locale: "en" });
     if (!page) {
