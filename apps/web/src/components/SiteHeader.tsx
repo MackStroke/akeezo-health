@@ -401,23 +401,6 @@ export const SiteHeader: React.FC<SiteHeaderProps> = ({
 
           {/* Right Action Items */}
           <div className="flex min-w-0 shrink items-center gap-3 lg:gap-4">
-            {/* Treatment Selector Dropdown Pill */}
-            <div className="min-w-0 max-w-[10rem] shrink max-[400px]:max-w-[8.5rem] lg:max-w-[15rem]">
-              <div className="w-full relative z-[5] m-1 inline-block">
-                <div className="cursor-pointer">
-                  <button
-                    type="button"
-                    onClick={() => setIsExploreOpen(true)}
-                    title="Select Treatment"
-                    className="relative flex cursor-pointer select-none items-center justify-between rounded-full transition-colors duration-200 bg-white text-action hover:text-action-hover border-[0.5px] h-9 px-4 text-sm gap-2 w-full border-action/40 hover:border-action max-[400px]:h-8 max-[400px]:gap-1 max-[400px]:px-2.5 max-[400px]:text-[13px] shadow-2xs font-semibold"
-                  >
-                    <span className="flex-1 truncate whitespace-nowrap text-left capitalize">Select Treatment</span>
-                    <ChevronDown className="lucide lucide-chevron-down size-4 shrink-0 transition-transform duration-200 text-ink-muted" aria-hidden="true" />
-                  </button>
-                </div>
-              </div>
-            </div>
-
             {/* 24/7 Desk Helpline for direct phone assistance */}
             <a
               href={`tel:${phoneClean}`}

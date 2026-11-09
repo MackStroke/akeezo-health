@@ -107,14 +107,14 @@ cmsAdminRouter.get("/overview-stats", async (_req, res) => {
                 treatmentsPage ? (treatmentsPage.publishedRevisionId || treatmentsPage.draftRevisionId) : null,
                 destinationsPage ? (destinationsPage.publishedRevisionId || destinationsPage.draftRevisionId) : null,
             ].map((revId) => (revId ? ContentRevision.findById(revId).lean() : Promise.resolve(null)));
-            const [docRev, hospRev, trtRev, destRev] = await Promise.all(dirRevPromises);
-            if (docRev?.payload?.doctors?.length)
+            const [docRev, hospRev, trtRev, destRev] = (await Promise.all(dirRevPromises));
+            if (docRev?.payload?.doctors && Array.isArray(docRev.payload.doctors))
                 doctorsDirectoryCount = docRev.payload.doctors.length;
-            if (hospRev?.payload?.hospitals?.length)
+            if (hospRev?.payload?.hospitals && Array.isArray(hospRev.payload.hospitals))
                 hospitalsDirectoryCount = hospRev.payload.hospitals.length;
-            if (trtRev?.payload?.treatments?.length)
+            if (trtRev?.payload?.treatments && Array.isArray(trtRev.payload.treatments))
                 treatmentsCount = trtRev.payload.treatments.length;
-            if (destRev?.payload?.destinations?.length)
+            if (destRev?.payload?.destinations && Array.isArray(destRev.payload.destinations))
                 destinationsCount = destRev.payload.destinations.length;
         }
         const totalEnquiries = enquiries.length;
