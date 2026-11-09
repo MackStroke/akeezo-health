@@ -424,6 +424,18 @@ export const ThemeStudioView: React.FC = () => {
                       description="Controls color for TikTok, Instagram, Facebook, YouTube, X, and LinkedIn icons in footer"
                     />
                     <ColorField
+                      label="Confident Banner Background Color"
+                      value={websiteTheme.confidentBannerBgColor || websiteTheme.actionColor || "#007A6C"}
+                      onChange={(v) => updateWebsiteToken("confidentBannerBgColor", v)}
+                      description="Controls pill background color for 'Make Confident Healthcare Decisions' banner"
+                    />
+                    <ColorField
+                      label="Confident Banner Text Color"
+                      value={websiteTheme.confidentBannerTextColor || "#FFFFFF"}
+                      onChange={(v) => updateWebsiteToken("confidentBannerTextColor", v)}
+                      description="Controls text & subtitle color inside the Confident Decisions banner pill"
+                    />
+                    <ColorField
                       label="Emergency / Urgent Notice Color"
                       value={websiteTheme.emergencyColor}
                       onChange={(v) => updateWebsiteToken("emergencyColor", v)}
@@ -1108,6 +1120,29 @@ export const ThemeStudioView: React.FC = () => {
                         }}
                       />
                     ))}
+                  </div>
+                </div>
+
+                {/* 6. Confident Decisions Banner Preview */}
+                <div
+                  className="p-3 border shadow-xs rounded-xl flex items-center justify-between gap-3 overflow-hidden"
+                  style={{
+                    backgroundColor: websiteTheme.surfaceColor,
+                    borderColor: websiteTheme.borderColor,
+                  }}
+                >
+                  <span className="text-[10px] font-semibold shrink-0" style={{ color: websiteTheme.textMutedColor }}>
+                    Confident Banner
+                  </span>
+                  <div
+                    className="flex items-center gap-2 px-3 py-1.5 rounded-full text-[11px] font-medium shadow-xs truncate"
+                    style={{
+                      backgroundColor: websiteTheme.confidentBannerBgColor || websiteTheme.actionColor || "#007A6C",
+                      color: websiteTheme.confidentBannerTextColor || "#FFFFFF",
+                    }}
+                  >
+                    <div className="w-5 h-5 rounded-full bg-white/20 border border-white/40 shrink-0" />
+                    <span className="truncate">Trusted information backed by real patient experiences.</span>
                   </div>
                 </div>
               </div>

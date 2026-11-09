@@ -35,6 +35,7 @@ import {
   Save,
   X,
   BookOpen,
+  ArrowLeft,
 } from "lucide-react";
 import { BlogManagerView } from "./BlogManagerView.js";
 import { CatalogueItemsManager, type CatalogueItemType } from "./CatalogueItemsManager.js";
@@ -172,13 +173,20 @@ export const ContentView: React.FC<ContentViewProps> = ({
     }
   };
 
-  const openEditor = async (page: PageItem) => {
+  const openEditor = async (page: PageItem, updateHistory: boolean = true) => {
     setSelectedPage(page);
     setEditorTab("content");
     setEditorError("");
     setSavePageSuccess("");
     setEditingTitle(page.title);
     setEditingSlug(page.slug);
+    setEditorOpen(true);
+
+    if (updateHistory && typeof window !== "undefined") {
+      const url = new URL(window.location.href);
+      url.searchParams.set("edit", page.slug);
+      window.history.pushState({ edit: page.slug }, "", url.pathname + url.search);
+    }
 
     try {
       const res = await fetch(`/api/v1/admin/pages/${page.slug}`);
@@ -191,8 +199,51 @@ export const ContentView: React.FC<ContentViewProps> = ({
     } catch (err: any) {
       setEditorError(`Failed to load page details: ${err.message}`);
     }
-    setEditorOpen(true);
   };
+
+  const closeEditor = () => {
+    setEditorOpen(false);
+    setSelectedPage(null);
+    setEditorError("");
+    setSavePageSuccess("");
+    if (typeof window !== "undefined") {
+      const url = new URL(window.location.href);
+      url.searchParams.delete("edit");
+      url.searchParams.delete("page");
+      window.history.pushState(null, "", url.pathname + (url.search ? url.search : ""));
+    }
+  };
+
+  useEffect(() => {
+    if (pages.length > 0 && !selectedPage && typeof window !== "undefined") {
+      const params = new URLSearchParams(window.location.search);
+      const editSlug = params.get("edit") || params.get("page");
+      if (editSlug) {
+        const found = pages.find((p) => p.slug === editSlug);
+        if (found) {
+          openEditor(found, false);
+        }
+      }
+    }
+  }, [pages]);
+
+  useEffect(() => {
+    const handlePopState = () => {
+      const params = new URLSearchParams(window.location.search);
+      const editSlug = params.get("edit") || params.get("page");
+      if (editSlug) {
+        const found = pages.find((p) => p.slug === editSlug);
+        if (found) {
+          openEditor(found, false);
+        }
+      } else {
+        setEditorOpen(false);
+        setSelectedPage(null);
+      }
+    };
+    window.addEventListener("popstate", handlePopState);
+    return () => window.removeEventListener("popstate", handlePopState);
+  }, [pages]);
 
   const handleSavePage = async (publishImmediately: boolean) => {
     if (!selectedPage) return;
@@ -539,7 +590,595 @@ export const ContentView: React.FC<ContentViewProps> = ({
 
       {/* SUB-TAB 1: PAGES & REVISIONS */}
       {activeSubTab === "pages" && (
-        <div className="space-y-4">
+        editorOpen && selectedPage ? (
+          /* PAGE EDIT SETTINGS VIEW - OPENED AS A FULL PAGE (NOT A POPUP) */
+          <div className="space-y-6 animate-in fade-in duration-150">
+            {/* 1. Page Header & Breadcrumbs Card */}
+            <div className="bg-white rounded-2xl border border-slate-200 p-5 shadow-xs flex flex-col md:flex-row md:items-center justify-between gap-4">
+              <div className="space-y-2">
+                <div className="flex items-center gap-2 flex-wrap">
+                  <button
+                    type="button"
+                    onClick={closeEditor}
+                    className="inline-flex items-center gap-1.5 px-3 py-1.5 text-xs font-bold text-slate-700 bg-slate-100 hover:bg-slate-200 rounded-xl transition cursor-pointer"
+                  >
+                    <ArrowLeft className="w-3.5 h-3.5" />
+                    <span>Back to Pages</span>
+                  </button>
+                  <span className="text-slate-300">/</span>
+                  <span className="text-xs font-bold text-slate-400 uppercase tracking-wider">Page Settings</span>
+                  <span className="text-slate-300">/</span>
+                  <h2 className="text-base sm:text-lg font-black text-slate-900 tracking-tight">
+                    {editingTitle || selectedPage.title}
+                  </h2>
+                  <span
+                    className={`px-2.5 py-0.5 rounded-full text-[10px] font-bold uppercase tracking-wider ${
+                      selectedPage.status === "published"
+                        ? "bg-emerald-100 text-emerald-800 border border-emerald-200"
+                        : "bg-amber-100 text-amber-800 border border-amber-200"
+                    }`}
+                  >
+                    {selectedPage.status}
+                  </span>
+                  <span className="text-[10px] font-mono text-slate-500 bg-slate-50 px-2 py-0.5 rounded-md border border-slate-200">
+                    Rev v{selectedPage.version || 1}
+                  </span>
+                </div>
+
+                <div className="flex items-center gap-3 text-xs text-slate-500 flex-wrap">
+                  <div className="flex items-center gap-1 font-mono">
+                    <span className="text-slate-400">Route:</span>
+                    <code className="text-[#007A6C] font-bold">/{selectedPage.slug}</code>
+                  </div>
+                  <span className="text-slate-300">•</span>
+                  <a
+                    href={selectedPage.path || `/${selectedPage.slug === "home" ? "" : selectedPage.slug}`}
+                    target="_blank"
+                    rel="noreferrer"
+                    className="inline-flex items-center gap-1 text-xs font-bold text-[#007A6C] hover:text-[#005F54] transition hover:underline"
+                  >
+                    <Globe className="w-3.5 h-3.5 text-[#007A6C]" />
+                    <span>Open Live Page</span>
+                    <ExternalLink className="w-3 h-3 opacity-70" />
+                  </a>
+                </div>
+              </div>
+
+              {/* Action Buttons & Page Switcher */}
+              <div className="flex items-center gap-2.5 flex-wrap">
+                <div className="flex items-center gap-1.5">
+                  <span className="text-xs text-slate-400 font-semibold hidden lg:inline">Switch Page:</span>
+                  <select
+                    value={selectedPage.slug}
+                    onChange={(e) => {
+                      const target = pages.find((p) => p.slug === e.target.value);
+                      if (target) openEditor(target);
+                    }}
+                    className="text-xs font-bold text-slate-700 bg-slate-50 hover:bg-slate-100 border border-slate-200 rounded-xl px-2.5 py-2 focus:outline-none focus:border-[#007A6C] transition"
+                  >
+                    {pages.map((p) => (
+                      <option key={p.slug} value={p.slug}>
+                        {p.title} (/{p.slug})
+                      </option>
+                    ))}
+                  </select>
+                </div>
+
+                <button
+                  type="button"
+                  onClick={() => handleSavePage(false)}
+                  disabled={savingPage}
+                  className="px-4 py-2 text-xs font-bold text-slate-700 bg-white border border-slate-300 hover:bg-slate-50 rounded-xl transition shadow-2xs flex items-center gap-1.5 cursor-pointer disabled:opacity-50"
+                >
+                  <Save className="w-3.5 h-3.5 text-slate-500" />
+                  <span>{savingPage ? "Saving..." : "Save Draft"}</span>
+                </button>
+
+                <button
+                  type="button"
+                  onClick={() => handleSavePage(true)}
+                  disabled={savingPage}
+                  className="px-4 py-2 text-xs font-bold text-white bg-[#007A6C] hover:bg-[#005F54] active:scale-98 rounded-xl transition shadow-xs flex items-center gap-1.5 cursor-pointer disabled:opacity-50"
+                >
+                  <Check className="w-3.5 h-3.5" />
+                  <span>{savingPage ? "Publishing..." : "Publish Live"}</span>
+                </button>
+              </div>
+            </div>
+
+            {/* Notifications */}
+            {savePageSuccess && (
+              <div className="p-4 bg-emerald-50 border border-emerald-200 rounded-2xl text-emerald-800 text-xs flex items-center justify-between gap-3 shadow-2xs">
+                <div className="flex items-center gap-2.5">
+                  <CheckCircle2 className="w-5 h-5 text-emerald-600 shrink-0" />
+                  <span className="font-medium">{savePageSuccess}</span>
+                </div>
+                <button
+                  type="button"
+                  onClick={() => setSavePageSuccess("")}
+                  className="text-emerald-700 hover:text-emerald-900 p-1 rounded-lg cursor-pointer"
+                >
+                  <X className="w-4 h-4" />
+                </button>
+              </div>
+            )}
+            {editorError && (
+              <div className="p-4 bg-rose-50 border border-rose-200 rounded-2xl text-rose-800 text-xs flex items-center justify-between gap-3 shadow-2xs">
+                <div className="flex items-center gap-2.5">
+                  <AlertCircle className="w-5 h-5 text-rose-600 shrink-0" />
+                  <span className="font-medium">{editorError}</span>
+                </div>
+                <button
+                  type="button"
+                  onClick={() => setEditorError("")}
+                  className="text-rose-700 hover:text-rose-900 p-1 rounded-lg cursor-pointer"
+                >
+                  <X className="w-4 h-4" />
+                </button>
+              </div>
+            )}
+
+            {/* Sub-Tabs Bar */}
+            <div className="flex border-b border-slate-200 gap-2 bg-white px-4 pt-1 rounded-2xl border shadow-xs overflow-x-auto">
+              <button
+                type="button"
+                onClick={() => setEditorTab("content")}
+                className={`px-4 py-3 text-xs font-bold border-b-2 flex items-center gap-2 transition whitespace-nowrap cursor-pointer ${
+                  editorTab === "content"
+                    ? "border-[#007A6C] text-[#007A6C]"
+                    : "border-transparent text-slate-500 hover:text-slate-800"
+                }`}
+              >
+                <FileText className="w-4 h-4" />
+                <span>Hero & Page Content</span>
+              </button>
+
+              {getItemTypeAndKey(selectedPage.slug) && (
+                <button
+                  type="button"
+                  onClick={() => setEditorTab("catalogue")}
+                  className={`px-4 py-3 text-xs font-bold border-b-2 flex items-center gap-2 transition whitespace-nowrap cursor-pointer ${
+                    editorTab === "catalogue"
+                      ? "border-[#007A6C] text-[#007A6C]"
+                      : "border-transparent text-slate-500 hover:text-slate-800"
+                  }`}
+                >
+                  <Sparkles className="w-4 h-4 text-[#00C7BE]" />
+                  <span>Catalogue Listings</span>
+                  <span className="px-2 py-0.5 rounded-full text-[10px] font-bold bg-[#E6F8F6] text-[#007A6C] border border-[#00C7BE]/30">
+                    {Array.isArray(payload[getItemTypeAndKey(selectedPage.slug)!.key])
+                      ? payload[getItemTypeAndKey(selectedPage.slug)!.key].length
+                      : 0}
+                  </span>
+                </button>
+              )}
+
+              <button
+                type="button"
+                onClick={() => setEditorTab("seo")}
+                className={`px-4 py-3 text-xs font-bold border-b-2 flex items-center gap-2 transition whitespace-nowrap cursor-pointer ${
+                  editorTab === "seo"
+                    ? "border-[#007A6C] text-[#007A6C]"
+                    : "border-transparent text-slate-500 hover:text-slate-800"
+                }`}
+              >
+                <Share2 className="w-4 h-4" />
+                <span>Technical SEO & SERP Preview</span>
+              </button>
+
+              <button
+                type="button"
+                onClick={() => setEditorTab("revisions")}
+                className={`px-4 py-3 text-xs font-bold border-b-2 flex items-center gap-2 transition whitespace-nowrap cursor-pointer ${
+                  editorTab === "revisions"
+                    ? "border-[#007A6C] text-[#007A6C]"
+                    : "border-transparent text-slate-500 hover:text-slate-800"
+                }`}
+              >
+                <History className="w-4 h-4" />
+                <span>Revision History</span>
+                <span className="px-1.5 py-0.5 rounded-full text-[10px] font-bold bg-slate-100 text-slate-600">
+                  {revisions.length}
+                </span>
+              </button>
+            </div>
+
+            {/* TAB 1: Hero & Content */}
+            {editorTab === "content" && (
+              <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+                <div className="lg:col-span-2 space-y-6">
+                  {/* Card: Page Identification */}
+                  <div className="bg-white rounded-2xl border border-slate-200 p-6 shadow-xs space-y-4">
+                    <h3 className="text-sm font-bold text-slate-900 border-b border-slate-100 pb-3 flex items-center gap-2">
+                      <FileText className="w-4 h-4 text-[#007A6C]" />
+                      <span>Page Identification & Route</span>
+                    </h3>
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                      <div>
+                        <label className="block text-xs font-bold text-slate-700 mb-1">
+                          Internal Page Title
+                        </label>
+                        <input
+                          type="text"
+                          value={editingTitle}
+                          onChange={(e) => setEditingTitle(e.target.value)}
+                          className="w-full text-xs px-3 py-2.5 rounded-xl border border-slate-300 focus:border-[#007A6C] focus:ring-1 focus:ring-[#00C7BE] focus:outline-none"
+                          placeholder="e.g. Doctors & Specialists"
+                        />
+                      </div>
+                      <div>
+                        <label className="block text-xs font-bold text-slate-700 mb-1">
+                          Canonical URL Slug
+                        </label>
+                        <input
+                          type="text"
+                          value={selectedPage.slug}
+                          disabled
+                          className="w-full text-xs px-3 py-2.5 rounded-xl border border-slate-200 bg-slate-50 text-slate-500 font-mono"
+                        />
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* Card: Hero Section & Public Copy */}
+                  <div className="bg-white rounded-2xl border border-slate-200 p-6 shadow-xs space-y-4">
+                    <h3 className="text-sm font-bold text-slate-900 border-b border-slate-100 pb-3 flex items-center gap-2">
+                      <Sliders className="w-4 h-4 text-[#007A6C]" />
+                      <span>Hero Section & Public Copy</span>
+                    </h3>
+
+                    {getItemTypeAndKey(selectedPage.slug) ? (
+                      <div className="space-y-4">
+                        <div>
+                          <label className="block text-xs font-bold text-slate-700 mb-1">
+                            Hero Headline (H1)
+                          </label>
+                          <input
+                            type="text"
+                            value={payload.headline || payload.title || ""}
+                            onChange={(e) => setPayload({ ...payload, headline: e.target.value })}
+                            className="w-full text-xs px-3 py-2.5 rounded-xl border border-slate-300 focus:border-[#007A6C] focus:ring-1 focus:ring-[#00C7BE] focus:outline-none"
+                            placeholder="Primary headline displayed on the hero banner..."
+                          />
+                        </div>
+
+                        <div>
+                          <label className="block text-xs font-bold text-slate-700 mb-1">
+                            Hero Subtitle & Reassurance Copy
+                          </label>
+                          <textarea
+                            rows={3}
+                            value={payload.subheadline || payload.summary || ""}
+                            onChange={(e) => setPayload({ ...payload, subheadline: e.target.value })}
+                            className="w-full text-xs px-3 py-2.5 rounded-xl border border-slate-300 focus:border-[#007A6C] focus:ring-1 focus:ring-[#00C7BE] focus:outline-none"
+                            placeholder="Supporting description or medical travel guidance..."
+                          />
+                        </div>
+
+                        {payload.searchPlaceholder !== undefined && (
+                          <div>
+                            <label className="block text-xs font-bold text-slate-700 mb-1">
+                              Search Input Placeholder
+                            </label>
+                            <input
+                              type="text"
+                              value={payload.searchPlaceholder || ""}
+                              onChange={(e) => setPayload({ ...payload, searchPlaceholder: e.target.value })}
+                              className="w-full text-xs px-3 py-2.5 rounded-xl border border-slate-300 focus:border-[#007A6C] focus:ring-1 focus:ring-[#00C7BE] focus:outline-none"
+                              placeholder="e.g. Search doctors by specialty, procedure, or hospital..."
+                            />
+                          </div>
+                        )}
+
+                        {payload.badgeText !== undefined && (
+                          <div>
+                            <label className="block text-xs font-bold text-slate-700 mb-1">
+                              Hero Pill Badge Copy
+                            </label>
+                            <input
+                              type="text"
+                              value={payload.badgeText || ""}
+                              onChange={(e) => setPayload({ ...payload, badgeText: e.target.value })}
+                              className="w-full text-xs px-3 py-2.5 rounded-xl border border-slate-300 focus:border-[#007A6C] focus:ring-1 focus:ring-[#00C7BE] focus:outline-none"
+                            />
+                          </div>
+                        )}
+                      </div>
+                    ) : (
+                      <div className="space-y-4">
+                        <div>
+                          <label className="block text-xs font-bold text-slate-700 mb-1">
+                            Section Summary / Policy Notice
+                          </label>
+                          <textarea
+                            rows={6}
+                            value={payload.summary || ""}
+                            onChange={(e) => setPayload({ ...payload, summary: e.target.value })}
+                            className="w-full text-xs px-3 py-2.5 rounded-xl border border-slate-300 focus:border-[#007A6C] focus:ring-1 focus:ring-[#00C7BE] focus:outline-none"
+                            placeholder="Complete policy summary or descriptive text..."
+                          />
+                        </div>
+                      </div>
+                    )}
+                  </div>
+                </div>
+
+                {/* Right Column: Hero Visual Preview & Quick Info */}
+                <div className="space-y-6">
+                  {/* Visual Preview Box */}
+                  <div className="bg-white rounded-2xl border border-slate-200 p-5 shadow-xs space-y-3">
+                    <div className="flex items-center justify-between">
+                      <span className="text-xs font-bold text-slate-700">Live Hero Preview</span>
+                      <span className="text-[10px] font-mono text-emerald-700 bg-emerald-50 px-2 py-0.5 rounded font-bold">
+                        SSR Synced
+                      </span>
+                    </div>
+
+                    <div className="bg-gradient-to-br from-[#061E1B] via-teal-950 to-[#061E1B] rounded-xl p-4 text-white space-y-2 border border-[#00C7BE]/20 shadow-inner">
+                      <div className="text-[10px] font-bold tracking-widest text-[#00C7BE] uppercase">
+                        {payload.badgeText || "AKEEZO MEDICAL TRAVEL"}
+                      </div>
+                      <h4 className="text-sm font-black tracking-tight leading-snug">
+                        {payload.headline || payload.title || editingTitle || "Headline Title"}
+                      </h4>
+                      <p className="text-[11px] text-teal-100/80 line-clamp-2">
+                        {payload.subheadline || payload.summary || "World-class healthcare discovery and coordination in India."}
+                      </p>
+                      {payload.searchPlaceholder && (
+                        <div className="pt-1">
+                          <div className="bg-white/10 rounded-full px-3 py-1.5 text-[10px] text-teal-200/60 border border-white/10 flex items-center justify-between">
+                            <span>{payload.searchPlaceholder}</span>
+                            <Search className="w-3 h-3 text-[#00C7BE]" />
+                          </div>
+                        </div>
+                      )}
+                    </div>
+                    <p className="text-[11px] text-slate-400">
+                      Changes published here update the server-rendered HTML for all incoming search engines and patients.
+                    </p>
+                  </div>
+
+                  {/* Page Status Summary */}
+                  <div className="bg-slate-50 rounded-2xl border border-slate-200 p-5 space-y-3 text-xs">
+                    <span className="font-bold text-slate-800">Publishing Details</span>
+                    <div className="space-y-2 text-slate-600">
+                      <div className="flex justify-between">
+                        <span className="text-slate-400">Status:</span>
+                        <span className="font-bold text-slate-800 uppercase">{selectedPage.status}</span>
+                      </div>
+                      <div className="flex justify-between">
+                        <span className="text-slate-400">Revision:</span>
+                        <span className="font-mono font-bold text-slate-800">v{selectedPage.version || 1}</span>
+                      </div>
+                      <div className="flex justify-between">
+                        <span className="text-slate-400">Total Revisions:</span>
+                        <span className="font-bold text-slate-800">{revisions.length}</span>
+                      </div>
+                      <div className="flex justify-between">
+                        <span className="text-slate-400">Canonical Path:</span>
+                        <code className="text-[#007A6C] font-bold">/{selectedPage.slug}</code>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            )}
+
+            {/* TAB 2: Catalogue Listings */}
+            {editorTab === "catalogue" && selectedPage && getItemTypeAndKey(selectedPage.slug) && (
+              <div className="bg-white rounded-2xl border border-slate-200 p-6 shadow-xs">
+                <CatalogueItemsManager
+                  pageSlug={selectedPage.slug}
+                  itemType={getItemTypeAndKey(selectedPage.slug)!.itemType}
+                  collectionKey={getItemTypeAndKey(selectedPage.slug)!.key}
+                  items={Array.isArray(payload[getItemTypeAndKey(selectedPage.slug)!.key]) ? payload[getItemTypeAndKey(selectedPage.slug)!.key] : []}
+                  onItemsChange={(newItems) => {
+                    setPayload({
+                      ...payload,
+                      [getItemTypeAndKey(selectedPage.slug)!.key]: newItems,
+                    });
+                  }}
+                />
+              </div>
+            )}
+
+            {/* TAB 3: Technical SEO & SERP Preview */}
+            {editorTab === "seo" && (
+              <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                <div className="bg-white rounded-2xl border border-slate-200 p-6 shadow-xs space-y-4">
+                  <h3 className="text-sm font-bold text-slate-900 border-b border-slate-100 pb-3 flex items-center gap-2">
+                    <Share2 className="w-4 h-4 text-[#007A6C]" />
+                    <span>Metadata & Search Directives</span>
+                  </h3>
+
+                  <div>
+                    <div className="flex items-center justify-between mb-1">
+                      <label className="text-xs font-bold text-slate-700">Meta SEO Title</label>
+                      <span className={`text-[10px] font-mono ${(seo.title || "").length >= 50 && (seo.title || "").length <= 60 ? "text-emerald-600 font-bold" : "text-slate-400"}`}>
+                        {(seo.title || "").length}/60 chars
+                      </span>
+                    </div>
+                    <input
+                      type="text"
+                      value={seo.title || ""}
+                      onChange={(e) => setSeo({ ...seo, title: e.target.value })}
+                      className="w-full text-xs px-3 py-2.5 rounded-xl border border-slate-300 focus:border-[#007A6C] focus:ring-1 focus:ring-[#00C7BE] focus:outline-none"
+                      placeholder="e.g. Best Doctors & Specialists in India | AKEEZO Healthcare"
+                    />
+                  </div>
+
+                  <div>
+                    <div className="flex items-center justify-between mb-1">
+                      <label className="text-xs font-bold text-slate-700">Meta Description</label>
+                      <span className={`text-[10px] font-mono ${(seo.description || "").length >= 140 && (seo.description || "").length <= 160 ? "text-emerald-600 font-bold" : "text-slate-400"}`}>
+                        {(seo.description || "").length}/160 chars
+                      </span>
+                    </div>
+                    <textarea
+                      rows={3}
+                      value={seo.description || ""}
+                      onChange={(e) => setSeo({ ...seo, description: e.target.value })}
+                      className="w-full text-xs px-3 py-2.5 rounded-xl border border-slate-300 focus:border-[#007A6C] focus:ring-1 focus:ring-[#00C7BE] focus:outline-none"
+                      placeholder="Compelling search summary that encourages click-throughs from Google..."
+                    />
+                  </div>
+
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div>
+                      <label className="block text-xs font-bold text-slate-700 mb-1">
+                        Canonical URL Path
+                      </label>
+                      <input
+                        type="text"
+                        value={seo.canonicalPath || `/${selectedPage.slug === "home" ? "" : selectedPage.slug}`}
+                        onChange={(e) => setSeo({ ...seo, canonicalPath: e.target.value })}
+                        className="w-full text-xs px-3 py-2.5 rounded-xl border border-slate-300 focus:border-[#007A6C] focus:ring-1 focus:ring-[#00C7BE] focus:outline-none font-mono"
+                      />
+                    </div>
+
+                    <div>
+                      <label className="block text-xs font-bold text-slate-700 mb-1">
+                        Robots Directives
+                      </label>
+                      <select
+                        value={seo.robots || "index,follow"}
+                        onChange={(e) => setSeo({ ...seo, robots: e.target.value })}
+                        className="w-full text-xs px-3 py-2.5 rounded-xl border border-slate-300 focus:border-[#007A6C] focus:ring-1 focus:ring-[#00C7BE] focus:outline-none font-medium"
+                      >
+                        <option value="index,follow">index, follow (Public Search)</option>
+                        <option value="noindex,nofollow">noindex, nofollow (Private Draft)</option>
+                        <option value="noindex,follow">noindex, follow</option>
+                      </select>
+                    </div>
+                  </div>
+                </div>
+
+                {/* Google SERP Snippet Preview */}
+                <div className="bg-white rounded-2xl border border-slate-200 p-6 shadow-xs space-y-4">
+                  <h3 className="text-sm font-bold text-slate-900 border-b border-slate-100 pb-3 flex items-center gap-2">
+                    <Globe className="w-4 h-4 text-[#007A6C]" />
+                    <span>Google Search Result Snippet Preview</span>
+                  </h3>
+
+                  <div className="p-4 bg-slate-50 rounded-xl border border-slate-200 space-y-2">
+                    <div className="flex items-center gap-1.5 text-xs text-slate-600">
+                      <div className="w-4 h-4 rounded-full bg-[#007A6C] text-white flex items-center justify-center text-[9px] font-bold">
+                        A
+                      </div>
+                      <span className="font-medium text-slate-700">Akeezo Healthcare</span>
+                      <span className="text-slate-400">›</span>
+                      <span className="text-slate-500 font-mono text-[11px]">
+                        https://akeezo.com{seo.canonicalPath || `/${selectedPage.slug}`}
+                      </span>
+                    </div>
+
+                    <div className="text-base text-[#1a0dab] font-medium hover:underline cursor-pointer leading-snug line-clamp-1">
+                      {seo.title || editingTitle || selectedPage.title}
+                    </div>
+
+                    <div className="text-xs text-slate-600 leading-relaxed line-clamp-2">
+                      {seo.description || payload.subheadline || payload.summary || "Explore medical treatments, world-class doctors, and accredited hospital packages across India on Akeezo."}
+                    </div>
+                  </div>
+
+                  <div className="text-xs text-slate-500 leading-normal space-y-1">
+                    <p className="font-semibold text-slate-700">SEO Best Practices:</p>
+                    <p>• Titles should ideally be between 50 and 60 characters.</p>
+                    <p>• Descriptions should clearly explain the medical service in 140 to 160 characters.</p>
+                    <p>• Canonical URLs prevent duplicate content indexing issues.</p>
+                  </div>
+                </div>
+              </div>
+            )}
+
+            {/* TAB 4: Revision History */}
+            {editorTab === "revisions" && (
+              <div className="bg-white rounded-2xl border border-slate-200 p-6 shadow-xs space-y-4">
+                <div className="flex items-center justify-between border-b border-slate-100 pb-3">
+                  <h3 className="text-sm font-bold text-slate-900 flex items-center gap-2">
+                    <History className="w-4 h-4 text-[#007A6C]" />
+                    <span>Immutable Revision History</span>
+                  </h3>
+                  <span className="text-xs text-slate-400">{revisions.length} historical versions recorded</span>
+                </div>
+
+                {revisions.length === 0 ? (
+                  <div className="py-12 text-center text-slate-400 text-xs">
+                    No historical revisions found for this page.
+                  </div>
+                ) : (
+                  <div className="space-y-3">
+                    {revisions.map((rev) => (
+                      <div
+                        key={rev._id}
+                        className="p-4 rounded-xl border border-slate-200 bg-slate-50 flex items-center justify-between text-xs hover:border-[#00C7BE] transition"
+                      >
+                        <div>
+                          <div className="flex items-center gap-2">
+                            <span className="font-bold text-slate-900">Revision #{rev.version}</span>
+                            <span
+                              className={`px-2 py-0.5 rounded-full text-[9px] font-bold uppercase ${
+                                rev.status === "published"
+                                  ? "bg-emerald-100 text-emerald-800"
+                                  : "bg-slate-200 text-slate-600"
+                              }`}
+                            >
+                              {rev.status}
+                            </span>
+                          </div>
+                          <div className="text-[11px] text-slate-500 mt-1">
+                            Authored by {rev.authorId?.name || "Administrator"} • {new Date(rev.createdAt).toLocaleString()}
+                          </div>
+                        </div>
+
+                        <button
+                          type="button"
+                          onClick={() => handleRestoreRevision(rev._id)}
+                          className="px-3 py-1.5 text-xs font-bold text-[#007A6C] hover:bg-[#E6F8F6] border border-[#007A6C]/30 rounded-xl transition flex items-center gap-1.5 cursor-pointer"
+                        >
+                          <RotateCcw className="w-3 h-3" />
+                          <span>Restore Draft</span>
+                        </button>
+                      </div>
+                    ))}
+                  </div>
+                )}
+              </div>
+            )}
+
+            {/* Bottom Sticky Actions Bar */}
+            <div className="bg-white rounded-2xl border border-slate-200 p-4 shadow-sm flex items-center justify-between gap-4">
+              <button
+                type="button"
+                onClick={closeEditor}
+                className="inline-flex items-center gap-1.5 px-3 py-1.5 text-xs font-bold text-slate-700 bg-slate-100 hover:bg-slate-200 rounded-xl transition cursor-pointer"
+              >
+                <ArrowLeft className="w-3.5 h-3.5" />
+                <span>Back to All Pages</span>
+              </button>
+
+              <div className="flex items-center gap-2">
+                <button
+                  type="button"
+                  onClick={() => handleSavePage(false)}
+                  disabled={savingPage}
+                  className="px-4 py-2 text-xs font-bold text-slate-700 bg-white border border-slate-300 hover:bg-slate-50 rounded-xl transition shadow-2xs cursor-pointer disabled:opacity-50"
+                >
+                  {savingPage ? "Saving..." : "Save Draft"}
+                </button>
+                <button
+                  type="button"
+                  onClick={() => handleSavePage(true)}
+                  disabled={savingPage}
+                  className="px-4 py-2 text-xs font-bold text-white bg-[#007A6C] hover:bg-[#005F54] rounded-xl transition shadow-xs cursor-pointer disabled:opacity-50"
+                >
+                  {savingPage ? "Publishing..." : "Publish Live to Website"}
+                </button>
+              </div>
+            </div>
+          </div>
+        ) : (
+          <div className="space-y-4">
           {/* Filters Bar */}
           <div className="bg-white p-4 rounded-2xl border border-slate-200 shadow-xs flex flex-col sm:flex-row items-center justify-between gap-3">
             <div className="relative w-full sm:w-80">
@@ -834,6 +1473,7 @@ export const ContentView: React.FC<ContentViewProps> = ({
             />
           </div>
         </div>
+        )
       )}
 
       {/* SUB-TAB 2: NAVIGATION & FOOTER MENUS */}
@@ -1004,329 +1644,6 @@ export const ContentView: React.FC<ContentViewProps> = ({
                   </ul>
                 </div>
               </div>
-            </div>
-          </div>
-        </div>
-      )}
-
-      {/* PAGE EDITOR MODAL / DRAWER */}
-      {editorOpen && selectedPage && (
-        <div className="fixed inset-0 z-50 bg-slate-900/60 backdrop-blur-xs flex items-center justify-center p-4">
-          <div
-            className="bg-white rounded-2xl shadow-2xl border border-slate-200 w-full max-w-4xl max-h-[90vh] flex flex-col overflow-hidden animate-in fade-in zoom-in-95 duration-150 font-sans"
-            role="dialog"
-            aria-modal="true"
-          >
-            {/* Editor Header */}
-            <div className="px-6 py-4 bg-slate-50 border-b border-slate-200 flex items-center justify-between">
-              <div>
-                <div className="flex items-center gap-2">
-                  <span className="font-bold text-slate-900 text-sm">
-                    Editing: {editingTitle || selectedPage.title}
-                  </span>
-                  <span
-                    className={`px-2 py-0.5 rounded-full text-[10px] font-bold uppercase ${
-                      selectedPage.status === "published"
-                        ? "bg-emerald-100 text-emerald-800"
-                        : "bg-amber-100 text-amber-800"
-                    }`}
-                  >
-                    {selectedPage.status}
-                  </span>
-                </div>
-                <span className="font-mono text-xs text-slate-400">Path: /{selectedPage.slug}</span>
-              </div>
-
-              <div className="flex items-center gap-2">
-                <button
-                  type="button"
-                  onClick={() => handleSavePage(false)}
-                  disabled={savingPage}
-                  className="px-3 py-1.5 text-xs font-bold text-slate-700 bg-white border border-slate-300 hover:bg-slate-50 rounded-xl transition shadow-2xs"
-                >
-                  Save Draft
-                </button>
-                <button
-                  type="button"
-                  onClick={() => handleSavePage(true)}
-                  disabled={savingPage}
-                  className="px-3.5 py-1.5 text-xs font-bold text-white bg-[#007A6C] hover:bg-[#005F54] rounded-xl transition shadow-xs"
-                >
-                  Publish Live
-                </button>
-                <button
-                  type="button"
-                  onClick={() => setEditorOpen(false)}
-                  className="p-1.5 text-slate-400 hover:text-slate-700 rounded-lg ml-2"
-                >
-                  ✕
-                </button>
-              </div>
-            </div>
-
-            {/* Notifications inside Editor */}
-            {savePageSuccess && (
-              <div className="mx-6 mt-4 p-3 bg-emerald-50 border border-emerald-200 rounded-xl text-emerald-800 text-xs flex items-center gap-2">
-                <CheckCircle2 className="w-4 h-4 text-emerald-600 shrink-0" />
-                <span>{savePageSuccess}</span>
-              </div>
-            )}
-            {editorError && (
-              <div className="mx-6 mt-4 p-3 bg-rose-50 border border-rose-200 rounded-xl text-rose-800 text-xs flex items-center gap-2">
-                <AlertCircle className="w-4 h-4 text-rose-600 shrink-0" />
-                <span>{editorError}</span>
-              </div>
-            )}
-
-            {/* Editor Sub-Tabs */}
-            <div className="flex border-b border-slate-200 px-6 pt-2 bg-white gap-3">
-              <button
-                onClick={() => setEditorTab("content")}
-                className={`pb-2.5 text-xs font-bold border-b-2 flex items-center gap-1.5 transition ${
-                  editorTab === "content"
-                    ? "border-[#007A6C] text-[#007A6C]"
-                    : "border-transparent text-slate-400 hover:text-slate-700"
-                }`}
-              >
-                <FileText className="w-3.5 h-3.5" />
-                <span>Structured Content Fields</span>
-              </button>
-              {selectedPage && getItemTypeAndKey(selectedPage.slug) && (
-                <button
-                  type="button"
-                  onClick={() => setEditorTab("catalogue")}
-                  className={`pb-2.5 text-xs font-bold border-b-2 flex items-center gap-1.5 transition ${
-                    editorTab === "catalogue"
-                      ? "border-[#007A6C] text-[#007A6C]"
-                      : "border-transparent text-slate-400 hover:text-slate-700"
-                  }`}
-                >
-                  <Sparkles className="w-3.5 h-3.5" />
-                  <span>Catalogue Listings</span>
-                </button>
-              )}
-              <button
-                type="button"
-                onClick={() => setEditorTab("seo")}
-                className={`pb-2.5 text-xs font-bold border-b-2 flex items-center gap-1.5 transition ${
-                  editorTab === "seo"
-                    ? "border-[#007A6C] text-[#007A6C]"
-                    : "border-transparent text-slate-400 hover:text-slate-700"
-                }`}
-              >
-                <Share2 className="w-3.5 h-3.5" />
-                <span>Technical SEO & Robots</span>
-              </button>
-              <button
-                onClick={() => setEditorTab("revisions")}
-                className={`pb-2.5 text-xs font-bold border-b-2 flex items-center gap-1.5 transition ${
-                  editorTab === "revisions"
-                    ? "border-[#007A6C] text-[#007A6C]"
-                    : "border-transparent text-slate-400 hover:text-slate-700"
-                }`}
-              >
-                <History className="w-3.5 h-3.5" />
-                <span>Revision History ({revisions.length})</span>
-              </button>
-            </div>
-
-            {/* Editor Body */}
-            <div className="p-6 overflow-y-auto space-y-4 flex-1">
-              {/* TAB 1: Structured Content Fields */}
-              {editorTab === "content" && (
-                <div className="space-y-4">
-                  <div>
-                    <label className="block text-xs font-bold text-slate-700 mb-1">
-                      Internal Page Title
-                    </label>
-                    <input
-                      type="text"
-                      value={editingTitle}
-                      onChange={(e) => setEditingTitle(e.target.value)}
-                      className="w-full text-xs px-3 py-2 rounded-xl border border-slate-300 focus:border-[#007A6C] focus:ring-1 focus:ring-[#00C7BE] focus:outline-none"
-                    />
-                  </div>
-
-                  {getItemTypeAndKey(selectedPage.slug) ? (
-                    <div className="space-y-3">
-                      <div>
-                        <label className="block text-xs font-bold text-slate-700 mb-1">
-                          Hero Headline (H1)
-                        </label>
-                        <input
-                          type="text"
-                          value={payload.headline || payload.title || ""}
-                          onChange={(e) => setPayload({ ...payload, headline: e.target.value })}
-                          className="w-full text-xs px-3 py-2 rounded-xl border border-slate-300 focus:border-[#007A6C] focus:ring-1 focus:ring-[#00C7BE] focus:outline-none"
-                          placeholder="Primary page title..."
-                        />
-                      </div>
-
-                      <div>
-                        <label className="block text-xs font-bold text-slate-700 mb-1">
-                          Hero Subtitle & Reassurance Copy
-                        </label>
-                        <textarea
-                          rows={2}
-                          value={payload.subheadline || payload.summary || ""}
-                          onChange={(e) => setPayload({ ...payload, subheadline: e.target.value })}
-                          className="w-full text-xs px-3 py-2 rounded-xl border border-slate-300 focus:border-[#007A6C] focus:ring-1 focus:ring-[#00C7BE] focus:outline-none"
-                          placeholder="Subtitle or descriptive intro..."
-                        />
-                      </div>
-
-                      {payload.searchPlaceholder !== undefined && (
-                        <div>
-                          <label className="block text-xs font-bold text-slate-700 mb-1">
-                            Search Input Placeholder
-                          </label>
-                          <input
-                            type="text"
-                            value={payload.searchPlaceholder || ""}
-                            onChange={(e) => setPayload({ ...payload, searchPlaceholder: e.target.value })}
-                            className="w-full text-xs px-3 py-2 rounded-xl border border-slate-300 focus:border-[#007A6C] focus:ring-1 focus:ring-[#00C7BE] focus:outline-none"
-                          />
-                        </div>
-                      )}
-                    </div>
-                  ) : (
-                    <div className="space-y-3">
-                      <div>
-                        <label className="block text-xs font-bold text-slate-700 mb-1">
-                          Section Summary / Policy Notice
-                        </label>
-                        <textarea
-                          rows={4}
-                          value={payload.summary || ""}
-                          onChange={(e) => setPayload({ ...payload, summary: e.target.value })}
-                          className="w-full text-xs px-3 py-2 rounded-xl border border-slate-300 focus:border-[#007A6C] focus:ring-1 focus:ring-[#00C7BE] focus:outline-none"
-                        />
-                      </div>
-                    </div>
-                  )}
-                </div>
-              )}
-
-              
-              {/* TAB 1.5: Catalogue Listings */}
-              {editorTab === "catalogue" && selectedPage && getItemTypeAndKey(selectedPage.slug) && (
-                <CatalogueItemsManager
-                  pageSlug={selectedPage.slug}
-                  itemType={getItemTypeAndKey(selectedPage.slug)!.itemType}
-                  collectionKey={getItemTypeAndKey(selectedPage.slug)!.key}
-                  items={Array.isArray(payload[getItemTypeAndKey(selectedPage.slug)!.key]) ? payload[getItemTypeAndKey(selectedPage.slug)!.key] : []}
-                  onItemsChange={(newItems) => {
-                    setPayload({
-                      ...payload,
-                      [getItemTypeAndKey(selectedPage.slug)!.key]: newItems,
-                    });
-                  }}
-                />
-              )}
-
-              {/* TAB 2: SEO Settings */}
-              {editorTab === "seo" && (
-                <div className="space-y-4">
-                  <div>
-                    <label className="block text-xs font-bold text-slate-700 mb-1">
-                      Meta SEO Title
-                    </label>
-                    <input
-                      type="text"
-                      value={seo.title || ""}
-                      onChange={(e) => setSeo({ ...seo, title: e.target.value })}
-                      className="w-full text-xs px-3 py-2 rounded-xl border border-slate-300 focus:border-[#007A6C] focus:ring-1 focus:ring-[#00C7BE] focus:outline-none"
-                    />
-                  </div>
-
-                  <div>
-                    <label className="block text-xs font-bold text-slate-700 mb-1">
-                      Meta Description
-                    </label>
-                    <textarea
-                      rows={2}
-                      value={seo.description || ""}
-                      onChange={(e) => setSeo({ ...seo, description: e.target.value })}
-                      className="w-full text-xs px-3 py-2 rounded-xl border border-slate-300 focus:border-[#007A6C] focus:ring-1 focus:ring-[#00C7BE] focus:outline-none"
-                    />
-                  </div>
-
-                  <div className="grid grid-cols-2 gap-4">
-                    <div>
-                      <label className="block text-xs font-bold text-slate-700 mb-1">
-                        Canonical URL Path
-                      </label>
-                      <input
-                        type="text"
-                        value={seo.canonicalPath || `/${selectedPage.slug}`}
-                        onChange={(e) => setSeo({ ...seo, canonicalPath: e.target.value })}
-                        className="w-full text-xs px-3 py-2 rounded-xl border border-slate-300 focus:border-[#007A6C] focus:ring-1 focus:ring-[#00C7BE] focus:outline-none"
-                      />
-                    </div>
-
-                    <div>
-                      <label className="block text-xs font-bold text-slate-700 mb-1">
-                        Robots Directives
-                      </label>
-                      <select
-                        value={seo.robots || "index,follow"}
-                        onChange={(e) => setSeo({ ...seo, robots: e.target.value })}
-                        className="w-full text-xs px-3 py-2 rounded-xl border border-slate-300 focus:border-[#007A6C] focus:ring-1 focus:ring-[#00C7BE] focus:outline-none"
-                      >
-                        <option value="index,follow">index, follow (Public Search)</option>
-                        <option value="noindex,nofollow">noindex, nofollow (Private Draft)</option>
-                        <option value="noindex,follow">noindex, follow</option>
-                      </select>
-                    </div>
-                  </div>
-                </div>
-              )}
-
-              {/* TAB 3: Historical Revisions */}
-              {editorTab === "revisions" && (
-                <div className="space-y-3">
-                  {revisions.length === 0 ? (
-                    <div className="py-8 text-center text-slate-400 text-xs">
-                      No previous revisions found for this page.
-                    </div>
-                  ) : (
-                    revisions.map((rev) => (
-                      <div
-                        key={rev._id}
-                        className="p-3 rounded-xl border border-slate-200 bg-slate-50 flex items-center justify-between text-xs"
-                      >
-                        <div>
-                          <div className="flex items-center gap-2">
-                            <span className="font-bold text-slate-900">Revision #{rev.version}</span>
-                            <span
-                              className={`px-2 py-0.5 rounded-full text-[9px] font-bold uppercase ${
-                                rev.status === "published"
-                                  ? "bg-emerald-100 text-emerald-800"
-                                  : "bg-slate-200 text-slate-600"
-                              }`}
-                            >
-                              {rev.status}
-                            </span>
-                          </div>
-                          <div className="text-[10px] text-slate-500">
-                            By {rev.authorId?.name || "Administrator"} •{" "}
-                            {new Date(rev.createdAt).toLocaleString()}
-                          </div>
-                        </div>
-
-                        <button
-                          type="button"
-                          onClick={() => handleRestoreRevision(rev._id)}
-                          className="px-3 py-1.5 text-xs font-bold text-[#007A6C] hover:bg-[#E6F8F6] border border-[#007A6C]/30 rounded-lg transition flex items-center gap-1"
-                        >
-                          <RotateCcw className="w-3 h-3" />
-                          <span>Restore</span>
-                        </button>
-                      </div>
-                    ))
-                  )}
-                </div>
-              )}
             </div>
           </div>
         </div>

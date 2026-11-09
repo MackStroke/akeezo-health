@@ -29,6 +29,7 @@ import {
   Bookmark,
   Layers,
   ArrowRight,
+  ArrowLeft,
   BarChart3,
   LayoutTemplate,
   SearchCode,

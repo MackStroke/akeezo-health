@@ -920,7 +920,11 @@ export const TreatmentsTemplate: React.FC<TreatmentsTemplateProps> = ({ data }) 
                               <button
                                 type="button"
                                 onClick={() => setIsConsultModalOpen(true)}
-                                className="group/btn inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-full font-normal transition-colors duration-200 bg-[#007A6C] text-white hover:bg-[#005f54] h-11 px-5 text-sm cursor-pointer shadow-sm"
+                                className="group/btn inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-full font-normal transition-colors duration-200 h-11 px-5 text-sm cursor-pointer shadow-sm hover:opacity-95"
+                                style={{
+                                  backgroundColor: "var(--confident-banner-bg, var(--action, #007A6C))",
+                                  color: "var(--confident-banner-text, #ffffff)",
+                                }}
                               >
                                 <span>Get Started</span>
                                 <ArrowRight className="size-4 shrink-0 transition-transform duration-200 group-hover/btn:translate-x-0.5" />
@@ -928,7 +932,13 @@ export const TreatmentsTemplate: React.FC<TreatmentsTemplateProps> = ({ data }) 
                             </div>
 
                             {/* Desktop Pill (Right) */}
-                            <div className="md:absolute md:flex hidden right-0 top-1/2 md:-translate-y-1/2 bg-[#007A6C] md:p-7 p-4 items-center justify-between md:gap-12 gap-6 text-white md:pr-10 font-normal md:w-[58%] w-full overflow-hidden md:rounded-r-3xl rounded-r-2xl md:rounded-l-full rounded-l-full shadow-inner">
+                            <div
+                              className="confident-banner-pill md:absolute md:flex hidden right-0 top-1/2 md:-translate-y-1/2 md:p-7 p-4 items-center justify-between md:gap-12 gap-6 text-white md:pr-10 font-normal md:w-[58%] w-full overflow-hidden md:rounded-r-3xl rounded-r-2xl md:rounded-l-full rounded-l-full shadow-inner"
+                              style={{
+                                backgroundColor: "var(--confident-banner-bg, var(--action, #007A6C))",
+                                color: "var(--confident-banner-text, #ffffff)",
+                              }}
+                            >
                               <div className="md:w-[280px] md:h-[280px] w-full aspect-square bg-white rounded-full overflow-hidden shrink-0 border-4 border-white/20">
                                 <img
                                   draggable={false}
@@ -945,15 +955,22 @@ export const TreatmentsTemplate: React.FC<TreatmentsTemplateProps> = ({ data }) 
                                   }}
                                 />
                               </div>
-                              <p className="md:text-xl text-sm md:p-0 px-2 md:pb-0 pb-4 font-medium leading-snug">
-                                Trusted information backed by real patient experiences.
+                              <p
+                                className="md:text-xl text-sm md:p-0 px-2 md:pb-0 pb-4 font-medium leading-snug"
+                                style={{ color: "var(--confident-banner-text, #ffffff)" }}
+                              >
+                                {confidentHealthcareSubtitle}
                               </p>
                             </div>
 
                             {/* Mobile Pill */}
                             <div
-                              style={{ borderRadius: "100px 20px 20px 100px" }}
-                              className="md:hidden bg-[#007A6C] p-4 flex items-center justify-between gap-[20px] text-white font-normal w-full overflow-hidden"
+                              style={{
+                                borderRadius: "100px 20px 20px 100px",
+                                backgroundColor: "var(--confident-banner-bg, var(--action, #007A6C))",
+                                color: "var(--confident-banner-text, #ffffff)",
+                              }}
+                              className="confident-banner-pill md:hidden p-4 flex items-center justify-between gap-[20px] text-white font-normal w-full overflow-hidden"
                             >
                               <div className="w-[120px] h-[120px] aspect-square bg-white rounded-full overflow-hidden shrink-0 border-2 border-white/20">
                                 <img
@@ -971,8 +988,11 @@ export const TreatmentsTemplate: React.FC<TreatmentsTemplateProps> = ({ data }) 
                                   }}
                                 />
                               </div>
-                              <p className="text-[14px] leading-tight font-medium">
-                                Trusted information backed by real patient experiences.
+                              <p
+                                className="text-[14px] leading-tight font-medium"
+                                style={{ color: "var(--confident-banner-text, #ffffff)" }}
+                              >
+                                {confidentHealthcareSubtitle}
                               </p>
                             </div>
                           </div>

@@ -62,6 +62,8 @@ export declare const PublicRouteResponseSchema: z.ZodObject<{
             actionHoverColor: z.ZodDefault<z.ZodString>;
             actionAccentColor: z.ZodDefault<z.ZodString>;
             socialIconColor: z.ZodDefault<z.ZodString>;
+            confidentBannerBgColor: z.ZodDefault<z.ZodString>;
+            confidentBannerTextColor: z.ZodDefault<z.ZodString>;
             backgroundColor: z.ZodDefault<z.ZodString>;
             surfaceColor: z.ZodDefault<z.ZodString>;
             surfaceMutedColor: z.ZodDefault<z.ZodString>;
@@ -91,6 +93,8 @@ export declare const PublicRouteResponseSchema: z.ZodObject<{
             actionHoverColor: string;
             actionAccentColor: string;
             socialIconColor: string;
+            confidentBannerBgColor: string;
+            confidentBannerTextColor: string;
             backgroundColor: string;
             surfaceColor: string;
             surfaceMutedColor: string;
@@ -120,6 +124,8 @@ export declare const PublicRouteResponseSchema: z.ZodObject<{
             actionHoverColor?: string | undefined;
             actionAccentColor?: string | undefined;
             socialIconColor?: string | undefined;
+            confidentBannerBgColor?: string | undefined;
+            confidentBannerTextColor?: string | undefined;
             backgroundColor?: string | undefined;
             surfaceColor?: string | undefined;
             surfaceMutedColor?: string | undefined;
@@ -494,6 +500,8 @@ export declare const PublicRouteResponseSchema: z.ZodObject<{
             actionHoverColor: string;
             actionAccentColor: string;
             socialIconColor: string;
+            confidentBannerBgColor: string;
+            confidentBannerTextColor: string;
             backgroundColor: string;
             surfaceColor: string;
             surfaceMutedColor: string;
@@ -654,6 +662,8 @@ export declare const PublicRouteResponseSchema: z.ZodObject<{
             actionHoverColor?: string | undefined;
             actionAccentColor?: string | undefined;
             socialIconColor?: string | undefined;
+            confidentBannerBgColor?: string | undefined;
+            confidentBannerTextColor?: string | undefined;
             backgroundColor?: string | undefined;
             surfaceColor?: string | undefined;
             surfaceMutedColor?: string | undefined;
@@ -814,6 +824,8 @@ export declare const PublicRouteResponseSchema: z.ZodObject<{
             actionHoverColor: string;
             actionAccentColor: string;
             socialIconColor: string;
+            confidentBannerBgColor: string;
+            confidentBannerTextColor: string;
             backgroundColor: string;
             surfaceColor: string;
             surfaceMutedColor: string;
@@ -988,6 +1000,8 @@ export declare const PublicRouteResponseSchema: z.ZodObject<{
             actionHoverColor?: string | undefined;
             actionAccentColor?: string | undefined;
             socialIconColor?: string | undefined;
+            confidentBannerBgColor?: string | undefined;
+            confidentBannerTextColor?: string | undefined;
             backgroundColor?: string | undefined;
             surfaceColor?: string | undefined;
             surfaceMutedColor?: string | undefined;

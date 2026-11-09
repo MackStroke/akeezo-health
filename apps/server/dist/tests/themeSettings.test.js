@@ -391,4 +391,53 @@ describe("Theme Settings Architecture Verification Suite", async () => {
         assert.equal(resetJson.data.socialIconColor, DEFAULT_WEBSITE_THEME.socialIconColor);
         assert.equal(resetJson.data.websiteTheme.socialIconColor, DEFAULT_WEBSITE_THEME.socialIconColor);
     });
+    test("12. Confident Decisions Banner Theme Control: Real-time customization, CSS injection & Treatments SSR rendering", async () => {
+        // 12a. Update confidentBannerBgColor and confidentBannerTextColor via PUT /api/v1/admin/site-settings
+        const customBg = "#4F46E5";
+        const customText = "#FDF4FF";
+        const updateRes = await fetch(`${baseUrl}/api/v1/admin/site-settings`, {
+            method: "PUT",
+            headers: {
+                "Content-Type": "application/json",
+                Authorization: `Bearer ${adminToken}`,
+            },
+            body: JSON.stringify({
+                confidentBannerBgColor: customBg,
+                confidentBannerTextColor: customText,
+                websiteTheme: {
+                    confidentBannerBgColor: customBg,
+                    confidentBannerTextColor: customText,
+                },
+            }),
+        });
+        assert.equal(updateRes.status, 200);
+        const updateJson = await updateRes.json();
+        assert.equal(updateJson.data.confidentBannerBgColor, customBg);
+        assert.equal(updateJson.data.confidentBannerTextColor, customText);
+        assert.equal(updateJson.data.websiteTheme.confidentBannerBgColor, customBg);
+        assert.equal(updateJson.data.websiteTheme.confidentBannerTextColor, customText);
+        // 12b. Public GET /treatments renders SSR HTML with dynamic CSS variables and confident-banner-pill
+        const ssrRes = await fetch(`${baseUrl}/treatments`);
+        assert.equal(ssrRes.status, 200);
+        const html = await ssrRes.text();
+        assert.ok(html.includes(`--confident-banner-bg: ${customBg}`), "SSR <style id='akeezo-dynamic-theme'> must inject custom --confident-banner-bg");
+        assert.ok(html.includes(`--confident-banner-text: ${customText}`), "SSR <style id='akeezo-dynamic-theme'> must inject custom --confident-banner-text");
+        assert.ok(html.includes("confident-banner-pill"), "Treatments page must contain confident-banner-pill");
+        assert.ok(html.includes("Trusted information backed by real patient experiences."), "Must render testimonial copy");
+        // 12c. Reset to defaults restores official brand defaults
+        const resetRes = await fetch(`${baseUrl}/api/v1/admin/theme/reset`, {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json",
+                Authorization: `Bearer ${adminToken}`,
+            },
+            body: JSON.stringify({ target: "website" }),
+        });
+        assert.equal(resetRes.status, 200);
+        const resetJson = await resetRes.json();
+        assert.equal(resetJson.data.confidentBannerBgColor, DEFAULT_WEBSITE_THEME.confidentBannerBgColor);
+        assert.equal(resetJson.data.websiteTheme.confidentBannerBgColor, DEFAULT_WEBSITE_THEME.confidentBannerBgColor);
+        assert.equal(resetJson.data.confidentBannerTextColor, DEFAULT_WEBSITE_THEME.confidentBannerTextColor);
+        assert.equal(resetJson.data.websiteTheme.confidentBannerTextColor, DEFAULT_WEBSITE_THEME.confidentBannerTextColor);
+    });
 });

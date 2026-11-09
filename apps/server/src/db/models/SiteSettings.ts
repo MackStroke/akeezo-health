@@ -15,12 +15,16 @@ export interface ISiteSettings extends Document {
   accentColor: string;
   actionColor: string;
   socialIconColor?: string;
+  confidentBannerBgColor?: string;
+  confidentBannerTextColor?: string;
   websiteTheme?: {
     primaryColor: string;
     secondaryColor: string;
     accentColor: string;
     actionColor: string;
-  socialIconColor?: string;
+    socialIconColor?: string;
+    confidentBannerBgColor?: string;
+    confidentBannerTextColor?: string;
     actionHoverColor: string;
     actionAccentColor: string;
     backgroundColor: string;
@@ -186,6 +190,8 @@ const SiteSettingsSchema = new Schema<ISiteSettings>(
     accentColor: { type: String, default: "#FF6D1B" },
     actionColor: { type: String, default: "#007A6C" },
     socialIconColor: { type: String, default: "#007A6C" },
+    confidentBannerBgColor: { type: String, default: "#007A6C" },
+    confidentBannerTextColor: { type: String, default: "#FFFFFF" },
     websiteTheme: {
       primaryColor: { type: String, default: "#00C7BE" },
       secondaryColor: { type: String, default: "#FF6B00" },
@@ -194,6 +200,8 @@ const SiteSettingsSchema = new Schema<ISiteSettings>(
       actionHoverColor: { type: String, default: "#005F54" },
       actionAccentColor: { type: String, default: "#B54700" },
       socialIconColor: { type: String, default: "#007A6C" },
+      confidentBannerBgColor: { type: String, default: "#007A6C" },
+      confidentBannerTextColor: { type: String, default: "#FFFFFF" },
       backgroundColor: { type: String, default: "#FFFFFF" },
       surfaceColor: { type: String, default: "#FFFFFF" },
       surfaceMutedColor: { type: String, default: "#F4F6F9" },

@@ -297820,6 +297820,8 @@ var WebsiteThemeSchema = external_exports.object({
   actionHoverColor: external_exports.string().default("#005F54"),
   actionAccentColor: external_exports.string().default("#B54700"),
   socialIconColor: external_exports.string().default("#007A6C"),
+  confidentBannerBgColor: external_exports.string().default("#007A6C"),
+  confidentBannerTextColor: external_exports.string().default("#FFFFFF"),
   // Surfaces & Backgrounds
   backgroundColor: external_exports.string().default("#FFFFFF"),
   surfaceColor: external_exports.string().default("#FFFFFF"),
@@ -297881,6 +297883,8 @@ var DEFAULT_WEBSITE_THEME = {
   actionHoverColor: "#005F54",
   actionAccentColor: "#B54700",
   socialIconColor: "#007A6C",
+  confidentBannerBgColor: "#007A6C",
+  confidentBannerTextColor: "#FFFFFF",
   backgroundColor: "#FFFFFF",
   surfaceColor: "#FFFFFF",
   surfaceMutedColor: "#F4F6F9",
@@ -297936,6 +297940,8 @@ var THEME_PRESETS = {
       actionHoverColor: "#005F54",
       actionAccentColor: "#B54700",
       socialIconColor: "#007A6C",
+      confidentBannerBgColor: "#007A6C",
+      confidentBannerTextColor: "#FFFFFF",
       backgroundColor: "#FFFFFF",
       surfaceColor: "#FFFFFF",
       surfaceMutedColor: "#F4F6F9",
@@ -297991,6 +297997,8 @@ var THEME_PRESETS = {
       actionHoverColor: "#047857",
       actionAccentColor: "#B45309",
       socialIconColor: "#059669",
+      confidentBannerBgColor: "#059669",
+      confidentBannerTextColor: "#FFFFFF",
       backgroundColor: "#FFFFFF",
       surfaceColor: "#FFFFFF",
       surfaceMutedColor: "#F0FDF4",
@@ -298046,6 +298054,8 @@ var THEME_PRESETS = {
       actionHoverColor: "#075985",
       actionAccentColor: "#C2410C",
       socialIconColor: "#0369A1",
+      confidentBannerBgColor: "#0369A1",
+      confidentBannerTextColor: "#FFFFFF",
       backgroundColor: "#FFFFFF",
       surfaceColor: "#FFFFFF",
       surfaceMutedColor: "#F0F9FF",
@@ -298101,6 +298111,8 @@ var THEME_PRESETS = {
       actionHoverColor: "#028073",
       actionAccentColor: "#D9681E",
       socialIconColor: "#00C7BE",
+      confidentBannerBgColor: "#00A896",
+      confidentBannerTextColor: "#FFFFFF",
       backgroundColor: "#061E1B",
       surfaceColor: "#0B2B27",
       surfaceMutedColor: "#0F3833",
@@ -298156,6 +298168,8 @@ var THEME_PRESETS = {
       actionHoverColor: "#6D28D9",
       actionAccentColor: "#EA580C",
       socialIconColor: "#7C3AED",
+      confidentBannerBgColor: "#7C3AED",
+      confidentBannerTextColor: "#FFFFFF",
       backgroundColor: "#FFFFFF",
       surfaceColor: "#FFFFFF",
       surfaceMutedColor: "#FAF5FF",
@@ -298438,6 +298452,8 @@ function websiteThemeToCssVariables(theme) {
     "--action-hover": sanitizeCssValue(merged.actionHoverColor),
     "--action-accent": sanitizeCssValue(merged.actionAccentColor),
     "--social-icon-color": sanitizeCssValue(merged.socialIconColor || merged.actionColor || "#007A6C"),
+    "--confident-banner-bg": sanitizeCssValue(merged.confidentBannerBgColor || merged.actionColor || "#007A6C"),
+    "--confident-banner-text": sanitizeCssValue(merged.confidentBannerTextColor || "#FFFFFF"),
     "--action-orange": sanitizeCssValue(merged.secondaryColor),
     "--action-orange-alt": sanitizeCssValue(merged.accentColor),
     "--surface": sanitizeCssValue(merged.surfaceColor),
@@ -300010,6 +300026,8 @@ var SiteSettingsSchema2 = new import_mongoose5.Schema(
     accentColor: { type: String, default: "#FF6D1B" },
     actionColor: { type: String, default: "#007A6C" },
     socialIconColor: { type: String, default: "#007A6C" },
+    confidentBannerBgColor: { type: String, default: "#007A6C" },
+    confidentBannerTextColor: { type: String, default: "#FFFFFF" },
     websiteTheme: {
       primaryColor: { type: String, default: "#00C7BE" },
       secondaryColor: { type: String, default: "#FF6B00" },
@@ -300018,6 +300036,8 @@ var SiteSettingsSchema2 = new import_mongoose5.Schema(
       actionHoverColor: { type: String, default: "#005F54" },
       actionAccentColor: { type: String, default: "#B54700" },
       socialIconColor: { type: String, default: "#007A6C" },
+      confidentBannerBgColor: { type: String, default: "#007A6C" },
+      confidentBannerTextColor: { type: String, default: "#FFFFFF" },
       backgroundColor: { type: String, default: "#FFFFFF" },
       surfaceColor: { type: String, default: "#FFFFFF" },
       surfaceMutedColor: { type: String, default: "#F4F6F9" },
@@ -301196,15 +301216,22 @@ function toSafeSiteSettings(doc) {
     secondaryColor: doc?.websiteTheme?.secondaryColor || doc?.secondaryColor || "#FF6B00",
     accentColor: doc?.websiteTheme?.accentColor || doc?.accentColor || "#FF6D1B",
     actionColor: doc?.websiteTheme?.actionColor || doc?.actionColor || "#007A6C",
+    socialIconColor: doc?.websiteTheme?.socialIconColor || doc?.socialIconColor || doc?.actionColor || "#007A6C",
+    confidentBannerBgColor: doc?.websiteTheme?.confidentBannerBgColor || doc?.confidentBannerBgColor || doc?.actionColor || "#007A6C",
+    confidentBannerTextColor: doc?.websiteTheme?.confidentBannerTextColor || doc?.confidentBannerTextColor || "#FFFFFF",
     websiteTheme: doc?.websiteTheme ? {
       ...doc.websiteTheme,
-      socialIconColor: doc.websiteTheme.socialIconColor || doc.socialIconColor || doc.websiteTheme.actionColor || doc.actionColor || "#007A6C"
+      socialIconColor: doc.websiteTheme.socialIconColor || doc.socialIconColor || doc.websiteTheme.actionColor || doc.actionColor || "#007A6C",
+      confidentBannerBgColor: doc.websiteTheme.confidentBannerBgColor || doc.confidentBannerBgColor || doc.websiteTheme.actionColor || doc.actionColor || "#007A6C",
+      confidentBannerTextColor: doc.websiteTheme.confidentBannerTextColor || doc.confidentBannerTextColor || "#FFFFFF"
     } : {
       primaryColor: doc?.primaryColor || "#00C7BE",
       secondaryColor: doc?.secondaryColor || "#FF6B00",
       accentColor: doc?.accentColor || "#FF6D1B",
       actionColor: doc?.actionColor || "#007A6C",
-      socialIconColor: doc?.socialIconColor || doc?.actionColor || "#007A6C"
+      socialIconColor: doc?.socialIconColor || doc?.actionColor || "#007A6C",
+      confidentBannerBgColor: doc?.confidentBannerBgColor || doc?.actionColor || "#007A6C",
+      confidentBannerTextColor: doc?.confidentBannerTextColor || "#FFFFFF"
     },
     adminTheme: doc?.adminTheme || void 0,
     logoVariants: doc?.logoVariants || {
@@ -305734,6 +305761,8 @@ cmsAdminRouter.put(["/site-settings", "/settings/:section"], async (req, res) =>
     if (req.body.accentColor !== void 0) updatePayload.accentColor = sanitizeCssValue(req.body.accentColor);
     if (req.body.actionColor !== void 0) updatePayload.actionColor = sanitizeCssValue(req.body.actionColor);
     if (req.body.socialIconColor !== void 0) updatePayload.socialIconColor = sanitizeCssValue(req.body.socialIconColor);
+    if (req.body.confidentBannerBgColor !== void 0) updatePayload.confidentBannerBgColor = sanitizeCssValue(req.body.confidentBannerBgColor);
+    if (req.body.confidentBannerTextColor !== void 0) updatePayload.confidentBannerTextColor = sanitizeCssValue(req.body.confidentBannerTextColor);
     if (req.body.websiteTheme !== void 0) {
       const existingWebsite = existingObj?.websiteTheme || {};
       const sanitized = sanitizeThemeObject(req.body.websiteTheme);
@@ -305747,7 +305776,9 @@ cmsAdminRouter.put(["/site-settings", "/settings/:section"], async (req, res) =>
       if (updatePayload.websiteTheme.accentColor) updatePayload.accentColor = updatePayload.websiteTheme.accentColor;
       if (updatePayload.websiteTheme.actionColor) updatePayload.actionColor = updatePayload.websiteTheme.actionColor;
       if (updatePayload.websiteTheme.socialIconColor) updatePayload.socialIconColor = updatePayload.websiteTheme.socialIconColor;
-    } else if (updatePayload.primaryColor || updatePayload.secondaryColor || updatePayload.accentColor || updatePayload.actionColor || updatePayload.socialIconColor) {
+      if (updatePayload.websiteTheme.confidentBannerBgColor) updatePayload.confidentBannerBgColor = updatePayload.websiteTheme.confidentBannerBgColor;
+      if (updatePayload.websiteTheme.confidentBannerTextColor) updatePayload.confidentBannerTextColor = updatePayload.websiteTheme.confidentBannerTextColor;
+    } else if (updatePayload.primaryColor || updatePayload.secondaryColor || updatePayload.accentColor || updatePayload.actionColor || updatePayload.socialIconColor || updatePayload.confidentBannerBgColor || updatePayload.confidentBannerTextColor) {
       const existingWebsite = existingObj?.websiteTheme || {};
       updatePayload.websiteTheme = {
         ...DEFAULT_WEBSITE_THEME,
@@ -305756,7 +305787,9 @@ cmsAdminRouter.put(["/site-settings", "/settings/:section"], async (req, res) =>
         ...updatePayload.secondaryColor ? { secondaryColor: updatePayload.secondaryColor } : {},
         ...updatePayload.accentColor ? { accentColor: updatePayload.accentColor } : {},
         ...updatePayload.actionColor ? { actionColor: updatePayload.actionColor } : {},
-        ...updatePayload.socialIconColor ? { socialIconColor: updatePayload.socialIconColor } : {}
+        ...updatePayload.socialIconColor ? { socialIconColor: updatePayload.socialIconColor } : {},
+        ...updatePayload.confidentBannerBgColor ? { confidentBannerBgColor: updatePayload.confidentBannerBgColor } : {},
+        ...updatePayload.confidentBannerTextColor ? { confidentBannerTextColor: updatePayload.confidentBannerTextColor } : {}
       };
     }
     if (req.body.adminTheme !== void 0) {
@@ -306084,6 +306117,8 @@ cmsAdminRouter.post("/theme/preset", async (req, res) => {
       if (preset.websiteTheme.accentColor) updatePayload.accentColor = preset.websiteTheme.accentColor;
       if (preset.websiteTheme.actionColor) updatePayload.actionColor = preset.websiteTheme.actionColor;
       if (preset.websiteTheme.socialIconColor) updatePayload.socialIconColor = preset.websiteTheme.socialIconColor;
+      if (preset.websiteTheme.confidentBannerBgColor) updatePayload.confidentBannerBgColor = preset.websiteTheme.confidentBannerBgColor;
+      if (preset.websiteTheme.confidentBannerTextColor) updatePayload.confidentBannerTextColor = preset.websiteTheme.confidentBannerTextColor;
     }
     if (target === "admin" || target === "both") {
       updatePayload.adminTheme = {
@@ -306118,6 +306153,8 @@ cmsAdminRouter.post("/theme/reset", async (req, res) => {
       updatePayload.accentColor = DEFAULT_WEBSITE_THEME.accentColor;
       updatePayload.actionColor = DEFAULT_WEBSITE_THEME.actionColor;
       updatePayload.socialIconColor = DEFAULT_WEBSITE_THEME.socialIconColor;
+      updatePayload.confidentBannerBgColor = DEFAULT_WEBSITE_THEME.confidentBannerBgColor;
+      updatePayload.confidentBannerTextColor = DEFAULT_WEBSITE_THEME.confidentBannerTextColor;
     }
     if (target === "admin" || target === "both") {
       updatePayload.adminTheme = { ...DEFAULT_ADMIN_THEME };

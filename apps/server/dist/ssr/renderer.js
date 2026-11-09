@@ -87,17 +87,24 @@ export function toSafeSiteSettings(doc) {
         secondaryColor: doc?.websiteTheme?.secondaryColor || doc?.secondaryColor || "#FF6B00",
         accentColor: doc?.websiteTheme?.accentColor || doc?.accentColor || "#FF6D1B",
         actionColor: doc?.websiteTheme?.actionColor || doc?.actionColor || "#007A6C",
+        socialIconColor: doc?.websiteTheme?.socialIconColor || doc?.socialIconColor || doc?.actionColor || "#007A6C",
+        confidentBannerBgColor: doc?.websiteTheme?.confidentBannerBgColor || doc?.confidentBannerBgColor || doc?.actionColor || "#007A6C",
+        confidentBannerTextColor: doc?.websiteTheme?.confidentBannerTextColor || doc?.confidentBannerTextColor || "#FFFFFF",
         websiteTheme: doc?.websiteTheme
             ? {
                 ...doc.websiteTheme,
-                socialIconColor: doc.websiteTheme.socialIconColor || doc.socialIconColor || doc.websiteTheme.actionColor || doc.actionColor || "#007A6C"
+                socialIconColor: doc.websiteTheme.socialIconColor || doc.socialIconColor || doc.websiteTheme.actionColor || doc.actionColor || "#007A6C",
+                confidentBannerBgColor: doc.websiteTheme.confidentBannerBgColor || doc.confidentBannerBgColor || doc.websiteTheme.actionColor || doc.actionColor || "#007A6C",
+                confidentBannerTextColor: doc.websiteTheme.confidentBannerTextColor || doc.confidentBannerTextColor || "#FFFFFF"
             }
             : {
                 primaryColor: doc?.primaryColor || "#00C7BE",
                 secondaryColor: doc?.secondaryColor || "#FF6B00",
                 accentColor: doc?.accentColor || "#FF6D1B",
                 actionColor: doc?.actionColor || "#007A6C",
-                socialIconColor: doc?.socialIconColor || doc?.actionColor || "#007A6C"
+                socialIconColor: doc?.socialIconColor || doc?.actionColor || "#007A6C",
+                confidentBannerBgColor: doc?.confidentBannerBgColor || doc?.actionColor || "#007A6C",
+                confidentBannerTextColor: doc?.confidentBannerTextColor || "#FFFFFF"
             },
         adminTheme: doc?.adminTheme || undefined,
         logoVariants: doc?.logoVariants || {

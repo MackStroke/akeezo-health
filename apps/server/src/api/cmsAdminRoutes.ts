@@ -501,6 +501,8 @@ cmsAdminRouter.put(["/site-settings", "/settings/:section"], async (req: Request
     if (req.body.accentColor !== undefined) updatePayload.accentColor = sanitizeCssValue(req.body.accentColor);
     if (req.body.actionColor !== undefined) updatePayload.actionColor = sanitizeCssValue(req.body.actionColor);
     if (req.body.socialIconColor !== undefined) updatePayload.socialIconColor = sanitizeCssValue(req.body.socialIconColor);
+    if (req.body.confidentBannerBgColor !== undefined) updatePayload.confidentBannerBgColor = sanitizeCssValue(req.body.confidentBannerBgColor);
+    if (req.body.confidentBannerTextColor !== undefined) updatePayload.confidentBannerTextColor = sanitizeCssValue(req.body.confidentBannerTextColor);
 
     if (req.body.websiteTheme !== undefined) {
       const existingWebsite = existingObj?.websiteTheme || {};
@@ -515,7 +517,9 @@ cmsAdminRouter.put(["/site-settings", "/settings/:section"], async (req: Request
       if (updatePayload.websiteTheme.accentColor) updatePayload.accentColor = updatePayload.websiteTheme.accentColor;
       if (updatePayload.websiteTheme.actionColor) updatePayload.actionColor = updatePayload.websiteTheme.actionColor;
       if (updatePayload.websiteTheme.socialIconColor) updatePayload.socialIconColor = updatePayload.websiteTheme.socialIconColor;
-    } else if (updatePayload.primaryColor || updatePayload.secondaryColor || updatePayload.accentColor || updatePayload.actionColor || updatePayload.socialIconColor) {
+      if (updatePayload.websiteTheme.confidentBannerBgColor) updatePayload.confidentBannerBgColor = updatePayload.websiteTheme.confidentBannerBgColor;
+      if (updatePayload.websiteTheme.confidentBannerTextColor) updatePayload.confidentBannerTextColor = updatePayload.websiteTheme.confidentBannerTextColor;
+    } else if (updatePayload.primaryColor || updatePayload.secondaryColor || updatePayload.accentColor || updatePayload.actionColor || updatePayload.socialIconColor || updatePayload.confidentBannerBgColor || updatePayload.confidentBannerTextColor) {
       const existingWebsite = existingObj?.websiteTheme || {};
       updatePayload.websiteTheme = {
         ...DEFAULT_WEBSITE_THEME,
@@ -525,6 +529,8 @@ cmsAdminRouter.put(["/site-settings", "/settings/:section"], async (req: Request
         ...(updatePayload.accentColor ? { accentColor: updatePayload.accentColor } : {}),
         ...(updatePayload.actionColor ? { actionColor: updatePayload.actionColor } : {}),
         ...(updatePayload.socialIconColor ? { socialIconColor: updatePayload.socialIconColor } : {}),
+        ...(updatePayload.confidentBannerBgColor ? { confidentBannerBgColor: updatePayload.confidentBannerBgColor } : {}),
+        ...(updatePayload.confidentBannerTextColor ? { confidentBannerTextColor: updatePayload.confidentBannerTextColor } : {}),
       };
     }
 
@@ -921,6 +927,8 @@ cmsAdminRouter.post("/theme/preset", async (req: Request, res: Response) => {
       if (preset.websiteTheme.accentColor) updatePayload.accentColor = preset.websiteTheme.accentColor;
       if (preset.websiteTheme.actionColor) updatePayload.actionColor = preset.websiteTheme.actionColor;
       if (preset.websiteTheme.socialIconColor) updatePayload.socialIconColor = preset.websiteTheme.socialIconColor;
+      if (preset.websiteTheme.confidentBannerBgColor) updatePayload.confidentBannerBgColor = preset.websiteTheme.confidentBannerBgColor;
+      if (preset.websiteTheme.confidentBannerTextColor) updatePayload.confidentBannerTextColor = preset.websiteTheme.confidentBannerTextColor;
     }
 
     if (target === "admin" || target === "both") {
@@ -962,6 +970,8 @@ cmsAdminRouter.post("/theme/reset", async (req: Request, res: Response) => {
       updatePayload.accentColor = DEFAULT_WEBSITE_THEME.accentColor;
       updatePayload.actionColor = DEFAULT_WEBSITE_THEME.actionColor;
       updatePayload.socialIconColor = DEFAULT_WEBSITE_THEME.socialIconColor;
+      updatePayload.confidentBannerBgColor = DEFAULT_WEBSITE_THEME.confidentBannerBgColor;
+      updatePayload.confidentBannerTextColor = DEFAULT_WEBSITE_THEME.confidentBannerTextColor;
     }
 
     if (target === "admin" || target === "both") {

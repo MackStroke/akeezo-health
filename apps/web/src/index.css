@@ -38,6 +38,8 @@
   --color-emergency-ink: var(--emergency-ink, #99201a);
   --color-navy: var(--navy, #061e1b);
   --color-social-icon: var(--social-icon-color, #007a6c);
+  --color-confident-banner-bg: var(--confident-banner-bg, #007a6c);
+  --color-confident-banner-text: var(--confident-banner-text, #ffffff);
 
   /* Shadcn Semantic Mapping */
   --color-background: var(--background);
@@ -100,6 +102,8 @@
   --emergency-ink: #99201a;
   --navy: #061e1b;
   --social-icon-color: #007a6c;
+  --confident-banner-bg: #007a6c;
+  --confident-banner-text: #ffffff;
   --font-ui: 'Lato', system-ui, -apple-system, sans-serif;
   --page-max: 1280px;
   --page-gutter: clamp(16px, 4vw, 56px);
@@ -206,4 +210,10 @@ body {
   -webkit-mask-position: center;
   mask-position: center;
   transition: opacity 0.2s ease, transform 0.2s ease;
+}
+
+/* Dynamic Confident Healthcare Decisions Banner Pill */
+.confident-banner-pill {
+  background-color: var(--confident-banner-bg, var(--action, #007a6c)) !important;
+  color: var(--confident-banner-text, #ffffff) !important;
 }
