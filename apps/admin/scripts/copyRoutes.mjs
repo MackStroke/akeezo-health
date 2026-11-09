@@ -15,6 +15,11 @@ const html = fs.readFileSync(path.join(dist, "index.html"), "utf-8");
 const routes = [
   "",
   "overview",
+  "doctors",
+  "hospitals",
+  "treatments",
+  "destinations",
+  "blog",
   "content",
   "media",
   "enquiries",

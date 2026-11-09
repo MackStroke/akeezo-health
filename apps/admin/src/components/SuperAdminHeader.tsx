@@ -110,6 +110,11 @@ export const SuperAdminHeader: React.FC<HeaderProps> = ({
 
   const tabTitles: Record<AdminTab, { title: string; subtitle: string }> = {
     overview: { title: "Executive Dashboard", subtitle: "System health, KPIs & attention items" },
+    doctors: { title: "Doctors & Specialists", subtitle: "World-class medical surgeons & profile catalog" },
+    hospitals: { title: "Hospitals & Clinics", subtitle: "Accredited international healthcare centers" },
+    treatments: { title: "Medical Treatments", subtitle: "Procedures, recovery times & cost benchmarks" },
+    destinations: { title: "Medical Destinations", subtitle: "International travel hubs & country savings" },
+    blog: { title: "Blog & Healthcare Guides", subtitle: "Medical knowledge hub & real-time SEO studio" },
     content: { title: "Content Management", subtitle: "Public pages, section schemas & navigation" },
     media: { title: "Media Library", subtitle: "Digital assets, storage & secure delivery" },
     enquiries: { title: "Website Enquiries", subtitle: "Form leads, triage & CRM case conversion" },

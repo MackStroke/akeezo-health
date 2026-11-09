@@ -14,10 +14,20 @@ import {
   X,
   PanelLeftClose,
   PanelLeftOpen,
+  Stethoscope,
+  Building2,
+  Activity,
+  MapPin,
+  BookOpen,
 } from "lucide-react";
 
 export type AdminTab =
   | "overview"
+  | "doctors"
+  | "hospitals"
+  | "treatments"
+  | "destinations"
+  | "blog"
   | "content"
   | "media"
   | "enquiries"
@@ -84,8 +94,6 @@ export const SuperAdminSidebar: React.FC<SidebarProps> = ({
     return () => window.removeEventListener("keydown", handleKeyDown);
   }, [isMobileOpen, onCloseMobile]);
 
-  // Exact 8 items in requested order:
-  // 1. Dashboard, 2. Content, 3. Media Library, 4. Enquiries, 5. SEO & Redirects, 6. Users & Roles, 7. Activity Log, 8. Settings
   const navItems = [
     {
       id: "overview" as AdminTab,
@@ -94,11 +102,51 @@ export const SuperAdminSidebar: React.FC<SidebarProps> = ({
       path: "/admin",
     },
     {
+      id: "doctors" as AdminTab,
+      label: "Doctors",
+      icon: Stethoscope,
+      badge: "Specialists",
+      badgeColor: "bg-teal-500/20 text-[#00C7BE] border-teal-500/30",
+      path: "/admin/doctors",
+    },
+    {
+      id: "hospitals" as AdminTab,
+      label: "Hospitals",
+      icon: Building2,
+      badge: "Centres",
+      badgeColor: "bg-blue-500/20 text-blue-300 border-blue-500/30",
+      path: "/admin/hospitals",
+    },
+    {
+      id: "treatments" as AdminTab,
+      label: "Treatments",
+      icon: Activity,
+      badge: "Procedures",
+      badgeColor: "bg-amber-500/20 text-amber-300 border-amber-500/30",
+      path: "/admin/treatments",
+    },
+    {
+      id: "destinations" as AdminTab,
+      label: "Destinations",
+      icon: MapPin,
+      badge: "Global",
+      badgeColor: "bg-purple-500/20 text-purple-300 border-purple-500/30",
+      path: "/admin/destinations",
+    },
+    {
+      id: "blog" as AdminTab,
+      label: "Blogs & Guides",
+      icon: BookOpen,
+      badge: "Articles",
+      badgeColor: "bg-emerald-500/20 text-emerald-300 border-emerald-500/30",
+      path: "/admin/blog",
+    },
+    {
       id: "content" as AdminTab,
-      label: "Content",
+      label: "All Pages CMS",
       icon: FileText,
-      badge: "Pages & Blog",
-      badgeColor: "bg-[#00C7BE]/20 text-[#00C7BE] border-[#00C7BE]/40",
+      badge: "Revisions",
+      badgeColor: "bg-teal-950 text-slate-300 border-teal-800",
       path: "/admin/content",
     },
     {

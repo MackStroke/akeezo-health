@@ -35,7 +35,17 @@ import {
   SearchCode,
   Smartphone,
   Monitor,
+  Download,
+  Upload,
+  FileSpreadsheet,
 } from "lucide-react";
+import {
+  exportToCsv,
+  exportToJson,
+  exportToExcel,
+  parseImportedFile,
+  type ExportColumn,
+} from "../utils/exportImport.js";
 import {
   TablePagination,
   SortHeader,
@@ -99,6 +109,15 @@ export const BlogManagerView: React.FC<BlogManagerViewProps> = ({
   const [deletingId, setDeletingId] = useState<string | null>(null);
   const [toastMessage, setToastMessage] = useState("");
   const [copiedSlug, setCopiedSlug] = useState<string | null>(null);
+
+  // Multi-Selection & Bulk Actions
+  const [selectedIds, setSelectedIds] = useState<Set<string>>(new Set());
+  const [exportDropdownOpen, setExportDropdownOpen] = useState(false);
+  const [isImportModalOpen, setIsImportModalOpen] = useState(false);
+  const [importFile, setImportFile] = useState<File | null>(null);
+  const [importedPreview, setImportedPreview] = useState<any[]>([]);
+  const [importParsing, setImportParsing] = useState(false);
+  const [importError, setImportError] = useState("");
 
   // Form State
   const [formData, setFormData] = useState({
@@ -388,6 +407,147 @@ export const BlogManagerView: React.FC<BlogManagerViewProps> = ({
     }
   };
 
+  // Selection & Bulk Handlers
+  const handleSelectAll = (e: React.ChangeEvent<HTMLInputElement>) => {
+    if (e.target.checked) {
+      setSelectedIds(new Set(articles.map((a) => a._id)));
+    } else {
+      setSelectedIds(new Set());
+    }
+  };
+
+  const handleToggleSelectRow = (id: string) => {
+    setSelectedIds((prev) => {
+      const next = new Set(prev);
+      if (next.has(id)) next.delete(id);
+      else next.add(id);
+      return next;
+    });
+  };
+
+  const blogExportColumns: ExportColumn[] = [
+    { key: "title", label: "Article Title" },
+    { key: "slug", label: "Slug" },
+    { key: "category", label: "Category" },
+    { key: "status", label: "Status" },
+    { key: "authorName", label: "Author", formatter: (_v, row) => row.author?.name || "Akeezo Editorial" },
+    { key: "seoScore", label: "SEO Score", formatter: (_v, row) => String(row.seo?.seoScore || 0) },
+    { key: "views", label: "Views", formatter: (v) => String(v || 0) },
+    { key: "publishedAt", label: "Published Date", formatter: (v) => (v ? new Date(v).toISOString().split("T")[0] : "") },
+  ];
+
+  const handleBulkPublish = async (publish: boolean) => {
+    if (selectedIds.size === 0) return;
+    const targetStatus = publish ? "published" : "draft";
+    for (const id of selectedIds) {
+      const art = articles.find((a) => a._id === id);
+      if (art && art.status !== targetStatus) {
+        await fetch(`/api/v1/admin/blog/${id}/publish`, {
+          method: "POST",
+          headers: getAuthHeaders(),
+        });
+      }
+    }
+    showToast(`Updated ${selectedIds.size} articles to ${targetStatus}.`);
+    setSelectedIds(new Set());
+    fetchArticles();
+  };
+
+  const handleBulkDelete = async () => {
+    if (selectedIds.size === 0) return;
+    if (!window.confirm(`Are you sure you want to delete ${selectedIds.size} articles?`)) return;
+    for (const id of selectedIds) {
+      await fetch(`/api/v1/admin/blog/${id}`, {
+        method: "DELETE",
+        headers: getAuthHeaders(),
+      });
+    }
+    showToast(`Deleted ${selectedIds.size} articles.`);
+    setSelectedIds(new Set());
+    fetchArticles();
+  };
+
+  const handleBulkExport = (format: "csv" | "json" | "excel") => {
+    const selectedArticles = articles.filter((a) => selectedIds.has(a._id));
+    const targetArticles = selectedArticles.length > 0 ? selectedArticles : articles;
+    const filename = `blog_articles_export_${new Date().toISOString().split("T")[0]}`;
+    if (format === "csv") {
+      exportToCsv(targetArticles, blogExportColumns, filename);
+    } else if (format === "json") {
+      exportToJson(targetArticles, filename);
+    } else if (format === "excel") {
+      exportToExcel(targetArticles, blogExportColumns, filename, "Blog Articles");
+    }
+    setExportDropdownOpen(false);
+    showToast(`Exported ${targetArticles.length} articles as ${format.toUpperCase()}.`);
+  };
+
+  const handleFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    setImportFile(file);
+    setImportError("");
+    setImportParsing(true);
+    try {
+      const parsed = await parseImportedFile(file);
+      if (!parsed || parsed.length === 0) throw new Error("No readable records found in the file.");
+      setImportedPreview(parsed);
+    } catch (err: any) {
+      setImportError(err.message || "Failed to parse import file.");
+      setImportedPreview([]);
+    } finally {
+      setImportParsing(false);
+    }
+  };
+
+  const handleConfirmImport = async () => {
+    if (importedPreview.length === 0) return;
+    let importedCount = 0;
+    for (const row of importedPreview) {
+      const title = row.title || row["Article Title"] || "Imported Article";
+      const slug = row.slug || slugify(title);
+      const category = row.category || row["Category"] || "Medical Travel Guide";
+      const content = row.content || row.excerpt || row["Article Title"] || "Imported content.";
+      const excerpt = row.excerpt || title;
+
+      const payload = {
+        title,
+        slug,
+        excerpt,
+        content,
+        category,
+        tags: ["Medical Travel", "Healthcare"],
+        status: row.status === "draft" ? "draft" : "published",
+        author: {
+          name: row.author || row.authorName || "Akeezo Editorial",
+          role: "Clinical Specialist",
+        },
+        seo: {
+          focusKeyword: row.focusKeyword || title,
+          seoTitle: title,
+          metaDescription: excerpt,
+          canonicalUrl: `/blog/${slug}`,
+        },
+      };
+
+      try {
+        const res = await fetch("/api/v1/admin/blog", {
+          method: "POST",
+          headers: getAuthHeaders(),
+          body: JSON.stringify(payload),
+        });
+        if (res.ok) importedCount++;
+      } catch (e) {
+        // continue
+      }
+    }
+    setIsImportModalOpen(false);
+    setImportFile(null);
+    setImportedPreview([]);
+    showToast(`Successfully imported ${importedCount} blog articles!`);
+    fetchArticles();
+  };
+
   // KPI Calculations
   const totalArticles = articles.length;
   const publishedCount = articles.filter((a) => a.status === "published").length;
@@ -437,6 +597,61 @@ export const BlogManagerView: React.FC<BlogManagerViewProps> = ({
             <span>View Public /blog</span>
             <ExternalLink className="w-3 h-3 opacity-70" />
           </a>
+
+          {/* Export Dropdown */}
+          <div className="relative">
+            <button
+              type="button"
+              onClick={() => setExportDropdownOpen((prev) => !prev)}
+              className="px-3.5 py-2 rounded-xl bg-white/10 hover:bg-white/20 text-white font-bold text-xs transition border border-white/20 flex items-center gap-1.5 shadow-2xs"
+            >
+              <Download className="w-3.5 h-3.5 text-[#00C7BE]" />
+              <span>Export</span>
+            </button>
+            {exportDropdownOpen && (
+              <div className="absolute right-0 mt-2 w-48 bg-white border border-slate-200 rounded-xl shadow-lg z-30 py-1 text-xs">
+                <button
+                  type="button"
+                  onClick={() => handleBulkExport("csv")}
+                  className="w-full text-left px-3 py-2 hover:bg-slate-50 flex items-center gap-2 text-slate-700 font-semibold"
+                >
+                  <FileText className="w-4 h-4 text-emerald-600" />
+                  <span>Export as CSV (.csv)</span>
+                </button>
+                <button
+                  type="button"
+                  onClick={() => handleBulkExport("excel")}
+                  className="w-full text-left px-3 py-2 hover:bg-slate-50 flex items-center gap-2 text-slate-700 font-semibold"
+                >
+                  <FileSpreadsheet className="w-4 h-4 text-green-700" />
+                  <span>Export as Excel (.xls)</span>
+                </button>
+                <button
+                  type="button"
+                  onClick={() => handleBulkExport("json")}
+                  className="w-full text-left px-3 py-2 hover:bg-slate-50 flex items-center gap-2 text-slate-700 font-semibold"
+                >
+                  <Sparkles className="w-4 h-4 text-amber-600" />
+                  <span>Export as JSON (.json)</span>
+                </button>
+              </div>
+            )}
+          </div>
+
+          {/* Import Button */}
+          <button
+            type="button"
+            onClick={() => {
+              setIsImportModalOpen(true);
+              setImportedPreview([]);
+              setImportFile(null);
+              setImportError("");
+            }}
+            className="px-3.5 py-2 rounded-xl bg-white/10 hover:bg-white/20 text-white font-bold text-xs transition border border-white/20 flex items-center gap-1.5 shadow-2xs"
+          >
+            <Upload className="w-3.5 h-3.5 text-[#00C7BE]" />
+            <span>Import</span>
+          </button>
 
           <button
             type="button"
@@ -583,6 +798,60 @@ export const BlogManagerView: React.FC<BlogManagerViewProps> = ({
         </div>
       </div>
 
+      {/* Floating Bulk Actions Bar */}
+      {selectedIds.size > 0 && (
+        <div className="bg-slate-900 text-white p-3 px-5 rounded-2xl flex flex-wrap items-center justify-between gap-3 shadow-lg animate-in fade-in slide-in-from-bottom-2">
+          <div className="flex items-center gap-3">
+            <span className="text-xs font-bold bg-teal-500/20 text-[#00C7BE] border border-teal-500/30 px-2.5 py-1 rounded-full">
+              {selectedIds.size} Selected
+            </span>
+            <span className="text-xs text-slate-300">Bulk Actions available:</span>
+          </div>
+
+          <div className="flex items-center gap-2">
+            <button
+              type="button"
+              onClick={() => handleBulkPublish(true)}
+              className="px-3 py-1.5 bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-semibold rounded-lg transition flex items-center gap-1"
+            >
+              <Check className="w-3.5 h-3.5" />
+              <span>Publish</span>
+            </button>
+            <button
+              type="button"
+              onClick={() => handleBulkPublish(false)}
+              className="px-3 py-1.5 bg-slate-700 hover:bg-slate-600 text-white text-xs font-semibold rounded-lg transition flex items-center gap-1"
+            >
+              <X className="w-3.5 h-3.5" />
+              <span>Draft</span>
+            </button>
+            <button
+              type="button"
+              onClick={() => handleBulkExport("csv")}
+              className="px-3 py-1.5 bg-slate-700 hover:bg-slate-600 text-white text-xs font-semibold rounded-lg transition flex items-center gap-1"
+            >
+              <Download className="w-3.5 h-3.5" />
+              <span>Export Selected</span>
+            </button>
+            <button
+              type="button"
+              onClick={handleBulkDelete}
+              className="px-3 py-1.5 bg-rose-600 hover:bg-rose-700 text-white text-xs font-semibold rounded-lg transition flex items-center gap-1"
+            >
+              <Trash2 className="w-3.5 h-3.5" />
+              <span>Delete</span>
+            </button>
+            <button
+              type="button"
+              onClick={() => setSelectedIds(new Set())}
+              className="text-xs text-slate-400 hover:text-white ml-2 underline"
+            >
+              Clear
+            </button>
+          </div>
+        </div>
+      )}
+
       {/* 4. Main Content: Table or Grid */}
       {viewMode === "table" ? (
         <div className="bg-white rounded-2xl border border-slate-200 shadow-xs overflow-hidden">
@@ -590,6 +859,14 @@ export const BlogManagerView: React.FC<BlogManagerViewProps> = ({
             <table className="w-full text-left text-xs border-collapse">
               <thead>
                 <tr className="bg-slate-50/80 border-b border-slate-200 text-slate-600 select-none">
+                  <th className="p-3 pl-4 w-10">
+                    <input
+                      type="checkbox"
+                      checked={articles.length > 0 && articles.every((a) => selectedIds.has(a._id))}
+                      onChange={handleSelectAll}
+                      className="w-4 h-4 rounded text-[#007A6C] border-slate-300 focus:ring-[#007A6C]"
+                    />
+                  </th>
                   <SortHeader
                     field="title"
                     currentSortField={sortField}
@@ -637,7 +914,7 @@ export const BlogManagerView: React.FC<BlogManagerViewProps> = ({
               <tbody className="divide-y divide-slate-100">
                 {loading ? (
                   <tr>
-                    <td colSpan={7} className="p-8 text-center text-slate-400">
+                    <td colSpan={8} className="p-8 text-center text-slate-400">
                       <div className="inline-flex items-center gap-2">
                         <RefreshCw className="w-4 h-4 animate-spin text-[#007A6C]" />
                         <span>Loading articles & real-time SEO scores...</span>
@@ -646,7 +923,7 @@ export const BlogManagerView: React.FC<BlogManagerViewProps> = ({
                   </tr>
                 ) : articles.length === 0 ? (
                   <tr>
-                    <td colSpan={7} className="p-8 text-center text-slate-400">
+                    <td colSpan={8} className="p-8 text-center text-slate-400">
                       No blog articles found matching the current search & filters.
                     </td>
                   </tr>
@@ -661,7 +938,20 @@ export const BlogManagerView: React.FC<BlogManagerViewProps> = ({
                         : "bg-rose-50 text-rose-800 border-rose-200";
 
                     return (
-                      <tr key={art._id} className="hover:bg-slate-50/60 transition group">
+                      <tr
+                        key={art._id}
+                        className={`hover:bg-slate-50/60 transition group ${
+                          selectedIds.has(art._id) ? "bg-teal-50/40" : ""
+                        }`}
+                      >
+                        <td className="p-3 pl-4">
+                          <input
+                            type="checkbox"
+                            checked={selectedIds.has(art._id)}
+                            onChange={() => handleToggleSelectRow(art._id)}
+                            className="w-4 h-4 rounded text-[#007A6C] border-slate-300 focus:ring-[#007A6C]"
+                          />
+                        </td>
                         {/* Title & Excerpt */}
                         <td className="px-4 py-3 max-w-sm">
                           <div className="font-bold text-slate-900 group-hover:text-[#007A6C] transition line-clamp-1">
@@ -1578,6 +1868,99 @@ export const BlogManagerView: React.FC<BlogManagerViewProps> = ({
                 className="flex-1 py-2 text-xs font-bold text-white bg-rose-600 hover:bg-rose-700 rounded-xl shadow-xs transition"
               >
                 Delete Article
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Import Modal (.csv, .json, Excel) */}
+      {isImportModalOpen && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/60 backdrop-blur-xs">
+          <div className="bg-white w-full max-w-xl rounded-2xl border border-slate-200 shadow-2xl p-6 space-y-4 animate-in fade-in zoom-in-95">
+            <div className="flex items-center justify-between pb-3 border-b border-slate-100">
+              <div className="flex items-center gap-2">
+                <Upload className="w-5 h-5 text-[#007A6C]" />
+                <h3 className="text-base font-bold text-slate-900">Import Blog Articles (.csv, .json, Excel)</h3>
+              </div>
+              <button
+                type="button"
+                onClick={() => setIsImportModalOpen(false)}
+                className="p-1 text-slate-400 hover:text-slate-600 rounded-lg"
+              >
+                <X className="w-5 h-5" />
+              </button>
+            </div>
+
+            <div className="border-2 border-dashed border-slate-300 hover:border-[#007A6C] rounded-2xl p-6 text-center cursor-pointer transition">
+              <input
+                type="file"
+                accept=".csv,.json,.xls,.xlsx,application/json,text/csv,application/vnd.ms-excel"
+                onChange={handleFileChange}
+                className="hidden"
+                id="blog-import-input"
+              />
+              <label htmlFor="blog-import-input" className="cursor-pointer space-y-2 block">
+                <Upload className="w-8 h-8 text-slate-400 mx-auto" />
+                <div className="text-xs font-bold text-slate-700">
+                  {importFile ? importFile.name : "Click to select .csv, .json, or Excel file"}
+                </div>
+                <p className="text-[11px] text-slate-400">
+                  Supports title, slug, category, excerpt, and content fields.
+                </p>
+              </label>
+            </div>
+
+            {importParsing && (
+              <div className="text-xs text-slate-500 flex items-center justify-center gap-2 py-2">
+                <RefreshCw className="w-3.5 h-3.5 animate-spin text-[#007A6C]" />
+                <span>Parsing articles...</span>
+              </div>
+            )}
+
+            {importError && (
+              <div className="p-3 bg-rose-50 border border-rose-200 text-rose-700 rounded-xl text-xs flex items-center gap-2">
+                <AlertCircle className="w-4 h-4 shrink-0" />
+                <span>{importError}</span>
+              </div>
+            )}
+
+            {importedPreview.length > 0 && (
+              <div className="space-y-2">
+                <div className="text-xs font-semibold text-slate-800">
+                  Ready to import {importedPreview.length} articles:
+                </div>
+                <div className="max-h-36 overflow-y-auto border border-slate-200 rounded-xl text-xs divide-y divide-slate-100">
+                  {importedPreview.slice(0, 5).map((row, idx) => (
+                    <div key={idx} className="p-2 font-medium text-slate-800">
+                      {row.title || row["Article Title"] || `Article ${idx + 1}`}
+                    </div>
+                  ))}
+                  {importedPreview.length > 5 && (
+                    <div className="p-2 text-center text-slate-400 text-[11px]">
+                      + {importedPreview.length - 5} more articles
+                    </div>
+                  )}
+                </div>
+              </div>
+            )}
+
+            <div className="flex items-center justify-between pt-3 border-t border-slate-100">
+              <button
+                type="button"
+                onClick={() => setIsImportModalOpen(false)}
+                className="px-4 py-2 text-slate-600 hover:text-slate-900 text-xs font-semibold"
+              >
+                Cancel
+              </button>
+              <button
+                type="button"
+                onClick={handleConfirmImport}
+                disabled={importedPreview.length === 0}
+                className="px-5 py-2.5 bg-[#007A6C] hover:bg-[#006054] text-white text-xs font-bold rounded-xl transition flex items-center gap-1.5 disabled:opacity-50"
+              >
+                <CheckCircle2 className="w-4 h-4" />
+                <span>Import {importedPreview.length} Articles</span>
               </button>
             </div>
           </div>

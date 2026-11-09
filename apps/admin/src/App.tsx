@@ -10,6 +10,10 @@ import { SuperAdminSidebar, AdminTab } from "./components/SuperAdminSidebar.js";
 // Lazy-loaded Admin Modules for Optimal Code-Splitting and Fast Initial Load
 const DashboardView = lazy(() => import("./components/DashboardView.js").then((m) => ({ default: m.DashboardView })));
 const ContentView = lazy(() => import("./components/ContentView.js").then((m) => ({ default: m.ContentView })));
+const BlogManagerView = lazy(() => import("./components/BlogManagerView.js").then((m) => ({ default: m.BlogManagerView })));
+const DirectoryModuleManager = lazy(() =>
+  import("./components/DirectoryModuleManager.js").then((m) => ({ default: m.DirectoryModuleManager }))
+);
 const MediaLibraryView = lazy(() => import("./components/MediaLibraryView.js").then((m) => ({ default: m.MediaLibraryView })));
 const EnquiriesView = lazy(() => import("./components/EnquiriesView.js").then((m) => ({ default: m.EnquiriesView })));
 const SeoRedirectsView = lazy(() => import("./components/SeoRedirectsView.js").then((m) => ({ default: m.SeoRedirectsView })));
@@ -72,6 +76,11 @@ const ADMIN_TOUR_STEPS: TourStep[] = [
 
 const tabPathMap: Record<AdminTab, string> = {
   overview: "/admin",
+  doctors: "/admin/doctors",
+  hospitals: "/admin/hospitals",
+  treatments: "/admin/treatments",
+  destinations: "/admin/destinations",
+  blog: "/admin/blog",
   content: "/admin/content",
   media: "/admin/media",
   enquiries: "/admin/enquiries",
@@ -85,7 +94,12 @@ const tabPathMap: Record<AdminTab, string> = {
 function getTabFromPath(pathname: string): AdminTab {
   const clean = pathname.replace(/\/$/, "");
   if (clean === "/admin" || clean === "/admin/overview") return "overview";
-  if (clean.startsWith("/admin/content") || clean.startsWith("/admin/blog")) return "content";
+  if (clean.startsWith("/admin/doctors")) return "doctors";
+  if (clean.startsWith("/admin/hospitals")) return "hospitals";
+  if (clean.startsWith("/admin/treatments")) return "treatments";
+  if (clean.startsWith("/admin/destinations")) return "destinations";
+  if (clean.startsWith("/admin/blog") || clean.startsWith("/admin/blogs")) return "blog";
+  if (clean.startsWith("/admin/content")) return "content";
   if (clean.startsWith("/admin/media")) return "media";
   if (clean.startsWith("/admin/enquiries") || clean.startsWith("/admin/leads")) return "enquiries";
   if (clean.startsWith("/admin/seo")) return "seo";
@@ -325,7 +339,14 @@ const SuperAdminDashboard: React.FC = () => {
               />
             )}
 
-            {/* Module 2: Content (Pages, Blog & Navigation) */}
+            {/* Dedicated Healthcare Directory Modules */}
+            {activeTab === "doctors" && <DirectoryModuleManager pageSlug="doctors" />}
+            {activeTab === "hospitals" && <DirectoryModuleManager pageSlug="hospitals" />}
+            {activeTab === "treatments" && <DirectoryModuleManager pageSlug="treatments" />}
+            {activeTab === "destinations" && <DirectoryModuleManager pageSlug="destinations" />}
+            {activeTab === "blog" && <BlogManagerView initialCreateModal={openBlogModal} />}
+
+            {/* Module 2: Content (All Pages CMS & Navigation) */}
             {activeTab === "content" && (
               <ContentView
                 initialSubTab={
