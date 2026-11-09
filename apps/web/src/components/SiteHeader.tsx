@@ -433,14 +433,14 @@ export const SiteHeader: React.FC<SiteHeaderProps> = ({
               <span className="font-bold text-action tracking-tight">{phone}</span>
             </a>
 
-            {/* "Get Free Quote" CTA button (tablet screens where Tier 2 nav is hidden) */}
+            {/* "Plan My Journey" CTA button (tablet screens where Tier 2 nav is hidden) */}
             <button
               type="button"
               onClick={() => setIsCalculatorOpen(true)}
               className="hidden sm:inline-flex lg:hidden h-[36px] items-center justify-center rounded-full bg-brand-orange hover:bg-brand-orange-alt px-3.5 text-xs font-bold text-white shadow-xs transition-all cursor-pointer whitespace-nowrap shrink-0"
             >
               <Calculator className="size-3.5 mr-1" />
-              <span>Get Free Quote</span>
+              <span>Plan My Journey</span>
             </button>
 
             {/* Desktop Language Switcher & Sign In Button */}
@@ -593,7 +593,7 @@ export const SiteHeader: React.FC<SiteHeaderProps> = ({
               </a>
             </div>
 
-            {/* Right side Get Free Quote button */}
+            {/* Right side Plan My Journey button */}
             <div className="ml-auto shrink-0 flex items-center pl-4">
               <button
                 type="button"
@@ -601,7 +601,7 @@ export const SiteHeader: React.FC<SiteHeaderProps> = ({
                 className="hidden sm:inline-flex h-[36px] items-center justify-center rounded-full bg-brand-orange hover:bg-brand-orange-alt px-3.5 text-xs font-bold text-white shadow-xs transition-all cursor-pointer whitespace-nowrap shrink-0"
               >
                 <Calculator className="size-3.5 mr-1" />
-                <span>Get Free Quote</span>
+                <span>Plan My Journey</span>
               </button>
             </div>
           </div>

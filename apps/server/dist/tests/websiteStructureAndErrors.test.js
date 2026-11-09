@@ -39,14 +39,14 @@ describe("Website Structure, Navigation & Error States Verification", () => {
             assert.ok(headerHtml.includes("Specialists"), `Header on page "${page}" must contain Specialists`);
             assert.ok(headerHtml.includes("Destinations"), `Header on page "${page}" must contain Destinations`);
             assert.ok(!headerHtml.includes("Plan my Journey (Calculate Price)"), `Header on page "${page}" must not contain redundant Plan my Journey button`);
-            assert.ok(headerHtml.includes("Get Free Quote"), `Header on page "${page}" must contain Get Free Quote button`);
+            assert.ok(headerHtml.includes("Plan My Journey"), `Header on page "${page}" must contain Plan My Journey button`);
             assert.ok(headerHtml.includes("24/7 Desk:"), `Header on page "${page}" must contain 24/7 Desk hotline`);
-            // Verify <nav> element contains the Get Free Quote button placed on the right side
+            // Verify <nav> element contains the Plan My Journey button placed on the right side
             const navMatch = headerHtml.match(/<nav[\s\S]*?<\/nav>/);
             assert.ok(navMatch, `Header on page "${page}" must contain <nav> element`);
             const navHtml = navMatch[0];
-            assert.ok(navHtml.includes("Get Free Quote"), `<nav> on page "${page}" must contain Get Free Quote button`);
-            assert.ok(navHtml.includes("ml-auto"), `<nav> on page "${page}" must place Get Free Quote button on the right side`);
+            assert.ok(navHtml.includes("Plan My Journey"), `<nav> on page "${page}" must contain Plan My Journey button`);
+            assert.ok(navHtml.includes("ml-auto"), `<nav> on page "${page}" must place Plan My Journey button on the right side`);
         }
     });
     it("Footer consistency: /privacy and legal policies remain properly available in footer across all pages", () => {
