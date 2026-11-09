@@ -82,6 +82,12 @@ const FAQ_ITEMS: FaqItem[] = [
 
 export const CalculatorTemplate: React.FC<CalculatorTemplateProps> = ({ data }) => {
   const { siteSettings } = data;
+  const rawPayload = (data.payload as any) || {};
+
+  const headline = rawPayload.headline || "Surgery Cost Calculator Tool";
+  const subheadline = rawPayload.subheadline || "Compare surgery costs across top medical destinations. Get transparent estimates and connect with accredited international hospitals instantly.";
+  const badgeText = rawPayload.badgeText || "Trusted by 15,000+ International Patients";
+
   const [isCalculatorOpen, setIsCalculatorOpen] = useState(false);
   const [selectedCategory, setSelectedCategory] = useState<"All Questions" | "Estimates" | "Travel" | "Safety">("All Questions");
   const [openFaqIds, setOpenFaqIds] = useState<Record<string, boolean>>({
@@ -132,12 +138,11 @@ export const CalculatorTemplate: React.FC<CalculatorTemplateProps> = ({ data }) 
                   <div>
                     <div className="inline-flex items-center gap-1.5 bg-[#8B5CF6]/10 text-[#8B5CF6] text-xs font-medium px-3 py-1.5 rounded-full mb-4">
                       <Shield className="w-3.5 h-3.5" />
-                      <span>Trusted by 15,000+ International Patients</span>
+                      <span>{badgeText}</span>
                     </div>
 
                     <h1 className="text-3xl md:text-[44px] md:leading-[1.15] font-bold text-gray-900">
-                      Surgery Cost <br className="hidden md:block" />
-                      Calculator Tool
+                      {headline}
                       <br />
                       <span className="text-transparent bg-clip-text bg-gradient-to-r from-[#8B5CF6] to-[#6D28D9]">
                         Save up to 70%
@@ -145,7 +150,7 @@ export const CalculatorTemplate: React.FC<CalculatorTemplateProps> = ({ data }) 
                     </h1>
 
                     <p className="text-gray-600 text-sm md:text-base mt-4 max-w-lg leading-relaxed">
-                      Compare surgery costs across top medical destinations. Get transparent estimates and connect with accredited international hospitals instantly.
+                      {subheadline}
                     </p>
 
                     <div className="flex flex-wrap gap-3 mt-6 md:mt-8">

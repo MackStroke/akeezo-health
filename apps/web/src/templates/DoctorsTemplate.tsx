@@ -31,6 +31,39 @@ export interface DoctorsTemplateProps {
 }
 
 export function DoctorsTemplate({ data }: DoctorsTemplateProps) {
+  const rawPayload = (data.payload as any) || {};
+
+  const activeDoctorsList: DoctorItem[] = useMemo(() => {
+    if (rawPayload.doctors && Array.isArray(rawPayload.doctors) && rawPayload.doctors.length > 0) {
+      return rawPayload.doctors
+        .filter((d: any) => d.active !== false)
+        .map((d: any) => ({
+          id: String(d.id),
+          name: d.name,
+          slug: d.slug,
+          href: d.href || `/doctors/${d.slug}`,
+          image: d.image || "/uploads/doctors/doctor-default.jpg",
+          imageFallback: d.imageFallback || d.image || "/uploads/doctors/doctor-default.jpg",
+          specialty: d.specialty,
+          badge: d.badge || `Top ${d.specialty} Specialist`,
+          experience: d.experience || (d.experienceYears ? `${d.experienceYears}+ years` : "15+ years"),
+          hospital: d.hospital,
+          city: d.city || "New Delhi",
+          country: d.country || "India",
+          rating: Number(d.rating) || 4.9,
+          reviewCount: Number(d.reviewCount) || 100,
+          bio: d.bio || "Board-certified international specialist.",
+          accreditations: Array.isArray(d.accreditations) ? d.accreditations : ["JCI", "NABH"],
+          isTopDoctor: d.isTopDoctor !== undefined ? Boolean(d.isTopDoctor) : true,
+        }));
+    }
+    return ALL_DOCTORS;
+  }, [rawPayload.doctors]);
+
+  const headline = rawPayload.headline || "World-Class Doctors, Personally Matched for You";
+  const subheadline = rawPayload.subheadline || "Search, compare, and connect with leading surgeons and medical specialists across the globe.";
+  const searchPlaceholder = rawPayload.searchPlaceholder || "Explore doctors by name, specialty, or condition...";
+
   // Search & Filter State
   const [searchQuery, setSearchQuery] = useState("");
   const [selectedCountry, setSelectedCountry] = useState("All Countries");
@@ -81,7 +114,7 @@ export function DoctorsTemplate({ data }: DoctorsTemplateProps) {
 
   // Filtered Doctors
   const filteredDoctors = useMemo(() => {
-    return ALL_DOCTORS.filter((doc) => {
+    return activeDoctorsList.filter((doc) => {
       const q = searchQuery.toLowerCase().trim();
       const matchesSearch =
         !q ||
@@ -223,10 +256,10 @@ export function DoctorsTemplate({ data }: DoctorsTemplateProps) {
                   <span>500+ Board-Certified International Specialists</span>
                 </div>
                 <h1 className="text-2xl md:text-[44px] leading-tight font-bold mb-3 tracking-tight">
-                  World-Class Doctors, Personally Matched for You
+                  {headline}
                 </h1>
                 <p className="opacity-90 text-sm md:text-xl font-normal max-w-2xl mx-auto leading-relaxed">
-                  Search, compare, and connect with leading surgeons and medical specialists across the globe.
+                  {subheadline}
                 </p>
               </div>
 
@@ -245,7 +278,7 @@ export function DoctorsTemplate({ data }: DoctorsTemplateProps) {
                       type="text"
                       value={searchQuery}
                       onChange={(e) => setSearchQuery(e.target.value)}
-                      placeholder="Explore doctors by name, specialty, or condition..."
+                      placeholder={searchPlaceholder}
                       className="w-full outline-none bg-transparent text-sm placeholder:text-gray-400 font-medium"
                     />
                   </div>

@@ -1,5 +1,6 @@
 import { connectDB, disconnectDB } from "../db/connection.js";
 import { SiteSettings, Page, ContentRevision, RouteEntry } from "../db/models/index.js";
+import { SEED_CALCULATOR_PAYLOAD, SEED_DOCTORS_PAYLOAD, SEED_HOSPITALS_PAYLOAD, SEED_TREATMENTS_PAYLOAD, SEED_DESTINATIONS_PAYLOAD, SEED_ABOUT_PAYLOAD, SEED_DESTINATIONS, SEED_COMMUNITY_STORIES } from "./pageCmsSeedData.js";
 const SEED_PAGES = [
     {
         slug: "home",
@@ -9,7 +10,9 @@ const SEED_PAGES = [
         description: "Discover accredited Indian hospitals, consult top doctors, and receive guided care coordination and transparent cost estimates.",
         payload: {
             headline: "World-Class Medical Care in India, Simplified & Guided",
-            tagline: "Heal In India, Heal By Akeezo"
+            tagline: "Heal In India, Heal By Akeezo",
+            destinations: SEED_DESTINATIONS,
+            community: SEED_COMMUNITY_STORIES
         }
     },
     {
@@ -84,7 +87,7 @@ const SEED_PAGES = [
         pageKind: "calculatorLanding",
         title: "Surgery Cost Calculator Tool | Save up to 70% | AKEEZO",
         description: "Compare surgery costs across top medical destinations and accredited international hospitals. Get transparent estimates and connect with world-class surgeons.",
-        payload: {}
+        payload: SEED_CALCULATOR_PAYLOAD
     },
     {
         slug: "treatments",
@@ -92,10 +95,7 @@ const SEED_PAGES = [
         pageKind: "treatmentDirectory",
         title: "Medical Treatments Worldwide | Find Best Treatment Options | AKEEZO",
         description: "Discover comprehensive medical treatments worldwide. Compare prices, read reviews, and find accredited international healthcare options with AKEEZO.",
-        payload: {
-            headline: "Find The Best Treatments Worldwide",
-            subheadline: "World-class care, anywhere in the world."
-        }
+        payload: SEED_TREATMENTS_PAYLOAD
     },
     {
         slug: "hospitals",
@@ -103,10 +103,7 @@ const SEED_PAGES = [
         pageKind: "hospitalDirectory",
         title: "World-Class Hospitals | Personally Matched for You | AKEEZO",
         description: "Find and compare top accredited hospitals globally. Transparent estimates, verified patient satisfaction ratings, and complete care coordination with AKEEZO.",
-        payload: {
-            headline: "World-Class Hospitals, Personally Matched for You",
-            subheadline: "Find the Best Hospitals for Your Treatment, Anywhere in the World"
-        }
+        payload: SEED_HOSPITALS_PAYLOAD
     },
     {
         slug: "doctors",
@@ -114,10 +111,7 @@ const SEED_PAGES = [
         pageKind: "doctorDirectory",
         title: "World-Class Doctors | Find Best Specialists Worldwide | AKEEZO",
         description: "Search, compare, and connect with premier surgeons and medical specialists globally. Direct hospital pricing, accredited experts, and free assistance.",
-        payload: {
-            headline: "World-Class Doctors, Personally Matched for You",
-            subheadline: "Search, compare, and connect with leading specialists across the globe."
-        }
+        payload: SEED_DOCTORS_PAYLOAD
     },
     {
         slug: "about",
@@ -125,9 +119,25 @@ const SEED_PAGES = [
         pageKind: "about",
         title: "About Us | Hey! We're AKEEZO Healthcare Platform",
         description: "Meet the team behind AKEEZO. A dedicated group of patient advocates, healthcare researchers, and travel experts making world-class medical care reachable for anyone, anywhere.",
+        payload: SEED_ABOUT_PAYLOAD
+    },
+    {
+        slug: "destinations",
+        path: "/destinations",
+        pageKind: "destinationDirectory",
+        title: "Premier Medical Tourism Destinations | Save up to 75% | AKEEZO",
+        description: "Explore the world's leading medical travel destinations including India, Turkey, Thailand, and UAE. Accredited hospitals, expert surgeons, and full travel coordination.",
+        payload: SEED_DESTINATIONS_PAYLOAD
+    },
+    {
+        slug: "blog",
+        path: "/blog",
+        pageKind: "blogDirectory",
+        title: "Medical Tourism & Healthcare Guides | AKEEZO Knowledge Hub",
+        description: "In-depth clinical guides, procedure cost comparisons, recovery timelines, and expert advice for global medical travelers.",
         payload: {
-            headline: "Hey! We're AKEEZO",
-            subheadline: "We're a team of patient advocates, healthcare researchers, and travel experts — obsessed with one thing: making world-class medical care reachable for anyone, anywhere."
+            headline: "Medical Tourism & Healthcare Guides",
+            subheadline: "Evidence-backed healthcare information, surgery costs abroad, and international patient guides."
         }
     }
 ];
@@ -141,6 +151,8 @@ export async function seedDev() {
             environment: "development",
             brandName: "AKEEZO",
             tagline: "Heal In India, Heal By Akeezo",
+            destinations: SEED_DESTINATIONS,
+            community: SEED_COMMUNITY_STORIES,
             logoVariants: {
                 light: "/logo/logo with tagline-light.svg",
                 dark: "/logo/logo with tagline-dark.svg",
@@ -227,6 +239,17 @@ export async function seedDev() {
                     }
                 ]
             });
+            await revision.save();
+        }
+        else if (item.payload && Object.keys(item.payload).length > 0) {
+            revision.payload = { ...(revision.payload || {}), ...item.payload };
+            revision.seo = {
+                title: item.title,
+                description: item.description,
+                canonicalPath: item.path,
+                robots: "index,follow",
+                schemaKind: item.pageKind === "legal" ? "MedicalWebPage" : "WebPage"
+            };
             await revision.save();
         }
         // Link publishedRevisionId on Page

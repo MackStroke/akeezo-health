@@ -297819,6 +297819,7 @@ var WebsiteThemeSchema = external_exports.object({
   actionColor: external_exports.string().default("#007A6C"),
   actionHoverColor: external_exports.string().default("#005F54"),
   actionAccentColor: external_exports.string().default("#B54700"),
+  socialIconColor: external_exports.string().default("#007A6C"),
   // Surfaces & Backgrounds
   backgroundColor: external_exports.string().default("#FFFFFF"),
   surfaceColor: external_exports.string().default("#FFFFFF"),
@@ -297879,6 +297880,7 @@ var DEFAULT_WEBSITE_THEME = {
   actionColor: "#007A6C",
   actionHoverColor: "#005F54",
   actionAccentColor: "#B54700",
+  socialIconColor: "#007A6C",
   backgroundColor: "#FFFFFF",
   surfaceColor: "#FFFFFF",
   surfaceMutedColor: "#F4F6F9",
@@ -297933,6 +297935,7 @@ var THEME_PRESETS = {
       actionColor: "#007A6C",
       actionHoverColor: "#005F54",
       actionAccentColor: "#B54700",
+      socialIconColor: "#007A6C",
       backgroundColor: "#FFFFFF",
       surfaceColor: "#FFFFFF",
       surfaceMutedColor: "#F4F6F9",
@@ -297987,6 +297990,7 @@ var THEME_PRESETS = {
       actionColor: "#059669",
       actionHoverColor: "#047857",
       actionAccentColor: "#B45309",
+      socialIconColor: "#059669",
       backgroundColor: "#FFFFFF",
       surfaceColor: "#FFFFFF",
       surfaceMutedColor: "#F0FDF4",
@@ -298041,6 +298045,7 @@ var THEME_PRESETS = {
       actionColor: "#0369A1",
       actionHoverColor: "#075985",
       actionAccentColor: "#C2410C",
+      socialIconColor: "#0369A1",
       backgroundColor: "#FFFFFF",
       surfaceColor: "#FFFFFF",
       surfaceMutedColor: "#F0F9FF",
@@ -298095,6 +298100,7 @@ var THEME_PRESETS = {
       actionColor: "#00A896",
       actionHoverColor: "#028073",
       actionAccentColor: "#D9681E",
+      socialIconColor: "#00C7BE",
       backgroundColor: "#061E1B",
       surfaceColor: "#0B2B27",
       surfaceMutedColor: "#0F3833",
@@ -298149,6 +298155,7 @@ var THEME_PRESETS = {
       actionColor: "#7C3AED",
       actionHoverColor: "#6D28D9",
       actionAccentColor: "#EA580C",
+      socialIconColor: "#7C3AED",
       backgroundColor: "#FFFFFF",
       surfaceColor: "#FFFFFF",
       surfaceMutedColor: "#FAF5FF",
@@ -298430,6 +298437,7 @@ function websiteThemeToCssVariables(theme) {
     "--action": sanitizeCssValue(merged.actionColor),
     "--action-hover": sanitizeCssValue(merged.actionHoverColor),
     "--action-accent": sanitizeCssValue(merged.actionAccentColor),
+    "--social-icon-color": sanitizeCssValue(merged.socialIconColor || merged.actionColor || "#007A6C"),
     "--action-orange": sanitizeCssValue(merged.secondaryColor),
     "--action-orange-alt": sanitizeCssValue(merged.accentColor),
     "--surface": sanitizeCssValue(merged.surfaceColor),
@@ -299715,6 +299723,185 @@ function calculateSeoContentScore(input) {
   };
 }
 
+// ../../packages/contracts/dist/pageCms.js
+var CalculatorProcedureSchema = external_exports.object({
+  id: external_exports.string(),
+  name: external_exports.string().min(1),
+  category: external_exports.string().default("General"),
+  avgCostAbroad: external_exports.string().default("$2,500"),
+  avgCostHome: external_exports.string().default("$15,000"),
+  recoveryDays: external_exports.string().default("7 - 14 days"),
+  savingsPercentage: external_exports.number().default(75),
+  popular: external_exports.boolean().default(false),
+  active: external_exports.boolean().default(true)
+});
+var DestinationCostMultiplierSchema = external_exports.object({
+  country: external_exports.string(),
+  multiplier: external_exports.number().default(1),
+  hotelPerNightUsd: external_exports.number().default(45),
+  visaFeeUsd: external_exports.number().default(60)
+});
+var CalculatorPagePayloadSchema = external_exports.object({
+  headline: external_exports.string().default("Surgery Cost Calculator Tool"),
+  subheadline: external_exports.string().default("Compare surgery costs across top medical destinations and accredited international hospitals."),
+  badgeText: external_exports.string().default("100% Free \xB7 No Commissions"),
+  disclaimerText: external_exports.string().default("All cost figures are indicative benchmarks verified across accredited partner hospitals."),
+  procedures: external_exports.array(CalculatorProcedureSchema).default([]),
+  destinations: external_exports.array(DestinationCostMultiplierSchema).default([])
+});
+var DoctorCatalogueItemSchema = external_exports.object({
+  id: external_exports.string(),
+  name: external_exports.string().min(1),
+  slug: external_exports.string().min(1),
+  specialty: external_exports.string().min(1),
+  hospital: external_exports.string().min(1),
+  city: external_exports.string().default("New Delhi"),
+  country: external_exports.string().default("India"),
+  experienceYears: external_exports.number().default(15),
+  rating: external_exports.number().default(4.9),
+  reviewCount: external_exports.number().default(120),
+  consultationFeeUsd: external_exports.string().default("$50 - $100"),
+  procedures: external_exports.array(external_exports.string()).default([]),
+  image: external_exports.string().default("/uploads/doctors/doctor-default.jpg"),
+  verified: external_exports.boolean().default(true),
+  active: external_exports.boolean().default(true)
+});
+var DoctorsPagePayloadSchema = external_exports.object({
+  headline: external_exports.string().default("World-Class Doctors, Personally Matched for You"),
+  subheadline: external_exports.string().default("Search, compare, and connect with premier surgeons and medical specialists globally."),
+  searchPlaceholder: external_exports.string().default("Search doctors by name, specialty, or hospital..."),
+  featuredSpecialties: external_exports.array(external_exports.string()).default([]),
+  doctors: external_exports.array(DoctorCatalogueItemSchema).default([])
+});
+var HospitalCatalogueItemSchema = external_exports.object({
+  id: external_exports.string(),
+  name: external_exports.string().min(1),
+  slug: external_exports.string().min(1),
+  city: external_exports.string().default("New Delhi"),
+  country: external_exports.string().default("India"),
+  accreditations: external_exports.array(external_exports.string()).default(["JCI", "NABH"]),
+  bedsCount: external_exports.number().default(500),
+  rating: external_exports.number().default(4.8),
+  reviewCount: external_exports.number().default(350),
+  specialties: external_exports.array(external_exports.string()).default([]),
+  image: external_exports.string().default("/uploads/hospitals/hospital-default.jpg"),
+  description: external_exports.string().default("Premier multi-super-specialty healthcare facility."),
+  verified: external_exports.boolean().default(true),
+  active: external_exports.boolean().default(true)
+});
+var HospitalsPagePayloadSchema = external_exports.object({
+  headline: external_exports.string().default("World-Class Hospitals, Personally Matched for You"),
+  subheadline: external_exports.string().default("Find the Best Hospitals for Your Treatment, Anywhere in the World"),
+  searchPlaceholder: external_exports.string().default("Search hospitals by name, city, or specialty..."),
+  filterAccreditations: external_exports.array(external_exports.string()).default(["JCI", "NABH", "ISO", "NABL"]),
+  hospitals: external_exports.array(HospitalCatalogueItemSchema).default([])
+});
+var TreatmentCatalogueItemSchema = external_exports.object({
+  id: external_exports.string(),
+  title: external_exports.string().min(1),
+  slug: external_exports.string().min(1),
+  category: external_exports.string().default("Surgical"),
+  description: external_exports.string().default("Comprehensive clinical treatment with accredited international surgeons."),
+  href: external_exports.string().default("/treatments"),
+  image: external_exports.string().default("/uploads/treatments/default.webp"),
+  fallbackImage: external_exports.string().default("https://d162jy5nwnavsz.cloudfront.net/static/pages/treatments/treatments-banner.webp"),
+  procedures: external_exports.array(external_exports.string()).default([]),
+  avgCostAbroad: external_exports.string().default("$2,500 - $6,500"),
+  avgCostHome: external_exports.string().default("$12,000 - $25,000"),
+  recoveryTime: external_exports.string().default("7 - 14 days"),
+  isTopTreatment: external_exports.boolean().default(false),
+  active: external_exports.boolean().default(true)
+});
+var TreatmentsPagePayloadSchema = external_exports.object({
+  headline: external_exports.string().default("Find The Best Treatments Worldwide"),
+  subheadline: external_exports.string().default("World-class care, anywhere in the world."),
+  topTreatmentsTitle: external_exports.string().default("Top Treatments on AKEEZO"),
+  allTreatmentsTitle: external_exports.string().default("All Treatments"),
+  freeConsultationTitle: external_exports.string().default("AKEEZO Care Is Absolutely Free"),
+  freeConsultationSubtitle: external_exports.string().default("Just discovery so you can choose what's right for you!"),
+  confidentHealthcareTitle: external_exports.string().default("Make Confident Healthcare Decisions"),
+  confidentHealthcareSubtitle: external_exports.string().default("Trusted information backed by real patient experiences."),
+  treatments: external_exports.array(TreatmentCatalogueItemSchema).default([])
+});
+var DestinationCatalogueItemSchema = external_exports.object({
+  id: external_exports.string(),
+  country: external_exports.string().min(1),
+  slug: external_exports.string().min(1),
+  cityHighlights: external_exports.string().default("Major healthcare hubs"),
+  popularProcedures: external_exports.array(external_exports.string()).default([]),
+  savingsPercentage: external_exports.number().default(70),
+  hospitalCount: external_exports.number().default(25),
+  visaProcessingDays: external_exports.string().default("3 - 5 days"),
+  flightConnectivity: external_exports.string().default("Direct international flights"),
+  image: external_exports.string().default("/uploads/destinations/default.jpg"),
+  tagline: external_exports.string().default("World-class care at a fraction of the cost"),
+  featured: external_exports.boolean().default(true),
+  active: external_exports.boolean().default(true)
+});
+var DestinationsPagePayloadSchema = external_exports.object({
+  sectionTitle: external_exports.string().default("Explore Premier Medical Travel Destinations"),
+  sectionSubtitle: external_exports.string().default("Top accredited global hubs offering cutting-edge clinical infrastructure and massive cost savings."),
+  destinations: external_exports.array(DestinationCatalogueItemSchema).default([])
+});
+var CommunityStoryItemSchema = external_exports.object({
+  id: external_exports.string(),
+  patientName: external_exports.string().min(1),
+  originCountry: external_exports.string().default("United States"),
+  destinationCountry: external_exports.string().default("India"),
+  hospitalName: external_exports.string().default("Apollo Hospitals"),
+  procedureName: external_exports.string().default("Knee Replacement"),
+  rating: external_exports.number().min(1).max(5).default(5),
+  reviewText: external_exports.string().min(5),
+  avatarUrl: external_exports.string().default("/uploads/about/testi-review.webp"),
+  verifiedPatient: external_exports.boolean().default(true),
+  reviewDate: external_exports.string().default("2026-10-15"),
+  active: external_exports.boolean().default(true)
+});
+var CommunityPagePayloadSchema = external_exports.object({
+  sectionTitle: external_exports.string().default("Real Stories, Real Recoveries"),
+  sectionSubtitle: external_exports.string().default("Verified patient experiences and honest reviews from across the globe."),
+  testimonials: external_exports.array(CommunityStoryItemSchema).default([])
+});
+var AboutTeamMemberSchema = external_exports.object({
+  id: external_exports.string(),
+  name: external_exports.string().min(1),
+  role: external_exports.string().min(1),
+  credentials: external_exports.string().default("MD, FACP"),
+  bio: external_exports.string().default("Clinical coordinator and patient advocate with over a decade of international care management."),
+  image: external_exports.string().default("/uploads/about/team-0.webp"),
+  active: external_exports.boolean().default(true)
+});
+var AboutPagePayloadSchema = external_exports.object({
+  headline: external_exports.string().default("Hey! We're AKEEZO"),
+  subheadline: external_exports.string().default("We're a team of patient advocates, healthcare researchers, and travel experts \u2014 obsessed with one thing: making world-class medical care reachable for anyone, anywhere."),
+  mission: external_exports.string().default("Eliminate global health disparities by connecting patients directly with accredited world-class medical centers."),
+  vision: external_exports.string().default("A world where borders do not restrict access to lifesaving, compassionate medical care."),
+  stats: external_exports.object({
+    patientsCoordinated: external_exports.string().default("12,000+"),
+    partnerHospitals: external_exports.string().default("100+"),
+    satisfactionRate: external_exports.string().default("98.4%"),
+    countriesServed: external_exports.string().default("45+")
+  }).default({
+    patientsCoordinated: "12,000+",
+    partnerHospitals: "100+",
+    satisfactionRate: "98.4%",
+    countriesServed: "45+"
+  }),
+  teamMembers: external_exports.array(AboutTeamMemberSchema).default([])
+});
+var UpdatePagePayloadDTO = external_exports.object({
+  title: external_exports.string().optional(),
+  payload: external_exports.record(external_exports.unknown()),
+  seo: SeoMetadataSchema.optional(),
+  publishImmediately: external_exports.boolean().default(true)
+});
+var ManageItemActionDTO = external_exports.object({
+  itemType: external_exports.enum(["doctor", "hospital", "treatment", "destination", "community", "teamMember", "calculatorProcedure"]),
+  action: external_exports.enum(["create", "update", "delete", "toggleActive"]),
+  item: external_exports.record(external_exports.unknown()),
+  itemId: external_exports.string().optional()
+});
+
 // src/db/models/RouteEntry.ts
 var RouteEntrySchema2 = new import_mongoose2.Schema(
   {
@@ -299822,6 +300009,7 @@ var SiteSettingsSchema2 = new import_mongoose5.Schema(
     secondaryColor: { type: String, default: "#FF6B00" },
     accentColor: { type: String, default: "#FF6D1B" },
     actionColor: { type: String, default: "#007A6C" },
+    socialIconColor: { type: String, default: "#007A6C" },
     websiteTheme: {
       primaryColor: { type: String, default: "#00C7BE" },
       secondaryColor: { type: String, default: "#FF6B00" },
@@ -299829,6 +300017,7 @@ var SiteSettingsSchema2 = new import_mongoose5.Schema(
       actionColor: { type: String, default: "#007A6C" },
       actionHoverColor: { type: String, default: "#005F54" },
       actionAccentColor: { type: String, default: "#B54700" },
+      socialIconColor: { type: String, default: "#007A6C" },
       backgroundColor: { type: String, default: "#FFFFFF" },
       surfaceColor: { type: String, default: "#FFFFFF" },
       surfaceMutedColor: { type: String, default: "#F4F6F9" },
@@ -301007,11 +301196,15 @@ function toSafeSiteSettings(doc) {
     secondaryColor: doc?.websiteTheme?.secondaryColor || doc?.secondaryColor || "#FF6B00",
     accentColor: doc?.websiteTheme?.accentColor || doc?.accentColor || "#FF6D1B",
     actionColor: doc?.websiteTheme?.actionColor || doc?.actionColor || "#007A6C",
-    websiteTheme: doc?.websiteTheme || {
+    websiteTheme: doc?.websiteTheme ? {
+      ...doc.websiteTheme,
+      socialIconColor: doc.websiteTheme.socialIconColor || doc.socialIconColor || doc.websiteTheme.actionColor || doc.actionColor || "#007A6C"
+    } : {
       primaryColor: doc?.primaryColor || "#00C7BE",
       secondaryColor: doc?.secondaryColor || "#FF6B00",
       accentColor: doc?.accentColor || "#FF6D1B",
-      actionColor: doc?.actionColor || "#007A6C"
+      actionColor: doc?.actionColor || "#007A6C",
+      socialIconColor: doc?.socialIconColor || doc?.actionColor || "#007A6C"
     },
     adminTheme: doc?.adminTheme || void 0,
     logoVariants: doc?.logoVariants || {
@@ -301121,6 +301314,22 @@ ${dynamicThemeCss}
 function escapeHtml(str) {
   return str.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;").replace(/'/g, "&#039;");
 }
+async function getFallbackPageRevision(slug) {
+  try {
+    const page = await Page.findOne({ slug, locale: "en" }).lean();
+    if (!page) return null;
+    const revId = page.publishedRevisionId || page.draftRevisionId;
+    if (!revId) return null;
+    const revision = await ContentRevision.findById(revId).lean();
+    if (!revision) return null;
+    return {
+      payload: revision.payload || {},
+      seo: revision.seo
+    };
+  } catch {
+    return null;
+  }
+}
 async function handleSsr(req, res, next) {
   const url = req.originalUrl || req.url;
   if (url.startsWith("/api") || url.startsWith("/@") || url.startsWith("/node_modules") || url.includes(".")) {
@@ -301207,18 +301416,19 @@ async function handleSsr(req, res, next) {
       statusCode = dto.statusCode;
     } else if (normalizedPath === "/cost-calculator" || normalizedPath === "/calculator" || normalizedPath === "/cma-planner") {
       statusCode = 200;
+      const revData = await getFallbackPageRevision("cost-calculator");
       dto = {
         pageKind: "calculatorLanding",
         path: normalizedPath,
         locale: "en",
-        seo: {
+        seo: revData?.seo || {
           title: "Surgery Cost Calculator Tool | Save up to 70% | AKEEZO",
           description: "Compare surgery costs across top medical destinations and accredited international hospitals. Get transparent estimates and connect with world-class surgeons.",
           canonicalPath: "/cost-calculator",
           robots: "index,follow",
           schemaKind: "MedicalWebPage"
         },
-        payload: {},
+        payload: revData?.payload || {},
         siteSettings,
         statusCode: 200
       };
@@ -301227,32 +301437,41 @@ async function handleSsr(req, res, next) {
       const slug = normalizedPath.startsWith("/treatments/") ? normalizedPath.replace(/^\/treatments\/?/, "").split("/")[0] : "";
       const isDetail = Boolean(slug);
       const formattedTitle = slug ? slug.split("-").map((w) => w.charAt(0).toUpperCase() + w.slice(1)).join(" ") : "Medical Treatments Worldwide";
+      const revData = await getFallbackPageRevision("treatments");
       dto = {
         pageKind: isDetail ? "treatmentDetail" : "treatmentDirectory",
         path: normalizedPath,
         locale: "en",
-        seo: {
-          title: isDetail ? `${formattedTitle} Abroad | Accredited Hospitals & Pricing | AKEEZO` : "Medical Treatments Worldwide | Find Best Treatment Options | AKEEZO",
-          description: isDetail ? `Compare ${formattedTitle} costs abroad, find accredited international hospitals, and get free treatment planning with AKEEZO.` : "Discover comprehensive medical treatments worldwide. Compare prices, read reviews, and find accredited international healthcare options with AKEEZO.",
+        seo: isDetail ? {
+          title: `${formattedTitle} Abroad | Accredited Hospitals & Pricing | AKEEZO`,
+          description: `Compare ${formattedTitle} costs abroad, find accredited international hospitals, and get free treatment planning with AKEEZO.`,
+          canonicalPath: normalizedPath,
+          robots: "index,follow",
+          schemaKind: "MedicalWebPage"
+        } : revData?.seo || {
+          title: "Medical Treatments Worldwide | Find Best Treatment Options | AKEEZO",
+          description: "Discover comprehensive medical treatments worldwide. Compare prices, read reviews, and find accredited international healthcare options with AKEEZO.",
           canonicalPath: normalizedPath,
           robots: "index,follow",
           schemaKind: "MedicalWebPage"
         },
         payload: {
+          ...revData?.payload || {},
           slug: slug || void 0,
-          headline: isDetail ? formattedTitle : "Find The Best Treatments Worldwide",
-          subheadline: "World-class care, anywhere in the world."
+          headline: isDetail ? formattedTitle : revData?.payload?.headline || "Find The Best Treatments Worldwide",
+          subheadline: revData?.payload?.subheadline || "World-class care, anywhere in the world."
         },
         siteSettings,
         statusCode: 200
       };
     } else if (normalizedPath === "/hospitals" || normalizedPath.startsWith("/hospitals/")) {
       statusCode = 200;
+      const revData = await getFallbackPageRevision("hospitals");
       dto = {
         pageKind: "hospitalDirectory",
         path: normalizedPath,
         locale: "en",
-        seo: {
+        seo: revData?.seo || {
           title: "World-Class Hospitals | Personally Matched for You | AKEEZO",
           description: "Find and compare top accredited hospitals globally. Transparent estimates, verified patient satisfaction ratings, and complete care coordination with AKEEZO.",
           canonicalPath: "/hospitals",
@@ -301260,19 +301479,21 @@ async function handleSsr(req, res, next) {
           schemaKind: "MedicalWebPage"
         },
         payload: {
-          headline: "World-Class Hospitals, Personally Matched for You",
-          subheadline: "Find the Best Hospitals for Your Treatment, Anywhere in the World"
+          ...revData?.payload || {},
+          headline: revData?.payload?.headline || "World-Class Hospitals, Personally Matched for You",
+          subheadline: revData?.payload?.subheadline || "Find the Best Hospitals for Your Treatment, Anywhere in the World"
         },
         siteSettings,
         statusCode: 200
       };
     } else if (normalizedPath === "/doctors" || normalizedPath.startsWith("/doctors/")) {
       statusCode = 200;
+      const revData = await getFallbackPageRevision("doctors");
       dto = {
         pageKind: "doctorDirectory",
         path: normalizedPath,
         locale: "en",
-        seo: {
+        seo: revData?.seo || {
           title: "World-Class Doctors | Find Best Specialists Worldwide | AKEEZO",
           description: "Search, compare, and connect with premier surgeons and medical specialists globally. Direct hospital pricing, accredited experts, and free assistance.",
           canonicalPath: "/doctors",
@@ -301280,19 +301501,21 @@ async function handleSsr(req, res, next) {
           schemaKind: "MedicalWebPage"
         },
         payload: {
-          headline: "World-Class Doctors, Personally Matched for You",
-          subheadline: "Search, compare, and connect with leading specialists across the globe."
+          ...revData?.payload || {},
+          headline: revData?.payload?.headline || "World-Class Doctors, Personally Matched for You",
+          subheadline: revData?.payload?.subheadline || "Search, compare, and connect with leading specialists across the globe."
         },
         siteSettings,
         statusCode: 200
       };
     } else if (normalizedPath === "/about" || normalizedPath === "/about-us") {
       statusCode = 200;
+      const revData = await getFallbackPageRevision("about");
       dto = {
         pageKind: "about",
         path: normalizedPath,
         locale: "en",
-        seo: {
+        seo: revData?.seo || {
           title: "About Us | Hey! We're AKEEZO Healthcare Platform",
           description: "Meet the team behind AKEEZO. A dedicated group of patient advocates, healthcare researchers, and travel experts making world-class medical care reachable for anyone, anywhere.",
           canonicalPath: "/about",
@@ -301300,8 +301523,9 @@ async function handleSsr(req, res, next) {
           schemaKind: "AboutPage"
         },
         payload: {
-          headline: "Hey! We're AKEEZO",
-          subheadline: "We're a team of patient advocates, healthcare researchers, and travel experts \u2014 obsessed with one thing: making world-class medical care reachable for anyone, anywhere."
+          ...revData?.payload || {},
+          headline: revData?.payload?.headline || "Hey! We're AKEEZO",
+          subheadline: revData?.payload?.subheadline || "We're a team of patient advocates, healthcare researchers, and travel experts \u2014 obsessed with one thing: making world-class medical care reachable for anyone, anywhere."
         },
         siteSettings,
         statusCode: 200
@@ -305509,6 +305733,7 @@ cmsAdminRouter.put(["/site-settings", "/settings/:section"], async (req, res) =>
     if (req.body.secondaryColor !== void 0) updatePayload.secondaryColor = sanitizeCssValue(req.body.secondaryColor);
     if (req.body.accentColor !== void 0) updatePayload.accentColor = sanitizeCssValue(req.body.accentColor);
     if (req.body.actionColor !== void 0) updatePayload.actionColor = sanitizeCssValue(req.body.actionColor);
+    if (req.body.socialIconColor !== void 0) updatePayload.socialIconColor = sanitizeCssValue(req.body.socialIconColor);
     if (req.body.websiteTheme !== void 0) {
       const existingWebsite = existingObj?.websiteTheme || {};
       const sanitized = sanitizeThemeObject(req.body.websiteTheme);
@@ -305521,7 +305746,8 @@ cmsAdminRouter.put(["/site-settings", "/settings/:section"], async (req, res) =>
       if (updatePayload.websiteTheme.secondaryColor) updatePayload.secondaryColor = updatePayload.websiteTheme.secondaryColor;
       if (updatePayload.websiteTheme.accentColor) updatePayload.accentColor = updatePayload.websiteTheme.accentColor;
       if (updatePayload.websiteTheme.actionColor) updatePayload.actionColor = updatePayload.websiteTheme.actionColor;
-    } else if (updatePayload.primaryColor || updatePayload.secondaryColor || updatePayload.accentColor || updatePayload.actionColor) {
+      if (updatePayload.websiteTheme.socialIconColor) updatePayload.socialIconColor = updatePayload.websiteTheme.socialIconColor;
+    } else if (updatePayload.primaryColor || updatePayload.secondaryColor || updatePayload.accentColor || updatePayload.actionColor || updatePayload.socialIconColor) {
       const existingWebsite = existingObj?.websiteTheme || {};
       updatePayload.websiteTheme = {
         ...DEFAULT_WEBSITE_THEME,
@@ -305529,7 +305755,8 @@ cmsAdminRouter.put(["/site-settings", "/settings/:section"], async (req, res) =>
         ...updatePayload.primaryColor ? { primaryColor: updatePayload.primaryColor } : {},
         ...updatePayload.secondaryColor ? { secondaryColor: updatePayload.secondaryColor } : {},
         ...updatePayload.accentColor ? { accentColor: updatePayload.accentColor } : {},
-        ...updatePayload.actionColor ? { actionColor: updatePayload.actionColor } : {}
+        ...updatePayload.actionColor ? { actionColor: updatePayload.actionColor } : {},
+        ...updatePayload.socialIconColor ? { socialIconColor: updatePayload.socialIconColor } : {}
       };
     }
     if (req.body.adminTheme !== void 0) {
@@ -305856,6 +306083,7 @@ cmsAdminRouter.post("/theme/preset", async (req, res) => {
       if (preset.websiteTheme.secondaryColor) updatePayload.secondaryColor = preset.websiteTheme.secondaryColor;
       if (preset.websiteTheme.accentColor) updatePayload.accentColor = preset.websiteTheme.accentColor;
       if (preset.websiteTheme.actionColor) updatePayload.actionColor = preset.websiteTheme.actionColor;
+      if (preset.websiteTheme.socialIconColor) updatePayload.socialIconColor = preset.websiteTheme.socialIconColor;
     }
     if (target === "admin" || target === "both") {
       updatePayload.adminTheme = {
@@ -305889,6 +306117,7 @@ cmsAdminRouter.post("/theme/reset", async (req, res) => {
       updatePayload.secondaryColor = DEFAULT_WEBSITE_THEME.secondaryColor;
       updatePayload.accentColor = DEFAULT_WEBSITE_THEME.accentColor;
       updatePayload.actionColor = DEFAULT_WEBSITE_THEME.actionColor;
+      updatePayload.socialIconColor = DEFAULT_WEBSITE_THEME.socialIconColor;
     }
     if (target === "admin" || target === "both") {
       updatePayload.adminTheme = { ...DEFAULT_ADMIN_THEME };
@@ -306042,18 +306271,51 @@ cmsAdminRouter.put("/pages/:slug", async (req, res) => {
     }
     page.version += 1;
     await page.save();
+    const SLUG_TO_PAGE_KIND = {
+      home: "home",
+      "cost-calculator": "calculatorLanding",
+      calculator: "calculatorLanding",
+      treatments: "treatmentDirectory",
+      hospitals: "hospitalDirectory",
+      doctors: "doctorDirectory",
+      destinations: "destinationDirectory",
+      about: "about",
+      "about-us": "about",
+      blog: "blogDirectory",
+      privacy: "legal",
+      terms: "legal",
+      disclaimer: "legal",
+      consent: "legal",
+      "refund-policy": "legal",
+      "grievance-officer": "legal"
+    };
+    const existingRoute = await RouteEntry.findOne({ locale: "en", path: canonicalPath }).lean();
+    const resolvedPageKind = req.body.pageKind || existingRoute?.pageKind || SLUG_TO_PAGE_KIND[slug] || "legal";
     if (publishImmediately) {
       await RouteEntry.findOneAndUpdate(
         { locale: "en", path: canonicalPath },
         {
           $set: {
-            pageKind: slug === "home" ? "home" : "legal",
+            pageKind: resolvedPageKind,
             publishedRevisionId: revision._id,
             statusCode: 200
           }
         },
         { upsert: true }
       );
+      if (slug === "cost-calculator" || slug === "calculator") {
+        await RouteEntry.findOneAndUpdate(
+          { locale: "en", path: "/calculator" },
+          {
+            $set: {
+              pageKind: "calculatorLanding",
+              publishedRevisionId: revision._id,
+              statusCode: 200
+            }
+          },
+          { upsert: true }
+        );
+      }
     }
     await logAdminActivity(
       req.user?._id,
@@ -306178,7 +306440,7 @@ cmsAdminRouter.post("/pages/:slug/restore/:revisionId", async (req, res) => {
       revisionNumber: nextRevisionNumber,
       payload: historicalRev.payload,
       seo: historicalRev.seo,
-      sourceReferences: [`restored_from_rev_${historicalRev.revisionNumber}`]
+      sourceReferences: []
     });
     page.draftRevisionId = restoredRevision._id;
     page.publishedRevisionId = restoredRevision._id;
@@ -306208,6 +306470,329 @@ cmsAdminRouter.post("/pages/:slug/restore/:revisionId", async (req, res) => {
     });
   } catch (err) {
     res.status(400).json({ error: { code: "RESTORE_FAILED", message: err.message } });
+  }
+});
+function getPageCollectionKey(slug, explicitKey) {
+  if (explicitKey) return explicitKey;
+  switch (slug) {
+    case "doctors":
+      return "doctors";
+    case "hospitals":
+      return "hospitals";
+    case "treatments":
+      return "treatments";
+    case "cost-calculator":
+    case "calculator":
+      return "procedures";
+    case "destinations":
+      return "destinations";
+    case "about":
+      return "teamMembers";
+    case "community":
+      return "testimonials";
+    case "home":
+      return "destinations";
+    default:
+      return "items";
+  }
+}
+cmsAdminRouter.post("/pages/:slug/items", async (req, res) => {
+  try {
+    const slug = req.params.slug;
+    const { item, collectionKey: reqKey, publishImmediately = true } = req.body;
+    if (!item || typeof item !== "object") {
+      return res.status(400).json({ error: { code: "INVALID_ITEM", message: "Item object is required." } });
+    }
+    const page = await Page.findOne({ slug, locale: "en" });
+    if (!page) {
+      return res.status(404).json({ error: { code: "PAGE_NOT_FOUND", message: `Page '${slug}' not found.` } });
+    }
+    const currentRevId = page.publishedRevisionId || page.draftRevisionId;
+    const currentRev = currentRevId ? await ContentRevision.findById(currentRevId).lean() : null;
+    const currentPayload = currentRev?.payload || {};
+    const key = getPageCollectionKey(slug, reqKey);
+    const existingList = Array.isArray(currentPayload[key]) ? [...currentPayload[key]] : [];
+    const newItem = {
+      id: item.id || `item_${Date.now()}_${Math.random().toString(36).slice(2, 7)}`,
+      slug: item.slug || String(item.name || item.title || "item").toLowerCase().replace(/[^a-z0-9_-]/g, "-"),
+      ...item,
+      active: item.active !== void 0 ? Boolean(item.active) : true
+    };
+    existingList.push(newItem);
+    const updatedPayload = {
+      ...currentPayload,
+      [key]: existingList
+    };
+    const lastRev = await ContentRevision.findOne({ entityType: "page", entityId: page._id }).sort({ revisionNumber: -1 }).lean();
+    const nextRevisionNumber = (lastRev?.revisionNumber || 0) + 1;
+    const revision = await ContentRevision.create({
+      entityType: "page",
+      entityId: page._id,
+      locale: "en",
+      revisionNumber: nextRevisionNumber,
+      payload: updatedPayload,
+      seo: currentRev?.seo || {
+        title: `${slug.toUpperCase()} | AKEEZO`,
+        description: "Medical discovery and care coordination",
+        canonicalPath: slug === "home" ? "/" : `/${slug}`,
+        robots: "index,follow",
+        schemaKind: "MedicalWebPage"
+      },
+      sourceReferences: []
+    });
+    page.draftRevisionId = revision._id;
+    if (publishImmediately) {
+      page.publishedRevisionId = revision._id;
+      page.status = "published";
+    }
+    page.version += 1;
+    await page.save();
+    const canonicalPath = slug === "home" ? "/" : `/${slug}`;
+    if (publishImmediately) {
+      await RouteEntry.findOneAndUpdate(
+        { locale: "en", path: canonicalPath },
+        { $set: { publishedRevisionId: revision._id, statusCode: 200 } },
+        { upsert: true }
+      );
+    }
+    await logAdminActivity(
+      req.user?._id,
+      "page",
+      page._id,
+      "create",
+      { addedItem: [null, newItem.id || newItem.slug || newItem.name] },
+      req
+    );
+    res.status(201).json({
+      data: {
+        item: newItem,
+        collectionKey: key,
+        totalItems: existingList.length,
+        message: `Item added to ${slug} (${key}) successfully.`
+      }
+    });
+  } catch (err) {
+    res.status(400).json({ error: { code: "ADD_ITEM_FAILED", message: err.message } });
+  }
+});
+cmsAdminRouter.put("/pages/:slug/items/:itemId", async (req, res) => {
+  try {
+    const { slug, itemId } = req.params;
+    const { item, collectionKey: reqKey, publishImmediately = true } = req.body;
+    const page = await Page.findOne({ slug, locale: "en" });
+    if (!page) {
+      return res.status(404).json({ error: { code: "PAGE_NOT_FOUND", message: `Page '${slug}' not found.` } });
+    }
+    const currentRevId = page.publishedRevisionId || page.draftRevisionId;
+    const currentRev = currentRevId ? await ContentRevision.findById(currentRevId).lean() : null;
+    const currentPayload = currentRev?.payload || {};
+    const key = getPageCollectionKey(slug, reqKey);
+    const existingList = Array.isArray(currentPayload[key]) ? [...currentPayload[key]] : [];
+    const idx = existingList.findIndex((i2) => String(i2.id) === itemId || String(i2.slug) === itemId);
+    if (idx === -1) {
+      return res.status(404).json({ error: { code: "ITEM_NOT_FOUND", message: `Item '${itemId}' not found in ${key}.` } });
+    }
+    const oldItem = existingList[idx];
+    const updatedItem = {
+      ...oldItem,
+      ...item,
+      id: oldItem.id || itemId
+    };
+    existingList[idx] = updatedItem;
+    const updatedPayload = {
+      ...currentPayload,
+      [key]: existingList
+    };
+    const lastRev = await ContentRevision.findOne({ entityType: "page", entityId: page._id }).sort({ revisionNumber: -1 }).lean();
+    const nextRevisionNumber = (lastRev?.revisionNumber || 0) + 1;
+    const revision = await ContentRevision.create({
+      entityType: "page",
+      entityId: page._id,
+      locale: "en",
+      revisionNumber: nextRevisionNumber,
+      payload: updatedPayload,
+      seo: currentRev?.seo || {
+        title: `${slug.toUpperCase()} | AKEEZO`,
+        description: "Medical discovery and care coordination",
+        canonicalPath: slug === "home" ? "/" : `/${slug}`,
+        robots: "index,follow",
+        schemaKind: "MedicalWebPage"
+      },
+      sourceReferences: []
+    });
+    page.draftRevisionId = revision._id;
+    if (publishImmediately) {
+      page.publishedRevisionId = revision._id;
+      page.status = "published";
+    }
+    page.version += 1;
+    await page.save();
+    const canonicalPath = slug === "home" ? "/" : `/${slug}`;
+    if (publishImmediately) {
+      await RouteEntry.findOneAndUpdate(
+        { locale: "en", path: canonicalPath },
+        { $set: { publishedRevisionId: revision._id, statusCode: 200 } },
+        { upsert: true }
+      );
+    }
+    await logAdminActivity(
+      req.user?._id,
+      "page",
+      page._id,
+      "update",
+      { updatedItem: [oldItem.id || oldItem.name, updatedItem.id || updatedItem.name] },
+      req
+    );
+    res.json({
+      data: {
+        item: updatedItem,
+        collectionKey: key,
+        message: `Item '${itemId}' updated successfully.`
+      }
+    });
+  } catch (err) {
+    res.status(400).json({ error: { code: "UPDATE_ITEM_FAILED", message: err.message } });
+  }
+});
+cmsAdminRouter.delete("/pages/:slug/items/:itemId", async (req, res) => {
+  try {
+    const { slug, itemId } = req.params;
+    const { collectionKey: reqKey, publishImmediately = true } = req.body || {};
+    const page = await Page.findOne({ slug, locale: "en" });
+    if (!page) {
+      return res.status(404).json({ error: { code: "PAGE_NOT_FOUND", message: `Page '${slug}' not found.` } });
+    }
+    const currentRevId = page.publishedRevisionId || page.draftRevisionId;
+    const currentRev = currentRevId ? await ContentRevision.findById(currentRevId).lean() : null;
+    const currentPayload = currentRev?.payload || {};
+    const key = getPageCollectionKey(slug, reqKey);
+    const existingList = Array.isArray(currentPayload[key]) ? [...currentPayload[key]] : [];
+    const filtered = existingList.filter((i2) => String(i2.id) !== itemId && String(i2.slug) !== itemId);
+    if (filtered.length === existingList.length) {
+      return res.status(404).json({ error: { code: "ITEM_NOT_FOUND", message: `Item '${itemId}' not found in ${key}.` } });
+    }
+    const updatedPayload = {
+      ...currentPayload,
+      [key]: filtered
+    };
+    const lastRev = await ContentRevision.findOne({ entityType: "page", entityId: page._id }).sort({ revisionNumber: -1 }).lean();
+    const nextRevisionNumber = (lastRev?.revisionNumber || 0) + 1;
+    const revision = await ContentRevision.create({
+      entityType: "page",
+      entityId: page._id,
+      locale: "en",
+      revisionNumber: nextRevisionNumber,
+      payload: updatedPayload,
+      seo: currentRev?.seo || {
+        title: `${slug.toUpperCase()} | AKEEZO`,
+        description: "Medical discovery and care coordination",
+        canonicalPath: slug === "home" ? "/" : `/${slug}`,
+        robots: "index,follow",
+        schemaKind: "MedicalWebPage"
+      },
+      sourceReferences: []
+    });
+    page.draftRevisionId = revision._id;
+    if (publishImmediately) {
+      page.publishedRevisionId = revision._id;
+      page.status = "published";
+    }
+    page.version += 1;
+    await page.save();
+    const canonicalPath = slug === "home" ? "/" : `/${slug}`;
+    if (publishImmediately) {
+      await RouteEntry.findOneAndUpdate(
+        { locale: "en", path: canonicalPath },
+        { $set: { publishedRevisionId: revision._id, statusCode: 200 } },
+        { upsert: true }
+      );
+    }
+    await logAdminActivity(
+      req.user?._id,
+      "page",
+      page._id,
+      "delete",
+      { deletedItem: [itemId, null] },
+      req
+    );
+    res.json({
+      data: {
+        deletedItemId: itemId,
+        collectionKey: key,
+        remainingItems: filtered.length,
+        message: `Item '${itemId}' deleted successfully.`
+      }
+    });
+  } catch (err) {
+    res.status(400).json({ error: { code: "DELETE_ITEM_FAILED", message: err.message } });
+  }
+});
+cmsAdminRouter.patch("/pages/:slug/items/:itemId/toggle", async (req, res) => {
+  try {
+    const { slug, itemId } = req.params;
+    const { collectionKey: reqKey, publishImmediately = true } = req.body || {};
+    const page = await Page.findOne({ slug, locale: "en" });
+    if (!page) {
+      return res.status(404).json({ error: { code: "PAGE_NOT_FOUND", message: `Page '${slug}' not found.` } });
+    }
+    const currentRevId = page.publishedRevisionId || page.draftRevisionId;
+    const currentRev = currentRevId ? await ContentRevision.findById(currentRevId).lean() : null;
+    const currentPayload = currentRev?.payload || {};
+    const key = getPageCollectionKey(slug, reqKey);
+    const existingList = Array.isArray(currentPayload[key]) ? [...currentPayload[key]] : [];
+    const idx = existingList.findIndex((i2) => String(i2.id) === itemId || String(i2.slug) === itemId);
+    if (idx === -1) {
+      return res.status(404).json({ error: { code: "ITEM_NOT_FOUND", message: `Item '${itemId}' not found in ${key}.` } });
+    }
+    const currentItem = existingList[idx];
+    const newActive = currentItem.active === void 0 ? false : !currentItem.active;
+    existingList[idx] = { ...currentItem, active: newActive };
+    const updatedPayload = {
+      ...currentPayload,
+      [key]: existingList
+    };
+    const lastRev = await ContentRevision.findOne({ entityType: "page", entityId: page._id }).sort({ revisionNumber: -1 }).lean();
+    const nextRevisionNumber = (lastRev?.revisionNumber || 0) + 1;
+    const revision = await ContentRevision.create({
+      entityType: "page",
+      entityId: page._id,
+      locale: "en",
+      revisionNumber: nextRevisionNumber,
+      payload: updatedPayload,
+      seo: currentRev?.seo || {
+        title: `${slug.toUpperCase()} | AKEEZO`,
+        description: "Medical discovery and care coordination",
+        canonicalPath: slug === "home" ? "/" : `/${slug}`,
+        robots: "index,follow",
+        schemaKind: "MedicalWebPage"
+      },
+      sourceReferences: []
+    });
+    page.draftRevisionId = revision._id;
+    if (publishImmediately) {
+      page.publishedRevisionId = revision._id;
+      page.status = "published";
+    }
+    page.version += 1;
+    await page.save();
+    const canonicalPath = slug === "home" ? "/" : `/${slug}`;
+    if (publishImmediately) {
+      await RouteEntry.findOneAndUpdate(
+        { locale: "en", path: canonicalPath },
+        { $set: { publishedRevisionId: revision._id, statusCode: 200 } },
+        { upsert: true }
+      );
+    }
+    res.json({
+      data: {
+        itemId,
+        active: newActive,
+        collectionKey: key,
+        message: `Item '${itemId}' status set to ${newActive ? "active" : "inactive"}.`
+      }
+    });
+  } catch (err) {
+    res.status(400).json({ error: { code: "TOGGLE_ITEM_FAILED", message: err.message } });
   }
 });
 cmsAdminRouter.get("/navigation", async (_req, res) => {
@@ -308778,7 +309363,7 @@ app.use("/api", apiRouter);
 if (!isServerless2) {
   app.use(import_express5.default.static(webPublicDir));
   if (env.NODE_ENV === "production") {
-    app.use(import_express5.default.static(webClientDistDir, { index: false }));
+    app.use(import_express5.default.static(webClientDistDir, { index: false, redirect: false }));
   } else {
     getViteServer().then((vite) => {
       if (vite) app.use(vite.middlewares);

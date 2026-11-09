@@ -8,6 +8,7 @@ export declare const WebsiteThemeSchema: z.ZodObject<{
     actionColor: z.ZodDefault<z.ZodString>;
     actionHoverColor: z.ZodDefault<z.ZodString>;
     actionAccentColor: z.ZodDefault<z.ZodString>;
+    socialIconColor: z.ZodDefault<z.ZodString>;
     backgroundColor: z.ZodDefault<z.ZodString>;
     surfaceColor: z.ZodDefault<z.ZodString>;
     surfaceMutedColor: z.ZodDefault<z.ZodString>;
@@ -36,6 +37,7 @@ export declare const WebsiteThemeSchema: z.ZodObject<{
     actionColor: string;
     actionHoverColor: string;
     actionAccentColor: string;
+    socialIconColor: string;
     backgroundColor: string;
     surfaceColor: string;
     surfaceMutedColor: string;
@@ -64,6 +66,7 @@ export declare const WebsiteThemeSchema: z.ZodObject<{
     actionColor?: string | undefined;
     actionHoverColor?: string | undefined;
     actionAccentColor?: string | undefined;
+    socialIconColor?: string | undefined;
     backgroundColor?: string | undefined;
     surfaceColor?: string | undefined;
     surfaceMutedColor?: string | undefined;
@@ -508,6 +511,7 @@ export declare const SiteSettingsSchema: z.ZodObject<{
         actionColor: z.ZodDefault<z.ZodString>;
         actionHoverColor: z.ZodDefault<z.ZodString>;
         actionAccentColor: z.ZodDefault<z.ZodString>;
+        socialIconColor: z.ZodDefault<z.ZodString>;
         backgroundColor: z.ZodDefault<z.ZodString>;
         surfaceColor: z.ZodDefault<z.ZodString>;
         surfaceMutedColor: z.ZodDefault<z.ZodString>;
@@ -536,6 +540,7 @@ export declare const SiteSettingsSchema: z.ZodObject<{
         actionColor: string;
         actionHoverColor: string;
         actionAccentColor: string;
+        socialIconColor: string;
         backgroundColor: string;
         surfaceColor: string;
         surfaceMutedColor: string;
@@ -564,6 +569,7 @@ export declare const SiteSettingsSchema: z.ZodObject<{
         actionColor?: string | undefined;
         actionHoverColor?: string | undefined;
         actionAccentColor?: string | undefined;
+        socialIconColor?: string | undefined;
         backgroundColor?: string | undefined;
         surfaceColor?: string | undefined;
         surfaceMutedColor?: string | undefined;
@@ -937,6 +943,7 @@ export declare const SiteSettingsSchema: z.ZodObject<{
         actionColor: string;
         actionHoverColor: string;
         actionAccentColor: string;
+        socialIconColor: string;
         backgroundColor: string;
         surfaceColor: string;
         surfaceMutedColor: string;
@@ -1096,6 +1103,7 @@ export declare const SiteSettingsSchema: z.ZodObject<{
         actionColor?: string | undefined;
         actionHoverColor?: string | undefined;
         actionAccentColor?: string | undefined;
+        socialIconColor?: string | undefined;
         backgroundColor?: string | undefined;
         surfaceColor?: string | undefined;
         surfaceMutedColor?: string | undefined;

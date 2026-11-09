@@ -16,6 +16,7 @@ import {
 import { SiteHeader } from "../components/SiteHeader.js";
 import { SiteFooter } from "../components/SiteFooter.js";
 import {
+  type HospitalItem,
   ALL_HOSPITALS,
   TOP_HOSPITALS,
   RECENTLY_VIEWED_HOSPITALS,
@@ -28,6 +29,39 @@ export interface HospitalsTemplateProps {
 }
 
 export function HospitalsTemplate({ data }: HospitalsTemplateProps) {
+  const rawPayload = (data.payload as any) || {};
+
+  const activeHospitalsList: HospitalItem[] = useMemo(() => {
+    if (rawPayload.hospitals && Array.isArray(rawPayload.hospitals) && rawPayload.hospitals.length > 0) {
+      return rawPayload.hospitals
+        .filter((h: any) => h.active !== false)
+        .map((h: any, idx: number) => ({
+          id: String(h.id || h.slug),
+          name: h.name,
+          slug: h.slug,
+          rank: Number(h.rank) || idx + 1,
+          rankBadge: h.rankBadge || `Ranked #${idx + 1} Best Hospital in ${h.country || "India"}`,
+          city: h.city || "New Delhi",
+          country: h.country || "India",
+          rating: Number(h.rating) || 4.8,
+          accreditations: Array.isArray(h.accreditations) ? h.accreditations : ["JCI", "NABH"],
+          specialties: Array.isArray(h.specialties) ? h.specialties : ["General Surgery", "Cardiology"],
+          summary: h.description || h.summary || "Accredited international healthcare institution.",
+          detailsMarkdown: h.detailsMarkdown || h.description || "State of the art medical center.",
+          href: h.href || `/hospitals/${h.slug}`,
+          image: h.image || "/uploads/hospitals/hospital-default.jpg",
+          fallbackImage: h.fallbackImage || h.image || "/uploads/hospitals/hospital-default.jpg",
+          isTopHospital: h.isTopHospital !== undefined ? Boolean(h.isTopHospital) : true,
+          isRecentlyViewed: false,
+        }));
+    }
+    return ALL_HOSPITALS;
+  }, [rawPayload.hospitals]);
+
+  const headline = rawPayload.headline || "World-Class Hospitals, Personally Matched for You";
+  const subheadline = rawPayload.subheadline || "Find the Best Hospitals for Your Treatment, Anywhere in the World";
+  const searchPlaceholder = rawPayload.searchPlaceholder || "Explore Hospitals Globally (by name, city, country, or procedure)";
+
   // Search & Filter State
   const [searchQuery, setSearchQuery] = useState("");
   const [selectedCountry, setSelectedCountry] = useState("All Countries");
@@ -76,7 +110,7 @@ export function HospitalsTemplate({ data }: HospitalsTemplateProps) {
 
   // Filtered Hospitals
   const filteredHospitals = useMemo(() => {
-    return ALL_HOSPITALS.filter((h) => {
+    return activeHospitalsList.filter((h) => {
       const q = searchQuery.toLowerCase().trim();
       const matchesSearch =
         !q ||
@@ -84,7 +118,7 @@ export function HospitalsTemplate({ data }: HospitalsTemplateProps) {
         h.city.toLowerCase().includes(q) ||
         h.country.toLowerCase().includes(q) ||
         h.summary.toLowerCase().includes(q) ||
-        h.specialties.some((s) => s.toLowerCase().includes(q));
+        h.specialties.some((s: string) => s.toLowerCase().includes(q));
 
       const matchesCountry =
         selectedCountry === "All Countries" ||
@@ -92,7 +126,7 @@ export function HospitalsTemplate({ data }: HospitalsTemplateProps) {
 
       const matchesTreatment =
         selectedTreatment === "All Treatments" ||
-        h.specialties.some((s) => s.toLowerCase().includes(selectedTreatment.toLowerCase()));
+        h.specialties.some((s: string) => s.toLowerCase().includes(selectedTreatment.toLowerCase()));
 
       return matchesSearch && matchesCountry && matchesTreatment;
     });
@@ -200,10 +234,10 @@ export function HospitalsTemplate({ data }: HospitalsTemplateProps) {
 
                   <div className="absolute bottom-16 z-[30] text-center md:px-4 px-8 max-w-4xl mx-auto">
                     <h1 className="md:text-[46px] text-[21px] leading-tight font-semibold mb-4 text-white drop-shadow-sm">
-                      World-Class Hospitals, Personally Matched for You
+                      {headline}
                     </h1>
                     <p className="opacity-90 md:text-[24px] text-[14px] font-medium max-w-4xl mx-auto drop-shadow-sm">
-                      Find the Best Hospitals for Your Treatment, Anywhere in the World
+                      {subheadline}
                     </p>
                   </div>
 
@@ -216,7 +250,7 @@ export function HospitalsTemplate({ data }: HospitalsTemplateProps) {
                             type="text"
                             aria-label="Search hospitals globally"
                             className="outline-none bg-transparent placeholder:text-[16px] placeholder:opacity-55 placeholder:font-normal py-2 border-none focus:outline-none focus:ring-0 text-sm font-medium text-gray-800"
-                            placeholder="Explore Hospitals Globally (by name, city, country, or procedure)"
+                            placeholder={searchPlaceholder}
                             value={searchQuery}
                             onChange={(e) => setSearchQuery(e.target.value)}
                           />
@@ -490,7 +524,7 @@ export function HospitalsTemplate({ data }: HospitalsTemplateProps) {
                       <div className="p-4 md:p-5 flex-1 flex flex-col justify-between">
                         <div>
                           <div className="flex flex-wrap gap-1.5 mb-2">
-                            {h.accreditations.map((acc) => (
+                            {h.accreditations.map((acc: string) => (
                               <span
                                 key={acc}
                                 className="text-[10px] font-bold uppercase tracking-wider bg-orange-50 text-brand-orange border border-orange-200/50 px-2 py-0.5 rounded-sm"

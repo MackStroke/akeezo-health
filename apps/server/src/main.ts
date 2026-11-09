@@ -133,7 +133,7 @@ if (!isServerless) {
   // Static Assets (active when running standalone outside Vercel)
   app.use(express.static(webPublicDir));
   if (env.NODE_ENV === "production") {
-    app.use(express.static(webClientDistDir, { index: false }));
+    app.use(express.static(webClientDistDir, { index: false, redirect: false }));
   } else {
     getViteServer()
       .then((vite) => {

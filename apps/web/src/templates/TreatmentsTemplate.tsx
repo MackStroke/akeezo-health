@@ -31,6 +31,29 @@ export interface TreatmentsTemplateProps {
 
 export const TreatmentsTemplate: React.FC<TreatmentsTemplateProps> = ({ data }) => {
   const { siteSettings } = data;
+  const rawPayload = (data.payload as any) || {};
+
+  // Dynamic Content & Listings from Payload
+  const activeTreatmentsList = useMemo(() => {
+    if (rawPayload.treatments && Array.isArray(rawPayload.treatments) && rawPayload.treatments.length > 0) {
+      return rawPayload.treatments.filter((t: any) => t.active !== false);
+    }
+    return ALL_TREATMENTS;
+  }, [rawPayload.treatments]);
+
+  const dynamicTopTreatments = useMemo(() => {
+    const fromActive = activeTreatmentsList.filter((t: any) => t.isTopTreatment);
+    return fromActive.length > 0 ? fromActive : TOP_TREATMENTS;
+  }, [activeTreatmentsList]);
+
+  const headline = rawPayload.headline || "Find The Best Treatments Worldwide";
+  const subheadline = rawPayload.subheadline || "World-class care, anywhere in the world.";
+  const topTreatmentsTitle = rawPayload.topTreatmentsTitle || "Top Treatments on AKEEZO";
+  const allTreatmentsTitle = rawPayload.allTreatmentsTitle || "All Treatments";
+  const freeConsultationTitle = rawPayload.freeConsultationTitle || "AKEEZO Care Is Absolutely Free";
+  const freeConsultationSubtitle = rawPayload.freeConsultationSubtitle || "Just discovery so you can choose what's right for you!";
+  const confidentHealthcareTitle = rawPayload.confidentHealthcareTitle || "Make Confident Healthcare Decisions";
+  const confidentHealthcareSubtitle = rawPayload.confidentHealthcareSubtitle || "Trusted information backed by real patient experiences.";
 
   // Detect whether we are on a detail page (/treatments/:slug) or directory (/treatments)
   const currentPath = data.path || (typeof window !== "undefined" ? window.location.pathname : "/treatments");
@@ -39,8 +62,10 @@ export const TreatmentsTemplate: React.FC<TreatmentsTemplateProps> = ({ data }) 
     : "";
 
   const selectedDetailTreatment = useMemo(() => {
-    return pathSlug ? getTreatmentBySlug(pathSlug) : undefined;
-  }, [pathSlug]);
+    if (!pathSlug) return undefined;
+    const match = activeTreatmentsList.find((t: any) => t.slug === pathSlug);
+    return match || getTreatmentBySlug(pathSlug);
+  }, [pathSlug, activeTreatmentsList]);
 
   const isDetailPage = Boolean(selectedDetailTreatment);
 
@@ -86,15 +111,15 @@ export const TreatmentsTemplate: React.FC<TreatmentsTemplateProps> = ({ data }) 
   // Filtered treatments based on search query
   const filteredTreatments = useMemo(() => {
     if (!searchQuery.trim()) {
-      return ALL_TREATMENTS;
+      return activeTreatmentsList;
     }
     const q = searchQuery.toLowerCase().trim();
-    return ALL_TREATMENTS.filter((item) => {
+    return activeTreatmentsList.filter((item: any) => {
       return (
         item.title.toLowerCase().includes(q) ||
         item.description.toLowerCase().includes(q) ||
         item.category.toLowerCase().includes(q) ||
-        (item.procedures && item.procedures.some((p) => p.toLowerCase().includes(q)))
+        (item.procedures && item.procedures.some((p: string) => p.toLowerCase().includes(q)))
       );
     });
   }, [searchQuery]);
@@ -378,7 +403,7 @@ export const TreatmentsTemplate: React.FC<TreatmentsTemplateProps> = ({ data }) 
                       <span>Key Procedures & Treatments Covered</span>
                     </h2>
                     <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 pt-2">
-                      {selectedDetailTreatment.procedures.map((proc, idx) => (
+                      {selectedDetailTreatment.procedures.map((proc: string, idx: number) => (
                         <div
                           key={idx}
                           className="flex items-start gap-3 p-3.5 rounded-2xl bg-gray-50 border border-gray-100/80 hover:bg-[#E6F8F6] transition-colors"
@@ -576,10 +601,10 @@ export const TreatmentsTemplate: React.FC<TreatmentsTemplateProps> = ({ data }) 
                       {/* Hero Title & Subtitle */}
                       <div className="absolute bottom-16 z-[30] text-center md:px-4 px-8">
                         <h1 className="md:text-4xl text-[28px] leading-tight font-semibold mb-4">
-                          Find The Best Treatments Worldwide
+                          {headline}
                         </h1>
                         <p className="opacity-80 md:text-base text-[16px] font-medium max-w-4xl mx-auto">
-                          World-class care, anywhere in the world.
+                          {subheadline}
                         </p>
                       </div>
 
@@ -671,7 +696,7 @@ export const TreatmentsTemplate: React.FC<TreatmentsTemplateProps> = ({ data }) 
                     <div>
                       <div className="md:px-10 md:pb-5 pb-4 gap-10 w-full flex items-start justify-between">
                         <div className="md:text-[32px] md:font-semibold text-[20px] leading-tight font-semibold md:w-full whitespace-pre-line md:whitespace-normal">
-                          Top Treatments on AKEEZO
+                          {topTreatmentsTitle}
                         </div>
                       </div>
                     </div>
@@ -704,7 +729,7 @@ export const TreatmentsTemplate: React.FC<TreatmentsTemplateProps> = ({ data }) 
                           className="flex overflow-x-auto no-scrollbar gap-4 py-2 px-2 scroll-smooth w-full"
                           style={{ scrollbarWidth: "none" }}
                         >
-                          {TOP_TREATMENTS.map((treatment) => (
+                          {dynamicTopTreatments.map((treatment: any) => (
                             <div
                               key={treatment.id}
                               className="shrink-0"
@@ -800,14 +825,10 @@ export const TreatmentsTemplate: React.FC<TreatmentsTemplateProps> = ({ data }) 
                     <div className="order-1 flex flex-col items-center text-center lg:w-[42%] lg:items-start lg:justify-between lg:text-left">
                       <div className="flex flex-col items-center lg:items-start">
                         <h2 className="text-[28px] lg:text-[clamp(22px,4vw,44px)] leading-tight font-semibold text-gray-900">
-                          <span className="flex flex-row items-center justify-center lg:justify-start">
-                            <span className="text-[#007A6C] mr-1">AKEEZO</span>
-                            <span className="font-normal">Care</span>
-                          </span>
-                          Is Absolutely Free
+                          {freeConsultationTitle}
                         </h2>
                         <p className="mt-3 text-[14px] lg:text-[clamp(14px,2.5vw,17px)] text-[#4b5563] lg:max-w-[92%]">
-                          Just discovery so you can choose what's right for you!
+                          {freeConsultationSubtitle}
                         </p>
                         <button
                           type="button"
@@ -874,7 +895,7 @@ export const TreatmentsTemplate: React.FC<TreatmentsTemplateProps> = ({ data }) 
                     <div>
                       <div className="md:mb-6 mb-4">
                         <div className="md:text-[32px] md:font-semibold text-[20px] leading-tight font-semibold md:w-full whitespace-pre-line md:whitespace-normal text-gray-900">
-                          All Treatments
+                          {allTreatmentsTitle} ({filteredTreatments.length})
                         </div>
                       </div>
 
@@ -882,7 +903,7 @@ export const TreatmentsTemplate: React.FC<TreatmentsTemplateProps> = ({ data }) 
                         <div>
                           {/* Grid 1: First 20 items */}
                           <div className="grid gap-4 md:gap-4 md:gap-y-6 lg:grid-cols-5 md:grid-cols-4 sm:grid-cols-3">
-                            {firstBatch.map((treatment) => renderCard(treatment))}
+                            {firstBatch.map((treatment: any) => renderCard(treatment))}
                           </div>
 
                           {/* Mid-Grid Callout Banner: "Make Confident Healthcare Decisions" */}
@@ -890,11 +911,11 @@ export const TreatmentsTemplate: React.FC<TreatmentsTemplateProps> = ({ data }) 
                             <div className="md:text-left text-center md:pl-10 md:space-y-8 space-y-4 md:py-10 p-6">
                               <div className="mb-6">
                                 <h2 className="md:text-4xl text-2xl leading-tight md:leading-tight font-bold text-gray-900">
-                                  Make Confident
+                                  {confidentHealthcareTitle}
                                 </h2>
-                                <h2 className="md:text-4xl text-2xl leading-tight md:leading-tight font-bold text-gray-900">
-                                  Healthcare Decisions
-                                </h2>
+                                <p className="opacity-80 md:text-sm text-[13px] text-gray-600 font-normal leading-relaxed mt-1">
+                                  {confidentHealthcareSubtitle}
+                                </p>
                               </div>
                               <button
                                 type="button"
@@ -959,7 +980,7 @@ export const TreatmentsTemplate: React.FC<TreatmentsTemplateProps> = ({ data }) 
                           {/* Grid 2: Remainder of items (from 21 onwards) */}
                           {secondBatch.length > 0 && (
                             <div className="grid gap-4 md:gap-4 md:gap-y-6 lg:grid-cols-5 md:grid-cols-4 sm:grid-cols-3">
-                              {secondBatch.map((treatment) => renderCard(treatment))}
+                              {secondBatch.map((treatment: any) => renderCard(treatment))}
                             </div>
                           )}
                         </div>

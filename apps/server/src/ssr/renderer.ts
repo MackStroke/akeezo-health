@@ -5,7 +5,7 @@ import { fileURLToPath, pathToFileURL } from "node:url";
 import { PassThrough } from "node:stream";
 import type { Request, Response, NextFunction } from "express";
 import mongoose from "mongoose";
-import { RouteEntry, ContentRevision, SiteSettings, ChangelogModel, BlogPostModel } from "../db/models/index.js";
+import { RouteEntry, ContentRevision, Page, SiteSettings, ChangelogModel, BlogPostModel } from "../db/models/index.js";
 import {
   type PublicRouteResponseDTO,
   type SiteSettings as SiteSettingsDTO,
@@ -102,12 +102,18 @@ export function toSafeSiteSettings(doc: any): SiteSettingsDTO {
     secondaryColor: doc?.websiteTheme?.secondaryColor || doc?.secondaryColor || "#FF6B00",
     accentColor: doc?.websiteTheme?.accentColor || doc?.accentColor || "#FF6D1B",
     actionColor: doc?.websiteTheme?.actionColor || doc?.actionColor || "#007A6C",
-    websiteTheme: doc?.websiteTheme || {
-      primaryColor: doc?.primaryColor || "#00C7BE",
-      secondaryColor: doc?.secondaryColor || "#FF6B00",
-      accentColor: doc?.accentColor || "#FF6D1B",
-      actionColor: doc?.actionColor || "#007A6C"
-    },
+    websiteTheme: doc?.websiteTheme
+      ? {
+          ...doc.websiteTheme,
+          socialIconColor: doc.websiteTheme.socialIconColor || doc.socialIconColor || doc.websiteTheme.actionColor || doc.actionColor || "#007A6C"
+        }
+      : {
+          primaryColor: doc?.primaryColor || "#00C7BE",
+          secondaryColor: doc?.secondaryColor || "#FF6B00",
+          accentColor: doc?.accentColor || "#FF6D1B",
+          actionColor: doc?.actionColor || "#007A6C",
+          socialIconColor: doc?.socialIconColor || doc?.actionColor || "#007A6C"
+        },
     adminTheme: doc?.adminTheme || undefined,
     logoVariants: doc?.logoVariants || {
       light: "/logo/logo with tagline-light.svg",
@@ -226,6 +232,23 @@ function escapeHtml(str: string): string {
     .replace(/'/g, "&#039;");
 }
 
+async function getFallbackPageRevision(slug: string): Promise<{ payload?: Record<string, any>; seo?: SeoMetadata } | null> {
+  try {
+    const page = await Page.findOne({ slug, locale: "en" }).lean();
+    if (!page) return null;
+    const revId = page.publishedRevisionId || page.draftRevisionId;
+    if (!revId) return null;
+    const revision = await ContentRevision.findById(revId).lean();
+    if (!revision) return null;
+    return {
+      payload: (revision.payload as Record<string, any>) || {},
+      seo: revision.seo as SeoMetadata | undefined
+    };
+  } catch {
+    return null;
+  }
+}
+
 export async function handleSsr(req: Request, res: Response, next: NextFunction): Promise<void> {
   const url = req.originalUrl || req.url;
 
@@ -336,18 +359,19 @@ export async function handleSsr(req: Request, res: Response, next: NextFunction)
       statusCode = dto.statusCode;
     } else if (normalizedPath === "/cost-calculator" || normalizedPath === "/calculator" || normalizedPath === "/cma-planner") {
       statusCode = 200;
+      const revData = await getFallbackPageRevision("cost-calculator");
       dto = {
         pageKind: "calculatorLanding",
         path: normalizedPath,
         locale: "en",
-        seo: {
+        seo: revData?.seo || {
           title: "Surgery Cost Calculator Tool | Save up to 70% | AKEEZO",
           description: "Compare surgery costs across top medical destinations and accredited international hospitals. Get transparent estimates and connect with world-class surgeons.",
           canonicalPath: "/cost-calculator",
           robots: "index,follow",
           schemaKind: "MedicalWebPage"
         },
-        payload: {},
+        payload: revData?.payload || {},
         siteSettings,
         statusCode: 200
       };
@@ -364,36 +388,43 @@ export async function handleSsr(req: Request, res: Response, next: NextFunction)
             .join(" ")
         : "Medical Treatments Worldwide";
 
+      const revData = await getFallbackPageRevision("treatments");
       dto = {
         pageKind: isDetail ? "treatmentDetail" : "treatmentDirectory",
         path: normalizedPath,
         locale: "en",
-        seo: {
-          title: isDetail
-            ? `${formattedTitle} Abroad | Accredited Hospitals & Pricing | AKEEZO`
-            : "Medical Treatments Worldwide | Find Best Treatment Options | AKEEZO",
-          description: isDetail
-            ? `Compare ${formattedTitle} costs abroad, find accredited international hospitals, and get free treatment planning with AKEEZO.`
-            : "Discover comprehensive medical treatments worldwide. Compare prices, read reviews, and find accredited international healthcare options with AKEEZO.",
-          canonicalPath: normalizedPath,
-          robots: "index,follow",
-          schemaKind: "MedicalWebPage"
-        },
+        seo: isDetail
+          ? {
+              title: `${formattedTitle} Abroad | Accredited Hospitals & Pricing | AKEEZO`,
+              description: `Compare ${formattedTitle} costs abroad, find accredited international hospitals, and get free treatment planning with AKEEZO.`,
+              canonicalPath: normalizedPath,
+              robots: "index,follow",
+              schemaKind: "MedicalWebPage"
+            }
+          : (revData?.seo || {
+              title: "Medical Treatments Worldwide | Find Best Treatment Options | AKEEZO",
+              description: "Discover comprehensive medical treatments worldwide. Compare prices, read reviews, and find accredited international healthcare options with AKEEZO.",
+              canonicalPath: normalizedPath,
+              robots: "index,follow",
+              schemaKind: "MedicalWebPage"
+            }),
         payload: {
+          ...(revData?.payload || {}),
           slug: slug || undefined,
-          headline: isDetail ? formattedTitle : "Find The Best Treatments Worldwide",
-          subheadline: "World-class care, anywhere in the world."
+          headline: isDetail ? formattedTitle : ((revData?.payload as any)?.headline || "Find The Best Treatments Worldwide"),
+          subheadline: (revData?.payload as any)?.subheadline || "World-class care, anywhere in the world."
         },
         siteSettings,
         statusCode: 200
       };
     } else if (normalizedPath === "/hospitals" || normalizedPath.startsWith("/hospitals/")) {
       statusCode = 200;
+      const revData = await getFallbackPageRevision("hospitals");
       dto = {
         pageKind: "hospitalDirectory",
         path: normalizedPath,
         locale: "en",
-        seo: {
+        seo: revData?.seo || {
           title: "World-Class Hospitals | Personally Matched for You | AKEEZO",
           description:
             "Find and compare top accredited hospitals globally. Transparent estimates, verified patient satisfaction ratings, and complete care coordination with AKEEZO.",
@@ -402,19 +433,21 @@ export async function handleSsr(req: Request, res: Response, next: NextFunction)
           schemaKind: "MedicalWebPage"
         },
         payload: {
-          headline: "World-Class Hospitals, Personally Matched for You",
-          subheadline: "Find the Best Hospitals for Your Treatment, Anywhere in the World"
+          ...(revData?.payload || {}),
+          headline: (revData?.payload as any)?.headline || "World-Class Hospitals, Personally Matched for You",
+          subheadline: (revData?.payload as any)?.subheadline || "Find the Best Hospitals for Your Treatment, Anywhere in the World"
         },
         siteSettings,
         statusCode: 200
       };
     } else if (normalizedPath === "/doctors" || normalizedPath.startsWith("/doctors/")) {
       statusCode = 200;
+      const revData = await getFallbackPageRevision("doctors");
       dto = {
         pageKind: "doctorDirectory",
         path: normalizedPath,
         locale: "en",
-        seo: {
+        seo: revData?.seo || {
           title: "World-Class Doctors | Find Best Specialists Worldwide | AKEEZO",
           description:
             "Search, compare, and connect with premier surgeons and medical specialists globally. Direct hospital pricing, accredited experts, and free assistance.",
@@ -423,19 +456,21 @@ export async function handleSsr(req: Request, res: Response, next: NextFunction)
           schemaKind: "MedicalWebPage"
         },
         payload: {
-          headline: "World-Class Doctors, Personally Matched for You",
-          subheadline: "Search, compare, and connect with leading specialists across the globe."
+          ...(revData?.payload || {}),
+          headline: (revData?.payload as any)?.headline || "World-Class Doctors, Personally Matched for You",
+          subheadline: (revData?.payload as any)?.subheadline || "Search, compare, and connect with leading specialists across the globe."
         },
         siteSettings,
         statusCode: 200
       };
     } else if (normalizedPath === "/about" || normalizedPath === "/about-us") {
       statusCode = 200;
+      const revData = await getFallbackPageRevision("about");
       dto = {
         pageKind: "about",
         path: normalizedPath,
         locale: "en",
-        seo: {
+        seo: revData?.seo || {
           title: "About Us | Hey! We're AKEEZO Healthcare Platform",
           description:
             "Meet the team behind AKEEZO. A dedicated group of patient advocates, healthcare researchers, and travel experts making world-class medical care reachable for anyone, anywhere.",
@@ -444,9 +479,9 @@ export async function handleSsr(req: Request, res: Response, next: NextFunction)
           schemaKind: "AboutPage"
         },
         payload: {
-          headline: "Hey! We're AKEEZO",
-          subheadline:
-            "We're a team of patient advocates, healthcare researchers, and travel experts — obsessed with one thing: making world-class medical care reachable for anyone, anywhere."
+          ...(revData?.payload || {}),
+          headline: (revData?.payload as any)?.headline || "Hey! We're AKEEZO",
+          subheadline: (revData?.payload as any)?.subheadline || "We're a team of patient advocates, healthcare researchers, and travel experts — obsessed with one thing: making world-class medical care reachable for anyone, anywhere."
         },
         siteSettings,
         statusCode: 200

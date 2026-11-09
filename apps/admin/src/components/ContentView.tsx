@@ -37,6 +37,7 @@ import {
   BookOpen,
 } from "lucide-react";
 import { BlogManagerView } from "./BlogManagerView.js";
+import { CatalogueItemsManager, type CatalogueItemType } from "./CatalogueItemsManager.js";
 import { useToast, DisabledGuideButton } from "@akeezo/ui";
 
 interface PageItem {
@@ -76,6 +77,20 @@ interface ContentViewProps {
   initialCreateModal?: boolean;
 }
 
+function getItemTypeAndKey(slug: string): { itemType: CatalogueItemType; key: string } | null {
+  switch (slug) {
+    case "doctors": return { itemType: "doctor", key: "doctors" };
+    case "hospitals": return { itemType: "hospital", key: "hospitals" };
+    case "treatments": return { itemType: "treatment", key: "treatments" };
+    case "destinations": return { itemType: "destination", key: "destinations" };
+    case "cost-calculator":
+    case "calculator": return { itemType: "procedure", key: "procedures" };
+    case "about": return { itemType: "teamMember", key: "teamMembers" };
+    case "home": return { itemType: "community", key: "community" };
+    default: return null;
+  }
+}
+
 export const ContentView: React.FC<ContentViewProps> = ({
   initialSubTab = "pages",
   initialCreateModal = false,
@@ -96,7 +111,7 @@ export const ContentView: React.FC<ContentViewProps> = ({
   const [statusFilter, setStatusFilter] = useState<string>("all");
   const [selectedPage, setSelectedPage] = useState<PageItem | null>(null);
   const [editorOpen, setEditorOpen] = useState(false);
-  const [editorTab, setEditorTab] = useState<"content" | "seo" | "revisions">("content");
+  const [editorTab, setEditorTab] = useState<"content" | "catalogue" | "seo" | "revisions">("content");
 
   // Page Editor State
   const [editingTitle, setEditingTitle] = useState("");
@@ -1076,7 +1091,22 @@ export const ContentView: React.FC<ContentViewProps> = ({
                 <FileText className="w-3.5 h-3.5" />
                 <span>Structured Content Fields</span>
               </button>
+              {selectedPage && getItemTypeAndKey(selectedPage.slug) && (
+                <button
+                  type="button"
+                  onClick={() => setEditorTab("catalogue")}
+                  className={`pb-2.5 text-xs font-bold border-b-2 flex items-center gap-1.5 transition ${
+                    editorTab === "catalogue"
+                      ? "border-[#007A6C] text-[#007A6C]"
+                      : "border-transparent text-slate-400 hover:text-slate-700"
+                  }`}
+                >
+                  <Sparkles className="w-3.5 h-3.5" />
+                  <span>Catalogue Listings</span>
+                </button>
+              )}
               <button
+                type="button"
                 onClick={() => setEditorTab("seo")}
                 className={`pb-2.5 text-xs font-bold border-b-2 flex items-center gap-1.5 transition ${
                   editorTab === "seo"
@@ -1117,43 +1147,47 @@ export const ContentView: React.FC<ContentViewProps> = ({
                     />
                   </div>
 
-                  {selectedPage.slug === "home" ? (
+                  {getItemTypeAndKey(selectedPage.slug) ? (
                     <div className="space-y-3">
                       <div>
                         <label className="block text-xs font-bold text-slate-700 mb-1">
-                          Hero Heading (H1)
+                          Hero Headline (H1)
                         </label>
                         <input
                           type="text"
-                          value={payload.headline || ""}
+                          value={payload.headline || payload.title || ""}
                           onChange={(e) => setPayload({ ...payload, headline: e.target.value })}
                           className="w-full text-xs px-3 py-2 rounded-xl border border-slate-300 focus:border-[#007A6C] focus:ring-1 focus:ring-[#00C7BE] focus:outline-none"
+                          placeholder="Primary page title..."
                         />
                       </div>
 
                       <div>
                         <label className="block text-xs font-bold text-slate-700 mb-1">
-                          Hero Subtitle & Accreditation Tag
+                          Hero Subtitle & Reassurance Copy
                         </label>
                         <textarea
                           rows={2}
-                          value={payload.subheadline || ""}
+                          value={payload.subheadline || payload.summary || ""}
                           onChange={(e) => setPayload({ ...payload, subheadline: e.target.value })}
                           className="w-full text-xs px-3 py-2 rounded-xl border border-slate-300 focus:border-[#007A6C] focus:ring-1 focus:ring-[#00C7BE] focus:outline-none"
+                          placeholder="Subtitle or descriptive intro..."
                         />
                       </div>
 
-                      <div>
-                        <label className="block text-xs font-bold text-slate-700 mb-1">
-                          Search Bar Placeholder
-                        </label>
-                        <input
-                          type="text"
-                          value={payload.searchPlaceholder || ""}
-                          onChange={(e) => setPayload({ ...payload, searchPlaceholder: e.target.value })}
-                          className="w-full text-xs px-3 py-2 rounded-xl border border-slate-300 focus:border-[#007A6C] focus:ring-1 focus:ring-[#00C7BE] focus:outline-none"
-                        />
-                      </div>
+                      {payload.searchPlaceholder !== undefined && (
+                        <div>
+                          <label className="block text-xs font-bold text-slate-700 mb-1">
+                            Search Input Placeholder
+                          </label>
+                          <input
+                            type="text"
+                            value={payload.searchPlaceholder || ""}
+                            onChange={(e) => setPayload({ ...payload, searchPlaceholder: e.target.value })}
+                            className="w-full text-xs px-3 py-2 rounded-xl border border-slate-300 focus:border-[#007A6C] focus:ring-1 focus:ring-[#00C7BE] focus:outline-none"
+                          />
+                        </div>
+                      )}
                     </div>
                   ) : (
                     <div className="space-y-3">
@@ -1171,6 +1205,23 @@ export const ContentView: React.FC<ContentViewProps> = ({
                     </div>
                   )}
                 </div>
+              )}
+
+              
+              {/* TAB 1.5: Catalogue Listings */}
+              {editorTab === "catalogue" && selectedPage && getItemTypeAndKey(selectedPage.slug) && (
+                <CatalogueItemsManager
+                  pageSlug={selectedPage.slug}
+                  itemType={getItemTypeAndKey(selectedPage.slug)!.itemType}
+                  collectionKey={getItemTypeAndKey(selectedPage.slug)!.key}
+                  items={Array.isArray(payload[getItemTypeAndKey(selectedPage.slug)!.key]) ? payload[getItemTypeAndKey(selectedPage.slug)!.key] : []}
+                  onItemsChange={(newItems) => {
+                    setPayload({
+                      ...payload,
+                      [getItemTypeAndKey(selectedPage.slug)!.key]: newItems,
+                    });
+                  }}
+                />
               )}
 
               {/* TAB 2: SEO Settings */}

@@ -100,6 +100,7 @@ export const ThemeProvider: React.FC<{ children: React.ReactNode }> = ({ childre
           secondaryColor: settings.websiteTheme?.secondaryColor || settings.secondaryColor || DEFAULT_WEBSITE_THEME.secondaryColor,
           accentColor: settings.websiteTheme?.accentColor || settings.accentColor || DEFAULT_WEBSITE_THEME.accentColor,
           actionColor: settings.websiteTheme?.actionColor || settings.actionColor || DEFAULT_WEBSITE_THEME.actionColor,
+          socialIconColor: settings.websiteTheme?.socialIconColor || settings.socialIconColor || settings.websiteTheme?.actionColor || settings.actionColor || DEFAULT_WEBSITE_THEME.socialIconColor,
         };
 
         const loadedAdminTheme: AdminTheme = {
@@ -244,6 +245,7 @@ export const ThemeProvider: React.FC<{ children: React.ReactNode }> = ({ childre
           secondaryColor: websiteTheme.secondaryColor,
           accentColor: websiteTheme.accentColor,
           actionColor: websiteTheme.actionColor,
+          socialIconColor: websiteTheme.socialIconColor,
         }),
       });
 

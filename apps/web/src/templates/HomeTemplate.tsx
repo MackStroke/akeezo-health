@@ -620,6 +620,75 @@ export const HomeTemplate: React.FC<HomeTemplateProps> = ({ data }) => {
       </section>
 
       {/* 6. Global Planning Banner (CureMeAbroad: Large teal rounded banner with 30px corners) */}
+      
+      {/* 5.5 DESTINATIONS SHOWCASE SECTION (Anchor: #destinations) */}
+      <section id="destinations" className="py-12 bg-surface-muted/40" aria-label="Premier Medical Travel Destinations">
+        <div className="mx-auto max-w-[1280px] px-4 sm:px-8">
+          <div className="flex flex-col sm:flex-row sm:items-end justify-between gap-4 mb-8">
+            <div>
+              <span className="inline-block rounded-md bg-surface-teal px-2.5 py-1 text-[11px] font-bold text-action uppercase tracking-wider mb-2 border border-border-teal">
+                Global Network
+              </span>
+              <h2 className="text-2xl sm:text-3xl font-bold text-ink">
+                Premier Medical Travel Destinations
+              </h2>
+              <p className="mt-1 text-sm text-ink-muted">
+                Accredited international hospital hubs offering world-class clinical care at 60-80% savings.
+              </p>
+            </div>
+            <a
+              href="/destinations"
+              className="inline-flex items-center gap-1 text-xs font-bold text-action hover:text-action-hover hover:underline"
+            >
+              <span>View All Destinations</span>
+              <ChevronRight className="size-3.5" />
+            </a>
+          </div>
+
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+            {((data.payload as any)?.destinations && (data.payload as any).destinations.length > 0
+              ? (data.payload as any).destinations
+              : [
+                  { country: "India", cityHighlights: "New Delhi, Mumbai, Chennai", savingsPercentage: 75, hospitalCount: 45, image: "/uploads/destinations/india.jpg", tagline: "70-85% lower costs" },
+                  { country: "Turkey", cityHighlights: "Istanbul, Antalya", savingsPercentage: 70, hospitalCount: 35, image: "/uploads/destinations/turkey.jpg", tagline: "Global capital for hair & aesthetics" },
+                  { country: "Thailand", cityHighlights: "Bangkok, Phuket", savingsPercentage: 65, hospitalCount: 28, image: "/uploads/destinations/thailand.jpg", tagline: "Legendary patient hospitality" },
+                  { country: "UAE", cityHighlights: "Dubai, Abu Dhabi", savingsPercentage: 45, hospitalCount: 18, image: "/uploads/destinations/uae.jpg", tagline: "Luxury healthcare facilities" },
+                ]
+            ).map((dest: any, idx: number) => (
+              <div
+                key={dest.country || idx}
+                className="group relative overflow-hidden rounded-[20px] border border-border bg-white shadow-xs hover:shadow-md transition-all duration-300 flex flex-col"
+              >
+                <div className="h-44 w-full overflow-hidden bg-surface-muted relative">
+                  <img
+                    alt={dest.country}
+                    src={dest.image || "/uploads/destinations/default.jpg"}
+                    className="h-full w-full object-cover group-hover:scale-105 transition-transform duration-500"
+                    onError={(e) => {
+                      (e.currentTarget as HTMLImageElement).src = "https://curemeabroad.com/v2/about-us/hero-consult.webp";
+                    }}
+                  />
+                  <div className="absolute top-3 right-3 bg-action text-white text-[11px] font-bold px-2.5 py-1 rounded-full shadow-xs">
+                    Save {dest.savingsPercentage || 70}%
+                  </div>
+                </div>
+                <div className="p-5 flex-1 flex flex-col justify-between">
+                  <div>
+                    <h3 className="text-lg font-bold text-ink">{dest.country}</h3>
+                    <p className="text-xs text-ink-muted mt-1">{dest.cityHighlights || "Major healthcare hubs"}</p>
+                    <p className="text-xs text-ink-muted/80 mt-2 line-clamp-2">{dest.tagline || "Accredited surgical centers and specialists."}</p>
+                  </div>
+                  <div className="mt-4 pt-3 border-t border-border flex items-center justify-between text-xs">
+                    <span className="font-semibold text-action">{dest.hospitalCount || 25}+ Partner Hospitals</span>
+                    <a href="/hospitals" className="font-bold text-brand-orange hover:underline">Explore &rarr;</a>
+                  </div>
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+      </section>
+
       <section id="visa" className="py-10" aria-label="Treatment Planning Coordination">
         <div className="mx-auto max-w-[1280px] px-4 sm:px-8">
           <div className="relative overflow-hidden rounded-[30px] bg-gradient-to-r from-navy via-action to-[#009180] p-8 sm:p-14 text-white shadow-xl">

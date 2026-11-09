@@ -418,6 +418,12 @@ export const ThemeStudioView: React.FC = () => {
                       description="Urgency text & pricing guarantee badge highlights"
                     />
                     <ColorField
+                      label="Footer Social Media Icons Color"
+                      value={websiteTheme.socialIconColor || websiteTheme.actionColor || "#007A6C"}
+                      onChange={(v) => updateWebsiteToken("socialIconColor", v)}
+                      description="Controls color for TikTok, Instagram, Facebook, YouTube, X, and LinkedIn icons in footer"
+                    />
+                    <ColorField
                       label="Emergency / Urgent Notice Color"
                       value={websiteTheme.emergencyColor}
                       onChange={(v) => updateWebsiteToken("emergencyColor", v)}
@@ -1060,6 +1066,48 @@ export const ThemeStudioView: React.FC = () => {
                       $4,500
                     </span>
                     <span className="text-[9px] font-bold text-emerald-600 block">Save 75%</span>
+                  </div>
+                </div>
+
+                {/* 5. Footer Social Media Icons Preview */}
+                <div
+                  className="p-3 border shadow-xs rounded-xl flex items-center justify-between"
+                  style={{
+                    backgroundColor: websiteTheme.surfaceColor,
+                    borderColor: websiteTheme.borderColor,
+                  }}
+                >
+                  <span className="text-[10px] font-semibold" style={{ color: websiteTheme.textMutedColor }}>
+                    Footer Social Icons
+                  </span>
+                  <div
+                    className="flex gap-2 items-center"
+                    style={{ color: websiteTheme.socialIconColor || websiteTheme.actionColor || "#007A6C" }}
+                  >
+                    {[
+                      "footer icon-3.svg",
+                      "footer icon.svg",
+                      "footer icon-1.svg",
+                      "footer icon-2.svg",
+                      "footer icon-x.svg",
+                      "footer icon-linkedin.svg"
+                    ].map((iconFile, idx) => (
+                      <span
+                        key={idx}
+                        className="w-4 h-4 inline-block"
+                        style={{
+                          backgroundColor: websiteTheme.socialIconColor || websiteTheme.actionColor || "#007A6C",
+                          WebkitMaskImage: `url("/v2/home-page/social-media/${iconFile}")`,
+                          maskImage: `url("/v2/home-page/social-media/${iconFile}")`,
+                          WebkitMaskSize: "contain",
+                          maskSize: "contain",
+                          WebkitMaskRepeat: "no-repeat",
+                          maskRepeat: "no-repeat",
+                          WebkitMaskPosition: "center",
+                          maskPosition: "center",
+                        }}
+                      />
+                    ))}
                   </div>
                 </div>
               </div>

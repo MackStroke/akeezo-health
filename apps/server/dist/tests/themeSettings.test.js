@@ -345,4 +345,50 @@ describe("Theme Settings Architecture Verification Suite", async () => {
         assert.equal(getGoogleFontUrl("'Poppins', system-ui, sans-serif"), "https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800;900&display=swap");
         assert.equal(getGoogleFontUrl("Playfair Display"), "https://fonts.googleapis.com/css2?family=Playfair+Display:wght@300;400;500;600;700;800;900&display=swap");
     });
+    test("11. Footer Social Media Section Theme Control: Real-time customization, CSS injection & SSR rendering", async () => {
+        // 11a. Update socialIconColor via PUT /api/v1/admin/site-settings
+        const customColor = "#E11D48";
+        const updateRes = await fetch(`${baseUrl}/api/v1/admin/site-settings`, {
+            method: "PUT",
+            headers: {
+                "Content-Type": "application/json",
+                Authorization: `Bearer ${adminToken}`,
+            },
+            body: JSON.stringify({
+                socialIconColor: customColor,
+                websiteTheme: {
+                    socialIconColor: customColor,
+                },
+            }),
+        });
+        assert.equal(updateRes.status, 200);
+        const updateJson = await updateRes.json();
+        assert.equal(updateJson.data.socialIconColor, customColor);
+        assert.equal(updateJson.data.websiteTheme.socialIconColor, customColor);
+        // 11b. Public GET / renders SSR HTML with --social-icon-color CSS variable and footer social icons
+        const ssrRes = await fetch(`${baseUrl}/`);
+        assert.equal(ssrRes.status, 200);
+        const html = await ssrRes.text();
+        assert.ok(html.includes(`--social-icon-color: ${customColor}`), "SSR <style id='akeezo-dynamic-theme'> must inject custom --social-icon-color");
+        assert.ok(html.includes("footer-social-icon"), "Footer must contain footer-social-icon masked elements");
+        assert.ok(html.includes("footer icon-3.svg"), "Footer must contain TikTok icon");
+        assert.ok(html.includes("footer icon.svg"), "Footer must contain Instagram icon");
+        assert.ok(html.includes("footer icon-1.svg"), "Footer must contain Facebook icon");
+        assert.ok(html.includes("footer icon-2.svg"), "Footer must contain YouTube icon");
+        assert.ok(html.includes("footer icon-x.svg"), "Footer must contain X icon");
+        assert.ok(html.includes("footer icon-linkedin.svg"), "Footer must contain LinkedIn icon");
+        // 11c. Reset to defaults restores official brand default (#007A6C)
+        const resetRes = await fetch(`${baseUrl}/api/v1/admin/theme/reset`, {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json",
+                Authorization: `Bearer ${adminToken}`,
+            },
+            body: JSON.stringify({ target: "website" }),
+        });
+        assert.equal(resetRes.status, 200);
+        const resetJson = await resetRes.json();
+        assert.equal(resetJson.data.socialIconColor, DEFAULT_WEBSITE_THEME.socialIconColor);
+        assert.equal(resetJson.data.websiteTheme.socialIconColor, DEFAULT_WEBSITE_THEME.socialIconColor);
+    });
 });

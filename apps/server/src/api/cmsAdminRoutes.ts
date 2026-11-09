@@ -500,6 +500,7 @@ cmsAdminRouter.put(["/site-settings", "/settings/:section"], async (req: Request
     if (req.body.secondaryColor !== undefined) updatePayload.secondaryColor = sanitizeCssValue(req.body.secondaryColor);
     if (req.body.accentColor !== undefined) updatePayload.accentColor = sanitizeCssValue(req.body.accentColor);
     if (req.body.actionColor !== undefined) updatePayload.actionColor = sanitizeCssValue(req.body.actionColor);
+    if (req.body.socialIconColor !== undefined) updatePayload.socialIconColor = sanitizeCssValue(req.body.socialIconColor);
 
     if (req.body.websiteTheme !== undefined) {
       const existingWebsite = existingObj?.websiteTheme || {};
@@ -513,7 +514,8 @@ cmsAdminRouter.put(["/site-settings", "/settings/:section"], async (req: Request
       if (updatePayload.websiteTheme.secondaryColor) updatePayload.secondaryColor = updatePayload.websiteTheme.secondaryColor;
       if (updatePayload.websiteTheme.accentColor) updatePayload.accentColor = updatePayload.websiteTheme.accentColor;
       if (updatePayload.websiteTheme.actionColor) updatePayload.actionColor = updatePayload.websiteTheme.actionColor;
-    } else if (updatePayload.primaryColor || updatePayload.secondaryColor || updatePayload.accentColor || updatePayload.actionColor) {
+      if (updatePayload.websiteTheme.socialIconColor) updatePayload.socialIconColor = updatePayload.websiteTheme.socialIconColor;
+    } else if (updatePayload.primaryColor || updatePayload.secondaryColor || updatePayload.accentColor || updatePayload.actionColor || updatePayload.socialIconColor) {
       const existingWebsite = existingObj?.websiteTheme || {};
       updatePayload.websiteTheme = {
         ...DEFAULT_WEBSITE_THEME,
@@ -522,6 +524,7 @@ cmsAdminRouter.put(["/site-settings", "/settings/:section"], async (req: Request
         ...(updatePayload.secondaryColor ? { secondaryColor: updatePayload.secondaryColor } : {}),
         ...(updatePayload.accentColor ? { accentColor: updatePayload.accentColor } : {}),
         ...(updatePayload.actionColor ? { actionColor: updatePayload.actionColor } : {}),
+        ...(updatePayload.socialIconColor ? { socialIconColor: updatePayload.socialIconColor } : {}),
       };
     }
 
@@ -917,6 +920,7 @@ cmsAdminRouter.post("/theme/preset", async (req: Request, res: Response) => {
       if (preset.websiteTheme.secondaryColor) updatePayload.secondaryColor = preset.websiteTheme.secondaryColor;
       if (preset.websiteTheme.accentColor) updatePayload.accentColor = preset.websiteTheme.accentColor;
       if (preset.websiteTheme.actionColor) updatePayload.actionColor = preset.websiteTheme.actionColor;
+      if (preset.websiteTheme.socialIconColor) updatePayload.socialIconColor = preset.websiteTheme.socialIconColor;
     }
 
     if (target === "admin" || target === "both") {
@@ -957,6 +961,7 @@ cmsAdminRouter.post("/theme/reset", async (req: Request, res: Response) => {
       updatePayload.secondaryColor = DEFAULT_WEBSITE_THEME.secondaryColor;
       updatePayload.accentColor = DEFAULT_WEBSITE_THEME.accentColor;
       updatePayload.actionColor = DEFAULT_WEBSITE_THEME.actionColor;
+      updatePayload.socialIconColor = DEFAULT_WEBSITE_THEME.socialIconColor;
     }
 
     if (target === "admin" || target === "both") {
@@ -1155,19 +1160,56 @@ cmsAdminRouter.put("/pages/:slug", async (req: Request, res: Response) => {
     page.version += 1;
     await page.save();
 
+    // Resolve pageKind accurately
+    const SLUG_TO_PAGE_KIND: Record<string, string> = {
+      home: "home",
+      "cost-calculator": "calculatorLanding",
+      calculator: "calculatorLanding",
+      treatments: "treatmentDirectory",
+      hospitals: "hospitalDirectory",
+      doctors: "doctorDirectory",
+      destinations: "destinationDirectory",
+      about: "about",
+      "about-us": "about",
+      blog: "blogDirectory",
+      privacy: "legal",
+      terms: "legal",
+      disclaimer: "legal",
+      consent: "legal",
+      "refund-policy": "legal",
+      "grievance-officer": "legal",
+    };
+
+    const existingRoute = await RouteEntry.findOne({ locale: "en", path: canonicalPath }).lean();
+    const resolvedPageKind = req.body.pageKind || existingRoute?.pageKind || SLUG_TO_PAGE_KIND[slug] || "legal";
+
     // Atomically update RouteEntry so public SSR delivers immediately
     if (publishImmediately) {
       await RouteEntry.findOneAndUpdate(
         { locale: "en", path: canonicalPath },
         {
           $set: {
-            pageKind: slug === "home" ? "home" : "legal",
+            pageKind: resolvedPageKind,
             publishedRevisionId: revision._id,
             statusCode: 200,
           },
         },
         { upsert: true }
       );
+
+      if (slug === "cost-calculator" || slug === "calculator") {
+        await RouteEntry.findOneAndUpdate(
+          { locale: "en", path: "/calculator" },
+          {
+            $set: {
+              pageKind: "calculatorLanding",
+              publishedRevisionId: revision._id,
+              statusCode: 200,
+            },
+          },
+          { upsert: true }
+        );
+      }
     }
 
     await logAdminActivity(
@@ -1322,7 +1364,7 @@ cmsAdminRouter.post("/pages/:slug/restore/:revisionId", async (req: Request, res
       revisionNumber: nextRevisionNumber,
       payload: historicalRev.payload,
       seo: historicalRev.seo,
-      sourceReferences: [`restored_from_rev_${historicalRev.revisionNumber}`],
+      sourceReferences: [],
     });
 
     page.draftRevisionId = restoredRevision._id;
@@ -1356,6 +1398,384 @@ cmsAdminRouter.post("/pages/:slug/restore/:revisionId", async (req: Request, res
     });
   } catch (err: any) {
     res.status(400).json({ error: { code: "RESTORE_FAILED", message: err.message } });
+  }
+});
+
+// Helper to resolve catalogue collection key
+function getPageCollectionKey(slug: string, explicitKey?: string): string {
+  if (explicitKey) return explicitKey;
+  switch (slug) {
+    case "doctors": return "doctors";
+    case "hospitals": return "hospitals";
+    case "treatments": return "treatments";
+    case "cost-calculator":
+    case "calculator": return "procedures";
+    case "destinations": return "destinations";
+    case "about": return "teamMembers";
+    case "community": return "testimonials";
+    case "home": return "destinations";
+    default: return "items";
+  }
+}
+
+// POST /api/v1/admin/pages/:slug/items (Add catalogue item)
+cmsAdminRouter.post("/pages/:slug/items", async (req: Request, res: Response) => {
+  try {
+    const slug = req.params.slug;
+    const { item, collectionKey: reqKey, publishImmediately = true } = req.body;
+    if (!item || typeof item !== "object") {
+      return res.status(400).json({ error: { code: "INVALID_ITEM", message: "Item object is required." } });
+    }
+
+    const page = await Page.findOne({ slug, locale: "en" });
+    if (!page) {
+      return res.status(404).json({ error: { code: "PAGE_NOT_FOUND", message: `Page '${slug}' not found.` } });
+    }
+
+    const currentRevId = page.publishedRevisionId || page.draftRevisionId;
+    const currentRev = currentRevId ? await ContentRevision.findById(currentRevId).lean() : null;
+    const currentPayload = (currentRev?.payload as Record<string, any>) || {};
+
+    const key = getPageCollectionKey(slug, reqKey);
+    const existingList: any[] = Array.isArray(currentPayload[key]) ? [...currentPayload[key]] : [];
+
+    const newItem = {
+      id: item.id || `item_${Date.now()}_${Math.random().toString(36).slice(2, 7)}`,
+      slug: item.slug || String(item.name || item.title || "item").toLowerCase().replace(/[^a-z0-9_-]/g, "-"),
+      ...item,
+      active: item.active !== undefined ? Boolean(item.active) : true,
+    };
+
+    existingList.push(newItem);
+
+    const updatedPayload = {
+      ...currentPayload,
+      [key]: existingList,
+    };
+
+    const lastRev = await ContentRevision.findOne({ entityType: "page", entityId: page._id })
+      .sort({ revisionNumber: -1 })
+      .lean();
+    const nextRevisionNumber = (lastRev?.revisionNumber || 0) + 1;
+
+    const revision = await ContentRevision.create({
+      entityType: "page",
+      entityId: page._id,
+      locale: "en",
+      revisionNumber: nextRevisionNumber,
+      payload: updatedPayload,
+      seo: currentRev?.seo || {
+        title: `${slug.toUpperCase()} | AKEEZO`,
+        description: "Medical discovery and care coordination",
+        canonicalPath: slug === "home" ? "/" : `/${slug}`,
+        robots: "index,follow",
+        schemaKind: "MedicalWebPage",
+      },
+      sourceReferences: [],
+    });
+
+    page.draftRevisionId = revision._id;
+    if (publishImmediately) {
+      page.publishedRevisionId = revision._id;
+      page.status = "published";
+    }
+    page.version += 1;
+    await page.save();
+
+    const canonicalPath = slug === "home" ? "/" : `/${slug}`;
+    if (publishImmediately) {
+      await RouteEntry.findOneAndUpdate(
+        { locale: "en", path: canonicalPath },
+        { $set: { publishedRevisionId: revision._id, statusCode: 200 } },
+        { upsert: true }
+      );
+    }
+
+    await logAdminActivity(
+      (req as any).user?._id,
+      "page",
+      page._id,
+      "create",
+      { addedItem: [null, newItem.id || newItem.slug || newItem.name] },
+      req
+    );
+
+    res.status(201).json({
+      data: {
+        item: newItem,
+        collectionKey: key,
+        totalItems: existingList.length,
+        message: `Item added to ${slug} (${key}) successfully.`,
+      },
+    });
+  } catch (err: any) {
+    res.status(400).json({ error: { code: "ADD_ITEM_FAILED", message: err.message } });
+  }
+});
+
+// PUT /api/v1/admin/pages/:slug/items/:itemId (Update catalogue item)
+cmsAdminRouter.put("/pages/:slug/items/:itemId", async (req: Request, res: Response) => {
+  try {
+    const { slug, itemId } = req.params;
+    const { item, collectionKey: reqKey, publishImmediately = true } = req.body;
+
+    const page = await Page.findOne({ slug, locale: "en" });
+    if (!page) {
+      return res.status(404).json({ error: { code: "PAGE_NOT_FOUND", message: `Page '${slug}' not found.` } });
+    }
+
+    const currentRevId = page.publishedRevisionId || page.draftRevisionId;
+    const currentRev = currentRevId ? await ContentRevision.findById(currentRevId).lean() : null;
+    const currentPayload = (currentRev?.payload as Record<string, any>) || {};
+
+    const key = getPageCollectionKey(slug, reqKey);
+    const existingList: any[] = Array.isArray(currentPayload[key]) ? [...currentPayload[key]] : [];
+
+    const idx = existingList.findIndex((i) => String(i.id) === itemId || String(i.slug) === itemId);
+    if (idx === -1) {
+      return res.status(404).json({ error: { code: "ITEM_NOT_FOUND", message: `Item '${itemId}' not found in ${key}.` } });
+    }
+
+    const oldItem = existingList[idx];
+    const updatedItem = {
+      ...oldItem,
+      ...item,
+      id: oldItem.id || itemId,
+    };
+    existingList[idx] = updatedItem;
+
+    const updatedPayload = {
+      ...currentPayload,
+      [key]: existingList,
+    };
+
+    const lastRev = await ContentRevision.findOne({ entityType: "page", entityId: page._id })
+      .sort({ revisionNumber: -1 })
+      .lean();
+    const nextRevisionNumber = (lastRev?.revisionNumber || 0) + 1;
+
+    const revision = await ContentRevision.create({
+      entityType: "page",
+      entityId: page._id,
+      locale: "en",
+      revisionNumber: nextRevisionNumber,
+      payload: updatedPayload,
+      seo: currentRev?.seo || {
+        title: `${slug.toUpperCase()} | AKEEZO`,
+        description: "Medical discovery and care coordination",
+        canonicalPath: slug === "home" ? "/" : `/${slug}`,
+        robots: "index,follow",
+        schemaKind: "MedicalWebPage",
+      },
+      sourceReferences: [],
+    });
+
+    page.draftRevisionId = revision._id;
+    if (publishImmediately) {
+      page.publishedRevisionId = revision._id;
+      page.status = "published";
+    }
+    page.version += 1;
+    await page.save();
+
+    const canonicalPath = slug === "home" ? "/" : `/${slug}`;
+    if (publishImmediately) {
+      await RouteEntry.findOneAndUpdate(
+        { locale: "en", path: canonicalPath },
+        { $set: { publishedRevisionId: revision._id, statusCode: 200 } },
+        { upsert: true }
+      );
+    }
+
+    await logAdminActivity(
+      (req as any).user?._id,
+      "page",
+      page._id,
+      "update",
+      { updatedItem: [oldItem.id || oldItem.name, updatedItem.id || updatedItem.name] },
+      req
+    );
+
+    res.json({
+      data: {
+        item: updatedItem,
+        collectionKey: key,
+        message: `Item '${itemId}' updated successfully.`,
+      },
+    });
+  } catch (err: any) {
+    res.status(400).json({ error: { code: "UPDATE_ITEM_FAILED", message: err.message } });
+  }
+});
+
+// DELETE /api/v1/admin/pages/:slug/items/:itemId (Delete catalogue item)
+cmsAdminRouter.delete("/pages/:slug/items/:itemId", async (req: Request, res: Response) => {
+  try {
+    const { slug, itemId } = req.params;
+    const { collectionKey: reqKey, publishImmediately = true } = req.body || {};
+
+    const page = await Page.findOne({ slug, locale: "en" });
+    if (!page) {
+      return res.status(404).json({ error: { code: "PAGE_NOT_FOUND", message: `Page '${slug}' not found.` } });
+    }
+
+    const currentRevId = page.publishedRevisionId || page.draftRevisionId;
+    const currentRev = currentRevId ? await ContentRevision.findById(currentRevId).lean() : null;
+    const currentPayload = (currentRev?.payload as Record<string, any>) || {};
+
+    const key = getPageCollectionKey(slug, reqKey);
+    const existingList: any[] = Array.isArray(currentPayload[key]) ? [...currentPayload[key]] : [];
+
+    const filtered = existingList.filter((i) => String(i.id) !== itemId && String(i.slug) !== itemId);
+    if (filtered.length === existingList.length) {
+      return res.status(404).json({ error: { code: "ITEM_NOT_FOUND", message: `Item '${itemId}' not found in ${key}.` } });
+    }
+
+    const updatedPayload = {
+      ...currentPayload,
+      [key]: filtered,
+    };
+
+    const lastRev = await ContentRevision.findOne({ entityType: "page", entityId: page._id })
+      .sort({ revisionNumber: -1 })
+      .lean();
+    const nextRevisionNumber = (lastRev?.revisionNumber || 0) + 1;
+
+    const revision = await ContentRevision.create({
+      entityType: "page",
+      entityId: page._id,
+      locale: "en",
+      revisionNumber: nextRevisionNumber,
+      payload: updatedPayload,
+      seo: currentRev?.seo || {
+        title: `${slug.toUpperCase()} | AKEEZO`,
+        description: "Medical discovery and care coordination",
+        canonicalPath: slug === "home" ? "/" : `/${slug}`,
+        robots: "index,follow",
+        schemaKind: "MedicalWebPage",
+      },
+      sourceReferences: [],
+    });
+
+    page.draftRevisionId = revision._id;
+    if (publishImmediately) {
+      page.publishedRevisionId = revision._id;
+      page.status = "published";
+    }
+    page.version += 1;
+    await page.save();
+
+    const canonicalPath = slug === "home" ? "/" : `/${slug}`;
+    if (publishImmediately) {
+      await RouteEntry.findOneAndUpdate(
+        { locale: "en", path: canonicalPath },
+        { $set: { publishedRevisionId: revision._id, statusCode: 200 } },
+        { upsert: true }
+      );
+    }
+
+    await logAdminActivity(
+      (req as any).user?._id,
+      "page",
+      page._id,
+      "delete",
+      { deletedItem: [itemId, null] },
+      req
+    );
+
+    res.json({
+      data: {
+        deletedItemId: itemId,
+        collectionKey: key,
+        remainingItems: filtered.length,
+        message: `Item '${itemId}' deleted successfully.`,
+      },
+    });
+  } catch (err: any) {
+    res.status(400).json({ error: { code: "DELETE_ITEM_FAILED", message: err.message } });
+  }
+});
+
+// PATCH /api/v1/admin/pages/:slug/items/:itemId/toggle (Toggle active status)
+cmsAdminRouter.patch("/pages/:slug/items/:itemId/toggle", async (req: Request, res: Response) => {
+  try {
+    const { slug, itemId } = req.params;
+    const { collectionKey: reqKey, publishImmediately = true } = req.body || {};
+
+    const page = await Page.findOne({ slug, locale: "en" });
+    if (!page) {
+      return res.status(404).json({ error: { code: "PAGE_NOT_FOUND", message: `Page '${slug}' not found.` } });
+    }
+
+    const currentRevId = page.publishedRevisionId || page.draftRevisionId;
+    const currentRev = currentRevId ? await ContentRevision.findById(currentRevId).lean() : null;
+    const currentPayload = (currentRev?.payload as Record<string, any>) || {};
+
+    const key = getPageCollectionKey(slug, reqKey);
+    const existingList: any[] = Array.isArray(currentPayload[key]) ? [...currentPayload[key]] : [];
+
+    const idx = existingList.findIndex((i) => String(i.id) === itemId || String(i.slug) === itemId);
+    if (idx === -1) {
+      return res.status(404).json({ error: { code: "ITEM_NOT_FOUND", message: `Item '${itemId}' not found in ${key}.` } });
+    }
+
+    const currentItem = existingList[idx];
+    const newActive = currentItem.active === undefined ? false : !currentItem.active;
+    existingList[idx] = { ...currentItem, active: newActive };
+
+    const updatedPayload = {
+      ...currentPayload,
+      [key]: existingList,
+    };
+
+    const lastRev = await ContentRevision.findOne({ entityType: "page", entityId: page._id })
+      .sort({ revisionNumber: -1 })
+      .lean();
+    const nextRevisionNumber = (lastRev?.revisionNumber || 0) + 1;
+
+    const revision = await ContentRevision.create({
+      entityType: "page",
+      entityId: page._id,
+      locale: "en",
+      revisionNumber: nextRevisionNumber,
+      payload: updatedPayload,
+      seo: currentRev?.seo || {
+        title: `${slug.toUpperCase()} | AKEEZO`,
+        description: "Medical discovery and care coordination",
+        canonicalPath: slug === "home" ? "/" : `/${slug}`,
+        robots: "index,follow",
+        schemaKind: "MedicalWebPage",
+      },
+      sourceReferences: [],
+    });
+
+    page.draftRevisionId = revision._id;
+    if (publishImmediately) {
+      page.publishedRevisionId = revision._id;
+      page.status = "published";
+    }
+    page.version += 1;
+    await page.save();
+
+    const canonicalPath = slug === "home" ? "/" : `/${slug}`;
+    if (publishImmediately) {
+      await RouteEntry.findOneAndUpdate(
+        { locale: "en", path: canonicalPath },
+        { $set: { publishedRevisionId: revision._id, statusCode: 200 } },
+        { upsert: true }
+      );
+    }
+
+    res.json({
+      data: {
+        itemId,
+        active: newActive,
+        collectionKey: key,
+        message: `Item '${itemId}' status set to ${newActive ? "active" : "inactive"}.`,
+      },
+    });
+  } catch (err: any) {
+    res.status(400).json({ error: { code: "TOGGLE_ITEM_FAILED", message: err.message } });
   }
 });
 

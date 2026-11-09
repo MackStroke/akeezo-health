@@ -1,4 +1,4 @@
-import React, { useState, useRef } from "react";
+import React, { useState, useRef, useMemo } from "react";
 import type { PublicRouteResponseDTO } from "@akeezo/contracts";
 import {
   ChevronRight,
@@ -27,6 +27,26 @@ export interface AboutTemplateProps {
 }
 
 export function AboutTemplate({ data }: AboutTemplateProps) {
+  const rawPayload = (data.payload as any) || {};
+
+  const teamList = useMemo(() => {
+    if (rawPayload.teamMembers && Array.isArray(rawPayload.teamMembers) && rawPayload.teamMembers.length > 0) {
+      return rawPayload.teamMembers
+        .filter((m: any) => m.active !== false)
+        .map((m: any) => ({
+          name: m.name,
+          role: m.role || m.credentials || "Clinical Team",
+          image: m.image || "/uploads/about/team-0.webp",
+          imageFallback: m.image || "/uploads/about/team-0.webp",
+          linkedin: m.linkedin || null,
+        }));
+    }
+    return TEAM_MEMBERS;
+  }, [rawPayload.teamMembers]);
+
+  const headline = rawPayload.headline || "Hey! We're AKEEZO";
+  const subheadline = rawPayload.subheadline || "We're a team of patient advocates, healthcare researchers, and travel experts — obsessed with one thing: making world-class medical care reachable for anyone, anywhere. Read on to learn our story, what we stand for, and the people building this.";
+
   // Team slider state
   const teamSliderRef = useRef<HTMLDivElement>(null);
 
@@ -135,10 +155,10 @@ export function AboutTemplate({ data }: AboutTemplateProps) {
                       id="about-hero-heading"
                       className="text-[28px] md:text-[38px] leading-tight font-bold md:mb-4 mb-2 tracking-tight text-gray-900"
                     >
-                      Hey! We&apos;re AKEEZO
+                      {headline}
                     </h1>
                     <p className="text-[14px] md:text-[20px] text-gray-700 leading-relaxed">
-                      We&apos;re a team of patient advocates, healthcare researchers, and travel experts — obsessed with one thing: making world-class medical care reachable for anyone, anywhere. Read on to learn our story, what we stand for, and the people building this.
+                      {subheadline}
                     </p>
                   </div>
 
@@ -369,7 +389,7 @@ export function AboutTemplate({ data }: AboutTemplateProps) {
                 ref={teamSliderRef}
                 className="flex gap-5 overflow-x-auto scrollbar-hide pb-4 -mx-4 px-4 md:-mx-0 md:px-0 scroll-smooth"
               >
-                {TEAM_MEMBERS.map((member, idx) => (
+                {teamList.map((member: any, idx: number) => (
                   <div
                     key={idx}
                     className="w-[240px] md:w-[260px] shrink-0 group flex flex-col items-center text-center bg-white rounded-2xl border border-gray-200/80 p-4 shadow-xs hover:shadow-md transition-all duration-300"

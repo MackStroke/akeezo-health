@@ -532,21 +532,34 @@ export const SiteFooter: React.FC<SiteFooterProps> = ({ siteSettings = {} }) => 
           </a>
 
           {/* Social Media Links */}
-          <div className="flex gap-4 text-lg items-center">
+          <div
+            className="flex gap-4 text-lg items-center"
+            style={{ color: "var(--social-icon-color, var(--action, #007A6C))" }}
+          >
             <a
               target="_blank"
               rel="noopener noreferrer me"
               aria-label="TikTok"
               title="TikTok"
               href={siteSettings.socialLinks?.tiktok || "https://www.tiktok.com/@akeezohealth"}
+              className="inline-flex items-center justify-center hover:opacity-80 transition-opacity"
             >
+              <span
+                aria-hidden="true"
+                className="footer-social-icon md:h-6 h-4 w-6 md:w-6"
+                style={{
+                  WebkitMaskImage: 'url("/v2/home-page/social-media/footer icon-3.svg")',
+                  maskImage: 'url("/v2/home-page/social-media/footer icon-3.svg")',
+                  backgroundColor: "var(--social-icon-color, var(--action, #007A6C))"
+                }}
+              />
               <img
                 alt="TikTok"
                 loading="lazy"
                 width={24}
                 height={20}
                 decoding="async"
-                className="cursor-pointer md:h-6 h-4 hover:opacity-80 transition-opacity"
+                className="sr-only cursor-pointer md:h-6 h-4 hover:opacity-80 transition-opacity"
                 style={{ color: "transparent" }}
                 src="/v2/home-page/social-media/footer icon-3.svg"
               />
@@ -557,14 +570,24 @@ export const SiteFooter: React.FC<SiteFooterProps> = ({ siteSettings = {} }) => 
               aria-label="Instagram"
               title="Instagram"
               href={siteSettings.socialLinks?.instagram || "https://www.instagram.com/akeezohealth/"}
+              className="inline-flex items-center justify-center hover:opacity-80 transition-opacity"
             >
+              <span
+                aria-hidden="true"
+                className="footer-social-icon md:h-6 h-4 w-6 md:w-6"
+                style={{
+                  WebkitMaskImage: 'url("/v2/home-page/social-media/footer icon.svg")',
+                  maskImage: 'url("/v2/home-page/social-media/footer icon.svg")',
+                  backgroundColor: "var(--social-icon-color, var(--action, #007A6C))"
+                }}
+              />
               <img
                 alt="Instagram"
                 loading="lazy"
                 width={24}
                 height={20}
                 decoding="async"
-                className="cursor-pointer md:h-6 h-4 hover:opacity-80 transition-opacity"
+                className="sr-only cursor-pointer md:h-6 h-4 hover:opacity-80 transition-opacity"
                 style={{ color: "transparent" }}
                 src="/v2/home-page/social-media/footer icon.svg"
               />
@@ -575,14 +598,24 @@ export const SiteFooter: React.FC<SiteFooterProps> = ({ siteSettings = {} }) => 
               aria-label="Facebook"
               title="Facebook"
               href={siteSettings.socialLinks?.facebook || "https://www.facebook.com/akeezohealth"}
+              className="inline-flex items-center justify-center hover:opacity-80 transition-opacity"
             >
+              <span
+                aria-hidden="true"
+                className="footer-social-icon md:h-6 h-4 w-6 md:w-6"
+                style={{
+                  WebkitMaskImage: 'url("/v2/home-page/social-media/footer icon-1.svg")',
+                  maskImage: 'url("/v2/home-page/social-media/footer icon-1.svg")',
+                  backgroundColor: "var(--social-icon-color, var(--action, #007A6C))"
+                }}
+              />
               <img
                 alt="Facebook"
                 loading="lazy"
                 width={24}
                 height={20}
                 decoding="async"
-                className="cursor-pointer md:h-6 h-4 hover:opacity-80 transition-opacity"
+                className="sr-only cursor-pointer md:h-6 h-4 hover:opacity-80 transition-opacity"
                 style={{ color: "transparent" }}
                 src="/v2/home-page/social-media/footer icon-1.svg"
               />
@@ -593,14 +626,24 @@ export const SiteFooter: React.FC<SiteFooterProps> = ({ siteSettings = {} }) => 
               aria-label="Youtube"
               title="Youtube"
               href={siteSettings.socialLinks?.youtube || "https://youtube.com/@akeezohealth"}
+              className="inline-flex items-center justify-center hover:opacity-80 transition-opacity"
             >
+              <span
+                aria-hidden="true"
+                className="footer-social-icon md:h-6 h-4 w-6 md:w-6"
+                style={{
+                  WebkitMaskImage: 'url("/v2/home-page/social-media/footer icon-2.svg")',
+                  maskImage: 'url("/v2/home-page/social-media/footer icon-2.svg")',
+                  backgroundColor: "var(--social-icon-color, var(--action, #007A6C))"
+                }}
+              />
               <img
                 alt="Youtube"
                 loading="lazy"
                 width={24}
                 height={20}
                 decoding="async"
-                className="cursor-pointer md:h-6 h-4 hover:opacity-80 transition-opacity"
+                className="sr-only cursor-pointer md:h-6 h-4 hover:opacity-80 transition-opacity"
                 style={{ color: "transparent" }}
                 src="/v2/home-page/social-media/footer icon-2.svg"
               />
@@ -611,14 +654,24 @@ export const SiteFooter: React.FC<SiteFooterProps> = ({ siteSettings = {} }) => 
               aria-label="X"
               title="X"
               href={siteSettings.socialLinks?.twitter || siteSettings.socialLinks?.x || "https://x.com/akeezohealth"}
+              className="inline-flex items-center justify-center hover:opacity-80 transition-opacity"
             >
+              <span
+                aria-hidden="true"
+                className="footer-social-icon md:h-6 h-4 w-6 md:w-6"
+                style={{
+                  WebkitMaskImage: 'url("/v2/home-page/social-media/footer icon-x.svg")',
+                  maskImage: 'url("/v2/home-page/social-media/footer icon-x.svg")',
+                  backgroundColor: "var(--social-icon-color, var(--action, #007A6C))"
+                }}
+              />
               <img
                 alt="X"
                 loading="lazy"
                 width={24}
                 height={20}
                 decoding="async"
-                className="cursor-pointer md:h-6 h-4 hover:opacity-80 transition-opacity"
+                className="sr-only cursor-pointer md:h-6 h-4 hover:opacity-80 transition-opacity"
                 style={{ color: "transparent" }}
                 src="/v2/home-page/social-media/footer icon-x.svg"
               />
@@ -629,14 +682,24 @@ export const SiteFooter: React.FC<SiteFooterProps> = ({ siteSettings = {} }) => 
               aria-label="LinkedIn"
               title="LinkedIn"
               href={siteSettings.socialLinks?.linkedin || "https://www.linkedin.com/company/akeezo/"}
+              className="inline-flex items-center justify-center hover:opacity-80 transition-opacity"
             >
+              <span
+                aria-hidden="true"
+                className="footer-social-icon md:h-6 h-4 w-6 md:w-6"
+                style={{
+                  WebkitMaskImage: 'url("/v2/home-page/social-media/footer icon-linkedin.svg")',
+                  maskImage: 'url("/v2/home-page/social-media/footer icon-linkedin.svg")',
+                  backgroundColor: "var(--social-icon-color, var(--action, #007A6C))"
+                }}
+              />
               <img
                 alt="LinkedIn"
                 loading="lazy"
                 width={24}
                 height={20}
                 decoding="async"
-                className="cursor-pointer md:h-6 h-4 hover:opacity-80 transition-opacity"
+                className="sr-only cursor-pointer md:h-6 h-4 hover:opacity-80 transition-opacity"
                 style={{ color: "transparent" }}
                 src="/v2/home-page/social-media/footer icon-linkedin.svg"
               />
