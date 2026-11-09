@@ -53,7 +53,7 @@ describe("Website Structure, Navigation & Error States Verification", () => {
       assert.ok(headerHtml.includes("Hospitals"), `Header on page "${page}" must contain Hospitals`);
       assert.ok(headerHtml.includes("Specialists"), `Header on page "${page}" must contain Specialists`);
       assert.ok(headerHtml.includes("Destinations"), `Header on page "${page}" must contain Destinations`);
-      assert.ok(headerHtml.includes("Calculate Price"), `Header on page "${page}" must contain Calculate Price`);
+      assert.ok(!headerHtml.includes("Plan my Journey (Calculate Price)"), `Header on page "${page}" must not contain redundant Plan my Journey button`);
       assert.ok(headerHtml.includes("Get Free Quote"), `Header on page "${page}" must contain Get Free Quote button`);
       assert.ok(headerHtml.includes("24/7 Desk:"), `Header on page "${page}" must contain 24/7 Desk hotline`);
 

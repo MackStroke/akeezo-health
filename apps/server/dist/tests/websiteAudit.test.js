@@ -143,7 +143,7 @@ describe("Website Audit Task 7: Brand Color Theme Consistency", () => {
         // Brand conversion CTAs
         assert.ok(homeHtml.includes("bg-brand-orange"), "HomeTemplate must render brand orange conversion buttons");
         assert.ok(headerHtml.includes("bg-brand-orange"), "SiteHeader must render brand orange for Get Free Quote CTA");
-        assert.ok(headerHtml.includes("text-brand-orange"), "SiteHeader must highlight Calculate Price with brand orange");
+        assert.ok(homeHtml.includes("text-brand-orange"), "HomeTemplate must highlight price card with brand orange");
         // Dual-theme feature cards
         assert.ok(homeHtml.includes("border-border-orange"), "HomeTemplate must render brand orange border on price card");
         assert.ok(homeHtml.includes("border-border-teal"), "HomeTemplate must render brand teal border on explore card");

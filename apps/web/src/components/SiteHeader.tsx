@@ -500,14 +500,6 @@ export const SiteHeader: React.FC<SiteHeaderProps> = ({
         <nav className="hidden border-t border-gray-100 lg:block bg-white/70 backdrop-blur-xs">
           <div className="mx-auto flex max-w-7xl items-center justify-between gap-x-6 px-6 py-2.5 text-sm">
             <div className="flex flex-wrap items-center gap-x-6 gap-y-1.5">
-              <button
-                type="button"
-                onClick={() => setIsCalculatorOpen(true)}
-                className="whitespace-nowrap text-[0.95em] font-semibold text-brand-orange hover:text-brand-orange-alt transition-colors cursor-pointer flex items-center gap-1.5 py-0.5"
-              >
-                <Calculator className="size-3.5 text-brand-orange" />
-                <span>Plan my Journey (Calculate Price)</span>
-              </button>
               <a
                 className={`whitespace-nowrap text-[0.95em] transition-colors py-0.5 ${
                   isNavActive("/doctors")
