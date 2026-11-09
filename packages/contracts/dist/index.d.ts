@@ -9,4 +9,5 @@ export * from "./commissions.js";
 export * from "./quotes.js";
 export * from "./changelog.js";
 export * from "./blog.js";
+export * from "./pageCms.js";
 //# sourceMappingURL=index.d.ts.map
