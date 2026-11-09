@@ -22,6 +22,8 @@ import {
   Compass,
   Tag,
   BookOpen,
+  PanelLeftClose,
+  PanelLeftOpen,
 } from "lucide-react";
 import { useAuth } from "../context/AuthContext.js";
 import { AdminTab } from "./SuperAdminSidebar.js";
@@ -32,6 +34,8 @@ interface HeaderProps {
   searchQuery: string;
   onSearchChange: (q: string) => void;
   onOpenMobileSidebar: () => void;
+  isSidebarCollapsed?: boolean;
+  onToggleDesktopSidebar?: () => void;
   onOpenProfile: () => void;
   onOpenSecurity: () => void;
   onStartTour?: () => void;
@@ -48,6 +52,8 @@ export const SuperAdminHeader: React.FC<HeaderProps> = ({
   searchQuery,
   onSearchChange,
   onOpenMobileSidebar,
+  isSidebarCollapsed = false,
+  onToggleDesktopSidebar,
   onOpenProfile,
   onOpenSecurity,
   onStartTour,
@@ -140,6 +146,23 @@ export const SuperAdminHeader: React.FC<HeaderProps> = ({
         >
           <Menu className="w-5 h-5" />
         </button>
+
+        {/* Desktop Sidebar Collapse / Expand Toggle */}
+        {onToggleDesktopSidebar && (
+          <button
+            type="button"
+            onClick={onToggleDesktopSidebar}
+            className="hidden md:flex items-center justify-center p-2 text-slate-600 hover:text-slate-900 hover:bg-slate-100 rounded-xl transition-colors focus:outline-none focus:ring-2 focus:ring-[#00C7BE]"
+            title={isSidebarCollapsed ? "Maximize sidebar (Expand)" : "Minimize sidebar (Collapse)"}
+            aria-label={isSidebarCollapsed ? "Maximize sidebar" : "Minimize sidebar"}
+          >
+            {isSidebarCollapsed ? (
+              <PanelLeftOpen className="w-5 h-5 text-[#007A6C]" />
+            ) : (
+              <PanelLeftClose className="w-5 h-5 text-slate-600" />
+            )}
+          </button>
+        )}
 
         {/* Brand Logo & Platform Title */}
         <div className="flex items-center gap-3">

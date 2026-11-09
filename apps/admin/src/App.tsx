@@ -112,6 +112,27 @@ const SuperAdminDashboard: React.FC = () => {
   // Layout State (Sidebar is locked on desktop; drawer for mobile)
   const [isMobileSidebarOpen, setIsMobileSidebarOpen] = useState(false);
 
+  // Desktop sidebar minimized/maximized state with local storage persistence
+  const [isSidebarCollapsed, setIsSidebarCollapsed] = useState<boolean>(() => {
+    try {
+      return localStorage.getItem("akeezo_admin_sidebar_collapsed") === "true";
+    } catch {
+      return false;
+    }
+  });
+
+  const toggleSidebarCollapsed = useCallback(() => {
+    setIsSidebarCollapsed((prev) => {
+      const next = !prev;
+      try {
+        localStorage.setItem("akeezo_admin_sidebar_collapsed", String(next));
+      } catch {
+        // ignore
+      }
+      return next;
+    });
+  }, []);
+
   // Profile & Security Modal State
   const [profileModalOpen, setProfileModalOpen] = useState(false);
   const [profileModalInitialTab, setProfileModalInitialTab] = useState<"profile" | "security">("profile");
@@ -235,6 +256,8 @@ const SuperAdminDashboard: React.FC = () => {
         searchQuery={searchQuery}
         onSearchChange={setSearchQuery}
         onOpenMobileSidebar={() => setIsMobileSidebarOpen(true)}
+        isSidebarCollapsed={isSidebarCollapsed}
+        onToggleDesktopSidebar={toggleSidebarCollapsed}
         onOpenProfile={() => {
           setProfileModalInitialTab("profile");
           setProfileModalOpen(true);
@@ -268,6 +291,8 @@ const SuperAdminDashboard: React.FC = () => {
           leadsCount={leadsCount}
           isMobileOpen={isMobileSidebarOpen}
           onCloseMobile={() => setIsMobileSidebarOpen(false)}
+          isCollapsed={isSidebarCollapsed}
+          onToggleCollapse={toggleSidebarCollapsed}
         />
 
         {/* Main Content Workspace (Scrolls independently while sidebar remains locked) */}
