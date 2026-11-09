@@ -11,6 +11,9 @@ import { SuperAdminSidebar, AdminTab } from "./components/SuperAdminSidebar.js";
 const DashboardView = lazy(() => import("./components/DashboardView.js").then((m) => ({ default: m.DashboardView })));
 const ContentView = lazy(() => import("./components/ContentView.js").then((m) => ({ default: m.ContentView })));
 const BlogManagerView = lazy(() => import("./components/BlogManagerView.js").then((m) => ({ default: m.BlogManagerView })));
+const CommunityManager = lazy(() =>
+  import("./components/CommunityManager.js").then((m) => ({ default: m.CommunityManager }))
+);
 const DirectoryModuleManager = lazy(() =>
   import("./components/DirectoryModuleManager.js").then((m) => ({ default: m.DirectoryModuleManager }))
 );
@@ -81,6 +84,7 @@ const tabPathMap: Record<AdminTab, string> = {
   treatments: "/admin/treatments",
   destinations: "/admin/destinations",
   blog: "/admin/blog",
+  community: "/admin/community",
   content: "/admin/content",
   media: "/admin/media",
   enquiries: "/admin/enquiries",
@@ -99,6 +103,7 @@ function getTabFromPath(pathname: string): AdminTab {
   if (clean.startsWith("/admin/treatments")) return "treatments";
   if (clean.startsWith("/admin/destinations")) return "destinations";
   if (clean.startsWith("/admin/blog") || clean.startsWith("/admin/blogs")) return "blog";
+  if (clean.startsWith("/admin/community")) return "community";
   if (clean.startsWith("/admin/content")) return "content";
   if (clean.startsWith("/admin/media")) return "media";
   if (clean.startsWith("/admin/enquiries") || clean.startsWith("/admin/leads")) return "enquiries";
@@ -345,6 +350,7 @@ const SuperAdminDashboard: React.FC = () => {
             {activeTab === "treatments" && <DirectoryModuleManager pageSlug="treatments" />}
             {activeTab === "destinations" && <DirectoryModuleManager pageSlug="destinations" />}
             {activeTab === "blog" && <BlogManagerView initialCreateModal={openBlogModal} />}
+            {activeTab === "community" && <CommunityManager />}
 
             {/* Module 2: Content (All Pages CMS & Navigation) */}
             {activeTab === "content" && (

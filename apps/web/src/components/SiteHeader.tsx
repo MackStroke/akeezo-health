@@ -66,7 +66,7 @@ export const SiteHeader: React.FC<SiteHeaderProps> = ({
 
   const isNavActive = (path: string) => {
     if (path === "/#destinations") return currentPath.includes("destinations");
-    if (path === "/#opinion") return currentPath.includes("opinion");
+    if (path === "/community" || path === "/#opinion") return currentPath.startsWith("/community") || currentPath.includes("opinion");
     if (path === "/blog") return currentPath === "/blog" || currentPath === "/blogs" || currentPath.startsWith("/blog/") || currentPath.startsWith("/blogs/");
     if (path === "/treatments") return currentPath.startsWith("/treatments");
     if (path === "/hospitals") return currentPath.startsWith("/hospitals");
@@ -553,14 +553,14 @@ export const SiteHeader: React.FC<SiteHeaderProps> = ({
               </a>
               <a
                 className={`whitespace-nowrap text-[0.95em] transition-colors py-0.5 ${
-                  isNavActive("/#opinion")
+                  isNavActive("/community")
                     ? "font-semibold text-action hover:text-action-hover"
                     : "font-medium text-[#1d1d1d] hover:text-action"
                 }`}
                 style={{
-                  color: isNavActive("/#opinion") ? "var(--nav-active, var(--action, #007A6C))" : undefined
+                  color: isNavActive("/community") ? "var(--nav-active, var(--action, #007A6C))" : undefined
                 }}
-                href="/#opinion"
+                href="/community"
               >
                 Community
               </a>

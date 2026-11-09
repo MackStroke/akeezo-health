@@ -5,7 +5,9 @@ import {
   DEFAULT_ADMIN_THEME,
   DEFAULT_CAROUSEL_SLIDES,
   getDoctorDetail,
-  getHospitalDetail
+  getHospitalDetail,
+  CURATED_COMMUNITY_THREADS,
+  getCommunityThreadBySlug
 } from "@akeezo/contracts";
 import { ALL_BLOG_ARTICLES } from "./data/blogData.js";
 import { ALL_DOCTORS } from "./data/doctorsData.js";
@@ -388,6 +390,52 @@ export function getDefaultRouteData(path = "/"): PublicRouteResponseDTO {
       siteSettings: DEFAULT_SITE_SETTINGS,
       statusCode: 200
     };
+  }
+
+  // Community & Q&A Discussion Platform
+  if (normalized === "/community" || normalized === "/ask-cma" || normalized === "/ask-akeezo") {
+    return {
+      pageKind: "community",
+      path: "/community",
+      locale: "en",
+      seo: {
+        title: "Medical Travel Q&A & Real Patient Stories | Ask Akeezo Community",
+        description:
+          "Browse transparent medical tourism surgery costs, post-op recovery timelines, and verified specialist doctor answers across India, Thailand, and Turkey.",
+        canonicalPath: "/community",
+        robots: "index,follow",
+        schemaKind: "MedicalWebPage",
+      },
+      payload: {
+        threads: CURATED_COMMUNITY_THREADS,
+      },
+      siteSettings: DEFAULT_SITE_SETTINGS,
+      statusCode: 200,
+    };
+  }
+
+  if (normalized.startsWith("/community/")) {
+    const slug = normalized.replace(/^\/community\//, "").replace(/\/$/, "");
+    const thread = getCommunityThreadBySlug(slug);
+    if (thread) {
+      return {
+        pageKind: "communityThread",
+        path: `/community/${thread.slug}`,
+        locale: "en",
+        seo: {
+          title: `${thread.title} | Ask Akeezo Community`,
+          description: thread.content.slice(0, 160),
+          canonicalPath: `/community/${thread.slug}`,
+          robots: "index,follow",
+          schemaKind: "QAPage",
+        },
+        payload: {
+          thread,
+        },
+        siteSettings: DEFAULT_SITE_SETTINGS,
+        statusCode: 200,
+      };
+    }
   }
 
   if (normalized === "/") {

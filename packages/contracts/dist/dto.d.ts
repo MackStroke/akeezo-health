@@ -2,7 +2,7 @@ import { z } from "zod";
 import { type SiteSettings } from "./settings.js";
 export type SiteSettingsDTO = SiteSettings;
 export declare const PublicRouteResponseSchema: z.ZodObject<{
-    pageKind: z.ZodEnum<["home", "treatmentDirectory", "treatmentDetail", "procedureDetail", "hospitalDirectory", "hospitalDetail", "doctorDirectory", "doctorDetail", "destinationDirectory", "destinationDetail", "cityDetail", "calculatorLanding", "calculatorWizard", "calculatorResult", "journeyPlanner", "blogDirectory", "article", "contributorProfile", "about", "missionVision", "partnerLanding", "partnerComparison", "partnerApplication", "contact", "faq", "helpCentre", "legal", "specializedGuide", "serviceDetail", "medicineEnquiry", "notFound", "serverError"]>;
+    pageKind: z.ZodEnum<["home", "treatmentDirectory", "treatmentDetail", "procedureDetail", "hospitalDirectory", "hospitalDetail", "doctorDirectory", "doctorDetail", "destinationDirectory", "destinationDetail", "cityDetail", "calculatorLanding", "calculatorWizard", "calculatorResult", "journeyPlanner", "blogDirectory", "article", "contributorProfile", "about", "missionVision", "partnerLanding", "partnerComparison", "partnerApplication", "contact", "faq", "helpCentre", "legal", "specializedGuide", "serviceDetail", "medicineEnquiry", "community", "communityThread", "notFound", "serverError"]>;
     path: z.ZodString;
     locale: z.ZodDefault<z.ZodString>;
     seo: z.ZodObject<{
@@ -802,7 +802,7 @@ export declare const PublicRouteResponseSchema: z.ZodObject<{
     };
     locale: string;
     payload: Record<string, unknown>;
-    pageKind: "home" | "treatmentDirectory" | "treatmentDetail" | "procedureDetail" | "hospitalDirectory" | "hospitalDetail" | "doctorDirectory" | "doctorDetail" | "destinationDirectory" | "destinationDetail" | "cityDetail" | "calculatorLanding" | "calculatorWizard" | "calculatorResult" | "journeyPlanner" | "blogDirectory" | "article" | "contributorProfile" | "about" | "missionVision" | "partnerLanding" | "partnerComparison" | "partnerApplication" | "contact" | "faq" | "helpCentre" | "legal" | "specializedGuide" | "serviceDetail" | "medicineEnquiry" | "notFound" | "serverError";
+    pageKind: "home" | "treatmentDirectory" | "treatmentDetail" | "procedureDetail" | "hospitalDirectory" | "hospitalDetail" | "doctorDirectory" | "doctorDetail" | "destinationDirectory" | "destinationDetail" | "cityDetail" | "calculatorLanding" | "calculatorWizard" | "calculatorResult" | "journeyPlanner" | "blogDirectory" | "article" | "contributorProfile" | "about" | "missionVision" | "partnerLanding" | "partnerComparison" | "partnerApplication" | "contact" | "faq" | "helpCentre" | "legal" | "specializedGuide" | "serviceDetail" | "medicineEnquiry" | "community" | "communityThread" | "notFound" | "serverError";
     statusCode: number;
     siteSettings: {
         phone: string;
@@ -972,7 +972,7 @@ export declare const PublicRouteResponseSchema: z.ZodObject<{
         schemaKind?: string | undefined;
     };
     payload: Record<string, unknown>;
-    pageKind: "home" | "treatmentDirectory" | "treatmentDetail" | "procedureDetail" | "hospitalDirectory" | "hospitalDetail" | "doctorDirectory" | "doctorDetail" | "destinationDirectory" | "destinationDetail" | "cityDetail" | "calculatorLanding" | "calculatorWizard" | "calculatorResult" | "journeyPlanner" | "blogDirectory" | "article" | "contributorProfile" | "about" | "missionVision" | "partnerLanding" | "partnerComparison" | "partnerApplication" | "contact" | "faq" | "helpCentre" | "legal" | "specializedGuide" | "serviceDetail" | "medicineEnquiry" | "notFound" | "serverError";
+    pageKind: "home" | "treatmentDirectory" | "treatmentDetail" | "procedureDetail" | "hospitalDirectory" | "hospitalDetail" | "doctorDirectory" | "doctorDetail" | "destinationDirectory" | "destinationDetail" | "cityDetail" | "calculatorLanding" | "calculatorWizard" | "calculatorResult" | "journeyPlanner" | "blogDirectory" | "article" | "contributorProfile" | "about" | "missionVision" | "partnerLanding" | "partnerComparison" | "partnerApplication" | "contact" | "faq" | "helpCentre" | "legal" | "specializedGuide" | "serviceDetail" | "medicineEnquiry" | "community" | "communityThread" | "notFound" | "serverError";
     siteSettings: {
         phone?: string | undefined;
         primaryColor?: string | undefined;

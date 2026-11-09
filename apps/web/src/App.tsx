@@ -12,6 +12,8 @@ import { DoctorsTemplate } from "./templates/DoctorsTemplate.js";
 import { DoctorDetailTemplate } from "./templates/DoctorDetailTemplate.js";
 import { AboutTemplate } from "./templates/AboutTemplate.js";
 import { BlogTemplate } from "./templates/BlogTemplate.js";
+import { CommunityTemplate } from "./templates/CommunityTemplate.js";
+import { CommunityThreadTemplate } from "./templates/CommunityThreadTemplate.js";
 import { getDefaultRouteData } from "./defaultData.js";
 
 export interface AppProps {
@@ -128,6 +130,10 @@ export function App({ data }: AppProps) {
         return <AboutTemplate data={currentData} />;
       case "blogDirectory":
         return <BlogTemplate data={currentData} />;
+      case "community":
+        return <CommunityTemplate data={currentData} />;
+      case "communityThread":
+        return <CommunityThreadTemplate data={currentData} />;
       case "legal":
         return <LegalTemplate data={currentData} />;
       case "serverError":

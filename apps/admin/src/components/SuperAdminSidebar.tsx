@@ -19,6 +19,7 @@ import {
   Activity,
   MapPin,
   BookOpen,
+  MessageSquare,
 } from "lucide-react";
 
 export type AdminTab =
@@ -28,6 +29,7 @@ export type AdminTab =
   | "treatments"
   | "destinations"
   | "blog"
+  | "community"
   | "content"
   | "media"
   | "enquiries"
@@ -140,6 +142,14 @@ export const SuperAdminSidebar: React.FC<SidebarProps> = ({
       badge: "Articles",
       badgeColor: "bg-emerald-500/20 text-emerald-300 border-emerald-500/30",
       path: "/admin/blog",
+    },
+    {
+      id: "community" as AdminTab,
+      label: "Community Q&A",
+      icon: MessageSquare,
+      badge: "Discussions",
+      badgeColor: "bg-teal-500/20 text-[#00C7BE] border-teal-500/30",
+      path: "/admin/community",
     },
     {
       id: "content" as AdminTab,

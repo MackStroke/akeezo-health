@@ -6,11 +6,14 @@ import { toSafeSiteSettings } from "../ssr/renderer.js";
 import { caseManagementRouter } from "./caseManagementRoutes.js";
 import { authRouter } from "./authRoutes.js";
 import { cmsAdminRouter } from "./cmsAdminRoutes.js";
+import { communityRouter } from "./communityRoutes.js";
 export const apiRouter = Router();
 // Authentication Router
 apiRouter.use("/auth", authRouter);
 // CMS & Website Frontend Administration Router
 apiRouter.use("/admin", cmsAdminRouter);
+// Public Community Discussions Router
+apiRouter.use("/community", communityRouter);
 // Health check
 apiRouter.get("/health", (_req, res) => {
     const isDbConnected = mongoose.connection.readyState === 1;

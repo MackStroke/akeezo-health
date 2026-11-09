@@ -5,7 +5,7 @@ import { fileURLToPath, pathToFileURL } from "node:url";
 import { PassThrough } from "node:stream";
 import type { Request, Response, NextFunction } from "express";
 import mongoose from "mongoose";
-import { RouteEntry, ContentRevision, Page, SiteSettings, ChangelogModel, BlogPostModel } from "../db/models/index.js";
+import { RouteEntry, ContentRevision, Page, SiteSettings, ChangelogModel, BlogPostModel, CommunityThreadModel } from "../db/models/index.js";
 import {
   type PublicRouteResponseDTO,
   type SiteSettings as SiteSettingsDTO,
@@ -17,7 +17,10 @@ import {
   getDoctorDetail,
   type DoctorDetail,
   getHospitalDetail,
-  type HospitalDetail
+  type HospitalDetail,
+  CURATED_COMMUNITY_THREADS,
+  getCommunityThreadBySlug,
+  type CommunityThread
 } from "@akeezo/contracts";
 import { env } from "../config/env.js";
 
@@ -591,6 +594,94 @@ export async function handleSsr(req: Request, res: Response, next: NextFunction)
           },
           siteSettings,
           statusCode: 200
+        };
+      }
+    } else if (normalizedPath === "/ask-cma" || normalizedPath === "/ask-akeezo") {
+      res.redirect(301, "/community");
+      return;
+    } else if (normalizedPath === "/community" || normalizedPath.startsWith("/community/")) {
+      const slug = normalizedPath.startsWith("/community/")
+        ? normalizedPath.replace(/^\/community\/?/, "").split("/")[0]
+        : "";
+      const isDetail = Boolean(slug);
+
+      if (isDetail) {
+        let thread: CommunityThread | null = null;
+        if (mongoose.connection.readyState === 1) {
+          const doc = await CommunityThreadModel.findOne({ slug, status: "published" }).lean();
+          if (doc) thread = doc as any;
+        }
+        if (!thread) {
+          thread = getCommunityThreadBySlug(slug);
+        }
+
+        if (thread) {
+          statusCode = 200;
+          dto = {
+            pageKind: "communityThread",
+            path: normalizedPath,
+            locale: "en",
+            seo: {
+              title: `${thread.title} | Ask Akeezo Community`,
+              description: thread.content.slice(0, 160),
+              canonicalPath: `/community/${thread.slug}`,
+              robots: "index,follow",
+              schemaKind: "QAPage",
+            },
+            payload: {
+              thread,
+            },
+            siteSettings,
+            statusCode: 200,
+          };
+        } else {
+          statusCode = 404;
+          dto = {
+            pageKind: "notFound",
+            path: normalizedPath,
+            locale: "en",
+            seo: {
+              title: "Discussion Not Found | AKEEZO Healthcare Community",
+              description: "The requested medical travel discussion thread could not be located.",
+              canonicalPath: "/community",
+              robots: "noindex,nofollow",
+              schemaKind: "WebPage",
+            },
+            payload: {},
+            siteSettings,
+            statusCode: 404,
+          };
+        }
+      } else {
+        statusCode = 200;
+        let threads: CommunityThread[] = [];
+        if (mongoose.connection.readyState === 1) {
+          const docs = await CommunityThreadModel.find({ status: "published" })
+            .sort({ isPinned: -1, upvotes: -1, createdAt: -1 })
+            .lean();
+          if (docs && docs.length > 0) threads = docs as any;
+        }
+        if (threads.length === 0) {
+          threads = CURATED_COMMUNITY_THREADS;
+        }
+
+        dto = {
+          pageKind: "community",
+          path: normalizedPath,
+          locale: "en",
+          seo: {
+            title: "Medical Travel Q&A & Real Patient Stories | Ask Akeezo Community",
+            description:
+              "Browse transparent surgical costs, hospital experiences, post-op recovery advice, and doctor-verified answers from 45+ countries.",
+            canonicalPath: "/community",
+            robots: "index,follow",
+            schemaKind: "MedicalWebPage",
+          },
+          payload: {
+            threads,
+          },
+          siteSettings,
+          statusCode: 200,
         };
       }
     } else if (normalizedPath === "/about" || normalizedPath === "/about-us") {

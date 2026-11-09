@@ -313,10 +313,17 @@ process.on("uncaughtException", (err) => {
 });
 
 // 8. Start Listening if running directly in standalone mode (not when imported or in serverless)
-const shouldListen = isDirectRun && !isServerless && !isTestEnv && process.env.NODE_ENV !== "production";
+const shouldListen = isDirectRun && !isServerless && !isTestEnv;
 if (shouldListen) {
   connectDB()
-    .then(() => {
+    .then(async () => {
+      try {
+        const { seedCommunity } = await import("./seeds/communitySeed.js");
+        await seedCommunity();
+      } catch (seedErr: any) {
+        console.warn("[Akeezo Server] Community seed warning:", seedErr.message);
+      }
+
       app.listen(env.PORT, () => {
         console.log(`[Akeezo Server] Listening on http://localhost:${env.PORT} (${env.NODE_ENV})`);
         console.log(`[Akeezo Server] Healthcare Discovery & Coordination Platform ready.`);

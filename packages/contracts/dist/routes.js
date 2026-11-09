@@ -30,6 +30,8 @@ export const PageKindEnum = z.enum([
     "specializedGuide",
     "serviceDetail",
     "medicineEnquiry",
+    "community",
+    "communityThread",
     "notFound",
     "serverError"
 ]);

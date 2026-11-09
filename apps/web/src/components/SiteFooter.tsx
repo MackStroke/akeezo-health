@@ -329,6 +329,7 @@ export const SiteFooter: React.FC<SiteFooterProps> = ({ siteSettings = {} }) => 
               <li><a href="/treatments" className="hover:text-action">All Treatments Directory</a></li>
               <li><a href="/hospitals" className="hover:text-action">Accredited Hospitals Directory</a></li>
               <li><a href="/doctors" className="hover:text-action">Top Doctors Directory</a></li>
+              <li><a href="/community" className="hover:text-action font-semibold text-action">Ask Community (Q&amp;A)</a></li>
               <li><a href="/cost-calculator" className="hover:text-action">Cost Calculator</a></li>
               <li><a href="/#opinion" className="hover:text-action">Free Second Opinion</a></li>
               <li><a href="/#visa" className="hover:text-action">Medical Visa Assistance</a></li>
