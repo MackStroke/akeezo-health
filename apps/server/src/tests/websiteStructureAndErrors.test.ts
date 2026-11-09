@@ -56,6 +56,13 @@ describe("Website Structure, Navigation & Error States Verification", () => {
       assert.ok(headerHtml.includes("Calculate Price"), `Header on page "${page}" must contain Calculate Price`);
       assert.ok(headerHtml.includes("Get Free Quote"), `Header on page "${page}" must contain Get Free Quote button`);
       assert.ok(headerHtml.includes("24/7 Desk:"), `Header on page "${page}" must contain 24/7 Desk hotline`);
+
+      // Verify <nav> element contains the Get Free Quote button placed on the right side
+      const navMatch = headerHtml.match(/<nav[\s\S]*?<\/nav>/);
+      assert.ok(navMatch, `Header on page "${page}" must contain <nav> element`);
+      const navHtml = navMatch[0];
+      assert.ok(navHtml.includes("Get Free Quote"), `<nav> on page "${page}" must contain Get Free Quote button`);
+      assert.ok(navHtml.includes("ml-auto"), `<nav> on page "${page}" must place Get Free Quote button on the right side`);
     }
   });
 

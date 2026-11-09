@@ -433,11 +433,11 @@ export const SiteHeader: React.FC<SiteHeaderProps> = ({
               <span className="font-bold text-action tracking-tight">{phone}</span>
             </a>
 
-            {/* "Get Free Quote" CTA button */}
+            {/* "Get Free Quote" CTA button (tablet screens where Tier 2 nav is hidden) */}
             <button
               type="button"
               onClick={() => setIsCalculatorOpen(true)}
-              className="hidden sm:inline-flex h-[36px] items-center justify-center rounded-full bg-brand-orange hover:bg-brand-orange-alt px-3.5 text-xs font-bold text-white shadow-xs transition-all cursor-pointer whitespace-nowrap shrink-0"
+              className="hidden sm:inline-flex lg:hidden h-[36px] items-center justify-center rounded-full bg-brand-orange hover:bg-brand-orange-alt px-3.5 text-xs font-bold text-white shadow-xs transition-all cursor-pointer whitespace-nowrap shrink-0"
             >
               <Calculator className="size-3.5 mr-1" />
               <span>Get Free Quote</span>
@@ -498,106 +498,120 @@ export const SiteHeader: React.FC<SiteHeaderProps> = ({
 
         {/* Tier 2: Sub Navigation Link Bar */}
         <nav className="hidden border-t border-gray-100 lg:block bg-white/70 backdrop-blur-xs">
-          <div className="mx-auto flex max-w-7xl flex-wrap items-center gap-x-6 gap-y-1.5 px-6 py-3.5 text-sm">
-            <button
-              type="button"
-              onClick={() => setIsCalculatorOpen(true)}
-              className="whitespace-nowrap text-[0.95em] font-semibold text-brand-orange hover:text-brand-orange-alt transition-colors cursor-pointer flex items-center gap-1.5 py-0.5"
-            >
-              <Calculator className="size-3.5 text-brand-orange" />
-              <span>Plan my Journey (Calculate Price)</span>
-            </button>
-            <a
-              className={`whitespace-nowrap text-[0.95em] transition-colors py-0.5 ${
-                isNavActive("/doctors")
-                  ? "font-semibold text-action hover:text-action-hover"
-                  : "font-medium text-[#1d1d1d] hover:text-action"
-              }`}
-              style={{
-                color: isNavActive("/doctors") ? "var(--nav-active, var(--action, #007A6C))" : undefined
-              }}
-              href="/doctors"
-            >
-              Doctors &amp; Specialists
-            </a>
-            <a
-              className={`whitespace-nowrap text-[0.95em] transition-colors py-0.5 ${
-                isNavActive("/hospitals")
-                  ? "font-semibold text-action hover:text-action-hover"
-                  : "font-medium text-[#1d1d1d] hover:text-action"
-              }`}
-              style={{
-                color: isNavActive("/hospitals") ? "var(--nav-active, var(--action, #007A6C))" : undefined
-              }}
-              href="/hospitals"
-            >
-              Hospitals
-            </a>
-            <a
-              className={`whitespace-nowrap text-[0.95em] transition-colors py-0.5 ${
-                isNavActive("/treatments")
-                  ? "font-semibold text-action hover:text-action-hover"
-                  : "font-medium text-[#1d1d1d] hover:text-action"
-              }`}
-              style={{
-                color: isNavActive("/treatments") ? "var(--nav-active, var(--action, #007A6C))" : undefined
-              }}
-              href="/treatments"
-            >
-              Treatments
-            </a>
-            <a
-              className={`whitespace-nowrap text-[0.95em] transition-colors py-0.5 ${
-                isNavActive("/#destinations")
-                  ? "font-semibold text-action hover:text-action-hover"
-                  : "font-medium text-[#1d1d1d] hover:text-action"
-              }`}
-              style={{
-                color: isNavActive("/#destinations") ? "var(--nav-active, var(--action, #007A6C))" : undefined
-              }}
-              href="/#destinations"
-            >
-              Destinations
-            </a>
-            <a
-              className={`whitespace-nowrap text-[0.95em] transition-colors py-0.5 ${
-                isNavActive("/blog")
-                  ? "font-semibold text-action hover:text-action-hover"
-                  : "font-medium text-[#1d1d1d] hover:text-action"
-              }`}
-              style={{
-                color: isNavActive("/blog") ? "var(--nav-active, var(--action, #007A6C))" : undefined
-              }}
-              href="/blog"
-            >
-              Blogs
-            </a>
-            <a
-              className={`whitespace-nowrap text-[0.95em] transition-colors py-0.5 ${
-                isNavActive("/#opinion")
-                  ? "font-semibold text-action hover:text-action-hover"
-                  : "font-medium text-[#1d1d1d] hover:text-action"
-              }`}
-              style={{
-                color: isNavActive("/#opinion") ? "var(--nav-active, var(--action, #007A6C))" : undefined
-              }}
-              href="/#opinion"
-            >
-              Community
-            </a>
-            <a
-              className={`whitespace-nowrap text-[0.95em] transition-colors py-0.5 ${
-                isNavActive("/about")
-                  ? "font-semibold text-action hover:text-action-hover"
-                  : "font-medium text-[#1d1d1d] hover:text-action"
-              }`}
-              style={{
-                color: isNavActive("/about") ? "var(--nav-active, var(--action, #007A6C))" : undefined
-              }}
-              href="/about"
-            >
-              About Us
-            </a>
+          <div className="mx-auto flex max-w-7xl items-center justify-between gap-x-6 px-6 py-2.5 text-sm">
+            <div className="flex flex-wrap items-center gap-x-6 gap-y-1.5">
+              <button
+                type="button"
+                onClick={() => setIsCalculatorOpen(true)}
+                className="whitespace-nowrap text-[0.95em] font-semibold text-brand-orange hover:text-brand-orange-alt transition-colors cursor-pointer flex items-center gap-1.5 py-0.5"
+              >
+                <Calculator className="size-3.5 text-brand-orange" />
+                <span>Plan my Journey (Calculate Price)</span>
+              </button>
+              <a
+                className={`whitespace-nowrap text-[0.95em] transition-colors py-0.5 ${
+                  isNavActive("/doctors")
+                    ? "font-semibold text-action hover:text-action-hover"
+                    : "font-medium text-[#1d1d1d] hover:text-action"
+                }`}
+                style={{
+                  color: isNavActive("/doctors") ? "var(--nav-active, var(--action, #007A6C))" : undefined
+                }}
+                href="/doctors"
+              >
+                Doctors &amp; Specialists
+              </a>
+              <a
+                className={`whitespace-nowrap text-[0.95em] transition-colors py-0.5 ${
+                  isNavActive("/hospitals")
+                    ? "font-semibold text-action hover:text-action-hover"
+                    : "font-medium text-[#1d1d1d] hover:text-action"
+                }`}
+                style={{
+                  color: isNavActive("/hospitals") ? "var(--nav-active, var(--action, #007A6C))" : undefined
+                }}
+                href="/hospitals"
+              >
+                Hospitals
+              </a>
+              <a
+                className={`whitespace-nowrap text-[0.95em] transition-colors py-0.5 ${
+                  isNavActive("/treatments")
+                    ? "font-semibold text-action hover:text-action-hover"
+                    : "font-medium text-[#1d1d1d] hover:text-action"
+                }`}
+                style={{
+                  color: isNavActive("/treatments") ? "var(--nav-active, var(--action, #007A6C))" : undefined
+                }}
+                href="/treatments"
+              >
+                Treatments
+              </a>
+              <a
+                className={`whitespace-nowrap text-[0.95em] transition-colors py-0.5 ${
+                  isNavActive("/#destinations")
+                    ? "font-semibold text-action hover:text-action-hover"
+                    : "font-medium text-[#1d1d1d] hover:text-action"
+                }`}
+                style={{
+                  color: isNavActive("/#destinations") ? "var(--nav-active, var(--action, #007A6C))" : undefined
+                }}
+                href="/#destinations"
+              >
+                Destinations
+              </a>
+              <a
+                className={`whitespace-nowrap text-[0.95em] transition-colors py-0.5 ${
+                  isNavActive("/blog")
+                    ? "font-semibold text-action hover:text-action-hover"
+                    : "font-medium text-[#1d1d1d] hover:text-action"
+                }`}
+                style={{
+                  color: isNavActive("/blog") ? "var(--nav-active, var(--action, #007A6C))" : undefined
+                }}
+                href="/blog"
+              >
+                Blogs
+              </a>
+              <a
+                className={`whitespace-nowrap text-[0.95em] transition-colors py-0.5 ${
+                  isNavActive("/#opinion")
+                    ? "font-semibold text-action hover:text-action-hover"
+                    : "font-medium text-[#1d1d1d] hover:text-action"
+                }`}
+                style={{
+                  color: isNavActive("/#opinion") ? "var(--nav-active, var(--action, #007A6C))" : undefined
+                }}
+                href="/#opinion"
+              >
+                Community
+              </a>
+              <a
+                className={`whitespace-nowrap text-[0.95em] transition-colors py-0.5 ${
+                  isNavActive("/about")
+                    ? "font-semibold text-action hover:text-action-hover"
+                    : "font-medium text-[#1d1d1d] hover:text-action"
+                }`}
+                style={{
+                  color: isNavActive("/about") ? "var(--nav-active, var(--action, #007A6C))" : undefined
+                }}
+                href="/about"
+              >
+                About Us
+              </a>
+            </div>
+
+            {/* Right side Get Free Quote button */}
+            <div className="ml-auto shrink-0 flex items-center pl-4">
+              <button
+                type="button"
+                onClick={() => setIsCalculatorOpen(true)}
+                className="hidden sm:inline-flex h-[36px] items-center justify-center rounded-full bg-brand-orange hover:bg-brand-orange-alt px-3.5 text-xs font-bold text-white shadow-xs transition-all cursor-pointer whitespace-nowrap shrink-0"
+              >
+                <Calculator className="size-3.5 mr-1" />
+                <span>Get Free Quote</span>
+              </button>
+            </div>
           </div>
         </nav>
 
