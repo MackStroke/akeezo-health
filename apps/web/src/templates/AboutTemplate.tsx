@@ -15,6 +15,7 @@ import {
 } from "lucide-react";
 import { SiteHeader } from "../components/SiteHeader.js";
 import { SiteFooter } from "../components/SiteFooter.js";
+import { DiscardConfirmDialog } from "../components/DiscardConfirmDialog.js";
 import {
   TEAM_MEMBERS,
   FEATURED_ARTICLES,
@@ -59,6 +60,35 @@ export function AboutTemplate({ data }: AboutTemplateProps) {
     message: ""
   });
   const [isSubmitted, setIsSubmitted] = useState(false);
+  const [showDiscardConfirm, setShowDiscardConfirm] = useState(false);
+
+  const hasAboutEntries = !isSubmitted && (
+    formData.name.trim().length > 0 ||
+    formData.email.trim().length > 0 ||
+    formData.phone.trim().length > 0 ||
+    formData.message.trim().length > 0
+  );
+
+  const handleAboutCloseRequest = () => {
+    if (hasAboutEntries) {
+      setShowDiscardConfirm(true);
+    } else {
+      setIsModalOpen(false);
+      setIsSubmitted(false);
+    }
+  };
+
+  const handleAboutDiscard = () => {
+    setFormData({
+      name: "",
+      email: "",
+      phone: "",
+      message: ""
+    });
+    setIsSubmitted(false);
+    setShowDiscardConfirm(false);
+    setIsModalOpen(false);
+  };
 
   const scrollTeamSlider = (direction: "left" | "right") => {
     if (!teamSliderRef.current) return;
@@ -832,10 +862,18 @@ export function AboutTemplate({ data }: AboutTemplateProps) {
 
       {/* Consultation Modal */}
       {isModalOpen && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm animate-in fade-in duration-200">
-          <div className="bg-white rounded-3xl max-w-lg w-full p-6 md:p-8 shadow-2xl relative border border-gray-100">
+        <div
+          role="dialog"
+          aria-modal="true"
+          className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm animate-in fade-in duration-200"
+          onClick={handleAboutCloseRequest}
+        >
+          <div
+            className="bg-white rounded-3xl max-w-lg w-full p-6 md:p-8 shadow-2xl relative border border-gray-100"
+            onClick={(e) => e.stopPropagation()}
+          >
             <button
-              onClick={() => setIsModalOpen(false)}
+              onClick={handleAboutCloseRequest}
               className="absolute right-4 top-4 text-gray-400 hover:text-gray-700 p-1.5 rounded-full hover:bg-gray-100 transition-colors cursor-pointer"
             >
               <X className="w-5 h-5" />
@@ -853,7 +891,7 @@ export function AboutTemplate({ data }: AboutTemplateProps) {
                   Thank you, <span className="font-semibold text-gray-900">{formData.name}</span>. An AKEEZO Senior Medical Coordinator will review your inquiry and contact you within 24 hours.
                 </p>
                 <button
-                  onClick={() => setIsModalOpen(false)}
+                  onClick={handleAboutCloseRequest}
                   className="bg-brand-orange text-white text-sm font-semibold px-6 py-2.5 rounded-full hover:bg-brand-orange-hover transition-colors cursor-pointer"
                 >
                   Close
@@ -946,6 +984,13 @@ export function AboutTemplate({ data }: AboutTemplateProps) {
           </div>
         </div>
       )}
+
+      {/* Discard Confirmation Dialog */}
+      <DiscardConfirmDialog
+        isOpen={showDiscardConfirm}
+        onComplete={() => setShowDiscardConfirm(false)}
+        onDiscard={handleAboutDiscard}
+      />
     </div>
   );
 }

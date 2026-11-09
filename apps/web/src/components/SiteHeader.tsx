@@ -25,6 +25,7 @@ import {
   getSavedLanguageCode,
   initGoogleTranslate
 } from "./translation.js";
+import { DiscardConfirmDialog } from "./DiscardConfirmDialog.js";
 
 export interface SiteHeaderProps {
   siteSettings?: Partial<SiteSettings>;
@@ -54,6 +55,25 @@ export const SiteHeader: React.FC<SiteHeaderProps> = ({
   const [switcherTab, setSwitcherTab] = useState<"currency" | "language">("currency");
   const [switcherSearch, setSwitcherSearch] = useState("");
   const [translateImgError, setTranslateImgError] = useState(false);
+
+  // Active Path resolution (SSR safe with client hydration fallback)
+  const [currentPath, setCurrentPath] = useState(_activePath);
+  useEffect(() => {
+    if (typeof window !== "undefined") {
+      setCurrentPath(window.location.pathname || _activePath);
+    }
+  }, [_activePath]);
+
+  const isNavActive = (path: string) => {
+    if (path === "/#destinations") return currentPath.includes("destinations");
+    if (path === "/#opinion") return currentPath.includes("opinion");
+    if (path === "/blog") return currentPath === "/blog" || currentPath === "/blogs" || currentPath.startsWith("/blog/") || currentPath.startsWith("/blogs/");
+    if (path === "/treatments") return currentPath.startsWith("/treatments");
+    if (path === "/hospitals") return currentPath.startsWith("/hospitals");
+    if (path === "/doctors") return currentPath.startsWith("/doctors");
+    if (path === "/about") return currentPath.startsWith("/about");
+    return currentPath === path;
+  };
 
   useEffect(() => {
     const savedCode = getSavedLanguageCode();
@@ -88,10 +108,62 @@ export const SiteHeader: React.FC<SiteHeaderProps> = ({
   const [partnerError, setPartnerError] = useState("");
   const [partnerSubmitted, setPartnerSubmitted] = useState(false);
 
+  // Discard Confirmation Dialog States
+  const [showCalcDiscardConfirm, setShowCalcDiscardConfirm] = useState(false);
+  const [showPatientDiscardConfirm, setShowPatientDiscardConfirm] = useState(false);
+  const [showPartnerDiscardConfirm, setShowPartnerDiscardConfirm] = useState(false);
+
   const isCalculatorOpen = propCalculatorOpen !== undefined ? propCalculatorOpen : internalCalculatorOpen;
   const setIsCalculatorOpen = (open: boolean) => {
     if (onCalculatorOpenChange) onCalculatorOpenChange(open);
     else setInternalCalculatorOpen(open);
+  };
+
+  const hasCalculatorEntries = !quoteSubmitted && (quoteName.trim().length > 0 || quoteContact.trim().length > 0);
+  const handleCalculatorCloseRequest = () => {
+    if (hasCalculatorEntries) {
+      setShowCalcDiscardConfirm(true);
+    } else {
+      setIsCalculatorOpen(false);
+    }
+  };
+  const handleCalculatorDiscard = () => {
+    setQuoteName("");
+    setQuoteContact("");
+    setQuoteError("");
+    setShowCalcDiscardConfirm(false);
+    setIsCalculatorOpen(false);
+  };
+
+  const hasPatientEntries = patientLookupId.trim().length > 0;
+  const handlePatientCloseRequest = () => {
+    if (hasPatientEntries) {
+      setShowPatientDiscardConfirm(true);
+    } else {
+      setIsPatientModalOpen(false);
+    }
+  };
+  const handlePatientDiscard = () => {
+    setPatientLookupId("");
+    setPatientError("");
+    setShowPatientDiscardConfirm(false);
+    setIsPatientModalOpen(false);
+  };
+
+  const hasPartnerEntries = !partnerSubmitted && (partnerOrg.trim().length > 0 || partnerContact.trim().length > 0);
+  const handlePartnerCloseRequest = () => {
+    if (hasPartnerEntries) {
+      setShowPartnerDiscardConfirm(true);
+    } else {
+      setIsPartnerModalOpen(false);
+    }
+  };
+  const handlePartnerDiscard = () => {
+    setPartnerOrg("");
+    setPartnerContact("");
+    setPartnerError("");
+    setShowPartnerDiscardConfirm(false);
+    setIsPartnerModalOpen(false);
   };
 
   const isExploreOpen = propExploreOpen !== undefined ? propExploreOpen : internalExploreOpen;
@@ -435,25 +507,95 @@ export const SiteHeader: React.FC<SiteHeaderProps> = ({
               <Calculator className="size-3.5 text-brand-orange" />
               <span>Plan my Journey (Calculate Price)</span>
             </button>
-            <a className="whitespace-nowrap text-[0.95em] font-medium text-[#1d1d1d] hover:text-action transition-colors py-0.5" href="/doctors">
+            <a
+              className={`whitespace-nowrap text-[0.95em] transition-colors py-0.5 ${
+                isNavActive("/doctors")
+                  ? "font-semibold text-action hover:text-action-hover"
+                  : "font-medium text-[#1d1d1d] hover:text-action"
+              }`}
+              style={{
+                color: isNavActive("/doctors") ? "var(--nav-active, var(--action, #007A6C))" : undefined
+              }}
+              href="/doctors"
+            >
               Doctors &amp; Specialists
             </a>
-            <a className="whitespace-nowrap text-[0.95em] font-medium text-[#1d1d1d] hover:text-action transition-colors py-0.5" href="/hospitals">
+            <a
+              className={`whitespace-nowrap text-[0.95em] transition-colors py-0.5 ${
+                isNavActive("/hospitals")
+                  ? "font-semibold text-action hover:text-action-hover"
+                  : "font-medium text-[#1d1d1d] hover:text-action"
+              }`}
+              style={{
+                color: isNavActive("/hospitals") ? "var(--nav-active, var(--action, #007A6C))" : undefined
+              }}
+              href="/hospitals"
+            >
               Hospitals
             </a>
-            <a className="whitespace-nowrap text-[0.95em] font-medium text-[#8b5cf6] hover:text-[#7c4de8] transition-colors py-0.5" href="/treatments">
+            <a
+              className={`whitespace-nowrap text-[0.95em] transition-colors py-0.5 ${
+                isNavActive("/treatments")
+                  ? "font-semibold text-action hover:text-action-hover"
+                  : "font-medium text-[#1d1d1d] hover:text-action"
+              }`}
+              style={{
+                color: isNavActive("/treatments") ? "var(--nav-active, var(--action, #007A6C))" : undefined
+              }}
+              href="/treatments"
+            >
               Treatments
             </a>
-            <a className="whitespace-nowrap text-[0.95em] font-medium text-[#1d1d1d] hover:text-action transition-colors py-0.5" href="/#destinations">
+            <a
+              className={`whitespace-nowrap text-[0.95em] transition-colors py-0.5 ${
+                isNavActive("/#destinations")
+                  ? "font-semibold text-action hover:text-action-hover"
+                  : "font-medium text-[#1d1d1d] hover:text-action"
+              }`}
+              style={{
+                color: isNavActive("/#destinations") ? "var(--nav-active, var(--action, #007A6C))" : undefined
+              }}
+              href="/#destinations"
+            >
               Destinations
             </a>
-            <a className="whitespace-nowrap text-[0.95em] font-medium text-[#1d1d1d] hover:text-action transition-colors py-0.5" href="/blog">
+            <a
+              className={`whitespace-nowrap text-[0.95em] transition-colors py-0.5 ${
+                isNavActive("/blog")
+                  ? "font-semibold text-action hover:text-action-hover"
+                  : "font-medium text-[#1d1d1d] hover:text-action"
+              }`}
+              style={{
+                color: isNavActive("/blog") ? "var(--nav-active, var(--action, #007A6C))" : undefined
+              }}
+              href="/blog"
+            >
               Blogs
             </a>
-            <a className="whitespace-nowrap text-[0.95em] font-medium text-[#1d1d1d] hover:text-action transition-colors py-0.5" href="/#opinion">
+            <a
+              className={`whitespace-nowrap text-[0.95em] transition-colors py-0.5 ${
+                isNavActive("/#opinion")
+                  ? "font-semibold text-action hover:text-action-hover"
+                  : "font-medium text-[#1d1d1d] hover:text-action"
+              }`}
+              style={{
+                color: isNavActive("/#opinion") ? "var(--nav-active, var(--action, #007A6C))" : undefined
+              }}
+              href="/#opinion"
+            >
               Community
             </a>
-            <a className="whitespace-nowrap text-[0.95em] font-medium text-[#1d1d1d] hover:text-action transition-colors py-0.5" href="/about">
+            <a
+              className={`whitespace-nowrap text-[0.95em] transition-colors py-0.5 ${
+                isNavActive("/about")
+                  ? "font-semibold text-action hover:text-action-hover"
+                  : "font-medium text-[#1d1d1d] hover:text-action"
+              }`}
+              style={{
+                color: isNavActive("/about") ? "var(--nav-active, var(--action, #007A6C))" : undefined
+              }}
+              href="/about"
+            >
               About Us
             </a>
           </div>
@@ -630,17 +772,27 @@ export const SiteHeader: React.FC<SiteHeaderProps> = ({
 
       {/* MODAL 1: Treatment Selector / Explore Modal */}
       {isExploreOpen && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4 backdrop-blur-xs font-sans">
-          <div className="relative max-h-[90vh] w-full max-w-3xl overflow-y-auto rounded-[20px] bg-white p-6 sm:p-8 shadow-2xl">
+        <div
+          role="dialog"
+          aria-modal="true"
+          aria-labelledby="explore-modal-title"
+          className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4 backdrop-blur-xs font-sans"
+          onClick={() => setIsExploreOpen(false)}
+        >
+          <div
+            className="relative max-h-[90vh] w-full max-w-3xl overflow-y-auto rounded-[20px] bg-white p-6 sm:p-8 shadow-2xl"
+            onClick={(e) => e.stopPropagation()}
+          >
             <div className="flex items-center justify-between border-b border-border pb-4">
               <div>
-                <h3 className="text-xl font-bold text-ink">Explore Medical Specialities in India</h3>
+                <h3 id="explore-modal-title" className="text-xl font-bold text-ink">Explore Medical Specialities in India</h3>
                 <p className="text-xs text-ink-muted mt-1">Select a department to view accredited procedures and specialists</p>
               </div>
               <button
                 type="button"
                 onClick={() => setIsExploreOpen(false)}
                 className="rounded-full p-2 text-ink-muted hover:bg-surface-muted hover:text-ink cursor-pointer"
+                aria-label="Close explore modal"
               >
                 <X className="size-5" />
               </button>
@@ -711,17 +863,27 @@ export const SiteHeader: React.FC<SiteHeaderProps> = ({
 
       {/* MODAL 2: Cost Calculator Modal */}
       {isCalculatorOpen && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4 backdrop-blur-xs font-sans">
-          <div className="relative max-h-[90vh] w-full max-w-xl overflow-y-auto rounded-[20px] bg-white p-6 sm:p-8 shadow-2xl">
+        <div
+          role="dialog"
+          aria-modal="true"
+          aria-labelledby="calculator-modal-title"
+          className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4 backdrop-blur-xs font-sans"
+          onClick={handleCalculatorCloseRequest}
+        >
+          <div
+            className="relative max-h-[90vh] w-full max-w-xl overflow-y-auto rounded-[20px] bg-white p-6 sm:p-8 shadow-2xl"
+            onClick={(e) => e.stopPropagation()}
+          >
             <div className="flex items-center justify-between border-b border-border pb-4">
               <div className="flex items-center gap-2">
                 <Calculator className="size-5 text-action-accent" />
-                <h3 className="text-xl font-bold text-ink">Personalized Procedure Estimate</h3>
+                <h3 id="calculator-modal-title" className="text-xl font-bold text-ink">Personalized Procedure Estimate</h3>
               </div>
               <button
                 type="button"
-                onClick={() => setIsCalculatorOpen(false)}
+                onClick={handleCalculatorCloseRequest}
                 className="rounded-full p-2 text-ink-muted hover:bg-surface-muted hover:text-ink cursor-pointer"
+                aria-label="Close calculator"
               >
                 <X className="size-5" />
               </button>
@@ -817,7 +979,7 @@ export const SiteHeader: React.FC<SiteHeaderProps> = ({
                 </a>
                 <button
                   type="button"
-                  onClick={() => setIsCalculatorOpen(false)}
+                  onClick={handleCalculatorCloseRequest}
                   className="rounded-full bg-surface-muted px-6 py-2.5 text-xs font-bold text-ink hover:bg-border cursor-pointer"
                 >
                   Cancel
@@ -879,6 +1041,13 @@ export const SiteHeader: React.FC<SiteHeaderProps> = ({
           </div>
         </div>
       )}
+
+      {/* Discard Confirmation for Cost Calculator */}
+      <DiscardConfirmDialog
+        isOpen={showCalcDiscardConfirm}
+        onComplete={() => setShowCalcDiscardConfirm(false)}
+        onDiscard={handleCalculatorDiscard}
+      />
 
       {/* MODAL 3: Regional Currency & Language Switcher Modal */}
       {isCountryLangOpen && (
@@ -1058,7 +1227,7 @@ export const SiteHeader: React.FC<SiteHeaderProps> = ({
           aria-modal="true"
           aria-labelledby="patient-journey-modal-title"
           className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4 backdrop-blur-xs font-sans"
-          onClick={() => setIsPatientModalOpen(false)}
+          onClick={handlePatientCloseRequest}
         >
           <div
             className="relative max-h-[85vh] w-full max-w-md overflow-hidden rounded-[20px] bg-white p-6 sm:p-7 shadow-2xl flex flex-col"
@@ -1078,7 +1247,7 @@ export const SiteHeader: React.FC<SiteHeaderProps> = ({
               </div>
               <button
                 type="button"
-                onClick={() => setIsPatientModalOpen(false)}
+                onClick={handlePatientCloseRequest}
                 className="rounded-full p-2 text-ink-muted hover:bg-surface-muted hover:text-ink cursor-pointer"
                 aria-label="Close patient journey dialog"
               >
@@ -1146,6 +1315,13 @@ export const SiteHeader: React.FC<SiteHeaderProps> = ({
         </div>
       )}
 
+      {/* Discard Confirmation for Patient Journey Modal */}
+      <DiscardConfirmDialog
+        isOpen={showPatientDiscardConfirm}
+        onComplete={() => setShowPatientDiscardConfirm(false)}
+        onDiscard={handlePatientDiscard}
+      />
+
       {/* MODAL 5: Hospital & Agent Partner Onboarding Modal */}
       {isPartnerModalOpen && (
         <div
@@ -1153,7 +1329,7 @@ export const SiteHeader: React.FC<SiteHeaderProps> = ({
           aria-modal="true"
           aria-labelledby="partner-onboarding-modal-title"
           className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4 backdrop-blur-xs font-sans"
-          onClick={() => setIsPartnerModalOpen(false)}
+          onClick={handlePartnerCloseRequest}
         >
           <div
             className="relative max-h-[90vh] w-full max-w-lg overflow-y-auto rounded-[20px] bg-white p-6 sm:p-7 shadow-2xl flex flex-col"
@@ -1173,7 +1349,7 @@ export const SiteHeader: React.FC<SiteHeaderProps> = ({
               </div>
               <button
                 type="button"
-                onClick={() => setIsPartnerModalOpen(false)}
+                onClick={handlePartnerCloseRequest}
                 className="rounded-full p-2 text-ink-muted hover:bg-surface-muted hover:text-ink cursor-pointer"
                 aria-label="Close partnership dialog"
               >
@@ -1293,6 +1469,13 @@ export const SiteHeader: React.FC<SiteHeaderProps> = ({
           </div>
         </div>
       )}
+
+      {/* Discard Confirmation for Partner Onboarding Modal */}
+      <DiscardConfirmDialog
+        isOpen={showPartnerDiscardConfirm}
+        onComplete={() => setShowPartnerDiscardConfirm(false)}
+        onDiscard={handlePartnerDiscard}
+      />
     </>
   );
 };

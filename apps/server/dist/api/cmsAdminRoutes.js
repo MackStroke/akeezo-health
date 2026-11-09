@@ -423,6 +423,8 @@ cmsAdminRouter.put(["/site-settings", "/settings/:section"], async (req, res) =>
             updatePayload.confidentBannerBgColor = sanitizeCssValue(req.body.confidentBannerBgColor);
         if (req.body.confidentBannerTextColor !== undefined)
             updatePayload.confidentBannerTextColor = sanitizeCssValue(req.body.confidentBannerTextColor);
+        if (req.body.navActiveColor !== undefined)
+            updatePayload.navActiveColor = sanitizeCssValue(req.body.navActiveColor);
         if (req.body.websiteTheme !== undefined) {
             const existingWebsite = existingObj?.websiteTheme || {};
             const sanitized = sanitizeThemeObject(req.body.websiteTheme);
@@ -445,8 +447,10 @@ cmsAdminRouter.put(["/site-settings", "/settings/:section"], async (req, res) =>
                 updatePayload.confidentBannerBgColor = updatePayload.websiteTheme.confidentBannerBgColor;
             if (updatePayload.websiteTheme.confidentBannerTextColor)
                 updatePayload.confidentBannerTextColor = updatePayload.websiteTheme.confidentBannerTextColor;
+            if (updatePayload.websiteTheme.navActiveColor)
+                updatePayload.navActiveColor = updatePayload.websiteTheme.navActiveColor;
         }
-        else if (updatePayload.primaryColor || updatePayload.secondaryColor || updatePayload.accentColor || updatePayload.actionColor || updatePayload.socialIconColor || updatePayload.confidentBannerBgColor || updatePayload.confidentBannerTextColor) {
+        else if (updatePayload.primaryColor || updatePayload.secondaryColor || updatePayload.accentColor || updatePayload.actionColor || updatePayload.socialIconColor || updatePayload.confidentBannerBgColor || updatePayload.confidentBannerTextColor || updatePayload.navActiveColor) {
             const existingWebsite = existingObj?.websiteTheme || {};
             updatePayload.websiteTheme = {
                 ...DEFAULT_WEBSITE_THEME,
@@ -458,6 +462,7 @@ cmsAdminRouter.put(["/site-settings", "/settings/:section"], async (req, res) =>
                 ...(updatePayload.socialIconColor ? { socialIconColor: updatePayload.socialIconColor } : {}),
                 ...(updatePayload.confidentBannerBgColor ? { confidentBannerBgColor: updatePayload.confidentBannerBgColor } : {}),
                 ...(updatePayload.confidentBannerTextColor ? { confidentBannerTextColor: updatePayload.confidentBannerTextColor } : {}),
+                ...(updatePayload.navActiveColor ? { navActiveColor: updatePayload.navActiveColor } : {}),
             };
         }
         if (req.body.adminTheme !== undefined) {
@@ -806,6 +811,8 @@ cmsAdminRouter.post("/theme/preset", async (req, res) => {
                 updatePayload.confidentBannerBgColor = preset.websiteTheme.confidentBannerBgColor;
             if (preset.websiteTheme.confidentBannerTextColor)
                 updatePayload.confidentBannerTextColor = preset.websiteTheme.confidentBannerTextColor;
+            if (preset.websiteTheme.navActiveColor)
+                updatePayload.navActiveColor = preset.websiteTheme.navActiveColor;
         }
         if (target === "admin" || target === "both") {
             updatePayload.adminTheme = {
@@ -837,6 +844,7 @@ cmsAdminRouter.post("/theme/reset", async (req, res) => {
             updatePayload.socialIconColor = DEFAULT_WEBSITE_THEME.socialIconColor;
             updatePayload.confidentBannerBgColor = DEFAULT_WEBSITE_THEME.confidentBannerBgColor;
             updatePayload.confidentBannerTextColor = DEFAULT_WEBSITE_THEME.confidentBannerTextColor;
+            updatePayload.navActiveColor = DEFAULT_WEBSITE_THEME.navActiveColor;
         }
         if (target === "admin" || target === "both") {
             updatePayload.adminTheme = { ...DEFAULT_ADMIN_THEME };

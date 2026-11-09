@@ -121,7 +121,7 @@ export const CalculatorTemplate: React.FC<CalculatorTemplateProps> = ({ data }) 
           <nav aria-label="Breadcrumb" className="mb-4">
             <ol className="flex items-center gap-2 text-sm text-gray-500">
               <li>
-                <a href="/" className="hover:text-[#8B5CF6] transition-colors">
+                <a href="/" className="hover:text-action transition-colors">
                   Home
                 </a>
               </li>
@@ -136,15 +136,15 @@ export const CalculatorTemplate: React.FC<CalculatorTemplateProps> = ({ data }) 
               <div className="px-4 md:px-8 py-10 md:py-16">
                 <div className="grid md:grid-cols-2 gap-8 md:gap-12 items-center">
                   <div>
-                    <div className="inline-flex items-center gap-1.5 bg-[#8B5CF6]/10 text-[#8B5CF6] text-xs font-medium px-3 py-1.5 rounded-full mb-4">
-                      <Shield className="w-3.5 h-3.5" />
+                    <div className="inline-flex items-center gap-1.5 bg-surface-teal text-action text-xs font-medium px-3 py-1.5 rounded-full mb-4 border border-border-teal/60">
+                      <Shield className="w-3.5 h-3.5 text-action" />
                       <span>{badgeText}</span>
                     </div>
 
                     <h1 className="text-3xl md:text-[44px] md:leading-[1.15] font-bold text-gray-900">
                       {headline}
                       <br />
-                      <span className="text-transparent bg-clip-text bg-gradient-to-r from-[#8B5CF6] to-[#6D28D9]">
+                      <span className="text-transparent bg-clip-text bg-gradient-to-r from-action to-action-hover">
                         Save up to 70%
                       </span>
                     </h1>
@@ -157,7 +157,7 @@ export const CalculatorTemplate: React.FC<CalculatorTemplateProps> = ({ data }) 
                       <button
                         type="button"
                         onClick={() => setIsCalculatorOpen(true)}
-                        className="inline-flex items-center gap-2 bg-[#8B5CF6] hover:bg-[#7C3AED] text-white text-sm font-semibold px-6 py-3 rounded-full transition-colors shadow-sm shadow-purple-200 cursor-pointer"
+                        className="inline-flex items-center gap-2 bg-action hover:bg-action-hover text-white text-sm font-semibold px-6 py-3 rounded-full transition-colors shadow-sm shadow-action/20 cursor-pointer"
                       >
                         <span>Start Calculator</span>
                         <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2.5">
@@ -176,7 +176,7 @@ export const CalculatorTemplate: React.FC<CalculatorTemplateProps> = ({ data }) 
 
                     <div className="flex flex-wrap gap-4 mt-6 md:mt-8">
                       <div className="flex items-center gap-1.5 text-xs text-gray-600">
-                        <Shield className="w-3.5 h-3.5 text-[#8B5CF6]" />
+                        <Shield className="w-3.5 h-3.5 text-action" />
                         <span>No Hidden Fees</span>
                       </div>
                       <div className="flex items-center gap-1.5 text-xs text-gray-600">
@@ -184,7 +184,7 @@ export const CalculatorTemplate: React.FC<CalculatorTemplateProps> = ({ data }) 
                         <span>JCI Accredited Hospitals</span>
                       </div>
                       <div className="flex items-center gap-1.5 text-xs text-gray-600">
-                        <Calculator className="w-3.5 h-3.5 text-purple-600" />
+                        <Calculator className="w-3.5 h-3.5 text-action" />
                         <span>Real Estimates</span>
                       </div>
                     </div>
@@ -219,7 +219,7 @@ export const CalculatorTemplate: React.FC<CalculatorTemplateProps> = ({ data }) 
                 {/* Story 1 */}
                 <div className="bg-white rounded-2xl border border-gray-100 p-5 md:p-6 hover:shadow-md transition-shadow">
                   <div className="flex items-center gap-3 mb-3">
-                    <div className="w-10 h-10 rounded-full bg-gradient-to-br from-[#8B5CF6] to-[#6D28D9] flex items-center justify-center text-white font-bold text-sm">
+                    <div className="w-10 h-10 rounded-full bg-gradient-to-br from-action to-action-hover flex items-center justify-center text-white font-bold text-sm">
                       S
                     </div>
                     <div>
@@ -240,7 +240,7 @@ export const CalculatorTemplate: React.FC<CalculatorTemplateProps> = ({ data }) 
                 {/* Story 2 */}
                 <div className="bg-white rounded-2xl border border-gray-100 p-5 md:p-6 hover:shadow-md transition-shadow">
                   <div className="flex items-center gap-3 mb-3">
-                    <div className="w-10 h-10 rounded-full bg-gradient-to-br from-[#8B5CF6] to-[#6D28D9] flex items-center justify-center text-white font-bold text-sm">
+                    <div className="w-10 h-10 rounded-full bg-gradient-to-br from-action to-action-hover flex items-center justify-center text-white font-bold text-sm">
                       J
                     </div>
                     <div>
@@ -261,7 +261,7 @@ export const CalculatorTemplate: React.FC<CalculatorTemplateProps> = ({ data }) 
                 {/* Story 3 */}
                 <div className="bg-white rounded-2xl border border-gray-100 p-5 md:p-6 hover:shadow-md transition-shadow">
                   <div className="flex items-center gap-3 mb-3">
-                    <div className="w-10 h-10 rounded-full bg-gradient-to-br from-[#8B5CF6] to-[#6D28D9] flex items-center justify-center text-white font-bold text-sm">
+                    <div className="w-10 h-10 rounded-full bg-gradient-to-br from-action to-action-hover flex items-center justify-center text-white font-bold text-sm">
                       E
                     </div>
                     <div>
@@ -307,8 +307,8 @@ export const CalculatorTemplate: React.FC<CalculatorTemplateProps> = ({ data }) 
                 </div>
 
                 {/* Step 2 */}
-                <div className="bg-gradient-to-b from-purple-50 to-purple-100/50 rounded-2xl p-4 md:p-6 border border-gray-100/80">
-                  <span className="inline-flex items-center justify-center w-8 h-8 rounded-lg text-sm font-bold text-purple-600 bg-purple-50">
+                <div className="bg-gradient-to-b from-teal-50 to-teal-100/50 rounded-2xl p-4 md:p-6 border border-gray-100/80">
+                  <span className="inline-flex items-center justify-center w-8 h-8 rounded-lg text-sm font-bold text-action bg-teal-50">
                     2
                   </span>
                   <h3 className="text-sm md:text-base font-semibold text-gray-900 mt-3 mb-1.5">
@@ -320,8 +320,8 @@ export const CalculatorTemplate: React.FC<CalculatorTemplateProps> = ({ data }) 
                 </div>
 
                 {/* Step 3 */}
-                <div className="bg-gradient-to-b from-purple-50 to-purple-100/50 rounded-2xl p-4 md:p-6 border border-gray-100/80">
-                  <span className="inline-flex items-center justify-center w-8 h-8 rounded-lg text-sm font-bold text-purple-600 bg-purple-50">
+                <div className="bg-gradient-to-b from-emerald-50 to-emerald-100/50 rounded-2xl p-4 md:p-6 border border-gray-100/80">
+                  <span className="inline-flex items-center justify-center w-8 h-8 rounded-lg text-sm font-bold text-action bg-emerald-50">
                     3
                   </span>
                   <h3 className="text-sm md:text-base font-semibold text-gray-900 mt-3 mb-1.5">
@@ -349,7 +349,7 @@ export const CalculatorTemplate: React.FC<CalculatorTemplateProps> = ({ data }) 
 
             {/* Try Calculator Now Banner */}
             <section className="py-6">
-              <div className="bg-gradient-to-r from-[#8B5CF6] to-[#6D28D9] rounded-2xl md:rounded-3xl p-6 md:p-10 text-center">
+              <div className="bg-gradient-to-r from-action to-action-hover rounded-2xl md:rounded-3xl p-6 md:p-10 text-center">
                 <h2 className="text-xl md:text-2xl font-bold text-white mb-2">
                   Try the Calculator Now
                 </h2>
@@ -359,7 +359,7 @@ export const CalculatorTemplate: React.FC<CalculatorTemplateProps> = ({ data }) 
                 <button
                   type="button"
                   onClick={() => setIsCalculatorOpen(true)}
-                  className="inline-flex items-center gap-2 bg-white text-[#8B5CF6] text-sm font-semibold px-8 py-3.5 rounded-full hover:bg-gray-50 transition-colors shadow-lg shadow-purple-900/20 cursor-pointer"
+                  className="inline-flex items-center gap-2 bg-white text-action text-sm font-semibold px-8 py-3.5 rounded-full hover:bg-gray-50 transition-colors shadow-lg shadow-black/10 cursor-pointer"
                 >
                   Start Calculator
                 </button>
@@ -386,7 +386,7 @@ export const CalculatorTemplate: React.FC<CalculatorTemplateProps> = ({ data }) 
                     onClick={() => setSelectedCategory(cat)}
                     className={`text-xs md:text-sm font-medium px-4 py-2 rounded-full border transition-colors cursor-pointer ${
                       selectedCategory === cat
-                        ? "bg-[#8B5CF6] text-white border-[#8B5CF6]"
+                        ? "bg-action text-white border-action"
                         : "bg-white text-gray-600 border-gray-200 hover:border-gray-300"
                     }`}
                   >
@@ -416,7 +416,7 @@ export const CalculatorTemplate: React.FC<CalculatorTemplateProps> = ({ data }) 
                             data-orientation="vertical"
                             id={faq.id}
                             onClick={() => toggleFaq(faq.id)}
-                            className="flex flex-1 items-center justify-between transition-all [&[data-state=open]>svg]:rotate-180 text-left text-sm md:text-base font-medium text-gray-900 hover:text-[#8B5CF6] hover:no-underline py-4 cursor-pointer"
+                            className="flex flex-1 items-center justify-between transition-all [&[data-state=open]>svg]:rotate-180 text-left text-sm md:text-base font-medium text-gray-900 hover:text-action hover:no-underline py-4 cursor-pointer"
                           >
                             <span>{faq.question}</span>
                             <ChevronDown className="h-4 w-4 shrink-0 transition-transform duration-200" />

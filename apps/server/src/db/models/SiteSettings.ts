@@ -17,6 +17,7 @@ export interface ISiteSettings extends Document {
   socialIconColor?: string;
   confidentBannerBgColor?: string;
   confidentBannerTextColor?: string;
+  navActiveColor?: string;
   websiteTheme?: {
     primaryColor: string;
     secondaryColor: string;
@@ -25,6 +26,7 @@ export interface ISiteSettings extends Document {
     socialIconColor?: string;
     confidentBannerBgColor?: string;
     confidentBannerTextColor?: string;
+    navActiveColor?: string;
     actionHoverColor: string;
     actionAccentColor: string;
     backgroundColor: string;
@@ -192,6 +194,7 @@ const SiteSettingsSchema = new Schema<ISiteSettings>(
     socialIconColor: { type: String, default: "#007A6C" },
     confidentBannerBgColor: { type: String, default: "#007A6C" },
     confidentBannerTextColor: { type: String, default: "#FFFFFF" },
+    navActiveColor: { type: String, default: "#007A6C" },
     websiteTheme: {
       primaryColor: { type: String, default: "#00C7BE" },
       secondaryColor: { type: String, default: "#FF6B00" },
@@ -202,6 +205,7 @@ const SiteSettingsSchema = new Schema<ISiteSettings>(
       socialIconColor: { type: String, default: "#007A6C" },
       confidentBannerBgColor: { type: String, default: "#007A6C" },
       confidentBannerTextColor: { type: String, default: "#FFFFFF" },
+      navActiveColor: { type: String, default: "#007A6C" },
       backgroundColor: { type: String, default: "#FFFFFF" },
       surfaceColor: { type: String, default: "#FFFFFF" },
       surfaceMutedColor: { type: String, default: "#F4F6F9" },

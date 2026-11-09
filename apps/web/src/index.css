@@ -40,6 +40,8 @@
   --color-social-icon: var(--social-icon-color, #007a6c);
   --color-confident-banner-bg: var(--confident-banner-bg, #007a6c);
   --color-confident-banner-text: var(--confident-banner-text, #ffffff);
+  --color-nav-active: var(--nav-active, #007a6c);
+  --color-nav-active-hover: var(--nav-active-hover, #005f54);
 
   /* Shadcn Semantic Mapping */
   --color-background: var(--background);
@@ -104,6 +106,8 @@
   --social-icon-color: #007a6c;
   --confident-banner-bg: #007a6c;
   --confident-banner-text: #ffffff;
+  --nav-active: #007a6c;
+  --nav-active-hover: #005f54;
   --font-ui: 'Lato', system-ui, -apple-system, sans-serif;
   --page-max: 1280px;
   --page-gutter: clamp(16px, 4vw, 56px);

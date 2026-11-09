@@ -105,12 +105,14 @@ export function toSafeSiteSettings(doc: any): SiteSettingsDTO {
     socialIconColor: doc?.websiteTheme?.socialIconColor || doc?.socialIconColor || doc?.actionColor || "#007A6C",
     confidentBannerBgColor: doc?.websiteTheme?.confidentBannerBgColor || doc?.confidentBannerBgColor || doc?.actionColor || "#007A6C",
     confidentBannerTextColor: doc?.websiteTheme?.confidentBannerTextColor || doc?.confidentBannerTextColor || "#FFFFFF",
+    navActiveColor: doc?.websiteTheme?.navActiveColor || doc?.navActiveColor || doc?.actionColor || "#007A6C",
     websiteTheme: doc?.websiteTheme
       ? {
           ...doc.websiteTheme,
           socialIconColor: doc.websiteTheme.socialIconColor || doc.socialIconColor || doc.websiteTheme.actionColor || doc.actionColor || "#007A6C",
           confidentBannerBgColor: doc.websiteTheme.confidentBannerBgColor || doc.confidentBannerBgColor || doc.websiteTheme.actionColor || doc.actionColor || "#007A6C",
-          confidentBannerTextColor: doc.websiteTheme.confidentBannerTextColor || doc.confidentBannerTextColor || "#FFFFFF"
+          confidentBannerTextColor: doc.websiteTheme.confidentBannerTextColor || doc.confidentBannerTextColor || "#FFFFFF",
+          navActiveColor: doc.websiteTheme.navActiveColor || doc.navActiveColor || doc.websiteTheme.actionColor || doc.actionColor || "#007A6C"
         }
       : {
           primaryColor: doc?.primaryColor || "#00C7BE",
@@ -119,7 +121,8 @@ export function toSafeSiteSettings(doc: any): SiteSettingsDTO {
           actionColor: doc?.actionColor || "#007A6C",
           socialIconColor: doc?.socialIconColor || doc?.actionColor || "#007A6C",
           confidentBannerBgColor: doc?.confidentBannerBgColor || doc?.actionColor || "#007A6C",
-          confidentBannerTextColor: doc?.confidentBannerTextColor || "#FFFFFF"
+          confidentBannerTextColor: doc?.confidentBannerTextColor || "#FFFFFF",
+          navActiveColor: doc?.navActiveColor || doc?.actionColor || "#007A6C"
         },
     adminTheme: doc?.adminTheme || undefined,
     logoVariants: doc?.logoVariants || {

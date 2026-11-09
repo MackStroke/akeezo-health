@@ -18,6 +18,7 @@ import {
 } from "lucide-react";
 import { SiteHeader } from "../components/SiteHeader.js";
 import { SiteFooter } from "../components/SiteFooter.js";
+import { DiscardConfirmDialog } from "../components/DiscardConfirmDialog.js";
 import {
   ALL_TREATMENTS,
   TOP_TREATMENTS,
@@ -84,6 +85,28 @@ export const TreatmentsTemplate: React.FC<TreatmentsTemplateProps> = ({ data }) 
   const [consultNotes, setConsultNotes] = useState("");
   const [consultSuccess, setConsultSuccess] = useState(false);
   const [consultError, setConsultError] = useState("");
+  const [showDiscardConfirm, setShowDiscardConfirm] = useState(false);
+
+  const hasConsultEntries = !consultSuccess && (consultName.trim().length > 0 || consultContact.trim().length > 0 || consultNotes.trim().length > 0);
+
+  const handleConsultCloseRequest = () => {
+    if (hasConsultEntries) {
+      setShowDiscardConfirm(true);
+    } else {
+      setIsConsultModalOpen(false);
+      setConsultSuccess(false);
+      setConsultError("");
+    }
+  };
+
+  const handleConsultDiscard = () => {
+    setConsultName("");
+    setConsultContact("");
+    setConsultNotes("");
+    setConsultError("");
+    setShowDiscardConfirm(false);
+    setIsConsultModalOpen(false);
+  };
 
   // Top Treatments Horizontal Carousel Scroll State
   const carouselRef = useRef<HTMLDivElement>(null);
@@ -1033,8 +1056,16 @@ export const TreatmentsTemplate: React.FC<TreatmentsTemplateProps> = ({ data }) 
           SECTION 5: TREATMENT CONSULTATION & PRICE INQUIRY MODAL
           ------------------------------------------------------------- */}
       {isConsultModalOpen && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 p-4 backdrop-blur-xs font-sans">
-          <div className="relative w-full max-w-lg rounded-3xl bg-white p-6 md:p-8 shadow-2xl border border-gray-100">
+        <div
+          role="dialog"
+          aria-modal="true"
+          className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 p-4 backdrop-blur-xs font-sans"
+          onClick={handleConsultCloseRequest}
+        >
+          <div
+            className="relative w-full max-w-lg rounded-3xl bg-white p-6 md:p-8 shadow-2xl border border-gray-100"
+            onClick={(e) => e.stopPropagation()}
+          >
             <div className="flex items-center justify-between pb-4 border-b border-gray-100">
               <div className="flex items-center gap-2.5">
                 <div className="w-9 h-9 rounded-full bg-[#E6F8F6] flex items-center justify-center text-[#007A6C]">
@@ -1047,12 +1078,9 @@ export const TreatmentsTemplate: React.FC<TreatmentsTemplateProps> = ({ data }) 
               </div>
               <button
                 type="button"
-                onClick={() => {
-                  setIsConsultModalOpen(false);
-                  setConsultSuccess(false);
-                  setConsultError("");
-                }}
+                onClick={handleConsultCloseRequest}
                 className="rounded-full p-2 text-gray-400 hover:bg-gray-100 hover:text-gray-700 transition-colors cursor-pointer"
+                aria-label="Close consultation modal"
               >
                 <X className="w-5 h-5" />
               </button>
@@ -1138,7 +1166,7 @@ export const TreatmentsTemplate: React.FC<TreatmentsTemplateProps> = ({ data }) 
                 <div className="flex items-center justify-end gap-3 pt-2">
                   <button
                     type="button"
-                    onClick={() => setIsConsultModalOpen(false)}
+                    onClick={handleConsultCloseRequest}
                     className="rounded-full bg-gray-100 px-5 py-2.5 text-xs font-semibold text-gray-700 hover:bg-gray-200 transition-colors cursor-pointer"
                   >
                     Cancel
@@ -1155,6 +1183,13 @@ export const TreatmentsTemplate: React.FC<TreatmentsTemplateProps> = ({ data }) 
           </div>
         </div>
       )}
+
+      {/* Discard Confirmation Dialog */}
+      <DiscardConfirmDialog
+        isOpen={showDiscardConfirm}
+        onComplete={() => setShowDiscardConfirm(false)}
+        onDiscard={handleConsultDiscard}
+      />
 
       {/* Global Footer */}
       <SiteFooter siteSettings={siteSettings} />

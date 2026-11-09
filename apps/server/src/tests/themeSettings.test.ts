@@ -514,4 +514,53 @@ describe("Theme Settings Architecture Verification Suite", async () => {
     assert.equal(resetJson.data.confidentBannerTextColor, DEFAULT_WEBSITE_THEME.confidentBannerTextColor);
     assert.equal(resetJson.data.websiteTheme.confidentBannerTextColor, DEFAULT_WEBSITE_THEME.confidentBannerTextColor);
   });
+
+  test("13. Header Navigation Theme Control: Zero hardcoded purple/violet, dynamic --nav-active and active route styling", async () => {
+    // 13a. Verify public SSR pages do not contain hardcoded #8b5cf6 or #7c4de8 in navigation
+    const treatmentsRes = await fetch(`${baseUrl}/treatments`);
+    assert.equal(treatmentsRes.status, 200);
+    const treatmentsHtml = await treatmentsRes.text();
+    assert.ok(!treatmentsHtml.includes("#8b5cf6"), "Treatments HTML must not have hardcoded #8b5cf6");
+    assert.ok(!treatmentsHtml.includes("#7c4de8"), "Treatments HTML must not have hardcoded #7c4de8");
+    assert.ok(treatmentsHtml.includes("href=\"/treatments\""), "Must contain Treatments link");
+
+    // 13b. Update navActiveColor via PUT /api/v1/admin/site-settings
+    const customNavColor = "#059669";
+    const updateRes = await fetch(`${baseUrl}/api/v1/admin/site-settings`, {
+      method: "PUT",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${adminToken}`,
+      },
+      body: JSON.stringify({
+        navActiveColor: customNavColor,
+        websiteTheme: {
+          navActiveColor: customNavColor,
+        },
+      }),
+    });
+    assert.equal(updateRes.status, 200);
+    const updateJson = await updateRes.json();
+    assert.equal(updateJson.data.navActiveColor, customNavColor);
+    assert.equal(updateJson.data.websiteTheme.navActiveColor, customNavColor);
+
+    // 13c. Verify SSR injects --nav-active in dynamic style block
+    const updatedRes = await fetch(`${baseUrl}/treatments`);
+    const updatedHtml = await updatedRes.text();
+    assert.ok(updatedHtml.includes(`--nav-active: ${customNavColor}`), "Dynamic CSS must inject custom --nav-active");
+
+    // 13d. Reset to default restores official brand default (#007A6C)
+    const resetRes = await fetch(`${baseUrl}/api/v1/admin/theme/reset`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${adminToken}`,
+      },
+      body: JSON.stringify({ target: "website" }),
+    });
+    assert.equal(resetRes.status, 200);
+    const resetJson = await resetRes.json();
+    assert.equal(resetJson.data.navActiveColor, DEFAULT_WEBSITE_THEME.navActiveColor);
+    assert.equal(resetJson.data.websiteTheme.navActiveColor, DEFAULT_WEBSITE_THEME.navActiveColor);
+  });
 });

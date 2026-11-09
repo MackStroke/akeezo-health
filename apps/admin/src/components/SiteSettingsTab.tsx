@@ -340,6 +340,43 @@ export const SiteSettingsTab: React.FC = () => {
           </div>
           <div>
             <label className="text-xs font-bold text-slate-700 block mb-1">
+              Navigation Active Link Color
+            </label>
+            <div className="flex items-center gap-2">
+              <input
+                type="color"
+                value={settings.navActiveColor || settings.websiteTheme?.navActiveColor || settings.actionColor || "#007A6C"}
+                onChange={(e) =>
+                  setSettings({
+                    ...settings,
+                    navActiveColor: e.target.value,
+                    websiteTheme: {
+                      ...(settings.websiteTheme || {}),
+                      navActiveColor: e.target.value,
+                    },
+                  })
+                }
+                className="w-9 h-9 rounded border cursor-pointer"
+              />
+              <input
+                type="text"
+                value={settings.navActiveColor || settings.websiteTheme?.navActiveColor || settings.actionColor || ""}
+                onChange={(e) =>
+                  setSettings({
+                    ...settings,
+                    navActiveColor: e.target.value,
+                    websiteTheme: {
+                      ...(settings.websiteTheme || {}),
+                      navActiveColor: e.target.value,
+                    },
+                  })
+                }
+                className="w-full text-xs p-2 bg-slate-50 border rounded-lg font-mono uppercase"
+              />
+            </div>
+          </div>
+          <div>
+            <label className="text-xs font-bold text-slate-700 block mb-1">
               Brand Orange Accent
             </label>
             <div className="flex items-center gap-2">

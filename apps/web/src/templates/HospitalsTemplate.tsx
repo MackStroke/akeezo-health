@@ -15,6 +15,7 @@ import {
 } from "lucide-react";
 import { SiteHeader } from "../components/SiteHeader.js";
 import { SiteFooter } from "../components/SiteFooter.js";
+import { DiscardConfirmDialog } from "../components/DiscardConfirmDialog.js";
 import {
   type HospitalItem,
   ALL_HOSPITALS,
@@ -89,6 +90,37 @@ export function HospitalsTemplate({ data }: HospitalsTemplateProps) {
     message: ""
   });
   const [isSubmitted, setIsSubmitted] = useState(false);
+  const [showDiscardConfirm, setShowDiscardConfirm] = useState(false);
+
+  const hasHospitalEntries = !isSubmitted && (
+    formData.name.trim().length > 0 ||
+    formData.phone.trim().length > 0 ||
+    formData.email.trim().length > 0 ||
+    formData.message.trim().length > 0
+  );
+
+  const handleHospitalCloseRequest = () => {
+    if (hasHospitalEntries) {
+      setShowDiscardConfirm(true);
+    } else {
+      setIsModalOpen(false);
+      setIsSubmitted(false);
+    }
+  };
+
+  const handleHospitalDiscard = () => {
+    setFormData({
+      name: "",
+      email: "",
+      phone: "",
+      destination: "India",
+      treatment: "General Consultation",
+      message: ""
+    });
+    setIsSubmitted(false);
+    setShowDiscardConfirm(false);
+    setIsModalOpen(false);
+  };
 
   const toggleWishlist = (id: string, e: React.MouseEvent) => {
     e.preventDefault();
@@ -193,7 +225,7 @@ export function HospitalsTemplate({ data }: HospitalsTemplateProps) {
         dangerouslySetInnerHTML={{ __html: JSON.stringify(breadcrumbSchema) }}
       />
 
-      <SiteHeader siteSettings={data.siteSettings} />
+      <SiteHeader siteSettings={data.siteSettings} activePath={data.path || "/hospitals"} />
 
       <main className="flex-1 min-h-0">
         <div className="max-w-[1324px] mx-auto">
@@ -807,10 +839,18 @@ export function HospitalsTemplate({ data }: HospitalsTemplateProps) {
 
       {/* Free Hospital Consultation Modal */}
       {isModalOpen && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-xs animate-in fade-in duration-200">
-          <div className="bg-white rounded-3xl max-w-lg w-full p-6 md:p-8 shadow-2xl relative border border-gray-100">
+        <div
+          role="dialog"
+          aria-modal="true"
+          className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-xs animate-in fade-in duration-200"
+          onClick={handleHospitalCloseRequest}
+        >
+          <div
+            className="bg-white rounded-3xl max-w-lg w-full p-6 md:p-8 shadow-2xl relative border border-gray-100"
+            onClick={(e) => e.stopPropagation()}
+          >
             <button
-              onClick={() => setIsModalOpen(false)}
+              onClick={handleHospitalCloseRequest}
               className="absolute top-5 right-5 text-gray-400 hover:text-gray-700 bg-gray-100 hover:bg-gray-200 rounded-full p-1.5 transition-colors cursor-pointer"
               aria-label="Close modal"
             >
@@ -958,6 +998,13 @@ export function HospitalsTemplate({ data }: HospitalsTemplateProps) {
           </div>
         </div>
       )}
+
+      {/* Discard Confirmation Dialog */}
+      <DiscardConfirmDialog
+        isOpen={showDiscardConfirm}
+        onComplete={() => setShowDiscardConfirm(false)}
+        onDiscard={handleHospitalDiscard}
+      />
     </div>
   );
 }

@@ -103,6 +103,7 @@ export const ThemeProvider: React.FC<{ children: React.ReactNode }> = ({ childre
           socialIconColor: settings.websiteTheme?.socialIconColor || settings.socialIconColor || settings.websiteTheme?.actionColor || settings.actionColor || DEFAULT_WEBSITE_THEME.socialIconColor,
           confidentBannerBgColor: settings.websiteTheme?.confidentBannerBgColor || settings.confidentBannerBgColor || settings.websiteTheme?.actionColor || settings.actionColor || DEFAULT_WEBSITE_THEME.confidentBannerBgColor,
           confidentBannerTextColor: settings.websiteTheme?.confidentBannerTextColor || settings.confidentBannerTextColor || DEFAULT_WEBSITE_THEME.confidentBannerTextColor,
+          navActiveColor: settings.websiteTheme?.navActiveColor || settings.navActiveColor || settings.websiteTheme?.actionColor || settings.actionColor || DEFAULT_WEBSITE_THEME.navActiveColor,
         };
 
         const loadedAdminTheme: AdminTheme = {
@@ -250,6 +251,7 @@ export const ThemeProvider: React.FC<{ children: React.ReactNode }> = ({ childre
           socialIconColor: websiteTheme.socialIconColor,
           confidentBannerBgColor: websiteTheme.confidentBannerBgColor,
           confidentBannerTextColor: websiteTheme.confidentBannerTextColor,
+          navActiveColor: websiteTheme.navActiveColor,
         }),
       });
 

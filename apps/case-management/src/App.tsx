@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useCallback, useMemo } from "react";
+import React, { useState, useEffect, useCallback, useMemo, Suspense, lazy } from "react";
 import { AuthProvider, useAuth } from "./context/AuthContext.js";
 import {
   FeedbackProvider,
@@ -17,11 +17,13 @@ import { AdminLoginView } from "./components/AdminLoginView.js";
 import { Header } from "./components/Header.js";
 import { Sidebar, NavTab } from "./components/Sidebar.js";
 import { PipelineBoard } from "./components/PipelineBoard.js";
-import { CaseDetailModal } from "./components/CaseDetailModal.js";
-import { NewCaseModal } from "./components/NewCaseModal.js";
-import { FinanceWorkspace } from "./components/FinanceWorkspace.js";
-import { ArrowRight, Search, X, RefreshCw, Building2, Users, MapPin, ExternalLink, ShieldCheck } from "lucide-react";
+import { ArrowRight, Search, X, RefreshCw, Building2, Users, MapPin, ExternalLink, ShieldCheck, Loader2 } from "lucide-react";
 import { apiFetch } from "./utils/api.js";
+
+// Lazy-loaded heavy modules for fast initial dashboard paint
+const CaseDetailModal = lazy(() => import("./components/CaseDetailModal.js").then((m) => ({ default: m.CaseDetailModal })));
+const NewCaseModal = lazy(() => import("./components/NewCaseModal.js").then((m) => ({ default: m.NewCaseModal })));
+const FinanceWorkspace = lazy(() => import("./components/FinanceWorkspace.js").then((m) => ({ default: m.FinanceWorkspace })));
 
 const CASE_MANAGEMENT_TOUR_STEPS: TourStep[] = [
   {
@@ -1128,30 +1130,43 @@ const CaseManagementDashboard: React.FC = () => {
           )}
 
           {activeTab === "finance" && (
-            <FinanceWorkspace onRefresh={loadAllData} />
+            <Suspense
+              fallback={
+                <div className="flex items-center justify-center py-20 text-slate-400 gap-2 text-sm font-medium">
+                  <Loader2 className="size-5 animate-spin text-teal-600" />
+                  <span>Loading finance ledger...</span>
+                </div>
+              }
+            >
+              <FinanceWorkspace onRefresh={loadAllData} />
+            </Suspense>
           )}
         </main>
       </div>
 
       {/* Case Detail Modal */}
       {selectedCaseId && (
-        <CaseDetailModal
-          caseId={selectedCaseId}
-          onClose={closeCase}
-          onRefresh={loadAllData}
-        />
+        <Suspense fallback={null}>
+          <CaseDetailModal
+            caseId={selectedCaseId}
+            onClose={closeCase}
+            onRefresh={loadAllData}
+          />
+        </Suspense>
       )}
 
       {/* New Case Intake Modal */}
       {showNewCaseModal && (
-        <NewCaseModal
-          partners={partners}
-          onClose={() => setShowNewCaseModal(false)}
-          onSuccess={() => {
-            setShowNewCaseModal(false);
-            loadAllData();
-          }}
-        />
+        <Suspense fallback={null}>
+          <NewCaseModal
+            partners={partners}
+            onClose={() => setShowNewCaseModal(false)}
+            onSuccess={() => {
+              setShowNewCaseModal(false);
+              loadAllData();
+            }}
+          />
+        </Suspense>
       )}
     </div>
   );

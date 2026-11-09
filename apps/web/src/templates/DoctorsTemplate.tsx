@@ -17,6 +17,7 @@ import {
 } from "lucide-react";
 import { SiteHeader } from "../components/SiteHeader.js";
 import { SiteFooter } from "../components/SiteFooter.js";
+import { DiscardConfirmDialog } from "../components/DiscardConfirmDialog.js";
 import {
   ALL_DOCTORS,
   TOP_DOCTORS,
@@ -90,6 +91,36 @@ export function DoctorsTemplate({ data }: DoctorsTemplateProps) {
     message: ""
   });
   const [isSubmitted, setIsSubmitted] = useState(false);
+  const [showDiscardConfirm, setShowDiscardConfirm] = useState(false);
+
+  const hasDoctorEntries = !isSubmitted && (
+    formData.name.trim().length > 0 ||
+    formData.email.trim().length > 0 ||
+    formData.phone.trim().length > 0 ||
+    formData.message.trim().length > 0
+  );
+
+  const handleDoctorCloseRequest = () => {
+    if (hasDoctorEntries) {
+      setShowDiscardConfirm(true);
+    } else {
+      setIsModalOpen(false);
+      setIsSubmitted(false);
+    }
+  };
+
+  const handleDoctorDiscard = () => {
+    setFormData({
+      name: "",
+      email: "",
+      phone: "",
+      specialty: "General Consultation",
+      message: ""
+    });
+    setIsSubmitted(false);
+    setShowDiscardConfirm(false);
+    setIsModalOpen(false);
+  };
 
   const toggleWishlist = (id: string, e: React.MouseEvent) => {
     e.preventDefault();
@@ -970,11 +1001,20 @@ export function DoctorsTemplate({ data }: DoctorsTemplateProps) {
 
       {/* DOCTOR CONSULTATION MODAL */}
       {isModalOpen && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm animate-in fade-in duration-200">
-          <div className="bg-white rounded-3xl max-w-lg w-full p-6 md:p-8 shadow-2xl relative border border-gray-100">
+        <div
+          role="dialog"
+          aria-modal="true"
+          className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm animate-in fade-in duration-200"
+          onClick={handleDoctorCloseRequest}
+        >
+          <div
+            className="bg-white rounded-3xl max-w-lg w-full p-6 md:p-8 shadow-2xl relative border border-gray-100"
+            onClick={(e) => e.stopPropagation()}
+          >
             <button
-              onClick={() => setIsModalOpen(false)}
+              onClick={handleDoctorCloseRequest}
               className="absolute right-4 top-4 text-gray-400 hover:text-gray-700 p-1.5 rounded-full hover:bg-gray-100 transition-colors cursor-pointer"
+              aria-label="Close doctor consultation dialog"
             >
               <X className="w-5 h-5" />
             </button>
@@ -1102,6 +1142,13 @@ export function DoctorsTemplate({ data }: DoctorsTemplateProps) {
           </div>
         </div>
       )}
+
+      {/* Discard Confirmation Dialog */}
+      <DiscardConfirmDialog
+        isOpen={showDiscardConfirm}
+        onComplete={() => setShowDiscardConfirm(false)}
+        onDiscard={handleDoctorDiscard}
+      />
     </div>
   );
 }

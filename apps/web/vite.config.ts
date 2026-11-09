@@ -6,6 +6,30 @@ import { defineConfig } from "vite"
 // https://vite.dev/config/
 export default defineConfig({
   plugins: [react(), tailwindcss()],
+  build: {
+    chunkSizeWarningLimit: 1000,
+    rollupOptions: {
+      output: {
+        manualChunks(id) {
+          if (id.includes("node_modules")) {
+            if (id.includes("react-dom") || id.includes("react/") || id.includes("react-router")) {
+              return "vendor-react";
+            }
+            if (id.includes("lucide-react")) {
+              return "vendor-icons";
+            }
+            if (id.includes("motion") || id.includes("gsap")) {
+              return "vendor-animation";
+            }
+            if (id.includes("radix-ui") || id.includes("@radix-ui")) {
+              return "vendor-radix";
+            }
+            return "vendor-core";
+          }
+        },
+      },
+    },
+  },
   resolve: {
     alias: {
       "@": resolve(import.meta.dirname, "./src"),

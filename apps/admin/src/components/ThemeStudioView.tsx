@@ -436,6 +436,12 @@ export const ThemeStudioView: React.FC = () => {
                       description="Controls text & subtitle color inside the Confident Decisions banner pill"
                     />
                     <ColorField
+                      label="Navigation Active Link Color"
+                      value={websiteTheme.navActiveColor || websiteTheme.actionColor || "#007A6C"}
+                      onChange={(v) => updateWebsiteToken("navActiveColor", v)}
+                      description="Controls highlighted color for active navigation links (Treatments, Hospitals, Doctors, etc.)"
+                    />
+                    <ColorField
                       label="Emergency / Urgent Notice Color"
                       value={websiteTheme.emergencyColor}
                       onChange={(v) => updateWebsiteToken("emergencyColor", v)}

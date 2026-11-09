@@ -1,21 +1,27 @@
-import React, { useState, useEffect, useCallback } from "react";
-import { ShieldAlert, ArrowRight, LogOut } from "lucide-react";
+import React, { useState, useEffect, useCallback, Suspense, lazy } from "react";
+import { ShieldAlert, ArrowRight, LogOut, Loader2 } from "lucide-react";
 import { AuthProvider, useAuth } from "./context/AuthContext.js";
 import { ThemeProvider } from "./context/ThemeContext.js";
 import { FeedbackProvider, TourProvider, useTour, TourStep } from "@akeezo/ui";
 import { AdminLoginView } from "./components/AdminLoginView.js";
 import { SuperAdminHeader } from "./components/SuperAdminHeader.js";
 import { SuperAdminSidebar, AdminTab } from "./components/SuperAdminSidebar.js";
-import { DashboardView } from "./components/DashboardView.js";
-import { ContentView } from "./components/ContentView.js";
-import { MediaLibraryView } from "./components/MediaLibraryView.js";
-import { EnquiriesView } from "./components/EnquiriesView.js";
-import { SeoRedirectsView } from "./components/SeoRedirectsView.js";
-import { UsersRolesView } from "./components/UsersRolesView.js";
-import { ActivityLogView } from "./components/ActivityLogView.js";
-import { SettingsView } from "./components/SettingsView.js";
-import { CaseManagementSuperAdminView } from "./components/CaseManagementSuperAdminView.js";
-import { ProfileSecurityModal } from "./components/ProfileSecurityModal.js";
+
+// Lazy-loaded Admin Modules for Optimal Code-Splitting and Fast Initial Load
+const DashboardView = lazy(() => import("./components/DashboardView.js").then((m) => ({ default: m.DashboardView })));
+const ContentView = lazy(() => import("./components/ContentView.js").then((m) => ({ default: m.ContentView })));
+const MediaLibraryView = lazy(() => import("./components/MediaLibraryView.js").then((m) => ({ default: m.MediaLibraryView })));
+const EnquiriesView = lazy(() => import("./components/EnquiriesView.js").then((m) => ({ default: m.EnquiriesView })));
+const SeoRedirectsView = lazy(() => import("./components/SeoRedirectsView.js").then((m) => ({ default: m.SeoRedirectsView })));
+const UsersRolesView = lazy(() => import("./components/UsersRolesView.js").then((m) => ({ default: m.UsersRolesView })));
+const ActivityLogView = lazy(() => import("./components/ActivityLogView.js").then((m) => ({ default: m.ActivityLogView })));
+const SettingsView = lazy(() => import("./components/SettingsView.js").then((m) => ({ default: m.SettingsView })));
+const CaseManagementSuperAdminView = lazy(() =>
+  import("./components/CaseManagementSuperAdminView.js").then((m) => ({ default: m.CaseManagementSuperAdminView }))
+);
+const ProfileSecurityModal = lazy(() =>
+  import("./components/ProfileSecurityModal.js").then((m) => ({ default: m.ProfileSecurityModal }))
+);
 
 const ADMIN_TOUR_STEPS: TourStep[] = [
   {
@@ -303,72 +309,85 @@ const SuperAdminDashboard: React.FC = () => {
             color: "var(--admin-text, #1E293B)",
           }}
         >
-          {/* Module 1: Dashboard Overview */}
-          {activeTab === "overview" && (
-            <DashboardView
-              onSelectTab={selectTab}
-              onCreatePage={() => selectTab("content")}
-            />
-          )}
+          <Suspense
+            fallback={
+              <div className="flex items-center justify-center py-20 text-slate-400 gap-2 text-sm font-medium">
+                <Loader2 className="size-5 animate-spin text-teal-600" />
+                <span>Loading workspace...</span>
+              </div>
+            }
+          >
+            {/* Module 1: Dashboard Overview */}
+            {activeTab === "overview" && (
+              <DashboardView
+                onSelectTab={selectTab}
+                onCreatePage={() => selectTab("content")}
+              />
+            )}
 
-          {/* Module 2: Content (Pages, Blog & Navigation) */}
-          {activeTab === "content" && (
-            <ContentView
-              initialSubTab={
-                typeof window !== "undefined" && window.location.pathname.startsWith("/admin/blog")
-                  ? "blog"
-                  : undefined
-              }
-              initialCreateModal={openBlogModal}
-            />
-          )}
+            {/* Module 2: Content (Pages, Blog & Navigation) */}
+            {activeTab === "content" && (
+              <ContentView
+                initialSubTab={
+                  typeof window !== "undefined" && window.location.pathname.startsWith("/admin/blog")
+                    ? "blog"
+                    : undefined
+                }
+                initialCreateModal={openBlogModal}
+              />
+            )}
 
-          {/* Module 3: Media Library */}
-          {activeTab === "media" && <MediaLibraryView />}
+            {/* Module 3: Media Library */}
+            {activeTab === "media" && <MediaLibraryView />}
 
-          {/* Module 4: Enquiries / Leads */}
-          {activeTab === "enquiries" && <EnquiriesView />}
+            {/* Module 4: Enquiries / Leads */}
+            {activeTab === "enquiries" && <EnquiriesView />}
 
-          {/* Module 5: SEO & Redirects */}
-          {activeTab === "seo" && <SeoRedirectsView />}
+            {/* Module 5: SEO & Redirects */}
+            {activeTab === "seo" && <SeoRedirectsView />}
 
-          {/* Module 6: Users & Roles */}
-          {activeTab === "users" && <UsersRolesView />}
+            {/* Module 6: Users & Roles */}
+            {activeTab === "users" && <UsersRolesView />}
 
-          {/* Module 7: Activity Log & Platform Changelogs */}
-          {activeTab === "activity" && (
-            <ActivityLogView
-              initialTab={
-                typeof window !== "undefined" && window.location.pathname.startsWith("/admin/changelog")
-                  ? "changelog"
-                  : undefined
-              }
-              initialCreateModal={openChangelogModal}
-            />
-          )}
+            {/* Module 7: Activity Log & Platform Changelogs */}
+            {activeTab === "activity" && (
+              <ActivityLogView
+                initialTab={
+                  typeof window !== "undefined" && window.location.pathname.startsWith("/admin/changelog")
+                    ? "changelog"
+                    : undefined
+                }
+                initialCreateModal={openChangelogModal}
+              />
+            )}
 
-          {/* Module 8: System Settings & Integrations */}
-          {activeTab === "settings" && (
-            <SettingsView
-              initialTab={
-                typeof window !== "undefined" && window.location.pathname.startsWith("/admin/integrations")
-                  ? "integrations"
-                  : undefined
-              }
-            />
-          )}
+            {/* Module 8: System Settings & Integrations */}
+            {activeTab === "settings" && (
+              <SettingsView
+                initialTab={
+                  typeof window !== "undefined" && window.location.pathname.startsWith("/admin/integrations")
+                    ? "integrations"
+                    : undefined
+                }
+              />
+            )}
 
-          {/* Integrated Case Management CMS Super Admin View */}
-          {activeTab === "cases-admin" && <CaseManagementSuperAdminView />}
+            {/* Integrated Case Management CMS Super Admin View */}
+            {activeTab === "cases-admin" && <CaseManagementSuperAdminView />}
+          </Suspense>
         </main>
       </div>
 
       {/* Account & Security Modal */}
-      <ProfileSecurityModal
-        isOpen={profileModalOpen}
-        initialTab={profileModalInitialTab}
-        onClose={() => setProfileModalOpen(false)}
-      />
+      {profileModalOpen && (
+        <Suspense fallback={null}>
+          <ProfileSecurityModal
+            isOpen={profileModalOpen}
+            initialTab={profileModalInitialTab}
+            onClose={() => setProfileModalOpen(false)}
+          />
+        </Suspense>
+      )}
     </div>
   );
 };
