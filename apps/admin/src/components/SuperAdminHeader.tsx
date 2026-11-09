@@ -27,6 +27,7 @@ import {
 } from "lucide-react";
 import { useAuth } from "../context/AuthContext.js";
 import { AdminTab } from "./SuperAdminSidebar.js";
+import { NotificationPopover } from "./NotificationPopover.js";
 
 interface HeaderProps {
   activeTab: AdminTab;
@@ -67,6 +68,7 @@ export const SuperAdminHeader: React.FC<HeaderProps> = ({
   const [profileDropdownOpen, setProfileDropdownOpen] = useState(false);
   const [createDropdownOpen, setCreateDropdownOpen] = useState(false);
   const [notificationsOpen, setNotificationsOpen] = useState(false);
+  const [unreadCount, setUnreadCount] = useState(0);
   const [searchFocused, setSearchFocused] = useState(false);
   const [recentActivities, setRecentActivities] = useState<any[]>([]);
 
@@ -115,6 +117,7 @@ export const SuperAdminHeader: React.FC<HeaderProps> = ({
     treatments: { title: "Medical Treatments", subtitle: "Procedures, recovery times & cost benchmarks" },
     destinations: { title: "Medical Destinations", subtitle: "International travel hubs & country savings" },
     blog: { title: "Blog & Healthcare Guides", subtitle: "Medical knowledge hub & real-time SEO studio" },
+    community: { title: "Community Q&A & Patient Stories", subtitle: "Peer discussions, doctor answers & moderation" },
     content: { title: "Content Management", subtitle: "Public pages, section schemas & navigation" },
     media: { title: "Media Library", subtitle: "Digital assets, storage & secure delivery" },
     enquiries: { title: "Website Enquiries", subtitle: "Form leads, triage & CRM case conversion" },
@@ -405,54 +408,19 @@ export const SuperAdminHeader: React.FC<HeaderProps> = ({
             aria-expanded={notificationsOpen}
           >
             <Bell className="w-4 h-4" />
-            {recentActivities.length > 0 && (
-              <span className="absolute top-1.5 right-1.5 w-2 h-2 rounded-full bg-[#FF6B00]" />
+            {unreadCount > 0 && (
+              <span className="absolute -top-1 -right-1 min-w-[18px] h-[18px] bg-[#FF6B00] text-white text-[10px] font-black rounded-full flex items-center justify-center px-1 shadow-xs border-2 border-white ring-1 ring-orange-200">
+                {unreadCount > 99 ? "99+" : unreadCount}
+              </span>
             )}
           </button>
 
-          {notificationsOpen && (
-            <div className="absolute right-0 mt-1.5 w-80 bg-white border border-slate-200 rounded-2xl shadow-xl p-3 z-50 text-xs animate-in fade-in zoom-in-95 duration-100 font-sans">
-              <div className="flex items-center justify-between pb-2 border-b border-slate-100">
-                <span className="font-bold text-slate-800">Recent Admin Activity</span>
-                <button
-                  onClick={() => {
-                    setNotificationsOpen(false);
-                    onSelectTab("activity");
-                  }}
-                  className="text-[11px] text-[#007A6C] font-bold hover:underline"
-                >
-                  View All Log
-                </button>
-              </div>
-
-              <div className="mt-2 space-y-2 max-h-64 overflow-y-auto">
-                {recentActivities.length === 0 ? (
-                  <div className="py-4 text-center text-slate-400 text-xs">
-                    No recent audit activity recorded yet.
-                  </div>
-                ) : (
-                  recentActivities.map((act) => (
-                    <div
-                      key={act._id}
-                      className="p-2 rounded-xl bg-slate-50 hover:bg-slate-100/80 transition text-[11px] space-y-0.5"
-                    >
-                      <div className="flex items-center justify-between">
-                        <span className="font-semibold text-slate-900 capitalize">
-                          {act.action} {act.module}
-                        </span>
-                        <span className="text-[10px] text-slate-400">
-                          {new Date(act.createdAt).toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" })}
-                        </span>
-                      </div>
-                      <div className="text-slate-500 text-[10px] truncate">
-                        Actor: {act.actorId?.name || act.actorId?.email || "System Administrator"}
-                      </div>
-                    </div>
-                  ))
-                )}
-              </div>
-            </div>
-          )}
+          <NotificationPopover
+            isOpen={notificationsOpen}
+            onClose={() => setNotificationsOpen(false)}
+            onSelectTab={onSelectTab}
+            onUnreadCountChange={setUnreadCount}
+          />
         </div>
 
         <div className="h-6 w-px bg-slate-200 hidden sm:block" />

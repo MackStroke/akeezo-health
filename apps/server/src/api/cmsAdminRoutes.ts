@@ -20,7 +20,9 @@ import {
   ChangelogModel,
   BlogPostModel,
   QuoteModel,
+  CommunityThreadModel,
 } from "../db/models/index.js";
+import { CURATED_COMMUNITY_THREADS } from "@akeezo/contracts";
 import {
   hashPassword,
   verifyPassword,
@@ -481,6 +483,210 @@ cmsAdminRouter.get("/overview-stats", async (_req: Request, res: Response) => {
   } catch (err: any) {
     res.status(500).json({ error: { code: "STATS_FAILED", message: err.message } });
   }
+});
+
+// ==========================================
+// 0.1 SUPER ADMIN NOTIFICATIONS CENTER
+// ==========================================
+
+const userReadNotifications = new Map<string, Set<string>>();
+const userDismissedNotifications = new Map<string, Set<string>>();
+
+function getUserReadSet(userId: string): Set<string> {
+  if (!userReadNotifications.has(userId)) {
+    userReadNotifications.set(userId, new Set<string>());
+  }
+  return userReadNotifications.get(userId)!;
+}
+
+function getUserDismissedSet(userId: string): Set<string> {
+  if (!userDismissedNotifications.has(userId)) {
+    userDismissedNotifications.set(userId, new Set<string>());
+  }
+  return userDismissedNotifications.get(userId)!;
+}
+
+// GET /api/v1/admin/notifications
+cmsAdminRouter.get("/notifications", async (req: Request, res: Response) => {
+  try {
+    const authReq = req as AuthenticatedRequest;
+    const userId = authReq.user?._id?.toString() || "default_admin";
+    const readSet = getUserReadSet(userId);
+    const dismissedSet = getUserDismissedSet(userId);
+
+    const notifications: any[] = [];
+
+    if (mongoose.connection.readyState === 1) {
+      // 1. Inbound Patient Leads & Enquiries
+      const recentEnquiries = await EnquiryModel.find()
+        .sort({ createdAt: -1 })
+        .limit(10)
+        .lean();
+
+      recentEnquiries.forEach((e) => {
+        const id = `enq_${e._id}`;
+        if (dismissedSet.has(id)) return;
+        const isUrgent = e.status === "received" || e.status === "triage" || e.status === "new";
+        notifications.push({
+          id,
+          title: `New Patient Inquiry: ${e.requesterName || "Anonymous"}`,
+          message: `${(e.serviceType || "medical_tourism").replace(/_/g, " ")} inquiry received${e.country ? ` from ${e.country}` : ""}. Status: ${e.status}`,
+          category: "lead",
+          severity: isUrgent ? "urgent" : "info",
+          targetTab: "enquiries",
+          targetId: String(e._id),
+          actionLabel: "Triage Inquiry",
+          createdAt: e.createdAt,
+          isRead: readSet.has(id),
+          meta: {
+            requesterName: e.requesterName,
+            serviceType: e.serviceType,
+            status: e.status,
+            receiptId: e.receiptId,
+          },
+        });
+      });
+
+      // 2. Case Management & Hospital Quotes
+      const [recentCases, recentQuotes] = await Promise.all([
+        CaseModel.find().sort({ updatedAt: -1 }).limit(6).lean(),
+        QuoteModel.find().sort({ updatedAt: -1 }).limit(5).populate("hospitalId", "name").lean(),
+      ]);
+
+      recentCases.forEach((c) => {
+        const id = `case_${c._id}`;
+        if (dismissedSet.has(id)) return;
+        notifications.push({
+          id,
+          title: `Case #${c.caseCode || "AKZ"}: ${(c.specialty || "Clinical Care").replace(/_/g, " ")}`,
+          message: `Active case in stage "${(c.stage || "inquiry").replace(/_/g, " ")}"${c.preferredCity ? ` in ${c.preferredCity}` : ""}. Urgency: ${c.urgency || "standard"}`,
+          category: "case",
+          severity: c.urgency === "priority" ? "warning" : "info",
+          targetTab: "overview",
+          targetUrl: "/case-management/",
+          actionLabel: "View Case",
+          createdAt: c.updatedAt || c.createdAt,
+          isRead: readSet.has(id),
+          meta: {
+            caseCode: c.caseCode,
+            stage: c.stage,
+            specialty: c.specialty,
+          },
+        });
+      });
+
+      recentQuotes.forEach((q) => {
+        const id = `quote_${q._id}`;
+        if (dismissedSet.has(id)) return;
+        const hospitalName = (q.hospitalId as any)?.name || "Partner Hospital";
+        notifications.push({
+          id,
+          title: `Hospital Quote: ${hospitalName}`,
+          message: `Treatment estimate received with ${q.estimatedStayDays || 14} days stay. Quote version v${q.version || 1}.`,
+          category: "case",
+          severity: q.isSelected ? "success" : "info",
+          targetTab: "overview",
+          targetUrl: "/case-management/",
+          actionLabel: "Compare Quotes",
+          createdAt: q.updatedAt || q.receivedAt || q.createdAt,
+          isRead: readSet.has(id),
+          meta: {
+            hospitalName,
+            isSelected: q.isSelected,
+          },
+        });
+      });
+
+      // 3. Draft Revisions Awaiting Publication
+      const draftPages = await Page.find({ status: "draft" }).lean();
+      draftPages.forEach((p) => {
+        const id = `draft_${p._id}`;
+        if (dismissedSet.has(id)) return;
+        notifications.push({
+          id,
+          title: `Unpublished Draft: ${p.slug.toUpperCase()} Page`,
+          message: `Page "${p.slug}" has staged revisions awaiting review and live publication.`,
+          category: "content",
+          severity: "warning",
+          targetTab: p.slug === "doctors" ? "doctors" : p.slug === "hospitals" ? "hospitals" : p.slug === "treatments" ? "treatments" : "content",
+          actionLabel: "Review Draft",
+          createdAt: p.updatedAt || p.createdAt,
+          isRead: readSet.has(id),
+          meta: { slug: p.slug },
+        });
+      });
+
+      // 4. System Security & Audit Activity
+      const recentAudit = await CaseAuditLogModel.find()
+        .sort({ occurredAt: -1 })
+        .limit(5)
+        .populate("actorId", "name email role")
+        .lean();
+
+      recentAudit.forEach((a) => {
+        const id = `audit_${a._id}`;
+        if (dismissedSet.has(id)) return;
+        const actor = (a.actorId as any)?.name || (a.actorId as any)?.email || "Administrator";
+        notifications.push({
+          id,
+          title: `Audit: ${a.action.toUpperCase()} ${a.entityType || "Record"}`,
+          message: `Administrative action executed by ${actor}. IP: ${a.ip || "127.0.0.1"}`,
+          category: "system",
+          severity: a.action === "delete" ? "warning" : "info",
+          targetTab: "activity",
+          actionLabel: "View Audit Log",
+          createdAt: a.occurredAt || a.createdAt,
+          isRead: readSet.has(id),
+          meta: { action: a.action, entityType: a.entityType },
+        });
+      });
+    }
+
+    // Sort by createdAt descending
+    notifications.sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime());
+
+    const unreadCount = notifications.filter((n) => !n.isRead).length;
+
+    res.json({
+      data: {
+        notifications,
+        unreadCount,
+        totalCount: notifications.length,
+      },
+    });
+  } catch (err: any) {
+    res.status(500).json({ error: { code: "NOTIFICATIONS_FAILED", message: err.message } });
+  }
+});
+
+// PATCH /api/v1/admin/notifications/:id/read
+cmsAdminRouter.patch("/notifications/:id/read", async (req: Request, res: Response) => {
+  const authReq = req as AuthenticatedRequest;
+  const userId = authReq.user?._id?.toString() || "default_admin";
+  const id = req.params.id;
+  const readSet = getUserReadSet(userId);
+  readSet.add(id);
+  res.json({ data: { success: true, id, isRead: true } });
+});
+
+// POST /api/v1/admin/notifications/mark-all-read
+cmsAdminRouter.post("/notifications/mark-all-read", async (req: Request, res: Response) => {
+  const authReq = req as AuthenticatedRequest;
+  const userId = authReq.user?._id?.toString() || "default_admin";
+  const readSet = getUserReadSet(userId);
+  const ids: string[] = Array.isArray(req.body.ids) ? req.body.ids : [];
+  ids.forEach((id) => readSet.add(id));
+  res.json({ data: { success: true, markedCount: ids.length } });
+});
+
+// DELETE /api/v1/admin/notifications/:id
+cmsAdminRouter.delete("/notifications/:id", async (req: Request, res: Response) => {
+  const authReq = req as AuthenticatedRequest;
+  const userId = authReq.user?._id?.toString() || "default_admin";
+  const id = req.params.id;
+  const dismissedSet = getUserDismissedSet(userId);
+  dismissedSet.add(id);
+  res.json({ data: { success: true, id, dismissed: true } });
 });
 
 // ==========================================
@@ -4490,3 +4696,260 @@ cmsAdminRouter.post("/profile/password", async (req: Request, res: Response) => 
     res.status(400).json({ error: { code: "CHANGE_PASSWORD_FAILED", message: err.message } });
   }
 });
+
+// ==========================================
+// Community & Q&A Discussion Moderation Endpoints
+// ==========================================
+
+// GET /api/v1/admin/community
+cmsAdminRouter.get("/community", requireAuth, async (req: Request, res: Response) => {
+  try {
+    const status = (req.query.status as string) || "all";
+    const category = (req.query.category as string) || "all";
+    const search = ((req.query.search as string) || "").trim().toLowerCase();
+
+    if (mongoose.connection.readyState === 1) {
+      const filter: Record<string, any> = {};
+      if (status !== "all") filter.status = status;
+      if (category !== "all") filter.category = category;
+      if (search) {
+        filter.$or = [
+          { title: { $regex: search, $options: "i" } },
+          { content: { $regex: search, $options: "i" } },
+          { "author.name": { $regex: search, $options: "i" } },
+        ];
+      }
+
+      const threads = await CommunityThreadModel.find(filter)
+        .sort({ isPinned: -1, createdAt: -1 })
+        .lean();
+
+      const [totalCount, publishedCount, pendingCount, hiddenCount, doctorAnsweredCount, storiesCount] =
+        await Promise.all([
+          CommunityThreadModel.countDocuments(),
+          CommunityThreadModel.countDocuments({ status: "published" }),
+          CommunityThreadModel.countDocuments({ status: "pending_review" }),
+          CommunityThreadModel.countDocuments({ status: "hidden" }),
+          CommunityThreadModel.countDocuments({ isDoctorAnswered: true }),
+          CommunityThreadModel.countDocuments({ isStory: true }),
+        ]);
+
+      return res.json({
+        data: {
+          threads,
+          stats: {
+            total: totalCount,
+            published: publishedCount,
+            pending: pendingCount,
+            hidden: hiddenCount,
+            doctorAnswered: doctorAnsweredCount,
+            stories: storiesCount,
+          },
+        },
+      });
+    }
+
+    // Fallback response
+    let items = [...CURATED_COMMUNITY_THREADS];
+    if (status !== "all") items = items.filter((t) => t.status === status);
+    if (category !== "all") items = items.filter((t) => t.category === category);
+    if (search) {
+      items = items.filter(
+        (t) =>
+          t.title.toLowerCase().includes(search) ||
+          t.content.toLowerCase().includes(search) ||
+          t.author.name.toLowerCase().includes(search)
+      );
+    }
+
+    return res.json({
+      data: {
+        threads: items,
+        stats: {
+          total: CURATED_COMMUNITY_THREADS.length,
+          published: CURATED_COMMUNITY_THREADS.filter((t) => t.status === "published").length,
+          pending: CURATED_COMMUNITY_THREADS.filter((t) => t.status === "pending_review").length,
+          hidden: CURATED_COMMUNITY_THREADS.filter((t) => t.status === "hidden").length,
+          doctorAnswered: CURATED_COMMUNITY_THREADS.filter((t) => t.isDoctorAnswered).length,
+          stories: CURATED_COMMUNITY_THREADS.filter((t) => t.isStory).length,
+        },
+      },
+    });
+  } catch (err: any) {
+    console.error("[Admin Community List Error]:", err);
+    res.status(500).json({ error: { code: "SERVER_ERROR", message: "Failed to fetch community discussions" } });
+  }
+});
+
+// PATCH /api/v1/admin/community/:id/status
+cmsAdminRouter.patch("/community/:id/status", requireAuth, async (req: Request, res: Response) => {
+  try {
+    const { id } = req.params;
+    const { status } = req.body;
+    if (!["published", "pending_review", "hidden"].includes(status)) {
+      return res.status(400).json({ error: { code: "INVALID_STATUS", message: "Invalid status value" } });
+    }
+
+    if (mongoose.connection.readyState === 1) {
+      const updated = await CommunityThreadModel.findOneAndUpdate(
+        { $or: [{ _id: mongoose.isValidObjectId(id) ? id : undefined }, { id }, { slug: id }] },
+        { $set: { status } },
+        { new: true }
+      ).lean();
+
+      if (!updated) {
+        return res.status(404).json({ error: { code: "NOT_FOUND", message: "Thread not found" } });
+      }
+
+      return res.json({ data: updated, message: `Thread status updated to ${status}` });
+    }
+
+    const fallback = CURATED_COMMUNITY_THREADS.find((t) => t.id === id || t.slug === id);
+    if (fallback) {
+      fallback.status = status;
+      return res.json({ data: fallback, message: `Thread status updated to ${status}` });
+    }
+
+    res.status(404).json({ error: { code: "NOT_FOUND", message: "Thread not found" } });
+  } catch (err: any) {
+    res.status(500).json({ error: { code: "SERVER_ERROR", message: err.message } });
+  }
+});
+
+// PATCH /api/v1/admin/community/:id/pin
+cmsAdminRouter.patch("/community/:id/pin", requireAuth, async (req: Request, res: Response) => {
+  try {
+    const { id } = req.params;
+    const { isPinned } = req.body;
+
+    if (mongoose.connection.readyState === 1) {
+      const updated = await CommunityThreadModel.findOneAndUpdate(
+        { $or: [{ _id: mongoose.isValidObjectId(id) ? id : undefined }, { id }, { slug: id }] },
+        { $set: { isPinned: Boolean(isPinned) } },
+        { new: true }
+      ).lean();
+
+      if (!updated) {
+        return res.status(404).json({ error: { code: "NOT_FOUND", message: "Thread not found" } });
+      }
+
+      return res.json({ data: updated, message: isPinned ? "Thread pinned to top" : "Thread unpinned" });
+    }
+
+    const fallback = CURATED_COMMUNITY_THREADS.find((t) => t.id === id || t.slug === id);
+    if (fallback) {
+      fallback.isPinned = Boolean(isPinned);
+      return res.json({ data: fallback, message: isPinned ? "Thread pinned to top" : "Thread unpinned" });
+    }
+
+    res.status(404).json({ error: { code: "NOT_FOUND", message: "Thread not found" } });
+  } catch (err: any) {
+    res.status(500).json({ error: { code: "SERVER_ERROR", message: err.message } });
+  }
+});
+
+// POST /api/v1/admin/community/:id/doctor-reply
+cmsAdminRouter.post("/community/:id/doctor-reply", requireAuth, async (req: Request, res: Response) => {
+  try {
+    const { id } = req.params;
+    const { doctorName, doctorSpecialty, hospitalName, doctorId, content } = req.body;
+
+    if (!doctorName || !content) {
+      return res.status(400).json({ error: { code: "INVALID_INPUT", message: "Doctor name and reply content are required." } });
+    }
+
+    const newReply = {
+      id: `rep-doc-${Date.now()}`,
+      author: {
+        name: doctorName,
+        role: "doctor" as const,
+        doctorId,
+        specialty: doctorSpecialty || "Consultant Specialist",
+        hospitalName: hospitalName || "Accredited Hospital",
+        avatar: "/uploads/doctors/doctor-2220.jpg",
+      },
+      content,
+      upvotes: 0,
+      isVerifiedDoctorResponse: true,
+      createdAt: new Date().toISOString(),
+    };
+
+    if (mongoose.connection.readyState === 1) {
+      const updated = await CommunityThreadModel.findOneAndUpdate(
+        { $or: [{ _id: mongoose.isValidObjectId(id) ? id : undefined }, { id }, { slug: id }] },
+        {
+          $push: { replies: newReply },
+          $inc: { repliesCount: 1 },
+          $set: {
+            isDoctorAnswered: true,
+            doctorAnswerPreview: {
+              doctorId,
+              doctorName,
+              doctorSpecialty: doctorSpecialty || "Consultant Specialist",
+              hospitalName: hospitalName || "Accredited Hospital",
+              doctorImage: "/uploads/doctors/doctor-2220.jpg",
+              answerSnippet: content.slice(0, 160) + (content.length > 160 ? "..." : ""),
+            },
+          },
+        },
+        { new: true }
+      ).lean();
+
+      if (!updated) {
+        return res.status(404).json({ error: { code: "NOT_FOUND", message: "Thread not found" } });
+      }
+
+      return res.status(201).json({ data: updated, message: "Doctor answer attached successfully!" });
+    }
+
+    const fallback = CURATED_COMMUNITY_THREADS.find((t) => t.id === id || t.slug === id);
+    if (fallback) {
+      fallback.replies.push(newReply as any);
+      fallback.repliesCount += 1;
+      fallback.isDoctorAnswered = true;
+      fallback.doctorAnswerPreview = {
+        doctorId,
+        doctorName,
+        doctorSpecialty: doctorSpecialty || "Consultant Specialist",
+        hospitalName: hospitalName || "Accredited Hospital",
+        doctorImage: "/uploads/doctors/doctor-2220.jpg",
+        answerSnippet: content.slice(0, 160) + (content.length > 160 ? "..." : ""),
+      };
+      return res.status(201).json({ data: fallback, message: "Doctor answer attached successfully!" });
+    }
+
+    res.status(404).json({ error: { code: "NOT_FOUND", message: "Thread not found" } });
+  } catch (err: any) {
+    res.status(500).json({ error: { code: "SERVER_ERROR", message: err.message } });
+  }
+});
+
+// DELETE /api/v1/admin/community/:id
+cmsAdminRouter.delete("/community/:id", requireAuth, async (req: Request, res: Response) => {
+  try {
+    const { id } = req.params;
+
+    if (mongoose.connection.readyState === 1) {
+      const deleted = await CommunityThreadModel.findOneAndDelete({
+        $or: [{ _id: mongoose.isValidObjectId(id) ? id : undefined }, { id }, { slug: id }],
+      }).lean();
+
+      if (!deleted) {
+        return res.status(404).json({ error: { code: "NOT_FOUND", message: "Thread not found" } });
+      }
+
+      return res.json({ data: { success: true }, message: "Thread deleted successfully" });
+    }
+
+    const idx = CURATED_COMMUNITY_THREADS.findIndex((t) => t.id === id || t.slug === id);
+    if (idx !== -1) {
+      CURATED_COMMUNITY_THREADS.splice(idx, 1);
+      return res.json({ data: { success: true }, message: "Thread deleted successfully" });
+    }
+
+    res.status(404).json({ error: { code: "NOT_FOUND", message: "Thread not found" } });
+  } catch (err: any) {
+    res.status(500).json({ error: { code: "SERVER_ERROR", message: err.message } });
+  }
+});
+
