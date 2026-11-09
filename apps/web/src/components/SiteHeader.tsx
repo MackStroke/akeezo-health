@@ -7,7 +7,6 @@ import {
   ChevronRight,
   Calculator,
   Check,
-  PhoneCall,
   Phone,
   Building2,
   Globe2,
@@ -562,10 +561,17 @@ export const SiteHeader: React.FC<SiteHeaderProps> = ({
                   href={`https://wa.me/${phoneClean}?text=Hello%20Akeezo%20Care%20Desk`}
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="w-full inline-flex h-11 items-center justify-center rounded-full bg-action text-xs font-bold text-white shadow-sm hover:bg-action-hover"
+                  className="w-full inline-flex h-11 items-center justify-center rounded-full bg-action text-xs font-bold text-white shadow-sm hover:bg-action-hover gap-2"
                 >
-                  <PhoneCall className="size-4 mr-2" />
-                  WhatsApp 24/7 Desk
+                  <svg className="size-4 fill-current shrink-0" viewBox="0 0 24 24" aria-hidden="true">
+                    <path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.501-.669-.51l-.57-.01c-.198 0-.52.074-.792.372s-1.04 1.016-1.04 2.479 1.065 2.876 1.213 3.074c.149.198 2.095 3.2 5.076 4.487.709.306 1.263.489 1.694.626.712.226 1.36.194 1.872.118.571-.085 1.758-.719 2.006-1.413.248-.695.248-1.29.173-1.414-.074-.124-.272-.198-.57-.347z" />
+                    <path
+                      fillRule="evenodd"
+                      clipRule="evenodd"
+                      d="M12 0C5.373 0 0 5.373 0 12c0 2.119.553 4.11 1.519 5.842L.055 23.361l5.688-1.491A11.936 11.936 0 0012 24c6.627 0 12-5.373 12-12S18.627 0 12 0zm0 22c-1.83 0-3.551-.482-5.05-1.325l-.362-.202-3.37.884.899-3.284-.236-.375A9.953 9.953 0 012 12C2 6.477 6.477 2 12 2s10 4.477 10 10-4.477 10-10 10z"
+                    />
+                  </svg>
+                  <span>WhatsApp 24/7 Desk</span>
                 </a>
               </div>
             </div>
