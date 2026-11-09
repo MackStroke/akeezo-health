@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import type { SiteSettings } from "@akeezo/contracts";
 import {
   ChevronDown,
@@ -26,6 +26,11 @@ import {
   DIRECTORY_TABS,
   type CountryOption
 } from "./navigationData.js";
+import {
+  applyLanguageTranslation,
+  getSavedLanguageCode,
+  initGoogleTranslate
+} from "./translation.js";
 
 const getTreatmentIcon = (name: string, category: string) => {
   const lowerName = name.toLowerCase();
@@ -88,6 +93,17 @@ export const SiteFooter: React.FC<SiteFooterProps> = ({ siteSettings = {} }) => 
   const [isCountryLangOpen, setIsCountryLangOpen] = useState(false);
   const [switcherTab, setSwitcherTab] = useState<"currency" | "language">("currency");
   const [switcherSearch, setSwitcherSearch] = useState("");
+
+  useEffect(() => {
+    const savedCode = getSavedLanguageCode();
+    if (savedCode && savedCode !== "en") {
+      const match = LANGUAGES.find((l) => l.code.toLowerCase() === savedCode);
+      if (match) {
+        setSelectedLanguage(match);
+      }
+      initGoogleTranslate();
+    }
+  }, []);
 
   const filteredCountries = COUNTRIES.filter(
     (c) =>
@@ -800,6 +816,7 @@ export const SiteFooter: React.FC<SiteFooterProps> = ({ siteSettings = {} }) => 
                       onClick={() => {
                         setSelectedLanguage(l);
                         setIsCountryLangOpen(false);
+                        applyLanguageTranslation(l.code);
                       }}
                       className={`w-full flex items-center justify-between px-3 py-2.5 text-left rounded-lg transition-colors cursor-pointer hover:bg-surface-teal/30 ${
                         isSelected ? "bg-surface-teal/50 font-bold" : ""

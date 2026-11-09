@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import type { SiteSettings } from "@akeezo/contracts";
 import {
   Search,
@@ -11,6 +11,7 @@ import {
   Phone,
   Building2,
   Globe2,
+  Languages,
   User2
 } from "lucide-react";
 import {
@@ -20,6 +21,11 @@ import {
   formatEstimate,
   type CountryOption
 } from "./navigationData.js";
+import {
+  applyLanguageTranslation,
+  getSavedLanguageCode,
+  initGoogleTranslate
+} from "./translation.js";
 
 export interface SiteHeaderProps {
   siteSettings?: Partial<SiteSettings>;
@@ -48,6 +54,18 @@ export const SiteHeader: React.FC<SiteHeaderProps> = ({
   const [isCountryLangOpen, setIsCountryLangOpen] = useState(false);
   const [switcherTab, setSwitcherTab] = useState<"currency" | "language">("currency");
   const [switcherSearch, setSwitcherSearch] = useState("");
+  const [translateImgError, setTranslateImgError] = useState(false);
+
+  useEffect(() => {
+    const savedCode = getSavedLanguageCode();
+    if (savedCode && savedCode !== "en") {
+      const match = LANGUAGES.find((l) => l.code.toLowerCase() === savedCode);
+      if (match) {
+        setSelectedLanguage(match);
+      }
+      initGoogleTranslate();
+    }
+  }, []);
 
   // Interactive Modals (controlled or internal)
   const [internalCalculatorOpen, setInternalCalculatorOpen] = useState(false);
@@ -185,7 +203,11 @@ export const SiteHeader: React.FC<SiteHeaderProps> = ({
                   type="button"
                   data-cy="country-lang-switcher"
                   data-testid="country-lang-switcher"
-                  onClick={() => setIsCountryLangOpen(true)}
+                  onClick={() => {
+                    setSwitcherTab("currency");
+                    setSwitcherSearch("");
+                    setIsCountryLangOpen(true);
+                  }}
                   className="flex items-center gap-1.5 rounded-sm bg-white/15 px-2.5 py-1 text-[0.75rem] font-bold text-white transition-colors hover:bg-white/25 focus-visible:outline-2 focus-visible:outline-white cursor-pointer border-0"
                   aria-label={`Selected currency: ${selectedCountry.currencyCode}, language: ${selectedLanguage.name}`}
                   aria-haspopup="dialog"
@@ -356,20 +378,26 @@ export const SiteHeader: React.FC<SiteHeaderProps> = ({
                 type="button"
                 aria-label="Change language"
                 data-cy="country-lang-switcher-icon"
-                onClick={() => setIsCountryLangOpen(true)}
-                className="shrink-0 transition-opacity hover:opacity-70 cursor-pointer p-1"
+                onClick={() => {
+                  setSwitcherTab("language");
+                  setSwitcherSearch("");
+                  setIsCountryLangOpen(true);
+                }}
+                className="shrink-0 transition-opacity hover:opacity-70 cursor-pointer p-1 flex items-center justify-center"
                 title={`Change language / currency (${selectedCountry.currencyCode})`}
               >
-                <img
-                  alt="Language Switcher"
-                  width="24"
-                  height="24"
-                  src="/v2/translate-icon.png"
-                  className="object-contain"
-                  onError={(e) => {
-                    (e.target as HTMLElement).style.display = "none";
-                  }}
-                />
+                {!translateImgError ? (
+                  <img
+                    alt="Language Switcher"
+                    width={24}
+                    height={24}
+                    src="/v2/translate-icon.png"
+                    className="object-contain"
+                    onError={() => setTranslateImgError(true)}
+                  />
+                ) : (
+                  <Languages className="size-5 text-ink-muted hover:text-action transition-colors" aria-hidden="true" />
+                )}
               </button>
               <span aria-hidden="true" className="h-5 w-px shrink-0 bg-gray-300"></span>
               <div>
@@ -548,12 +576,39 @@ export const SiteHeader: React.FC<SiteHeaderProps> = ({
                 <button
                   type="button"
                   onClick={() => {
+                    setSwitcherTab("currency");
+                    setSwitcherSearch("");
                     setIsMobileMenuOpen(false);
                     setIsCountryLangOpen(true);
                   }}
                   className="font-bold text-action underline cursor-pointer"
                 >
                   {selectedCountry.currencyCode} ({selectedCountry.currencySymbol})
+                </button>
+              </div>
+              <div className="flex items-center justify-between">
+                <span>Language:</span>
+                <button
+                  type="button"
+                  onClick={() => {
+                    setSwitcherTab("language");
+                    setSwitcherSearch("");
+                    setIsMobileMenuOpen(false);
+                    setIsCountryLangOpen(true);
+                  }}
+                  className="font-bold text-action underline cursor-pointer flex items-center gap-1.5"
+                >
+                  <img
+                    alt="Language Switcher"
+                    width={16}
+                    height={16}
+                    src="/v2/translate-icon.png"
+                    className="object-contain inline-block"
+                    onError={(e) => {
+                      (e.target as HTMLElement).style.display = "none";
+                    }}
+                  />
+                  <span>{selectedLanguage.name} ({selectedLanguage.local})</span>
                 </button>
               </div>
               <div className="flex items-center justify-between">
@@ -954,6 +1009,7 @@ export const SiteHeader: React.FC<SiteHeaderProps> = ({
                       onClick={() => {
                         setSelectedLanguage(l);
                         setIsCountryLangOpen(false);
+                        applyLanguageTranslation(l.code);
                       }}
                       className={`w-full flex items-center justify-between px-3 py-2.5 text-left rounded-lg transition-colors cursor-pointer hover:bg-surface-teal/30 ${
                         isSelected ? "bg-surface-teal/50 font-bold" : ""
