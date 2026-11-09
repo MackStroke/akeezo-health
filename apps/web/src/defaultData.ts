@@ -3,9 +3,11 @@ import {
   type SiteSettings,
   DEFAULT_WEBSITE_THEME,
   DEFAULT_ADMIN_THEME,
-  DEFAULT_CAROUSEL_SLIDES
+  DEFAULT_CAROUSEL_SLIDES,
+  getDoctorDetail
 } from "@akeezo/contracts";
 import { ALL_BLOG_ARTICLES } from "./data/blogData.js";
+import { ALL_DOCTORS } from "./data/doctorsData.js";
 
 export const DEFAULT_SITE_SETTINGS: SiteSettings = {
   brandName: "AKEEZO",
@@ -202,6 +204,33 @@ export function getDefaultRouteData(path = "/"): PublicRouteResponseDTO {
   }
 
   if (normalized === "/doctors" || normalized.startsWith("/doctors/")) {
+    const slug = normalized.startsWith("/doctors/") ? normalized.replace(/^\/doctors\/?/, "").split("/")[0] : "";
+    if (slug) {
+      const doctor = getDoctorDetail(slug, ALL_DOCTORS);
+      if (doctor) {
+        return {
+          pageKind: "doctorDetail",
+          path: normalized,
+          locale: "en",
+          seo: {
+            title: `${doctor.name} | ${doctor.specialty} · ${doctor.hospital} | AKEEZO`,
+            description: `${doctor.name} is a leading ${doctor.specialty} specialist at ${doctor.hospital} with ${doctor.experience} of experience. Read patient reviews, compare procedure costs, and book teleconsultations.`,
+            canonicalPath: `/doctors/${doctor.slug}`,
+            robots: "index,follow",
+            schemaKind: "MedicalWebPage"
+          },
+          payload: {
+            doctor,
+            slug: doctor.slug,
+            headline: doctor.name,
+            subheadline: `${doctor.designation} · ${doctor.hospital}`
+          },
+          siteSettings: DEFAULT_SITE_SETTINGS,
+          statusCode: 200
+        };
+      }
+    }
+
     return {
       pageKind: "doctorDirectory",
       path: normalized,

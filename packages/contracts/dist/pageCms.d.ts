@@ -101,16 +101,6 @@ export declare const CalculatorPagePayloadSchema: z.ZodObject<{
         visaFeeUsd?: number | undefined;
     }>, "many">>;
 }, "strip", z.ZodTypeAny, {
-    badgeText: string;
-    destinations: {
-        country: string;
-        multiplier: number;
-        hotelPerNightUsd: number;
-        visaFeeUsd: number;
-    }[];
-    headline: string;
-    subheadline: string;
-    disclaimerText: string;
     procedures: {
         id: string;
         category: string;
@@ -122,17 +112,17 @@ export declare const CalculatorPagePayloadSchema: z.ZodObject<{
         savingsPercentage: number;
         popular: boolean;
     }[];
-}, {
-    badgeText?: string | undefined;
-    destinations?: {
+    badgeText: string;
+    destinations: {
         country: string;
-        multiplier?: number | undefined;
-        hotelPerNightUsd?: number | undefined;
-        visaFeeUsd?: number | undefined;
-    }[] | undefined;
-    headline?: string | undefined;
-    subheadline?: string | undefined;
-    disclaimerText?: string | undefined;
+        multiplier: number;
+        hotelPerNightUsd: number;
+        visaFeeUsd: number;
+    }[];
+    headline: string;
+    subheadline: string;
+    disclaimerText: string;
+}, {
     procedures?: {
         id: string;
         name: string;
@@ -144,6 +134,16 @@ export declare const CalculatorPagePayloadSchema: z.ZodObject<{
         savingsPercentage?: number | undefined;
         popular?: boolean | undefined;
     }[] | undefined;
+    badgeText?: string | undefined;
+    destinations?: {
+        country: string;
+        multiplier?: number | undefined;
+        hotelPerNightUsd?: number | undefined;
+        visaFeeUsd?: number | undefined;
+    }[] | undefined;
+    headline?: string | undefined;
+    subheadline?: string | undefined;
+    disclaimerText?: string | undefined;
 }>;
 export type CalculatorPagePayload = z.infer<typeof CalculatorPagePayloadSchema>;
 export declare const DoctorCatalogueItemSchema: z.ZodObject<{
@@ -167,33 +167,33 @@ export declare const DoctorCatalogueItemSchema: z.ZodObject<{
     slug: string;
     name: string;
     specialty: string;
-    active: boolean;
     country: string;
-    procedures: string[];
-    hospital: string;
-    city: string;
-    experienceYears: number;
     rating: number;
-    reviewCount: number;
-    consultationFeeUsd: string;
-    image: string;
     verified: boolean;
+    hospital: string;
+    image: string;
+    experienceYears: number;
+    city: string;
+    reviewCount: number;
+    procedures: string[];
+    active: boolean;
+    consultationFeeUsd: string;
 }, {
     id: string;
     slug: string;
     name: string;
     specialty: string;
     hospital: string;
-    active?: boolean | undefined;
     country?: string | undefined;
-    procedures?: string[] | undefined;
-    city?: string | undefined;
-    experienceYears?: number | undefined;
     rating?: number | undefined;
-    reviewCount?: number | undefined;
-    consultationFeeUsd?: string | undefined;
-    image?: string | undefined;
     verified?: boolean | undefined;
+    image?: string | undefined;
+    experienceYears?: number | undefined;
+    city?: string | undefined;
+    reviewCount?: number | undefined;
+    procedures?: string[] | undefined;
+    active?: boolean | undefined;
+    consultationFeeUsd?: string | undefined;
 }>;
 export type DoctorCatalogueItem = z.infer<typeof DoctorCatalogueItemSchema>;
 export declare const DoctorsPagePayloadSchema: z.ZodObject<{
@@ -222,33 +222,33 @@ export declare const DoctorsPagePayloadSchema: z.ZodObject<{
         slug: string;
         name: string;
         specialty: string;
-        active: boolean;
         country: string;
-        procedures: string[];
-        hospital: string;
-        city: string;
-        experienceYears: number;
         rating: number;
-        reviewCount: number;
-        consultationFeeUsd: string;
-        image: string;
         verified: boolean;
+        hospital: string;
+        image: string;
+        experienceYears: number;
+        city: string;
+        reviewCount: number;
+        procedures: string[];
+        active: boolean;
+        consultationFeeUsd: string;
     }, {
         id: string;
         slug: string;
         name: string;
         specialty: string;
         hospital: string;
-        active?: boolean | undefined;
         country?: string | undefined;
-        procedures?: string[] | undefined;
-        city?: string | undefined;
-        experienceYears?: number | undefined;
         rating?: number | undefined;
-        reviewCount?: number | undefined;
-        consultationFeeUsd?: string | undefined;
-        image?: string | undefined;
         verified?: boolean | undefined;
+        image?: string | undefined;
+        experienceYears?: number | undefined;
+        city?: string | undefined;
+        reviewCount?: number | undefined;
+        procedures?: string[] | undefined;
+        active?: boolean | undefined;
+        consultationFeeUsd?: string | undefined;
     }>, "many">>;
 }, "strip", z.ZodTypeAny, {
     headline: string;
@@ -260,17 +260,17 @@ export declare const DoctorsPagePayloadSchema: z.ZodObject<{
         slug: string;
         name: string;
         specialty: string;
-        active: boolean;
         country: string;
-        procedures: string[];
-        hospital: string;
-        city: string;
-        experienceYears: number;
         rating: number;
-        reviewCount: number;
-        consultationFeeUsd: string;
-        image: string;
         verified: boolean;
+        hospital: string;
+        image: string;
+        experienceYears: number;
+        city: string;
+        reviewCount: number;
+        procedures: string[];
+        active: boolean;
+        consultationFeeUsd: string;
     }[];
 }, {
     headline?: string | undefined;
@@ -283,16 +283,16 @@ export declare const DoctorsPagePayloadSchema: z.ZodObject<{
         name: string;
         specialty: string;
         hospital: string;
-        active?: boolean | undefined;
         country?: string | undefined;
-        procedures?: string[] | undefined;
-        city?: string | undefined;
-        experienceYears?: number | undefined;
         rating?: number | undefined;
-        reviewCount?: number | undefined;
-        consultationFeeUsd?: string | undefined;
-        image?: string | undefined;
         verified?: boolean | undefined;
+        image?: string | undefined;
+        experienceYears?: number | undefined;
+        city?: string | undefined;
+        reviewCount?: number | undefined;
+        procedures?: string[] | undefined;
+        active?: boolean | undefined;
+        consultationFeeUsd?: string | undefined;
     }[] | undefined;
 }>;
 export type DoctorsPagePayload = z.infer<typeof DoctorsPagePayloadSchema>;
@@ -316,14 +316,14 @@ export declare const HospitalCatalogueItemSchema: z.ZodObject<{
     slug: string;
     name: string;
     description: string;
-    active: boolean;
     country: string;
-    city: string;
     rating: number;
-    reviewCount: number;
-    image: string;
     verified: boolean;
+    image: string;
+    city: string;
+    reviewCount: number;
     accreditations: string[];
+    active: boolean;
     bedsCount: number;
     specialties: string[];
 }, {
@@ -331,14 +331,14 @@ export declare const HospitalCatalogueItemSchema: z.ZodObject<{
     slug: string;
     name: string;
     description?: string | undefined;
-    active?: boolean | undefined;
     country?: string | undefined;
-    city?: string | undefined;
     rating?: number | undefined;
-    reviewCount?: number | undefined;
-    image?: string | undefined;
     verified?: boolean | undefined;
+    image?: string | undefined;
+    city?: string | undefined;
+    reviewCount?: number | undefined;
     accreditations?: string[] | undefined;
+    active?: boolean | undefined;
     bedsCount?: number | undefined;
     specialties?: string[] | undefined;
 }>;
@@ -368,14 +368,14 @@ export declare const HospitalsPagePayloadSchema: z.ZodObject<{
         slug: string;
         name: string;
         description: string;
-        active: boolean;
         country: string;
-        city: string;
         rating: number;
-        reviewCount: number;
-        image: string;
         verified: boolean;
+        image: string;
+        city: string;
+        reviewCount: number;
         accreditations: string[];
+        active: boolean;
         bedsCount: number;
         specialties: string[];
     }, {
@@ -383,14 +383,14 @@ export declare const HospitalsPagePayloadSchema: z.ZodObject<{
         slug: string;
         name: string;
         description?: string | undefined;
-        active?: boolean | undefined;
         country?: string | undefined;
-        city?: string | undefined;
         rating?: number | undefined;
-        reviewCount?: number | undefined;
-        image?: string | undefined;
         verified?: boolean | undefined;
+        image?: string | undefined;
+        city?: string | undefined;
+        reviewCount?: number | undefined;
         accreditations?: string[] | undefined;
+        active?: boolean | undefined;
         bedsCount?: number | undefined;
         specialties?: string[] | undefined;
     }>, "many">>;
@@ -404,14 +404,14 @@ export declare const HospitalsPagePayloadSchema: z.ZodObject<{
         slug: string;
         name: string;
         description: string;
-        active: boolean;
         country: string;
-        city: string;
         rating: number;
-        reviewCount: number;
-        image: string;
         verified: boolean;
+        image: string;
+        city: string;
+        reviewCount: number;
         accreditations: string[];
+        active: boolean;
         bedsCount: number;
         specialties: string[];
     }[];
@@ -425,14 +425,14 @@ export declare const HospitalsPagePayloadSchema: z.ZodObject<{
         slug: string;
         name: string;
         description?: string | undefined;
-        active?: boolean | undefined;
         country?: string | undefined;
-        city?: string | undefined;
         rating?: number | undefined;
-        reviewCount?: number | undefined;
-        image?: string | undefined;
         verified?: boolean | undefined;
+        image?: string | undefined;
+        city?: string | undefined;
+        reviewCount?: number | undefined;
         accreditations?: string[] | undefined;
+        active?: boolean | undefined;
         bedsCount?: number | undefined;
         specialties?: string[] | undefined;
     }[] | undefined;
@@ -459,12 +459,12 @@ export declare const TreatmentCatalogueItemSchema: z.ZodObject<{
     slug: string;
     category: string;
     description: string;
+    href: string;
+    image: string;
+    procedures: string[];
     active: boolean;
     avgCostAbroad: string;
     avgCostHome: string;
-    procedures: string[];
-    image: string;
-    href: string;
     fallbackImage: string;
     recoveryTime: string;
     isTopTreatment: boolean;
@@ -474,12 +474,12 @@ export declare const TreatmentCatalogueItemSchema: z.ZodObject<{
     slug: string;
     category?: string | undefined;
     description?: string | undefined;
+    href?: string | undefined;
+    image?: string | undefined;
+    procedures?: string[] | undefined;
     active?: boolean | undefined;
     avgCostAbroad?: string | undefined;
     avgCostHome?: string | undefined;
-    procedures?: string[] | undefined;
-    image?: string | undefined;
-    href?: string | undefined;
     fallbackImage?: string | undefined;
     recoveryTime?: string | undefined;
     isTopTreatment?: boolean | undefined;
@@ -515,12 +515,12 @@ export declare const TreatmentsPagePayloadSchema: z.ZodObject<{
         slug: string;
         category: string;
         description: string;
+        href: string;
+        image: string;
+        procedures: string[];
         active: boolean;
         avgCostAbroad: string;
         avgCostHome: string;
-        procedures: string[];
-        image: string;
-        href: string;
         fallbackImage: string;
         recoveryTime: string;
         isTopTreatment: boolean;
@@ -530,12 +530,12 @@ export declare const TreatmentsPagePayloadSchema: z.ZodObject<{
         slug: string;
         category?: string | undefined;
         description?: string | undefined;
+        href?: string | undefined;
+        image?: string | undefined;
+        procedures?: string[] | undefined;
         active?: boolean | undefined;
         avgCostAbroad?: string | undefined;
         avgCostHome?: string | undefined;
-        procedures?: string[] | undefined;
-        image?: string | undefined;
-        href?: string | undefined;
         fallbackImage?: string | undefined;
         recoveryTime?: string | undefined;
         isTopTreatment?: boolean | undefined;
@@ -555,12 +555,12 @@ export declare const TreatmentsPagePayloadSchema: z.ZodObject<{
         slug: string;
         category: string;
         description: string;
+        href: string;
+        image: string;
+        procedures: string[];
         active: boolean;
         avgCostAbroad: string;
         avgCostHome: string;
-        procedures: string[];
-        image: string;
-        href: string;
         fallbackImage: string;
         recoveryTime: string;
         isTopTreatment: boolean;
@@ -580,12 +580,12 @@ export declare const TreatmentsPagePayloadSchema: z.ZodObject<{
         slug: string;
         category?: string | undefined;
         description?: string | undefined;
+        href?: string | undefined;
+        image?: string | undefined;
+        procedures?: string[] | undefined;
         active?: boolean | undefined;
         avgCostAbroad?: string | undefined;
         avgCostHome?: string | undefined;
-        procedures?: string[] | undefined;
-        image?: string | undefined;
-        href?: string | undefined;
         fallbackImage?: string | undefined;
         recoveryTime?: string | undefined;
         isTopTreatment?: boolean | undefined;
@@ -609,11 +609,11 @@ export declare const DestinationCatalogueItemSchema: z.ZodObject<{
 }, "strip", z.ZodTypeAny, {
     id: string;
     slug: string;
+    country: string;
+    image: string;
     active: boolean;
     tagline: string;
     savingsPercentage: number;
-    country: string;
-    image: string;
     cityHighlights: string;
     popularProcedures: string[];
     hospitalCount: number;
@@ -624,10 +624,10 @@ export declare const DestinationCatalogueItemSchema: z.ZodObject<{
     id: string;
     slug: string;
     country: string;
+    image?: string | undefined;
     active?: boolean | undefined;
     tagline?: string | undefined;
     savingsPercentage?: number | undefined;
-    image?: string | undefined;
     cityHighlights?: string | undefined;
     popularProcedures?: string[] | undefined;
     hospitalCount?: number | undefined;
@@ -656,11 +656,11 @@ export declare const DestinationsPagePayloadSchema: z.ZodObject<{
     }, "strip", z.ZodTypeAny, {
         id: string;
         slug: string;
+        country: string;
+        image: string;
         active: boolean;
         tagline: string;
         savingsPercentage: number;
-        country: string;
-        image: string;
         cityHighlights: string;
         popularProcedures: string[];
         hospitalCount: number;
@@ -671,10 +671,10 @@ export declare const DestinationsPagePayloadSchema: z.ZodObject<{
         id: string;
         slug: string;
         country: string;
+        image?: string | undefined;
         active?: boolean | undefined;
         tagline?: string | undefined;
         savingsPercentage?: number | undefined;
-        image?: string | undefined;
         cityHighlights?: string | undefined;
         popularProcedures?: string[] | undefined;
         hospitalCount?: number | undefined;
@@ -686,11 +686,11 @@ export declare const DestinationsPagePayloadSchema: z.ZodObject<{
     destinations: {
         id: string;
         slug: string;
+        country: string;
+        image: string;
         active: boolean;
         tagline: string;
         savingsPercentage: number;
-        country: string;
-        image: string;
         cityHighlights: string;
         popularProcedures: string[];
         hospitalCount: number;
@@ -705,10 +705,10 @@ export declare const DestinationsPagePayloadSchema: z.ZodObject<{
         id: string;
         slug: string;
         country: string;
+        image?: string | undefined;
         active?: boolean | undefined;
         tagline?: string | undefined;
         savingsPercentage?: number | undefined;
-        image?: string | undefined;
         cityHighlights?: string | undefined;
         popularProcedures?: string[] | undefined;
         hospitalCount?: number | undefined;
@@ -736,9 +736,9 @@ export declare const CommunityStoryItemSchema: z.ZodObject<{
 }, "strip", z.ZodTypeAny, {
     id: string;
     avatarUrl: string;
+    rating: number;
     active: boolean;
     hospitalName: string;
-    rating: number;
     patientName: string;
     originCountry: string;
     destinationCountry: string;
@@ -751,9 +751,9 @@ export declare const CommunityStoryItemSchema: z.ZodObject<{
     patientName: string;
     reviewText: string;
     avatarUrl?: string | undefined;
+    rating?: number | undefined;
     active?: boolean | undefined;
     hospitalName?: string | undefined;
-    rating?: number | undefined;
     originCountry?: string | undefined;
     destinationCountry?: string | undefined;
     procedureName?: string | undefined;
@@ -780,9 +780,9 @@ export declare const CommunityPagePayloadSchema: z.ZodObject<{
     }, "strip", z.ZodTypeAny, {
         id: string;
         avatarUrl: string;
+        rating: number;
         active: boolean;
         hospitalName: string;
-        rating: number;
         patientName: string;
         originCountry: string;
         destinationCountry: string;
@@ -795,9 +795,9 @@ export declare const CommunityPagePayloadSchema: z.ZodObject<{
         patientName: string;
         reviewText: string;
         avatarUrl?: string | undefined;
+        rating?: number | undefined;
         active?: boolean | undefined;
         hospitalName?: string | undefined;
-        rating?: number | undefined;
         originCountry?: string | undefined;
         destinationCountry?: string | undefined;
         procedureName?: string | undefined;
@@ -810,9 +810,9 @@ export declare const CommunityPagePayloadSchema: z.ZodObject<{
     testimonials: {
         id: string;
         avatarUrl: string;
+        rating: number;
         active: boolean;
         hospitalName: string;
-        rating: number;
         patientName: string;
         originCountry: string;
         destinationCountry: string;
@@ -829,9 +829,9 @@ export declare const CommunityPagePayloadSchema: z.ZodObject<{
         patientName: string;
         reviewText: string;
         avatarUrl?: string | undefined;
+        rating?: number | undefined;
         active?: boolean | undefined;
         hospitalName?: string | undefined;
-        rating?: number | undefined;
         originCountry?: string | undefined;
         destinationCountry?: string | undefined;
         procedureName?: string | undefined;
@@ -852,18 +852,18 @@ export declare const AboutTeamMemberSchema: z.ZodObject<{
     id: string;
     name: string;
     role: string;
-    active: boolean;
     image: string;
-    credentials: string;
     bio: string;
+    active: boolean;
+    credentials: string;
 }, {
     id: string;
     name: string;
     role: string;
-    active?: boolean | undefined;
     image?: string | undefined;
-    credentials?: string | undefined;
     bio?: string | undefined;
+    active?: boolean | undefined;
+    credentials?: string | undefined;
 }>;
 export type AboutTeamMember = z.infer<typeof AboutTeamMemberSchema>;
 export declare const AboutPagePayloadSchema: z.ZodObject<{
@@ -899,18 +899,18 @@ export declare const AboutPagePayloadSchema: z.ZodObject<{
         id: string;
         name: string;
         role: string;
-        active: boolean;
         image: string;
-        credentials: string;
         bio: string;
+        active: boolean;
+        credentials: string;
     }, {
         id: string;
         name: string;
         role: string;
-        active?: boolean | undefined;
         image?: string | undefined;
-        credentials?: string | undefined;
         bio?: string | undefined;
+        active?: boolean | undefined;
+        credentials?: string | undefined;
     }>, "many">>;
 }, "strip", z.ZodTypeAny, {
     headline: string;
@@ -927,10 +927,10 @@ export declare const AboutPagePayloadSchema: z.ZodObject<{
         id: string;
         name: string;
         role: string;
-        active: boolean;
         image: string;
-        credentials: string;
         bio: string;
+        active: boolean;
+        credentials: string;
     }[];
 }, {
     headline?: string | undefined;
@@ -947,10 +947,10 @@ export declare const AboutPagePayloadSchema: z.ZodObject<{
         id: string;
         name: string;
         role: string;
-        active?: boolean | undefined;
         image?: string | undefined;
-        credentials?: string | undefined;
         bio?: string | undefined;
+        active?: boolean | undefined;
+        credentials?: string | undefined;
     }[] | undefined;
 }>;
 export type AboutPagePayload = z.infer<typeof AboutPagePayloadSchema>;

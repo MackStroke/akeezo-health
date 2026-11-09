@@ -49,3 +49,5 @@ coverage/
 *.md
 **/*.md
 artifacts/
+
+scratch/

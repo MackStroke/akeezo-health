@@ -10,4 +10,5 @@ export * from "./quotes.js";
 export * from "./changelog.js";
 export * from "./blog.js";
 export * from "./pageCms.js";
+export * from "./doctors.js";
 //# sourceMappingURL=index.d.ts.map

@@ -5,7 +5,7 @@ import { fileURLToPath, pathToFileURL } from "node:url";
 import { PassThrough } from "node:stream";
 import mongoose from "mongoose";
 import { RouteEntry, ContentRevision, Page, SiteSettings, ChangelogModel, BlogPostModel } from "../db/models/index.js";
-import { SiteSettingsSchema, DEFAULT_CAROUSEL_SLIDES, generateWebsiteThemeCss, getGoogleFontUrl } from "@akeezo/contracts";
+import { SiteSettingsSchema, DEFAULT_CAROUSEL_SLIDES, generateWebsiteThemeCss, getGoogleFontUrl, getDoctorDetail } from "@akeezo/contracts";
 import { env } from "../config/env.js";
 function getSafePaths() {
     try {
@@ -422,28 +422,84 @@ export async function handleSsr(req, res, next) {
                 statusCode: 200
             };
         }
+        else if (normalizedPath === "/doctor" || normalizedPath.startsWith("/doctor/")) {
+            const sub = normalizedPath.replace(/^\/doctor\/?/, "");
+            res.redirect(301, sub ? `/doctors/${sub}` : "/doctors");
+            return;
+        }
         else if (normalizedPath === "/doctors" || normalizedPath.startsWith("/doctors/")) {
             statusCode = 200;
+            const slug = normalizedPath.startsWith("/doctors/")
+                ? normalizedPath.replace(/^\/doctors\/?/, "").split("/")[0]
+                : "";
+            const isDetail = Boolean(slug);
             const revData = await getFallbackPageRevision("doctors");
-            dto = {
-                pageKind: "doctorDirectory",
-                path: normalizedPath,
-                locale: "en",
-                seo: revData?.seo || {
-                    title: "World-Class Doctors | Find Best Specialists Worldwide | AKEEZO",
-                    description: "Search, compare, and connect with premier surgeons and medical specialists globally. Direct hospital pricing, accredited experts, and free assistance.",
-                    canonicalPath: "/doctors",
-                    robots: "index,follow",
-                    schemaKind: "MedicalWebPage"
-                },
-                payload: {
-                    ...(revData?.payload || {}),
-                    headline: revData?.payload?.headline || "World-Class Doctors, Personally Matched for You",
-                    subheadline: revData?.payload?.subheadline || "Search, compare, and connect with leading specialists across the globe."
-                },
-                siteSettings,
-                statusCode: 200
-            };
+            const fallbackDoctors = revData?.payload?.doctors;
+            if (isDetail) {
+                const doctor = getDoctorDetail(slug, fallbackDoctors);
+                if (doctor) {
+                    dto = {
+                        pageKind: "doctorDetail",
+                        path: normalizedPath,
+                        locale: "en",
+                        seo: {
+                            title: `${doctor.name} | ${doctor.specialty} · ${doctor.hospital} | AKEEZO`,
+                            description: `${doctor.name} is a leading ${doctor.specialty} specialist at ${doctor.hospital} with ${doctor.experience} of experience. Read patient reviews, compare procedure costs, and book teleconsultations.`,
+                            canonicalPath: `/doctors/${doctor.slug}`,
+                            robots: "index,follow",
+                            schemaKind: "MedicalWebPage"
+                        },
+                        payload: {
+                            doctor,
+                            slug: doctor.slug,
+                            headline: doctor.name,
+                            subheadline: `${doctor.designation} · ${doctor.hospital}`
+                        },
+                        siteSettings,
+                        statusCode: 200
+                    };
+                }
+                else {
+                    // Graceful fallback for non-existent doctor
+                    statusCode = 404;
+                    dto = {
+                        pageKind: "notFound",
+                        path: normalizedPath,
+                        locale: "en",
+                        seo: {
+                            title: "Doctor Not Found | AKEEZO Healthcare Platform",
+                            description: "The requested medical specialist profile could not be located. Explore our accredited international doctors directory.",
+                            canonicalPath: "/doctors",
+                            robots: "noindex,nofollow",
+                            schemaKind: "WebPage"
+                        },
+                        payload: {},
+                        siteSettings,
+                        statusCode: 404
+                    };
+                }
+            }
+            else {
+                dto = {
+                    pageKind: "doctorDirectory",
+                    path: normalizedPath,
+                    locale: "en",
+                    seo: revData?.seo || {
+                        title: "World-Class Doctors | Find Best Specialists Worldwide | AKEEZO",
+                        description: "Search, compare, and connect with premier surgeons and medical specialists globally. Direct hospital pricing, accredited experts, and free assistance.",
+                        canonicalPath: "/doctors",
+                        robots: "index,follow",
+                        schemaKind: "MedicalWebPage"
+                    },
+                    payload: {
+                        ...(revData?.payload || {}),
+                        headline: revData?.payload?.headline || "World-Class Doctors, Personally Matched for You",
+                        subheadline: revData?.payload?.subheadline || "Search, compare, and connect with leading specialists across the globe."
+                    },
+                    siteSettings,
+                    statusCode: 200
+                };
+            }
         }
         else if (normalizedPath === "/about" || normalizedPath === "/about-us") {
             statusCode = 200;

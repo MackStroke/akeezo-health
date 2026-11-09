@@ -63,7 +63,7 @@ export function DoctorsTemplate({ data }: DoctorsTemplateProps) {
 
   const headline = rawPayload.headline || "World-Class Doctors, Personally Matched for You";
   const subheadline = rawPayload.subheadline || "Search, compare, and connect with leading surgeons and medical specialists across the globe.";
-  const searchPlaceholder = rawPayload.searchPlaceholder || "Explore doctors by name, specialty, or condition...";
+  const searchPlaceholder = rawPayload.searchPlaceholder || "Explore doctors by name, specialty, or hospital...";
 
   // Search & Filter State
   const [searchQuery, setSearchQuery] = useState("");
@@ -257,31 +257,34 @@ export function DoctorsTemplate({ data }: DoctorsTemplateProps) {
 
           {/* SECTION 1: HERO BANNER & SEARCH */}
           <section className="relative z-10 mb-8 md:mb-12">
-            <div className="relative md:h-[450px] h-[380px] rounded-[31px] flex md:items-center items-end justify-center text-white overflow-hidden shadow-sm">
-              <picture>
-                <source
-                  media="(min-width: 768px)"
-                  srcSet="/uploads/doctors/hero-desktop.webp"
-                  type="image/webp"
-                />
-                <img
-                  draggable={false}
-                  width={1200}
-                  height={600}
-                  fetchPriority="high"
-                  decoding="async"
-                  className="w-full h-full object-cover"
-                  alt="World-Class Doctors, Personally Matched for You"
-                  src="/uploads/doctors/hero-desktop.webp"
-                  onError={(e) => {
-                    e.currentTarget.src =
-                      "https://d162jy5nwnavsz.cloudfront.net/webapp/all-doctor/hero-desktop.webp";
-                  }}
-                />
-              </picture>
-              <div className="absolute inset-0 z-10 bg-gradient-to-b from-transparent via-black/25 to-black/85" />
+            <div className="relative md:h-[450px] h-[380px] rounded-[31px] flex md:items-center items-end justify-center text-white">
+              {/* Background Hero Banner Image with Gradient */}
+              <div className="absolute inset-0 rounded-[31px] overflow-hidden">
+                <picture>
+                  <source
+                    media="(min-width: 768px)"
+                    srcSet="/uploads/doctors/hero-desktop.webp"
+                    type="image/webp"
+                  />
+                  <img
+                    draggable={false}
+                    width={1200}
+                    height={600}
+                    fetchPriority="high"
+                    decoding="async"
+                    className="w-full h-full object-cover"
+                    alt="World-Class Doctors, Personally Matched for You"
+                    src="/uploads/doctors/hero-desktop.webp"
+                    onError={(e) => {
+                      e.currentTarget.src =
+                        "https://d162jy5nwnavsz.cloudfront.net/webapp/all-doctor/hero-desktop.webp";
+                    }}
+                  />
+                </picture>
+                <div className="absolute inset-0 z-10 bg-gradient-to-b from-transparent via-black/25 to-black/85" />
+              </div>
 
-              <div className="absolute bottom-14 md:bottom-20 z-20 text-center px-4 md:px-8 max-w-4xl mx-auto">
+              <div className="absolute bottom-16 md:bottom-20 z-20 text-center px-4 md:px-8 max-w-4xl mx-auto">
                 <div className="inline-flex items-center gap-2 bg-white/15 backdrop-blur-md px-3.5 py-1 rounded-full text-xs font-medium mb-3 text-white border border-white/20">
                   <Sparkles className="w-3.5 h-3.5 text-brand-orange" />
                   <span>500+ Board-Certified International Specialists</span>
@@ -338,51 +341,39 @@ export function DoctorsTemplate({ data }: DoctorsTemplateProps) {
                   </button>
                 </form>
               </div>
-            </div>
 
-            {/* MOBILE FLOATING SEARCH */}
-            <div className="lg:hidden mt-4">
-              <form
-                onSubmit={(e) => {
-                  e.preventDefault();
-                  scrollToSection("all-doctors");
-                }}
-                className="bg-white rounded-2xl shadow-md border border-gray-200 p-3 flex flex-col gap-2.5"
-              >
-                <div className="flex items-center gap-2.5 px-2">
-                  <Search className="w-4 h-4 text-gray-400 shrink-0" />
-                  <input
-                    type="text"
-                    value={searchQuery}
-                    onChange={(e) => setSearchQuery(e.target.value)}
-                    placeholder="Search doctor or specialty..."
-                    className="w-full outline-none text-sm placeholder:text-gray-400 font-medium bg-transparent"
-                  />
-                </div>
-                <div className="flex gap-2 pt-1 border-t border-gray-100">
-                  <select
-                    value={selectedCountry}
-                    onChange={(e) => setSelectedCountry(e.target.value)}
-                    className="flex-1 bg-gray-50 text-xs font-medium text-gray-700 rounded-lg px-2.5 py-2 outline-none border border-gray-200"
-                  >
-                    {DOCTOR_COUNTRIES.map((c) => (
-                      <option key={c} value={c}>
-                        {c}
-                      </option>
-                    ))}
-                  </select>
+              {/* FLOATING SEARCH BAR (MOBILE) */}
+              <div className="absolute z-30 w-[92%] bottom-0 left-1/2 -translate-x-1/2 translate-y-1/2 lg:hidden">
+                <form
+                  onSubmit={(e) => {
+                    e.preventDefault();
+                    scrollToSection("all-doctors");
+                  }}
+                  className="bg-white rounded-full text-black shadow-lg border border-gray-100 flex items-center justify-between p-1.5 pl-4"
+                >
+                  <div className="flex-1 flex items-center gap-2 overflow-hidden">
+                    <Search className="w-4 h-4 text-gray-400 shrink-0" />
+                    <input
+                      type="text"
+                      value={searchQuery}
+                      onChange={(e) => setSearchQuery(e.target.value)}
+                      placeholder="Search doctor or specialty..."
+                      className="w-full outline-none text-xs placeholder:text-gray-400 font-medium bg-transparent"
+                    />
+                  </div>
                   <button
                     type="submit"
-                    className="bg-brand-orange text-white text-xs font-semibold px-4 py-2 rounded-lg"
+                    aria-label="Search"
+                    className="bg-brand-orange hover:bg-brand-orange-hover text-white p-2.5 rounded-full text-xs font-semibold shrink-0 cursor-pointer"
                   >
-                    Search
+                    <ArrowRight className="w-3.5 h-3.5" />
                   </button>
-                </div>
-              </form>
+                </form>
+              </div>
             </div>
 
             {/* TRUST TAGLINE */}
-            <div className="text-center mt-6 lg:mt-12 text-xs md:text-sm text-gray-500 font-medium">
+            <div className="text-center mt-10 lg:mt-14 text-xs md:text-sm text-gray-500 font-medium">
               No sales. No commissions. Just verified doctor discovery so you can choose what&apos;s right for you.
             </div>
           </section>

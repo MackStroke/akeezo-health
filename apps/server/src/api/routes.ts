@@ -1,7 +1,12 @@
 import { Router, type Request, type Response } from "express";
 import mongoose from "mongoose";
-import { RouteEntry, ContentRevision, SiteSettings, ChangelogModel, BlogPostModel } from "../db/models/index.js";
-import type { PublicRouteResponseDTO, SeoMetadata } from "@akeezo/contracts";
+import { RouteEntry, ContentRevision, SiteSettings, ChangelogModel, BlogPostModel, EnquiryModel } from "../db/models/index.js";
+import {
+  type PublicRouteResponseDTO,
+  type SeoMetadata,
+  getDoctorDetail,
+  type DoctorDetail
+} from "@akeezo/contracts";
 import { toSafeSiteSettings } from "../ssr/renderer.js";
 import { caseManagementRouter } from "./caseManagementRoutes.js";
 import { authRouter } from "./authRoutes.js";
@@ -283,6 +288,57 @@ apiRouter.get("/route", async (req: Request, res: Response) => {
       }
 
       if (normalizedPath === "/doctors" || normalizedPath.startsWith("/doctors/")) {
+        const slug = normalizedPath.startsWith("/doctors/")
+          ? normalizedPath.replace(/^\/doctors\/?/, "").split("/")[0]
+          : "";
+        const isDetail = Boolean(slug);
+
+        if (isDetail) {
+          const doctor = getDoctorDetail(slug);
+          if (doctor) {
+            const detailDto: PublicRouteResponseDTO = {
+              pageKind: "doctorDetail",
+              path: normalizedPath,
+              locale,
+              seo: {
+                title: `${doctor.name} | ${doctor.specialty} · ${doctor.hospital} | AKEEZO`,
+                description: `${doctor.name} is a leading ${doctor.specialty} specialist at ${doctor.hospital} with ${doctor.experience} of experience. Read patient reviews, compare procedure costs, and book teleconsultations.`,
+                canonicalPath: `/doctors/${doctor.slug}`,
+                robots: "index,follow",
+                schemaKind: "MedicalWebPage"
+              },
+              payload: {
+                doctor,
+                slug: doctor.slug,
+                headline: doctor.name,
+                subheadline: `${doctor.designation} · ${doctor.hospital}`
+              },
+              siteSettings,
+              statusCode: 200
+            };
+            res.json({ data: detailDto });
+            return;
+          }
+
+          const notFoundDto: PublicRouteResponseDTO = {
+            pageKind: "notFound",
+            path: normalizedPath,
+            locale,
+            seo: {
+              title: "Doctor Not Found | AKEEZO Healthcare Platform",
+              description: "The requested medical specialist profile could not be located. Explore our accredited international doctors directory.",
+              canonicalPath: "/doctors",
+              robots: "noindex,nofollow",
+              schemaKind: "WebPage"
+            },
+            payload: {},
+            siteSettings,
+            statusCode: 404
+          };
+          res.status(404).json({ error: { code: "NOT_FOUND", message: "Doctor not found" }, data: notFoundDto });
+          return;
+        }
+
         const doctorsDto: PublicRouteResponseDTO = {
           pageKind: "doctorDirectory",
           path: normalizedPath,
@@ -435,6 +491,87 @@ apiRouter.get("/route", async (req: Request, res: Response) => {
     res.json({ data: dto });
   } catch (err) {
     res.status(500).json({ error: { code: "INTERNAL_ERROR", message: "Failed to resolve route" } });
+  }
+});
+
+// GET /api/v1/doctors/:slug (Public Doctor Detail API)
+apiRouter.get("/doctors/:slug", (req: Request, res: Response) => {
+  const doctor = getDoctorDetail(req.params.slug);
+  if (!doctor) {
+    res.status(404).json({ error: { code: "NOT_FOUND", message: "Doctor not found" } });
+    return;
+  }
+  res.json({ data: doctor });
+});
+
+// POST /api/v1/enquiries (Public Consultation & Lead Submission)
+apiRouter.post("/enquiries", async (req: Request, res: Response) => {
+  try {
+    const {
+      requesterName,
+      phone,
+      email,
+      country,
+      serviceType = "consultation",
+      message,
+      notes,
+      sourcePath,
+      doctorName,
+      doctorSlug,
+      hospital,
+      procedure,
+      consultationType,
+      preferredDate,
+      preferredSlot,
+    } = req.body;
+
+    if (!requesterName || !requesterName.trim()) {
+      res.status(400).json({ error: { code: "VALIDATION_FAILED", message: "Patient name is required" } });
+      return;
+    }
+
+    if ((!phone || !phone.trim()) && (!email || !email.trim())) {
+      res.status(400).json({ error: { code: "VALIDATION_FAILED", message: "Either phone or email is required" } });
+      return;
+    }
+
+    const receiptSuffix = Math.random().toString(36).substring(2, 7).toUpperCase();
+    const receiptId = `AKZ-DOC-${Date.now().toString(36).toUpperCase()}-${receiptSuffix}`;
+
+    const combinedNotes = [
+      notes,
+      doctorName ? `Doctor: ${doctorName} (${doctorSlug || ""})` : null,
+      hospital ? `Hospital: ${hospital}` : null,
+      procedure ? `Procedure: ${procedure}` : null,
+      consultationType ? `Mode: ${consultationType}` : null,
+      preferredDate ? `Preferred Date: ${preferredDate}` : null,
+      preferredSlot ? `Preferred Slot: ${preferredSlot}` : null,
+    ].filter(Boolean).join(" | ");
+
+    const enquiry = await EnquiryModel.create({
+      receiptId,
+      requesterName: requesterName.trim(),
+      email: email?.trim(),
+      phone: phone?.trim(),
+      country: country?.trim() || "International",
+      serviceType: "consultation",
+      message: message?.trim() || `Consultation request for ${doctorName || "Specialist"}`,
+      notes: combinedNotes,
+      sourcePath: sourcePath || (doctorSlug ? `/doctors/${doctorSlug}` : "/doctors"),
+      status: "received",
+    });
+
+    res.status(201).json({
+      data: {
+        success: true,
+        receiptId: enquiry.receiptId,
+        enquiryId: enquiry._id,
+        message: "Your teleconsultation request has been registered. Our care team will contact you within 2 hours.",
+      },
+    });
+  } catch (err: any) {
+    console.error("[Enquiry Submission Error]:", err);
+    res.status(500).json({ error: { code: "INTERNAL_ERROR", message: "Failed to submit enquiry" } });
   }
 });
 

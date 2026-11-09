@@ -8,6 +8,7 @@ import { CalculatorTemplate } from "./templates/CalculatorTemplate.js";
 import { TreatmentsTemplate } from "./templates/TreatmentsTemplate.js";
 import { HospitalsTemplate } from "./templates/HospitalsTemplate.js";
 import { DoctorsTemplate } from "./templates/DoctorsTemplate.js";
+import { DoctorDetailTemplate } from "./templates/DoctorDetailTemplate.js";
 import { AboutTemplate } from "./templates/AboutTemplate.js";
 import { BlogTemplate } from "./templates/BlogTemplate.js";
 import { getDefaultRouteData } from "./defaultData.js";
@@ -118,8 +119,9 @@ export function App({ data }: AppProps) {
       case "hospitalDetail":
         return <HospitalsTemplate data={currentData} />;
       case "doctorDirectory":
-      case "doctorDetail":
         return <DoctorsTemplate data={currentData} />;
+      case "doctorDetail":
+        return <DoctorDetailTemplate data={currentData} />;
       case "about":
         return <AboutTemplate data={currentData} />;
       case "blogDirectory":

@@ -1,3 +1,5 @@
+import { type DoctorDetail, getDoctorDetail as contractsGetDoctorDetail } from "@akeezo/contracts";
+
 export interface DoctorItem {
   id: string;
   name: string;
@@ -389,3 +391,9 @@ export const DOCTOR_COUNTRIES = [
   "Portugal",
   "Brazil",
 ];
+
+export { DOCTOR_DETAILS_MAP } from "@akeezo/contracts";
+
+export function getDoctorDetail(slug: string): DoctorDetail | null {
+  return contractsGetDoctorDetail(slug, ALL_DOCTORS);
+}

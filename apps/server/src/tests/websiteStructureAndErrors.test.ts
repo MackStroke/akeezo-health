@@ -129,4 +129,43 @@ describe("Website Structure, Navigation & Error States Verification", () => {
     assert.ok(fallbackHtml.includes("window.location.reload()"), "Must include reload trigger");
     assert.ok(fallbackHtml.includes("Protected Patient Health Information"), "Must include PHI privacy note");
   });
+
+  it("Doctors Directory: Hero banner separates image overflow from floating search bar", () => {
+    const doctorsData = getDefaultRouteData("/doctors");
+    assert.equal(doctorsData.pageKind, "doctorDirectory");
+    assert.equal(doctorsData.statusCode, 200);
+
+    const html = renderToString(React.createElement(App, { data: doctorsData }));
+
+    assert.ok(html.includes("World-Class Doctors"), "Must include doctors hero headline or fallback");
+    assert.ok(html.includes("hero-desktop.webp"), "Must include hero banner image asset");
+
+    assert.ok(
+      html.includes("rounded-[31px] flex md:items-center items-end justify-center text-white"),
+      "Outer banner container must have rounded-[31px] without overflow-hidden"
+    );
+
+    assert.ok(
+      html.includes("absolute inset-0 rounded-[31px] overflow-hidden"),
+      "Inner image container must have overflow-hidden to cleanly clip the image"
+    );
+
+    assert.ok(
+      html.includes("doctors by name, specialty, or hospital"),
+      "Must render desktop search input placeholder"
+    );
+    assert.ok(
+      html.includes("bottom-0 left-1/2 -translate-x-1/2 translate-y-1/2 hidden lg:block"),
+      "Desktop search bar must float at bottom edge with translate-y-1/2"
+    );
+
+    assert.ok(
+      html.includes("Search doctor or specialty..."),
+      "Must render mobile search input placeholder"
+    );
+    assert.ok(
+      html.includes("bottom-0 left-1/2 -translate-x-1/2 translate-y-1/2 lg:hidden"),
+      "Mobile search bar must float at bottom edge with translate-y-1/2"
+    );
+  });
 });

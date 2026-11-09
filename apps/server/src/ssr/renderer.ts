@@ -13,7 +13,9 @@ import {
   DEFAULT_CAROUSEL_SLIDES,
   type SeoMetadata,
   generateWebsiteThemeCss,
-  getGoogleFontUrl
+  getGoogleFontUrl,
+  getDoctorDetail,
+  type DoctorDetail
 } from "@akeezo/contracts";
 import { env } from "../config/env.js";
 
@@ -450,29 +452,83 @@ export async function handleSsr(req: Request, res: Response, next: NextFunction)
         siteSettings,
         statusCode: 200
       };
+    } else if (normalizedPath === "/doctor" || normalizedPath.startsWith("/doctor/")) {
+      const sub = normalizedPath.replace(/^\/doctor\/?/, "");
+      res.redirect(301, sub ? `/doctors/${sub}` : "/doctors");
+      return;
     } else if (normalizedPath === "/doctors" || normalizedPath.startsWith("/doctors/")) {
       statusCode = 200;
+      const slug = normalizedPath.startsWith("/doctors/")
+        ? normalizedPath.replace(/^\/doctors\/?/, "").split("/")[0]
+        : "";
+      const isDetail = Boolean(slug);
       const revData = await getFallbackPageRevision("doctors");
-      dto = {
-        pageKind: "doctorDirectory",
-        path: normalizedPath,
-        locale: "en",
-        seo: revData?.seo || {
-          title: "World-Class Doctors | Find Best Specialists Worldwide | AKEEZO",
-          description:
-            "Search, compare, and connect with premier surgeons and medical specialists globally. Direct hospital pricing, accredited experts, and free assistance.",
-          canonicalPath: "/doctors",
-          robots: "index,follow",
-          schemaKind: "MedicalWebPage"
-        },
-        payload: {
-          ...(revData?.payload || {}),
-          headline: (revData?.payload as any)?.headline || "World-Class Doctors, Personally Matched for You",
-          subheadline: (revData?.payload as any)?.subheadline || "Search, compare, and connect with leading specialists across the globe."
-        },
-        siteSettings,
-        statusCode: 200
-      };
+      const fallbackDoctors = (revData?.payload as any)?.doctors;
+
+      if (isDetail) {
+        const doctor: DoctorDetail | null = getDoctorDetail(slug, fallbackDoctors);
+        if (doctor) {
+          dto = {
+            pageKind: "doctorDetail",
+            path: normalizedPath,
+            locale: "en",
+            seo: {
+              title: `${doctor.name} | ${doctor.specialty} · ${doctor.hospital} | AKEEZO`,
+              description: `${doctor.name} is a leading ${doctor.specialty} specialist at ${doctor.hospital} with ${doctor.experience} of experience. Read patient reviews, compare procedure costs, and book teleconsultations.`,
+              canonicalPath: `/doctors/${doctor.slug}`,
+              robots: "index,follow",
+              schemaKind: "MedicalWebPage"
+            },
+            payload: {
+              doctor,
+              slug: doctor.slug,
+              headline: doctor.name,
+              subheadline: `${doctor.designation} · ${doctor.hospital}`
+            },
+            siteSettings,
+            statusCode: 200
+          };
+        } else {
+          // Graceful fallback for non-existent doctor
+          statusCode = 404;
+          dto = {
+            pageKind: "notFound",
+            path: normalizedPath,
+            locale: "en",
+            seo: {
+              title: "Doctor Not Found | AKEEZO Healthcare Platform",
+              description: "The requested medical specialist profile could not be located. Explore our accredited international doctors directory.",
+              canonicalPath: "/doctors",
+              robots: "noindex,nofollow",
+              schemaKind: "WebPage"
+            },
+            payload: {},
+            siteSettings,
+            statusCode: 404
+          };
+        }
+      } else {
+        dto = {
+          pageKind: "doctorDirectory",
+          path: normalizedPath,
+          locale: "en",
+          seo: revData?.seo || {
+            title: "World-Class Doctors | Find Best Specialists Worldwide | AKEEZO",
+            description:
+              "Search, compare, and connect with premier surgeons and medical specialists globally. Direct hospital pricing, accredited experts, and free assistance.",
+            canonicalPath: "/doctors",
+            robots: "index,follow",
+            schemaKind: "MedicalWebPage"
+          },
+          payload: {
+            ...(revData?.payload || {}),
+            headline: (revData?.payload as any)?.headline || "World-Class Doctors, Personally Matched for You",
+            subheadline: (revData?.payload as any)?.subheadline || "Search, compare, and connect with leading specialists across the globe."
+          },
+          siteSettings,
+          statusCode: 200
+        };
+      }
     } else if (normalizedPath === "/about" || normalizedPath === "/about-us") {
       statusCode = 200;
       const revData = await getFallbackPageRevision("about");
