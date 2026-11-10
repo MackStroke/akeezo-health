@@ -83,9 +83,14 @@ const getDoctorIcon = (_name: string, role: string) => {
 export interface SiteFooterProps {
   siteSettings?: Partial<SiteSettings>;
   doctors?: any[];
+  hospitals?: any[];
 }
 
-export const SiteFooter: React.FC<SiteFooterProps> = ({ siteSettings = {}, doctors: initialDoctors }) => {
+export const SiteFooter: React.FC<SiteFooterProps> = ({
+  siteSettings = {},
+  doctors: initialDoctors,
+  hospitals: initialHospitals
+}) => {
   const [activeTab, setActiveTab] = useState<"treatments" | "hospitals" | "doctors" | "destinations">("treatments");
 
   // Doctors directory synced with Admin Panel
@@ -140,6 +145,60 @@ export const SiteFooter: React.FC<SiteFooterProps> = ({ siteSettings = {}, docto
       isMounted = false;
     };
   }, [initialDoctors, siteSettings?.directoryDoctors]);
+
+  // Hospitals directory synced with Admin Panel
+  const initialHospitalsList =
+    initialHospitals && initialHospitals.length > 0
+      ? initialHospitals
+      : siteSettings?.directoryHospitals && siteSettings.directoryHospitals.length > 0
+      ? siteSettings.directoryHospitals
+      : DIRECTORY_TABS.hospitals;
+
+  const [hospitalsList, setHospitalsList] = useState<any[]>(initialHospitalsList);
+
+  useEffect(() => {
+    if (initialHospitals && initialHospitals.length > 0) {
+      setHospitalsList(initialHospitals);
+      return;
+    }
+    if (siteSettings?.directoryHospitals && siteSettings.directoryHospitals.length > 0) {
+      setHospitalsList(siteSettings.directoryHospitals);
+      return;
+    }
+
+    let isMounted = true;
+    fetch("/api/v1/hospitals")
+      .then((res) => {
+        if (!res.ok) throw new Error("Failed to fetch hospitals");
+        return res.json();
+      })
+      .then((json) => {
+        if (isMounted && Array.isArray(json?.data) && json.data.length > 0) {
+          const mapped = json.data
+            .filter((h: any) => h.active !== false)
+            .slice(0, 8)
+            .map((h: any) => ({
+              name: h.name,
+              location: h.location || h.city || "New Delhi",
+              city: h.city,
+              country: h.country,
+              accreditation: h.accreditationText || (Array.isArray(h.accreditations) && h.accreditations.length > 0 ? `${h.accreditations.join(" / ")} Accredited Quaternary` : "NABH / JCI Accredited Quaternary"),
+              slug: h.slug,
+              image: h.image
+            }));
+          if (mapped.length > 0) {
+            setHospitalsList(mapped);
+          }
+        }
+      })
+      .catch(() => {
+        // Fallback silently to initialList
+      });
+
+    return () => {
+      isMounted = false;
+    };
+  }, [initialHospitals, siteSettings?.directoryHospitals]);
 
   // Regional Currency & Language Switcher State
   const [selectedCountry, setSelectedCountry] = useState<CountryOption>(COUNTRIES[0]);
@@ -265,9 +324,9 @@ export const SiteFooter: React.FC<SiteFooterProps> = ({ siteSettings = {}, docto
           </div>
 
           <div className={activeTab === "hospitals" ? "grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-3" : "hidden"}>
-            {DIRECTORY_TABS.hospitals.map((item, idx) => (
+            {hospitalsList.map((item, idx) => (
               <a
-                key={idx}
+                key={item.slug || idx}
                 href={`https://wa.me/${phoneClean}?text=Hello%20Akeezo,%20I%20would%20like%20to%20inquire%20about%20admission%20at%20${encodeURIComponent(item.name)}`}
                 target="_blank"
                 rel="noopener noreferrer"
@@ -287,7 +346,7 @@ export const SiteFooter: React.FC<SiteFooterProps> = ({ siteSettings = {}, docto
                 </div>
                 <div className="text-xs text-ink-muted mt-2 flex items-center gap-1.5">
                   <ShieldCheck className="w-3.5 h-3.5 text-action shrink-0" />
-                  <span>NABH / JCI Accredited Quaternary</span>
+                  <span>{item.accreditation || "NABH / JCI Accredited Quaternary"}</span>
                 </div>
               </a>
             ))}

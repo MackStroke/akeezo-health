@@ -322,6 +322,8 @@ if (shouldListen) {
         await seedCommunity();
         const { syncDoctorsCatalog } = await import("./seeds/syncDoctorsSeed.js");
         await syncDoctorsCatalog();
+        const { syncHospitalsCatalog } = await import("./seeds/syncHospitalsSeed.js");
+        await syncHospitalsCatalog();
       } catch (seedErr: any) {
         console.warn("[Akeezo Server] Community seed warning:", seedErr.message);
       }

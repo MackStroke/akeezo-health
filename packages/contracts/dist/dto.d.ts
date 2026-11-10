@@ -500,6 +500,31 @@ export declare const PublicRouteResponseSchema: z.ZodObject<{
             hospital?: string | undefined;
             experience?: string | undefined;
         }>, "many">>;
+        directoryHospitals: z.ZodOptional<z.ZodArray<z.ZodObject<{
+            name: z.ZodString;
+            location: z.ZodString;
+            city: z.ZodOptional<z.ZodString>;
+            country: z.ZodOptional<z.ZodString>;
+            accreditation: z.ZodOptional<z.ZodString>;
+            slug: z.ZodOptional<z.ZodString>;
+            image: z.ZodOptional<z.ZodString>;
+        }, "strip", z.ZodTypeAny, {
+            name: string;
+            location: string;
+            slug?: string | undefined;
+            country?: string | undefined;
+            city?: string | undefined;
+            image?: string | undefined;
+            accreditation?: string | undefined;
+        }, {
+            name: string;
+            location: string;
+            slug?: string | undefined;
+            country?: string | undefined;
+            city?: string | undefined;
+            image?: string | undefined;
+            accreditation?: string | undefined;
+        }>, "many">>;
     }, "strip", z.ZodTypeAny, {
         phone: string;
         tagline: string;
@@ -663,6 +688,15 @@ export declare const PublicRouteResponseSchema: z.ZodObject<{
             hospital?: string | undefined;
             experience?: string | undefined;
         }[] | undefined;
+        directoryHospitals?: {
+            name: string;
+            location: string;
+            slug?: string | undefined;
+            country?: string | undefined;
+            city?: string | undefined;
+            image?: string | undefined;
+            accreditation?: string | undefined;
+        }[] | undefined;
     }, {
         phone?: string | undefined;
         tagline?: string | undefined;
@@ -825,6 +859,15 @@ export declare const PublicRouteResponseSchema: z.ZodObject<{
             image?: string | undefined;
             hospital?: string | undefined;
             experience?: string | undefined;
+        }[] | undefined;
+        directoryHospitals?: {
+            name: string;
+            location: string;
+            slug?: string | undefined;
+            country?: string | undefined;
+            city?: string | undefined;
+            image?: string | undefined;
+            accreditation?: string | undefined;
         }[] | undefined;
     }>;
     statusCode: z.ZodDefault<z.ZodNumber>;
@@ -1005,6 +1048,15 @@ export declare const PublicRouteResponseSchema: z.ZodObject<{
             hospital?: string | undefined;
             experience?: string | undefined;
         }[] | undefined;
+        directoryHospitals?: {
+            name: string;
+            location: string;
+            slug?: string | undefined;
+            country?: string | undefined;
+            city?: string | undefined;
+            image?: string | undefined;
+            accreditation?: string | undefined;
+        }[] | undefined;
     };
     revisionId?: string | undefined;
 }, {
@@ -1181,6 +1233,15 @@ export declare const PublicRouteResponseSchema: z.ZodObject<{
             image?: string | undefined;
             hospital?: string | undefined;
             experience?: string | undefined;
+        }[] | undefined;
+        directoryHospitals?: {
+            name: string;
+            location: string;
+            slug?: string | undefined;
+            country?: string | undefined;
+            city?: string | undefined;
+            image?: string | undefined;
+            accreditation?: string | undefined;
         }[] | undefined;
     };
     locale?: string | undefined;

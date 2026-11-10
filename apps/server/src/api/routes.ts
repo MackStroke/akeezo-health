@@ -74,6 +74,36 @@ async function getDirectoryDoctorsFromDb(): Promise<any[] | undefined> {
   return undefined;
 }
 
+// Helper to fetch directory hospitals from Page CMS for siteSettings
+async function getDirectoryHospitalsFromDb(): Promise<any[] | undefined> {
+  if (mongoose.connection.readyState !== 1) return undefined;
+  try {
+    const hospPage = await Page.findOne({ slug: "hospitals", locale: "en" }).lean();
+    if (hospPage) {
+      const revId = hospPage.publishedRevisionId || hospPage.draftRevisionId;
+      if (revId) {
+        const rev = await ContentRevision.findById(revId).lean();
+        const hospList = (rev?.payload as any)?.hospitals;
+        if (Array.isArray(hospList) && hospList.length > 0) {
+          return hospList
+            .filter((h: any) => h.active !== false)
+            .slice(0, 8)
+            .map((h: any) => ({
+              name: h.name,
+              location: h.location || h.city || "New Delhi",
+              city: h.city,
+              country: h.country,
+              accreditation: h.accreditationText || (Array.isArray(h.accreditations) && h.accreditations.length > 0 ? `${h.accreditations.join(" / ")} Accredited Quaternary` : "NABH / JCI Accredited Quaternary"),
+              slug: h.slug,
+              image: h.image
+            }));
+        }
+      }
+    }
+  } catch {}
+  return undefined;
+}
+
 // GET /api/v1/site
 apiRouter.get("/site", async (_req: Request, res: Response) => {
   try {
@@ -82,8 +112,11 @@ apiRouter.get("/site", async (_req: Request, res: Response) => {
         ? (await SiteSettings.findOne({ environment: "development" }).lean()) ||
           (await SiteSettings.findOne().lean())
         : null;
-    const directoryDoctors = await getDirectoryDoctorsFromDb();
-    const siteSettings = toSafeSiteSettings({ ...settingsDoc, directoryDoctors });
+    const [directoryDoctors, directoryHospitals] = await Promise.all([
+      getDirectoryDoctorsFromDb(),
+      getDirectoryHospitalsFromDb()
+    ]);
+    const siteSettings = toSafeSiteSettings({ ...settingsDoc, directoryDoctors, directoryHospitals });
     res.json({ data: siteSettings });
   } catch (err) {
     res.json({ data: toSafeSiteSettings(null) });
@@ -111,6 +144,30 @@ apiRouter.get("/doctors", async (_req: Request, res: Response) => {
     res.json({ data: docList });
   } catch (err: any) {
     res.status(500).json({ error: { code: "FETCH_DOCTORS_FAILED", message: err.message } });
+  }
+});
+
+// GET /api/v1/hospitals (public directory list)
+apiRouter.get("/hospitals", async (_req: Request, res: Response) => {
+  try {
+    if (mongoose.connection.readyState !== 1) {
+      return res.json({ data: [] });
+    }
+    const hospPage = await Page.findOne({ slug: "hospitals", locale: "en" }).lean();
+    let hospList: any[] = [];
+    if (hospPage) {
+      const revId = hospPage.publishedRevisionId || hospPage.draftRevisionId;
+      if (revId) {
+        const rev = await ContentRevision.findById(revId).lean();
+        const rawList = (rev?.payload as any)?.hospitals;
+        if (Array.isArray(rawList)) {
+          hospList = rawList.filter((h: any) => h.active !== false);
+        }
+      }
+    }
+    res.json({ data: hospList });
+  } catch (err: any) {
+    res.status(500).json({ error: { code: "FETCH_HOSPITALS_FAILED", message: err.message } });
   }
 });
 
@@ -230,16 +287,20 @@ apiRouter.get("/route", async (req: Request, res: Response) => {
     let settingsDoc = null;
     let routeEntry = null;
     let directoryDoctors: any[] | undefined = undefined;
+    let directoryHospitals: any[] | undefined = undefined;
 
     if (mongoose.connection.readyState === 1) {
       settingsDoc =
         (await SiteSettings.findOne({ environment: "development" }).lean()) ||
         (await SiteSettings.findOne().lean());
       routeEntry = await RouteEntry.findOne({ locale, path: normalizedPath }).lean();
-      directoryDoctors = await getDirectoryDoctorsFromDb();
+      [directoryDoctors, directoryHospitals] = await Promise.all([
+        getDirectoryDoctorsFromDb(),
+        getDirectoryHospitalsFromDb()
+      ]);
     }
 
-    const siteSettings = toSafeSiteSettings({ ...settingsDoc, directoryDoctors });
+    const siteSettings = toSafeSiteSettings({ ...settingsDoc, directoryDoctors, directoryHospitals });
 
     if (!routeEntry) {
       if (normalizedPath === "/500") {
@@ -337,8 +398,20 @@ apiRouter.get("/route", async (req: Request, res: Response) => {
           : "";
         const isDetail = Boolean(slug);
 
+        let fallbackHospitals: any[] | undefined = undefined;
+        try {
+          const hospPage = await Page.findOne({ slug: "hospitals", locale: "en" }).lean();
+          if (hospPage) {
+            const revId = hospPage.publishedRevisionId || hospPage.draftRevisionId;
+            if (revId) {
+              const rev = await ContentRevision.findById(revId).lean();
+              fallbackHospitals = (rev?.payload as any)?.hospitals;
+            }
+          }
+        } catch {}
+
         if (isDetail) {
-          const hospital = getHospitalDetail(slug);
+          const hospital = getHospitalDetail(slug, fallbackHospitals);
           if (hospital) {
             const detailDto: PublicRouteResponseDTO = {
               pageKind: "hospitalDetail",
@@ -401,7 +474,8 @@ apiRouter.get("/route", async (req: Request, res: Response) => {
           },
           payload: {
             headline: "World-Class Hospitals, Personally Matched for You",
-            subheadline: "Find the Best Hospitals for Your Treatment, Anywhere in the World"
+            subheadline: "Find the Best Hospitals for Your Treatment, Anywhere in the World",
+            hospitals: fallbackHospitals || undefined
           },
           siteSettings,
           statusCode: 200
@@ -857,8 +931,21 @@ apiRouter.get("/doctors/:slug", async (req: Request, res: Response) => {
 });
 
 // GET /api/v1/hospitals/:slug (Public Hospital Detail API)
-apiRouter.get("/hospitals/:slug", (req: Request, res: Response) => {
-  const hospital = getHospitalDetail(req.params.slug);
+apiRouter.get("/hospitals/:slug", async (req: Request, res: Response) => {
+  let fallbackHospitals: any[] | undefined = undefined;
+  if (mongoose.connection.readyState === 1) {
+    try {
+      const hospPage = await Page.findOne({ slug: "hospitals", locale: "en" }).lean();
+      if (hospPage) {
+        const revId = hospPage.publishedRevisionId || hospPage.draftRevisionId;
+        if (revId) {
+          const rev = await ContentRevision.findById(revId).lean();
+          fallbackHospitals = (rev?.payload as any)?.hospitals;
+        }
+      }
+    } catch {}
+  }
+  const hospital = getHospitalDetail(req.params.slug, fallbackHospitals);
   if (!hospital) {
     res.status(404).json({ error: { code: "NOT_FOUND", message: "Hospital not found" } });
     return;

@@ -325,8 +325,10 @@ export declare const HospitalCatalogueItemSchema: z.ZodObject<{
     name: z.ZodString;
     slug: z.ZodString;
     city: z.ZodDefault<z.ZodString>;
+    location: z.ZodOptional<z.ZodString>;
     country: z.ZodDefault<z.ZodString>;
     accreditations: z.ZodDefault<z.ZodArray<z.ZodString, "many">>;
+    accreditationText: z.ZodOptional<z.ZodString>;
     bedsCount: z.ZodDefault<z.ZodNumber>;
     rating: z.ZodDefault<z.ZodNumber>;
     reviewCount: z.ZodDefault<z.ZodNumber>;
@@ -350,6 +352,8 @@ export declare const HospitalCatalogueItemSchema: z.ZodObject<{
     active: boolean;
     verified: boolean;
     reviewCount: number;
+    location?: string | undefined;
+    accreditationText?: string | undefined;
 }, {
     id: string;
     slug: string;
@@ -365,6 +369,8 @@ export declare const HospitalCatalogueItemSchema: z.ZodObject<{
     active?: boolean | undefined;
     verified?: boolean | undefined;
     reviewCount?: number | undefined;
+    location?: string | undefined;
+    accreditationText?: string | undefined;
 }>;
 export type HospitalCatalogueItem = z.infer<typeof HospitalCatalogueItemSchema>;
 export declare const HospitalsPagePayloadSchema: z.ZodObject<{
@@ -377,8 +383,10 @@ export declare const HospitalsPagePayloadSchema: z.ZodObject<{
         name: z.ZodString;
         slug: z.ZodString;
         city: z.ZodDefault<z.ZodString>;
+        location: z.ZodOptional<z.ZodString>;
         country: z.ZodDefault<z.ZodString>;
         accreditations: z.ZodDefault<z.ZodArray<z.ZodString, "many">>;
+        accreditationText: z.ZodOptional<z.ZodString>;
         bedsCount: z.ZodDefault<z.ZodNumber>;
         rating: z.ZodDefault<z.ZodNumber>;
         reviewCount: z.ZodDefault<z.ZodNumber>;
@@ -402,6 +410,8 @@ export declare const HospitalsPagePayloadSchema: z.ZodObject<{
         active: boolean;
         verified: boolean;
         reviewCount: number;
+        location?: string | undefined;
+        accreditationText?: string | undefined;
     }, {
         id: string;
         slug: string;
@@ -417,6 +427,8 @@ export declare const HospitalsPagePayloadSchema: z.ZodObject<{
         active?: boolean | undefined;
         verified?: boolean | undefined;
         reviewCount?: number | undefined;
+        location?: string | undefined;
+        accreditationText?: string | undefined;
     }>, "many">>;
 }, "strip", z.ZodTypeAny, {
     headline: string;
@@ -436,6 +448,8 @@ export declare const HospitalsPagePayloadSchema: z.ZodObject<{
         active: boolean;
         verified: boolean;
         reviewCount: number;
+        location?: string | undefined;
+        accreditationText?: string | undefined;
     }[];
     searchPlaceholder: string;
     filterAccreditations: string[];
@@ -457,6 +471,8 @@ export declare const HospitalsPagePayloadSchema: z.ZodObject<{
         active?: boolean | undefined;
         verified?: boolean | undefined;
         reviewCount?: number | undefined;
+        location?: string | undefined;
+        accreditationText?: string | undefined;
     }[] | undefined;
     searchPlaceholder?: string | undefined;
     filterAccreditations?: string[] | undefined;

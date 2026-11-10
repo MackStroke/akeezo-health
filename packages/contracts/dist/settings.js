@@ -647,6 +647,17 @@ export const SiteSettingsSchema = z.object({
         hospital: z.string().optional(),
         image: z.string().optional(),
     }))
+        .optional(),
+    directoryHospitals: z
+        .array(z.object({
+        name: z.string(),
+        location: z.string(),
+        city: z.string().optional(),
+        country: z.string().optional(),
+        accreditation: z.string().optional(),
+        slug: z.string().optional(),
+        image: z.string().optional(),
+    }))
         .optional()
 });
 // Helper functions for CSS variable generation

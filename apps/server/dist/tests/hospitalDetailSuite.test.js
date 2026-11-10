@@ -156,7 +156,49 @@ describe("Hospital Details Page & Two-Way Admin Sync Suite", () => {
         assert.equal(saved.requesterName, "Sarah Jenkins");
         assert.ok(saved.notes?.includes("Yanhee International Hospital"));
     });
-    test("10. Two-Way Admin Sync: Updating hospital via Admin API persists to MongoDB and reflects in SSR", async () => {
+    test("10. Public API GET /api/v1/hospitals returns synced database hospitals with prominent quaternary centers first", async () => {
+        const res = await fetch(`${baseUrl}/api/v1/hospitals`);
+        assert.equal(res.status, 200);
+        const json = await res.json();
+        assert.ok(Array.isArray(json.data), "data must be an array");
+        assert.ok(json.data.length >= 8, "Must have at least 8 hospitals");
+        const firstEight = json.data.slice(0, 8);
+        const names = firstEight.map((h) => h.name);
+        assert.ok(names.includes("Apollo Hospitals, New Delhi (JCI)"), "Must include Apollo Hospitals, New Delhi (JCI)");
+        assert.ok(names.includes("Medanta - The Medicity (JCI/NABH)"), "Must include Medanta - The Medicity (JCI/NABH)");
+        assert.ok(names.includes("Fortis Memorial Research Institute"), "Must include Fortis Memorial Research Institute");
+        assert.ok(names.includes("Max Super Speciality Hospital"), "Must include Max Super Speciality Hospital");
+        assert.ok(names.includes("Manipal Hospital"), "Must include Manipal Hospital");
+        assert.ok(names.includes("Narayana Institute of Cardiac Sciences"), "Must include Narayana Institute of Cardiac Sciences");
+        assert.ok(names.includes("Kokilaben Dhirubhai Ambani Hospital"), "Must include Kokilaben Dhirubhai Ambani Hospital");
+        assert.ok(names.includes("Artemis Hospital (JCI)"), "Must include Artemis Hospital (JCI)");
+        const apollo = json.data.find((h) => h.name.includes("Apollo Hospitals, New Delhi"));
+        assert.ok(apollo.location === "New Delhi" || apollo.city === "New Delhi");
+        assert.ok(apollo.accreditationText?.includes("Quaternary") || apollo.accreditations?.includes("JCI"));
+    });
+    test("11. Public API GET /api/v1/site and GET /api/v1/route include directoryHospitals in siteSettings", async () => {
+        const resSite = await fetch(`${baseUrl}/api/v1/site`);
+        assert.equal(resSite.status, 200);
+        const jsonSite = await resSite.json();
+        assert.ok(Array.isArray(jsonSite.data.directoryHospitals), "directoryHospitals must be an array in siteSettings");
+        assert.equal(jsonSite.data.directoryHospitals.length, 8, "directoryHospitals must contain top 8 synced hospitals");
+        assert.equal(jsonSite.data.directoryHospitals[0].name, "Apollo Hospitals, New Delhi (JCI)");
+        const resRoute = await fetch(`${baseUrl}/api/v1/route?path=/`);
+        assert.equal(resRoute.status, 200);
+        const jsonRoute = await resRoute.json();
+        assert.ok(Array.isArray(jsonRoute.data.siteSettings.directoryHospitals));
+        assert.equal(jsonRoute.data.siteSettings.directoryHospitals[0].name, "Apollo Hospitals, New Delhi (JCI)");
+    });
+    test("12. SSR HTML on home route renders footer hospital cards with exact WhatsApp admission links", async () => {
+        const res = await fetch(`${baseUrl}/`);
+        assert.equal(res.status, 200);
+        const html = await res.text();
+        assert.ok(html.includes("Apollo Hospitals, New Delhi (JCI)"), "Must render Apollo Hospitals in SSR HTML");
+        assert.ok(html.includes("Medanta - The Medicity (JCI/NABH)"), "Must render Medanta in SSR HTML");
+        assert.ok(html.includes("Kokilaben Dhirubhai Ambani Hospital"), "Must render Kokilaben in SSR HTML");
+        assert.ok(html.includes("Hello%20Akeezo,%20I%20would%20like%20to%20inquire%20about%20admission%20at%20Apollo%20Hospitals%2C%20New%20Delhi%20(JCI)"), "Must render exact WhatsApp admission link for Apollo");
+    });
+    test("13. Two-Way Admin Sync: Updating hospital via Admin API persists to MongoDB and reflects in SSR", async () => {
         // 1. Fetch current hospitals page from admin
         const getRes = await fetch(`${baseUrl}/api/v1/admin/pages/hospitals`, {
             headers: { Authorization: `Bearer ${adminToken}` }
@@ -178,8 +220,8 @@ describe("Hospital Details Page & Two-Way Admin Sync Suite", () => {
             verified: true
         };
         const newHospitalsList = [
-            updatedYanhee,
-            ...existingHospitals.filter((h) => h.slug !== "yanhee-international-hospital")
+            ...existingHospitals.filter((h) => h.slug !== "yanhee-international-hospital"),
+            updatedYanhee
         ];
         // 3. Save via Admin PUT
         const putRes = await fetch(`${baseUrl}/api/v1/admin/pages/hospitals`, {
@@ -204,5 +246,21 @@ describe("Hospital Details Page & Two-Way Admin Sync Suite", () => {
         const ssrHtml = await ssrRes.text();
         assert.ok(ssrHtml.includes("Special Platinum Certified"), "SSR must reflect updated admin rank badge");
         assert.ok(ssrHtml.includes("450"), "SSR must reflect updated admin beds capacity");
+        // 5. Restore original hospitals list so test suite is idempotent
+        await fetch(`${baseUrl}/api/v1/admin/pages/hospitals`, {
+            method: "PUT",
+            headers: {
+                "Content-Type": "application/json",
+                Authorization: `Bearer ${adminToken}`
+            },
+            body: JSON.stringify({
+                title: "World-Class Hospitals | Personally Matched for You",
+                payload: {
+                    ...currentPayload,
+                    hospitals: existingHospitals
+                },
+                publish: true
+            })
+        });
     });
 });

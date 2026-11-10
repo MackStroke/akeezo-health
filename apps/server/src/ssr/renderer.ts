@@ -154,7 +154,8 @@ export function toSafeSiteSettings(doc: any): SiteSettingsDTO {
     socialLinks: doc?.socialLinks,
     integrations: doc?.integrations,
     carouselSlides: doc?.carouselSlides && doc.carouselSlides.length > 0 ? doc.carouselSlides : DEFAULT_CAROUSEL_SLIDES,
-    directoryDoctors: doc?.directoryDoctors || undefined
+    directoryDoctors: doc?.directoryDoctors || undefined,
+    directoryHospitals: doc?.directoryHospitals || undefined
   });
 }
 
@@ -294,6 +295,7 @@ export async function handleSsr(req: Request, res: Response, next: NextFunction)
       (await SiteSettings.findOne().lean());
 
     let directoryDoctors: any[] | undefined = undefined;
+    let directoryHospitals: any[] | undefined = undefined;
     if (mongoose.connection.readyState === 1) {
       try {
         const docPage = await Page.findOne({ slug: "doctors", locale: "en" }).lean();
@@ -315,9 +317,31 @@ export async function handleSsr(req: Request, res: Response, next: NextFunction)
           }
         }
       } catch {}
+
+      try {
+        const hospPage = await Page.findOne({ slug: "hospitals", locale: "en" }).lean();
+        if (hospPage) {
+          const revId = hospPage.publishedRevisionId || hospPage.draftRevisionId;
+          if (revId) {
+            const rev = await ContentRevision.findById(revId).lean();
+            const hospList = (rev?.payload as any)?.hospitals;
+            if (Array.isArray(hospList) && hospList.length > 0) {
+              directoryHospitals = hospList.filter((h: any) => h.active !== false).slice(0, 8).map((h: any) => ({
+                name: h.name,
+                location: h.location || h.city || "New Delhi",
+                city: h.city,
+                country: h.country,
+                accreditation: h.accreditationText || (Array.isArray(h.accreditations) && h.accreditations.length > 0 ? `${h.accreditations.join(" / ")} Accredited Quaternary` : "NABH / JCI Accredited Quaternary"),
+                slug: h.slug,
+                image: h.image
+              }));
+            }
+          }
+        }
+      } catch {}
     }
 
-    const siteSettings = toSafeSiteSettings({ ...settingsDoc, directoryDoctors });
+    const siteSettings = toSafeSiteSettings({ ...settingsDoc, directoryDoctors, directoryHospitals });
 
     // 2. Resolve RouteEntry
     const routeEntry = await RouteEntry.findOne({ locale: "en", path: normalizedPath }).lean();
@@ -542,7 +566,8 @@ export async function handleSsr(req: Request, res: Response, next: NextFunction)
           payload: {
             ...(revData?.payload || {}),
             headline: (revData?.payload as any)?.headline || "World-Class Hospitals, Personally Matched for You",
-            subheadline: (revData?.payload as any)?.subheadline || "Find the Best Hospitals for Your Treatment, Anywhere in the World"
+            subheadline: (revData?.payload as any)?.subheadline || "Find the Best Hospitals for Your Treatment, Anywhere in the World",
+            hospitals: (revData?.payload as any)?.hospitals || undefined
           },
           siteSettings,
           statusCode: 200

@@ -385,6 +385,13 @@ export declare const HospitalDetailSchema: z.ZodObject<{
         rating?: number | undefined;
         verified?: boolean | undefined;
     }[] | undefined;
+    location?: {
+        latitude?: number | undefined;
+        longitude?: number | undefined;
+        airportBKKDistance?: string | undefined;
+        airportDMKDistance?: string | undefined;
+        travelNotes?: string | undefined;
+    } | undefined;
     hospitalType?: string | undefined;
     ownership?: string | undefined;
     rank?: number | undefined;
@@ -417,13 +424,6 @@ export declare const HospitalDetailSchema: z.ZodObject<{
         hospitalPriceUsd?: string | undefined;
         usUkPriceUsd?: string | undefined;
     }[] | undefined;
-    location?: {
-        latitude?: number | undefined;
-        longitude?: number | undefined;
-        airportBKKDistance?: string | undefined;
-        airportDMKDistance?: string | undefined;
-        travelNotes?: string | undefined;
-    } | undefined;
 }>;
 export type HospitalDetail = z.infer<typeof HospitalDetailSchema>;
 export declare const YANHEE_HOSPITAL_DETAIL: HospitalDetail;

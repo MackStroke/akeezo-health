@@ -241,14 +241,14 @@ export const DIRECTORY_TABS = {
     { name: "Dental Implants & All-on-4", href: "/#opinion", category: "Dental Care" }
   ],
   hospitals: [
-    { name: "Apollo Hospitals, New Delhi (JCI)", href: "/#hospitals", location: "New Delhi" },
-    { name: "Medanta - The Medicity (JCI/NABH)", href: "/#hospitals", location: "Gurugram" },
-    { name: "Fortis Memorial Research Institute", href: "/#hospitals", location: "Gurugram" },
-    { name: "Max Super Speciality Hospital", href: "/#hospitals", location: "Saket, Delhi" },
-    { name: "Manipal Hospital", href: "/#hospitals", location: "Bengaluru" },
-    { name: "Narayana Institute of Cardiac Sciences", href: "/#hospitals", location: "Bengaluru" },
-    { name: "Kokilaben Dhirubhai Ambani Hospital", href: "/#hospitals", location: "Mumbai" },
-    { name: "Artemis Hospital (JCI)", href: "/#hospitals", location: "Gurugram" }
+    { name: "Apollo Hospitals, New Delhi (JCI)", href: "/#hospitals", location: "New Delhi", slug: "apollo-hospitals-delhi", accreditation: "NABH / JCI Accredited Quaternary" },
+    { name: "Medanta - The Medicity (JCI/NABH)", href: "/#hospitals", location: "Gurugram", slug: "medanta-the-medicity", accreditation: "NABH / JCI Accredited Quaternary" },
+    { name: "Fortis Memorial Research Institute", href: "/#hospitals", location: "Gurugram", slug: "fortis-memorial-research-institute", accreditation: "NABH / JCI Accredited Quaternary" },
+    { name: "Max Super Speciality Hospital", href: "/#hospitals", location: "Saket, Delhi", slug: "max-super-speciality-hospital-saket", accreditation: "NABH / JCI Accredited Quaternary" },
+    { name: "Manipal Hospital", href: "/#hospitals", location: "Bengaluru", slug: "manipal-hospital-bengaluru", accreditation: "NABH / JCI Accredited Quaternary" },
+    { name: "Narayana Institute of Cardiac Sciences", href: "/#hospitals", location: "Bengaluru", slug: "narayana-institute-cardiac-sciences", accreditation: "NABH / JCI Accredited Quaternary" },
+    { name: "Kokilaben Dhirubhai Ambani Hospital", href: "/#hospitals", location: "Mumbai", slug: "kokilaben-dhirubhai-ambani-hospital", accreditation: "NABH / JCI Accredited Quaternary" },
+    { name: "Artemis Hospital (JCI)", href: "/#hospitals", location: "Gurugram", slug: "artemis-hospital-gurugram", accreditation: "NABH / JCI Accredited Quaternary" }
   ],
   doctors: [
     { name: "Dr. Ashok Rajgopal", role: "Orthopedic & Joint Surgeon", experience: "40+ Years Exp", slug: "ashok-rajgopal", hospital: "Medanta - The Medicity" },
