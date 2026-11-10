@@ -11,6 +11,11 @@
       "source": "/ask-akeezo",
       "destination": "/community",
       "permanent": true
+    },
+    {
+      "source": "/contact-us",
+      "destination": "/contact",
+      "permanent": true
     }
   ],
   "services": {

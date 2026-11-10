@@ -14,6 +14,8 @@ import { AboutTemplate } from "./templates/AboutTemplate.js";
 import { BlogTemplate } from "./templates/BlogTemplate.js";
 import { CommunityTemplate } from "./templates/CommunityTemplate.js";
 import { CommunityThreadTemplate } from "./templates/CommunityThreadTemplate.js";
+import { ContactTemplate } from "./templates/ContactTemplate.js";
+import { FloatingActionButtons } from "./components/FloatingActionButtons.js";
 import { getDefaultRouteData } from "./defaultData.js";
 
 export interface AppProps {
@@ -128,6 +130,8 @@ export function App({ data }: AppProps) {
         return <DoctorDetailTemplate data={currentData} />;
       case "about":
         return <AboutTemplate data={currentData} />;
+      case "contact":
+        return <ContactTemplate data={currentData} />;
       case "blogDirectory":
         return <BlogTemplate data={currentData} />;
       case "community":
@@ -145,7 +149,12 @@ export function App({ data }: AppProps) {
     }
   };
 
-  return <ErrorBoundary data={currentData}>{renderContent()}</ErrorBoundary>;
+  return (
+    <ErrorBoundary data={currentData}>
+      {renderContent()}
+      <FloatingActionButtons siteSettings={currentData.siteSettings} />
+    </ErrorBoundary>
+  );
 }
 
 export default App;

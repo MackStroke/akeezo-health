@@ -100,6 +100,7 @@ describe("Website Audit Task 4: SiteHeader & SiteFooter Audit & Feedback Message
     assert.ok(footerHtml.includes(`© ${currentYear}`), `Footer must display dynamic current year ${currentYear}`);
     assert.ok(footerHtml.includes('href="tel:'), "Footer helpline must be clickable tel: link");
     assert.ok(footerHtml.includes('href="mailto:'), "Footer care email must be clickable mailto: link");
+    assert.ok(footerHtml.includes('href="/contact"'), "Footer must contain link to /contact page");
     assert.ok(
       footerHtml.includes('href="/"') && footerHtml.includes('aria-label="Akeezo Healthcare Platform Home"'),
       "Footer brand logo must be wrapped in a link pointing to home"

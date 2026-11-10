@@ -66,6 +66,8 @@ async function main() {
     "/doctors",
     "/about",
     "/about-us",
+    "/contact",
+    "/contact-us",
     "/blog",
     "/blogs",
     "/articles",

@@ -707,6 +707,29 @@ export async function handleSsr(req: Request, res: Response, next: NextFunction)
         siteSettings,
         statusCode: 200
       };
+    } else if (normalizedPath === "/contact" || normalizedPath === "/contact-us") {
+      statusCode = 200;
+      const revData = await getFallbackPageRevision("contact");
+      dto = {
+        pageKind: "contact",
+        path: normalizedPath,
+        locale: "en",
+        seo: revData?.seo || {
+          title: "Contact Us - Medical Tourism & Patient Support | AKEEZO",
+          description:
+            "Get in touch with AKEEZO for personalized medical tourism assistance in India. Contact our care team for hospital quotes, specialist consultations, and travel guidance.",
+          canonicalPath: "/contact",
+          robots: "index,follow",
+          schemaKind: "ContactPage"
+        },
+        payload: {
+          ...(revData?.payload || {}),
+          headline: (revData?.payload as any)?.headline || "Contact Us",
+          subheadline: (revData?.payload as any)?.subheadline || "AKEEZO – Your trusted global platform to discover and compare world-class medical treatments in India."
+        },
+        siteSettings,
+        statusCode: 200
+      };
     } else if (LEGAL_SEO_MAP[normalizedPath]) {
       const legalSeo = LEGAL_SEO_MAP[normalizedPath];
       statusCode = 200;

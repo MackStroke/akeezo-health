@@ -399,6 +399,28 @@ apiRouter.get("/route", async (req, res) => {
                 res.json({ data: aboutDto });
                 return;
             }
+            if (normalizedPath === "/contact" || normalizedPath === "/contact-us") {
+                const contactDto = {
+                    pageKind: "contact",
+                    path: normalizedPath,
+                    locale,
+                    seo: {
+                        title: "Contact Us - Medical Tourism & Patient Support | AKEEZO",
+                        description: "Get in touch with AKEEZO for personalized medical tourism assistance in India. Contact our care team for hospital quotes, specialist consultations, and travel guidance.",
+                        canonicalPath: "/contact",
+                        robots: "index,follow",
+                        schemaKind: "ContactPage"
+                    },
+                    payload: {
+                        headline: "Contact Us",
+                        subheadline: "AKEEZO – Your trusted global platform to discover and compare world-class medical treatments in India."
+                    },
+                    siteSettings,
+                    statusCode: 200
+                };
+                res.json({ data: contactDto });
+                return;
+            }
             if (normalizedPath === "/ask-cma" || normalizedPath === "/ask-akeezo") {
                 res.status(301).json({
                     data: {

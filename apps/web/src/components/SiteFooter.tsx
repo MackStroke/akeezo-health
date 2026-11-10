@@ -308,105 +308,219 @@ export const SiteFooter: React.FC<SiteFooterProps> = ({ siteSettings = {} }) => 
 
         <hr className="border-border my-8" />
 
-        {/* 6 Information Columns */}
-        <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-8 text-xs text-ink-muted mb-10">
-          <div>
-            <h3 className="font-bold text-ink text-sm mb-3">About Akeezo</h3>
-            <p className="leading-relaxed mb-3">
-              India's verified medical tourism and healthcare navigation platform. Bridging global patients to accredited hospitals with personalized care coordination.
+        {/* TOP SECTION: B2C - Patients & Individual Healthcare */}
+        <div className="mb-10">
+          <div className="flex flex-wrap items-center justify-between gap-3 border-b border-border pb-3 mb-6">
+            <div className="flex items-center gap-2.5">
+              <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-[11px] font-extrabold uppercase tracking-wider bg-surface-teal text-action border border-border-teal">
+                B2C · Patient Services
+              </span>
+              <h2 className="text-sm sm:text-base font-bold text-ink">
+                Patients &amp; Individual Healthcare
+              </h2>
+            </div>
+            <p className="text-xs text-ink-muted hidden sm:block">
+              Accredited hospital discovery, transparent surgical estimates &amp; 24/7 personalized care coordination
             </p>
-            <div className="mb-3">
-              <a href="/about" className="hover:text-action font-bold text-action inline-flex items-center gap-1">
-                Meet Our Team &amp; Story &rarr;
-              </a>
+          </div>
+
+          <div className="grid grid-cols-2 sm:grid-cols-2 lg:grid-cols-4 gap-8 text-xs text-ink-muted">
+            {/* Col 1: Care Discovery & Compare */}
+            <div>
+              <h3 className="font-bold text-ink text-sm mb-3.5 flex items-center gap-1.5">
+                <Activity className="w-4 h-4 text-action" />
+                <span>Care Discovery &amp; Search</span>
+              </h3>
+              <ul className="space-y-2.5">
+                <li><a href="/treatments" className="hover:text-action transition-colors">All Treatments Directory</a></li>
+                <li><a href="/hospitals" className="hover:text-action transition-colors">Accredited Hospitals Directory</a></li>
+                <li><a href="/doctors" className="hover:text-action transition-colors">Top Doctors Directory</a></li>
+                <li><a href="/destinations" className="hover:text-action transition-colors">Destinations &amp; City Hubs</a></li>
+                <li><a href="/cost-calculator" className="hover:text-action transition-colors font-medium text-action">Treatment Cost Calculator</a></li>
+                <li><a href="/#opinion" className="hover:text-action transition-colors">Free Second Opinion</a></li>
+              </ul>
             </div>
-            <div className="font-bold text-ink">ISO 9001:2015 Certified</div>
+
+            {/* Col 2: Patient Journey Assistance */}
+            <div>
+              <h3 className="font-bold text-ink text-sm mb-3.5 flex items-center gap-1.5">
+                <HeartHandshake className="w-4 h-4 text-action" />
+                <span>Patient Journey Assistance</span>
+              </h3>
+              <ul className="space-y-2.5">
+                <li><a href="/#visa" className="hover:text-action transition-colors">Medical Visa (e-Med) Assistance</a></li>
+                <li><a href="/#concierge" className="hover:text-action transition-colors">Airport Concierge &amp; Stay</a></li>
+                <li><a href="/#telehealth" className="hover:text-action transition-colors">Video Consultation Desk</a></li>
+                <li><a href="/contact" className="hover:text-action font-semibold text-action transition-colors">Contact Us &amp; Support</a></li>
+                <li><a href="/about" className="hover:text-action transition-colors">Meet Our Team &amp; Story</a></li>
+              </ul>
+            </div>
+
+            {/* Col 3: Clinical Quality & Safety */}
+            <div>
+              <h3 className="font-bold text-ink text-sm mb-3.5 flex items-center gap-1.5">
+                <ShieldCheck className="w-4 h-4 text-action" />
+                <span>Clinical Quality &amp; Trust</span>
+              </h3>
+              <ul className="space-y-2.5">
+                <li><span className="text-action font-bold flex items-center gap-1"><Check className="w-3.5 h-3.5 text-action" /> JCI &amp; NABH Audited</span></li>
+                <li><a href="/refund-policy" className="hover:text-action transition-colors">Zero-Markup Billing Guarantee</a></li>
+                <li><a href="/consent" className="hover:text-action transition-colors">Informed Patient Consent</a></li>
+                <li><a href="/privacy" className="hover:text-action transition-colors">Data Protection Policy</a></li>
+                <li><a href="/disclaimer" className="hover:text-action transition-colors">Medical Disclaimer &amp; Ethics</a></li>
+              </ul>
+            </div>
+
+            {/* Col 4: Community & Insights */}
+            <div>
+              <h3 className="font-bold text-ink text-sm mb-3.5 flex items-center gap-1.5">
+                <Award className="w-4 h-4 text-action" />
+                <span>Community &amp; Insights</span>
+              </h3>
+              <ul className="space-y-2.5">
+                <li><a href="/community" className="hover:text-action font-semibold text-action transition-colors">Ask Community (Q&amp;A)</a></li>
+                <li><a href="/community" className="hover:text-action transition-colors">Patient Recovery Stories</a></li>
+                <li><a href="/blog" className="hover:text-action transition-colors">Clinical Blog &amp; Insights</a></li>
+                <li><a href="/terms" className="hover:text-action transition-colors">Platform Terms &amp; Scope</a></li>
+                <li className="pt-1 text-[11px] text-ink font-bold">ISO 9001:2015 Certified</li>
+              </ul>
+            </div>
+          </div>
+        </div>
+
+        {/* Visual Section Divider: Top (B2C) to Bottom (B2B) */}
+        <div className="relative my-10">
+          <div className="absolute inset-0 flex items-center" aria-hidden="true">
+            <div className="w-full border-t border-border" />
+          </div>
+          <div className="relative flex justify-center">
+            <span className="bg-white px-4 text-[11px] font-bold text-ink-muted uppercase tracking-widest flex items-center gap-2">
+              <span className="size-1.5 rounded-full bg-action" />
+              <span>Institutional Providers, Facilitators &amp; Corporate</span>
+              <span className="size-1.5 rounded-full bg-action" />
+            </span>
+          </div>
+        </div>
+
+        {/* BOTTOM SECTION: B2B - Healthcare Partners, Providers & Corporate */}
+        <div className="mb-10 rounded-2xl bg-surface-muted/60 border border-border/80 p-6 sm:p-8">
+          <div className="flex flex-wrap items-center justify-between gap-3 border-b border-border/70 pb-3 mb-6">
+            <div className="flex items-center gap-2.5">
+              <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-[11px] font-extrabold uppercase tracking-wider bg-ink text-white">
+                B2B · Institutional Network
+              </span>
+              <h2 className="text-sm sm:text-base font-bold text-ink">
+                Healthcare Providers, Partners &amp; Corporate Desks
+              </h2>
+            </div>
+            <p className="text-xs text-ink-muted hidden sm:block">
+              Hospital empanelment, international facilitator networks, corporate governance &amp; enterprise helplines
+            </p>
           </div>
 
-          <div>
-            <h3 className="font-bold text-ink text-sm mb-3">Patient Support</h3>
-            <ul className="space-y-2">
-              <li><a href="/treatments" className="hover:text-action">All Treatments Directory</a></li>
-              <li><a href="/hospitals" className="hover:text-action">Accredited Hospitals Directory</a></li>
-              <li><a href="/doctors" className="hover:text-action">Top Doctors Directory</a></li>
-              <li><a href="/community" className="hover:text-action font-semibold text-action">Ask Community (Q&amp;A)</a></li>
-              <li><a href="/cost-calculator" className="hover:text-action">Cost Calculator</a></li>
-              <li><a href="/#opinion" className="hover:text-action">Free Second Opinion</a></li>
-              <li><a href="/#visa" className="hover:text-action">Medical Visa Assistance</a></li>
-              <li><a href="/#concierge" className="hover:text-action">Airport Concierge & Stay</a></li>
-              <li><a href="/#telehealth" className="hover:text-action">Video Consultation Desk</a></li>
-            </ul>
-          </div>
+          <div className="grid grid-cols-2 sm:grid-cols-2 lg:grid-cols-5 gap-8 text-xs text-ink-muted">
+            {/* Col 1: Hospital & Specialist Onboarding */}
+            <div>
+              <h3 className="font-bold text-ink text-sm mb-3 flex items-center gap-1.5">
+                <Building2 className="w-4 h-4 text-action" />
+                <span>Hospitals &amp; Clinics</span>
+              </h3>
+              <ul className="space-y-2">
+                <li><a href="/contact" className="hover:text-action transition-colors font-medium">List Your Hospital</a></li>
+                <li><a href="/contact" className="hover:text-action transition-colors">Doctor Onboarding &amp; Profile</a></li>
+                <li><a href="/contact" className="hover:text-action transition-colors">Hospital SLA &amp; Rate Cards</a></li>
+                <li><a href="/hospitals" className="hover:text-action transition-colors">Accreditation Compliance</a></li>
+                <li><a href="/contact" className="hover:text-action transition-colors">Quaternary Referral Desk</a></li>
+              </ul>
+            </div>
 
-          <div>
-            <h3 className="font-bold text-ink text-sm mb-3">Clinical Quality</h3>
-            <ul className="space-y-2">
-              <li><span className="text-action font-semibold">JCI & NABH Audited</span></li>
-              <li><a href="/privacy" className="hover:text-action">Data Protection Policy</a></li>
-              <li><a href="/terms" className="hover:text-action">Platform Terms & Scope</a></li>
-              <li><a href="/consent" className="hover:text-action">Informed Patient Consent</a></li>
-              <li><a href="/refund-policy" className="hover:text-action">Zero-Markup Billing</a></li>
-            </ul>
-          </div>
+            {/* Col 2: Agents & Facilitators */}
+            <div>
+              <h3 className="font-bold text-ink text-sm mb-3 flex items-center gap-1.5">
+                <Globe2 className="w-4 h-4 text-action" />
+                <span>Agents &amp; Facilitators</span>
+              </h3>
+              <ul className="space-y-2">
+                <li><a href="/contact" className="hover:text-action transition-colors font-medium">Facilitator Portal Login</a></li>
+                <li><a href="/contact" className="hover:text-action transition-colors">International Partner Program</a></li>
+                <li><a href="/contact" className="hover:text-action transition-colors">Commission &amp; Fee Policy</a></li>
+                <li><a href="/contact" className="hover:text-action transition-colors">Institutional Travel Desk</a></li>
+                <li><a href="/contact" className="hover:text-action transition-colors">Cross-Border Case Intake</a></li>
+              </ul>
+            </div>
 
-          <div>
-            <h3 className="font-bold text-ink text-sm mb-3">Legal & Policies</h3>
-            <ul className="space-y-2">
-              <li><a href="/privacy" className="hover:text-action font-medium">Privacy Policy (DPDP / GDPR)</a></li>
-              <li><a href="/terms" className="hover:text-action">Terms of Service</a></li>
-              <li><a href="/disclaimer" className="hover:text-action">Medical Disclaimer</a></li>
-              <li><a href="/grievance-officer" className="hover:text-action">Grievance Officer</a></li>
-              <li><a href="/refund-policy" className="hover:text-action">Refund Policy</a></li>
-            </ul>
-          </div>
+            {/* Col 3: Corporate Governance & Legal */}
+            <div>
+              <h3 className="font-bold text-ink text-sm mb-3 flex items-center gap-1.5">
+                <ShieldCheck className="w-4 h-4 text-action" />
+                <span>Corporate &amp; Legal</span>
+              </h3>
+              <ul className="space-y-2">
+                <li><a href="/privacy" className="hover:text-action transition-colors font-medium">Privacy Policy (DPDP / GDPR)</a></li>
+                <li><a href="/terms" className="hover:text-action transition-colors">Terms of Service</a></li>
+                <li><a href="/disclaimer" className="hover:text-action transition-colors">Medical Disclaimer</a></li>
+                <li><a href="/grievance-officer" className="hover:text-action transition-colors">Grievance Officer</a></li>
+                <li><a href="/refund-policy" className="hover:text-action transition-colors">Refund Policy</a></li>
+                <li className="pt-1.5 text-[11px] leading-tight text-ink font-semibold">{legalEntity}</li>
+              </ul>
+            </div>
 
-          <div>
-            <h3 className="font-bold text-ink text-sm mb-3">Care Coordination</h3>
-            <div className="space-y-2">
-              <div>
-                <span className="font-bold text-ink">Helpline:</span>{" "}
-                <a href={`tel:${phoneClean}`} className="hover:text-action hover:underline font-semibold">
-                  {phone}
-                </a>
-              </div>
-              <div>
-                <span className="font-bold text-ink">Care:</span>{" "}
-                <a href={`mailto:${careEmail}`} className="hover:text-action hover:underline">
-                  {careEmail}
-                </a>
-              </div>
-              <div><span className="font-bold text-ink">Office:</span> {officeAddress}</div>
-              <div className="pt-2">
-                <a
-                  href={`https://wa.me/${phoneClean}?text=Hello%20Akeezo%20Care%20Desk`}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="inline-flex items-center gap-1.5 rounded-full bg-surface-teal border border-border-teal px-3 py-1 font-bold text-action text-[11px] hover:bg-surface-teal/70 transition-colors shadow-2xs"
-                >
-                  <svg
-                    className="size-3.5 fill-[#25D366] shrink-0"
-                    viewBox="0 0 24 24"
-                    aria-hidden="true"
+            {/* Col 4: Care Coordination & Corporate Desks */}
+            <div>
+              <h3 className="font-bold text-ink text-sm mb-3 flex items-center gap-1.5">
+                <Stethoscope className="w-4 h-4 text-action" />
+                <span>Care Coordination</span>
+              </h3>
+              <div className="space-y-2">
+                <div className="mb-1">
+                  <a href="/contact" className="hover:text-action font-bold text-action inline-flex items-center gap-1">
+                    Contact Us &amp; Office &rarr;
+                  </a>
+                </div>
+                <div>
+                  <span className="font-bold text-ink">Helpline:</span>{" "}
+                  <a href={`tel:${phoneClean}`} className="hover:text-action hover:underline font-semibold">
+                    {phone}
+                  </a>
+                </div>
+                <div>
+                  <span className="font-bold text-ink">Care:</span>{" "}
+                  <a href={`mailto:${careEmail}`} className="hover:text-action hover:underline">
+                    {careEmail}
+                  </a>
+                </div>
+                <div><span className="font-bold text-ink">Office:</span> {officeAddress}</div>
+                <div className="pt-2">
+                  <a
+                    href={`https://wa.me/${phoneClean}?text=Hello%20Akeezo%20Care%20Desk`}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="inline-flex items-center gap-1.5 rounded-full bg-white border border-border-teal px-3 py-1 font-bold text-action text-[11px] hover:bg-surface-teal/70 transition-colors shadow-2xs"
                   >
-                    <path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.501-.669-.51l-.57-.01c-.198 0-.52.074-.792.372s-1.04 1.016-1.04 2.479 1.065 2.876 1.213 3.074c.149.198 2.095 3.2 5.076 4.487.709.306 1.263.489 1.694.626.712.226 1.36.194 1.872.118.571-.085 1.758-.719 2.006-1.413.248-.695.248-1.29.173-1.414-.074-.124-.272-.198-.57-.347z" />
-                    <path
-                      fillRule="evenodd"
-                      clipRule="evenodd"
-                      d="M12 0C5.373 0 0 5.373 0 12c0 2.119.553 4.11 1.519 5.842L.055 23.361l5.688-1.491A11.936 11.936 0 0012 24c6.627 0 12-5.373 12-12S18.627 0 12 0zm0 22c-1.83 0-3.551-.482-5.05-1.325l-.362-.202-3.37.884.899-3.284-.236-.375A9.953 9.953 0 012 12C2 6.477 6.477 2 12 2s10 4.477 10 10-4.477 10-10 10z"
-                    />
-                  </svg>
-                  <span>WhatsApp 24/7 Desk</span>
-                </a>
+                    <svg
+                      className="size-3.5 fill-[#25D366] shrink-0"
+                      viewBox="0 0 24 24"
+                      aria-hidden="true"
+                    >
+                      <path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.501-.669-.51l-.57-.01c-.198 0-.52.074-.792.372s-1.04 1.016-1.04 2.479 1.065 2.876 1.213 3.074c.149.198 2.095 3.2 5.076 4.487.709.306 1.263.489 1.694.626.712.226 1.36.194 1.872.118.571-.085 1.758-.719 2.006-1.413.248-.695.248-1.29.173-1.414-.074-.124-.272-.198-.57-.347z" />
+                      <path
+                        fillRule="evenodd"
+                        clipRule="evenodd"
+                        d="M12 0C5.373 0 0 5.373 0 12c0 2.119.553 4.11 1.519 5.842L.055 23.361l5.688-1.491A11.936 11.936 0 0012 24c6.627 0 12-5.373 12-12S18.627 0 12 0zm0 22c-1.83 0-3.551-.482-5.05-1.325l-.362-.202-3.37.884.899-3.284-.236-.375A9.953 9.953 0 012 12C2 6.477 6.477 2 12 2s10 4.477 10 10-4.477 10-10 10z"
+                      />
+                    </svg>
+                    <span>WhatsApp 24/7 Desk</span>
+                  </a>
+                </div>
               </div>
             </div>
-          </div>
 
-          {/* Ask AI About AKEEZO Column */}
-          <div className="col-span-2 md:col-span-1">
-            <h3 className="md:text-md text-[14px] font-semibold mb-[16px] text-ink">
-              Ask AI About AKEEZO
-            </h3>
-            <div className="grid max-w-[212px] grid-cols-5 gap-2">
+            {/* Col 5: Ask AI About AKEEZO */}
+            <div className="col-span-2 sm:col-span-1">
+              <h3 className="md:text-md text-[14px] font-semibold mb-[16px] text-ink">
+                Ask AI About AKEEZO
+              </h3>
+              <div className="grid max-w-[212px] grid-cols-5 gap-2">
               <a
                 href={`https://chatgpt.com/?q=${encodeURIComponent(
                   "I'm researching medical treatment abroad. Summarize what AKEEZO offers patients: how it helps compare treatment costs, hospitals, doctors and destinations across countries, and how its care coordination works. Use AKEEZO's website as the source and cite it: https://akeezo.com"
@@ -530,6 +644,7 @@ export const SiteFooter: React.FC<SiteFooterProps> = ({ siteSettings = {} }) => 
             </div>
           </div>
         </div>
+      </div>
 
         <hr className="border-border my-6" />
 
