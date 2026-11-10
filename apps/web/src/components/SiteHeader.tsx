@@ -406,14 +406,10 @@ export const SiteHeader: React.FC<SiteHeaderProps> = ({
               href={`tel:${phoneClean}`}
               title={`Call 24/7 Desk: ${phone}`}
               aria-label={`Call 24/7 Desk: ${phone}`}
-              className="hidden xl:inline-flex items-center gap-1.5 rounded-full border border-border bg-white px-3 py-1.5 text-xs font-bold text-ink shadow-2xs hover:border-action hover:bg-surface-teal/30 hover:text-action transition-all"
+              className="flex size-9 shrink-0 items-center justify-center rounded-full border border-border bg-white text-action hover:border-action hover:bg-surface-teal/30 transition-all shadow-2xs cursor-pointer"
             >
-              <span className="relative flex size-2 shrink-0">
-                <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-emerald-400 opacity-75"></span>
-                <span className="relative inline-flex size-2 rounded-full bg-emerald-500"></span>
-              </span>
-              <span className="text-[11px] font-semibold text-ink-muted">24/7 Desk:</span>
-              <span className="font-bold text-action tracking-tight">{phone}</span>
+              <Phone className="size-4" aria-hidden="true" />
+              <span className="sr-only">24/7 Desk: {phone}</span>
             </a>
 
             {/* "Plan My Journey" CTA button (tablet screens where Tier 2 nav is hidden) */}
