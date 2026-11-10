@@ -128,7 +128,8 @@ export function toSafeSiteSettings(doc) {
         },
         socialLinks: doc?.socialLinks,
         integrations: doc?.integrations,
-        carouselSlides: doc?.carouselSlides && doc.carouselSlides.length > 0 ? doc.carouselSlides : DEFAULT_CAROUSEL_SLIDES
+        carouselSlides: doc?.carouselSlides && doc.carouselSlides.length > 0 ? doc.carouselSlides : DEFAULT_CAROUSEL_SLIDES,
+        directoryDoctors: doc?.directoryDoctors || undefined
     });
 }
 export function renderFallback500Html(siteSettings) {
@@ -258,7 +259,31 @@ export async function handleSsr(req, res, next) {
         const settingsDoc = (await SiteSettings.findOne({ environment: env.NODE_ENV }).lean()) ||
             (await SiteSettings.findOne({ environment: "development" }).lean()) ||
             (await SiteSettings.findOne().lean());
-        const siteSettings = toSafeSiteSettings(settingsDoc);
+        let directoryDoctors = undefined;
+        if (mongoose.connection.readyState === 1) {
+            try {
+                const docPage = await Page.findOne({ slug: "doctors", locale: "en" }).lean();
+                if (docPage) {
+                    const revId = docPage.publishedRevisionId || docPage.draftRevisionId;
+                    if (revId) {
+                        const rev = await ContentRevision.findById(revId).lean();
+                        const docList = rev?.payload?.doctors;
+                        if (Array.isArray(docList) && docList.length > 0) {
+                            directoryDoctors = docList.filter((d) => d.active !== false).slice(0, 8).map((d) => ({
+                                name: d.name,
+                                role: d.role || d.designation || d.specialty || "Medical Specialist",
+                                experience: d.experience || (d.experienceYears ? `${d.experienceYears}+ Years Exp` : "15+ Years Exp"),
+                                slug: d.slug,
+                                hospital: d.hospital,
+                                image: d.image
+                            }));
+                        }
+                    }
+                }
+            }
+            catch { }
+        }
+        const siteSettings = toSafeSiteSettings({ ...settingsDoc, directoryDoctors });
         // 2. Resolve RouteEntry
         const routeEntry = await RouteEntry.findOne({ locale: "en", path: normalizedPath }).lean();
         let dto;
@@ -556,7 +581,8 @@ export async function handleSsr(req, res, next) {
                     payload: {
                         ...(revData?.payload || {}),
                         headline: revData?.payload?.headline || "World-Class Doctors, Personally Matched for You",
-                        subheadline: revData?.payload?.subheadline || "Search, compare, and connect with leading specialists across the globe."
+                        subheadline: revData?.payload?.subheadline || "Search, compare, and connect with leading specialists across the globe.",
+                        doctors: revData?.payload?.doctors || undefined
                     },
                     siteSettings,
                     statusCode: 200

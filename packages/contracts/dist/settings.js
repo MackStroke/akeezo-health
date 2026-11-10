@@ -637,7 +637,17 @@ export const SiteSettingsSchema = z.object({
     })
         .optional(),
     socialLinks: z.record(z.string()).optional(),
-    carouselSlides: z.array(CarouselSlideSchema).optional().default(DEFAULT_CAROUSEL_SLIDES)
+    carouselSlides: z.array(CarouselSlideSchema).optional().default(DEFAULT_CAROUSEL_SLIDES),
+    directoryDoctors: z
+        .array(z.object({
+        name: z.string(),
+        role: z.string(),
+        experience: z.string().optional(),
+        slug: z.string().optional(),
+        hospital: z.string().optional(),
+        image: z.string().optional(),
+    }))
+        .optional()
 });
 // Helper functions for CSS variable generation
 export function sanitizeCssValue(val) {

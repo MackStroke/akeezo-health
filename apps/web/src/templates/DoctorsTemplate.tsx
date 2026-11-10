@@ -988,7 +988,7 @@ export function DoctorsTemplate({ data }: DoctorsTemplateProps) {
       </main>
 
       {/* Global Site Footer */}
-      <SiteFooter />
+      <SiteFooter siteSettings={data.siteSettings} />
 
       {/* DOCTOR CONSULTATION MODAL */}
       {isModalOpen && (

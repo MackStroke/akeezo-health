@@ -1,6 +1,6 @@
 import { Router } from "express";
 import mongoose from "mongoose";
-import { RouteEntry, ContentRevision, SiteSettings, ChangelogModel, BlogPostModel, EnquiryModel, CommunityThreadModel } from "../db/models/index.js";
+import { RouteEntry, ContentRevision, Page, SiteSettings, ChangelogModel, BlogPostModel, EnquiryModel, CommunityThreadModel } from "../db/models/index.js";
 import { getDoctorDetail, getHospitalDetail, CURATED_COMMUNITY_THREADS, getCommunityThreadBySlug, ALL_DESTINATIONS, getDestinationDetail } from "@akeezo/contracts";
 import { toSafeSiteSettings } from "../ssr/renderer.js";
 import { caseManagementRouter } from "./caseManagementRoutes.js";
@@ -26,6 +26,36 @@ apiRouter.get("/health", (_req, res) => {
         }
     });
 });
+// Helper to fetch directory doctors from Page CMS for siteSettings
+async function getDirectoryDoctorsFromDb() {
+    if (mongoose.connection.readyState !== 1)
+        return undefined;
+    try {
+        const docPage = await Page.findOne({ slug: "doctors", locale: "en" }).lean();
+        if (docPage) {
+            const revId = docPage.publishedRevisionId || docPage.draftRevisionId;
+            if (revId) {
+                const rev = await ContentRevision.findById(revId).lean();
+                const docList = rev?.payload?.doctors;
+                if (Array.isArray(docList) && docList.length > 0) {
+                    return docList
+                        .filter((d) => d.active !== false)
+                        .slice(0, 8)
+                        .map((d) => ({
+                        name: d.name,
+                        role: d.role || d.designation || d.specialty || "Medical Specialist",
+                        experience: d.experience || (d.experienceYears ? `${d.experienceYears}+ Years Exp` : "15+ Years Exp"),
+                        slug: d.slug,
+                        hospital: d.hospital,
+                        image: d.image
+                    }));
+                }
+            }
+        }
+    }
+    catch { }
+    return undefined;
+}
 // GET /api/v1/site
 apiRouter.get("/site", async (_req, res) => {
     try {
@@ -33,11 +63,36 @@ apiRouter.get("/site", async (_req, res) => {
             ? (await SiteSettings.findOne({ environment: "development" }).lean()) ||
                 (await SiteSettings.findOne().lean())
             : null;
-        const siteSettings = toSafeSiteSettings(settingsDoc);
+        const directoryDoctors = await getDirectoryDoctorsFromDb();
+        const siteSettings = toSafeSiteSettings({ ...settingsDoc, directoryDoctors });
         res.json({ data: siteSettings });
     }
     catch (err) {
         res.json({ data: toSafeSiteSettings(null) });
+    }
+});
+// GET /api/v1/doctors (public directory list)
+apiRouter.get("/doctors", async (_req, res) => {
+    try {
+        if (mongoose.connection.readyState !== 1) {
+            return res.json({ data: [] });
+        }
+        const docPage = await Page.findOne({ slug: "doctors", locale: "en" }).lean();
+        let docList = [];
+        if (docPage) {
+            const revId = docPage.publishedRevisionId || docPage.draftRevisionId;
+            if (revId) {
+                const rev = await ContentRevision.findById(revId).lean();
+                const rawList = rev?.payload?.doctors;
+                if (Array.isArray(rawList)) {
+                    docList = rawList.filter((d) => d.active !== false);
+                }
+            }
+        }
+        res.json({ data: docList });
+    }
+    catch (err) {
+        res.status(500).json({ error: { code: "FETCH_DOCTORS_FAILED", message: err.message } });
     }
 });
 // GET /api/v1/changelogs (public read-only)
@@ -144,13 +199,15 @@ apiRouter.get("/route", async (req, res) => {
         const normalizedPath = rawPath.length > 1 && rawPath.endsWith("/") ? rawPath.slice(0, -1) : rawPath;
         let settingsDoc = null;
         let routeEntry = null;
+        let directoryDoctors = undefined;
         if (mongoose.connection.readyState === 1) {
             settingsDoc =
                 (await SiteSettings.findOne({ environment: "development" }).lean()) ||
                     (await SiteSettings.findOne().lean());
             routeEntry = await RouteEntry.findOne({ locale, path: normalizedPath }).lean();
+            directoryDoctors = await getDirectoryDoctorsFromDb();
         }
-        const siteSettings = toSafeSiteSettings(settingsDoc);
+        const siteSettings = toSafeSiteSettings({ ...settingsDoc, directoryDoctors });
         if (!routeEntry) {
             if (normalizedPath === "/500") {
                 const serverErrorDto = {
@@ -312,8 +369,20 @@ apiRouter.get("/route", async (req, res) => {
                     ? normalizedPath.replace(/^\/doctors\/?/, "").split("/")[0]
                     : "";
                 const isDetail = Boolean(slug);
+                let fallbackDoctors = undefined;
+                try {
+                    const docPage = await Page.findOne({ slug: "doctors", locale: "en" }).lean();
+                    if (docPage) {
+                        const revId = docPage.publishedRevisionId || docPage.draftRevisionId;
+                        if (revId) {
+                            const rev = await ContentRevision.findById(revId).lean();
+                            fallbackDoctors = rev?.payload?.doctors;
+                        }
+                    }
+                }
+                catch { }
                 if (isDetail) {
-                    const doctor = getDoctorDetail(slug);
+                    const doctor = getDoctorDetail(slug, fallbackDoctors);
                     if (doctor) {
                         const detailDto = {
                             pageKind: "doctorDetail",
@@ -369,7 +438,8 @@ apiRouter.get("/route", async (req, res) => {
                     },
                     payload: {
                         headline: "World-Class Doctors, Personally Matched for You",
-                        subheadline: "Search, compare, and connect with leading specialists across the globe."
+                        subheadline: "Search, compare, and connect with leading specialists across the globe.",
+                        doctors: fallbackDoctors || undefined
                     },
                     siteSettings,
                     statusCode: 200
@@ -690,8 +760,22 @@ apiRouter.get("/route", async (req, res) => {
     }
 });
 // GET /api/v1/doctors/:slug (Public Doctor Detail API)
-apiRouter.get("/doctors/:slug", (req, res) => {
-    const doctor = getDoctorDetail(req.params.slug);
+apiRouter.get("/doctors/:slug", async (req, res) => {
+    let fallbackDoctors = undefined;
+    if (mongoose.connection.readyState === 1) {
+        try {
+            const docPage = await Page.findOne({ slug: "doctors", locale: "en" }).lean();
+            if (docPage) {
+                const revId = docPage.publishedRevisionId || docPage.draftRevisionId;
+                if (revId) {
+                    const rev = await ContentRevision.findById(revId).lean();
+                    fallbackDoctors = rev?.payload?.doctors;
+                }
+            }
+        }
+        catch { }
+    }
+    const doctor = getDoctorDetail(req.params.slug, fallbackDoctors);
     if (!doctor) {
         res.status(404).json({ error: { code: "NOT_FOUND", message: "Doctor not found" } });
         return;

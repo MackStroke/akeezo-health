@@ -478,6 +478,28 @@ export declare const PublicRouteResponseSchema: z.ZodObject<{
             iconName?: string | undefined;
             isActive?: boolean | undefined;
         }>, "many">>>;
+        directoryDoctors: z.ZodOptional<z.ZodArray<z.ZodObject<{
+            name: z.ZodString;
+            role: z.ZodString;
+            experience: z.ZodOptional<z.ZodString>;
+            slug: z.ZodOptional<z.ZodString>;
+            hospital: z.ZodOptional<z.ZodString>;
+            image: z.ZodOptional<z.ZodString>;
+        }, "strip", z.ZodTypeAny, {
+            name: string;
+            role: string;
+            slug?: string | undefined;
+            image?: string | undefined;
+            hospital?: string | undefined;
+            experience?: string | undefined;
+        }, {
+            name: string;
+            role: string;
+            slug?: string | undefined;
+            image?: string | undefined;
+            hospital?: string | undefined;
+            experience?: string | undefined;
+        }>, "many">>;
     }, "strip", z.ZodTypeAny, {
         phone: string;
         tagline: string;
@@ -633,6 +655,14 @@ export declare const PublicRouteResponseSchema: z.ZodObject<{
             address?: string | undefined;
         } | undefined;
         socialLinks?: Record<string, string> | undefined;
+        directoryDoctors?: {
+            name: string;
+            role: string;
+            slug?: string | undefined;
+            image?: string | undefined;
+            hospital?: string | undefined;
+            experience?: string | undefined;
+        }[] | undefined;
     }, {
         phone?: string | undefined;
         tagline?: string | undefined;
@@ -787,6 +817,14 @@ export declare const PublicRouteResponseSchema: z.ZodObject<{
             buttonLink?: string | undefined;
             iconName?: string | undefined;
             isActive?: boolean | undefined;
+        }[] | undefined;
+        directoryDoctors?: {
+            name: string;
+            role: string;
+            slug?: string | undefined;
+            image?: string | undefined;
+            hospital?: string | undefined;
+            experience?: string | undefined;
         }[] | undefined;
     }>;
     statusCode: z.ZodDefault<z.ZodNumber>;
@@ -959,6 +997,14 @@ export declare const PublicRouteResponseSchema: z.ZodObject<{
             address?: string | undefined;
         } | undefined;
         socialLinks?: Record<string, string> | undefined;
+        directoryDoctors?: {
+            name: string;
+            role: string;
+            slug?: string | undefined;
+            image?: string | undefined;
+            hospital?: string | undefined;
+            experience?: string | undefined;
+        }[] | undefined;
     };
     revisionId?: string | undefined;
 }, {
@@ -1127,6 +1173,14 @@ export declare const PublicRouteResponseSchema: z.ZodObject<{
             buttonLink?: string | undefined;
             iconName?: string | undefined;
             isActive?: boolean | undefined;
+        }[] | undefined;
+        directoryDoctors?: {
+            name: string;
+            role: string;
+            slug?: string | undefined;
+            image?: string | undefined;
+            hospital?: string | undefined;
+            experience?: string | undefined;
         }[] | undefined;
     };
     locale?: string | undefined;

@@ -82,10 +82,64 @@ const getDoctorIcon = (_name: string, role: string) => {
 
 export interface SiteFooterProps {
   siteSettings?: Partial<SiteSettings>;
+  doctors?: any[];
 }
 
-export const SiteFooter: React.FC<SiteFooterProps> = ({ siteSettings = {} }) => {
+export const SiteFooter: React.FC<SiteFooterProps> = ({ siteSettings = {}, doctors: initialDoctors }) => {
   const [activeTab, setActiveTab] = useState<"treatments" | "hospitals" | "doctors" | "destinations">("treatments");
+
+  // Doctors directory synced with Admin Panel
+  const initialDoctorsList =
+    initialDoctors && initialDoctors.length > 0
+      ? initialDoctors
+      : siteSettings?.directoryDoctors && siteSettings.directoryDoctors.length > 0
+      ? siteSettings.directoryDoctors
+      : DIRECTORY_TABS.doctors;
+
+  const [doctorsList, setDoctorsList] = useState<any[]>(initialDoctorsList);
+
+  useEffect(() => {
+    if (initialDoctors && initialDoctors.length > 0) {
+      setDoctorsList(initialDoctors);
+      return;
+    }
+    if (siteSettings?.directoryDoctors && siteSettings.directoryDoctors.length > 0) {
+      setDoctorsList(siteSettings.directoryDoctors);
+      return;
+    }
+
+    let isMounted = true;
+    fetch("/api/v1/doctors")
+      .then((res) => {
+        if (!res.ok) throw new Error("Failed to fetch doctors");
+        return res.json();
+      })
+      .then((json) => {
+        if (isMounted && Array.isArray(json?.data) && json.data.length > 0) {
+          const mapped = json.data
+            .filter((d: any) => d.active !== false)
+            .slice(0, 8)
+            .map((d: any) => ({
+              name: d.name,
+              role: d.role || d.designation || d.specialty || "Medical Specialist",
+              experience: d.experience || (d.experienceYears ? `${d.experienceYears}+ Years Exp` : "15+ Years Exp"),
+              slug: d.slug,
+              hospital: d.hospital,
+              image: d.image
+            }));
+          if (mapped.length > 0) {
+            setDoctorsList(mapped);
+          }
+        }
+      })
+      .catch(() => {
+        // Fallback silently to initialList
+      });
+
+    return () => {
+      isMounted = false;
+    };
+  }, [initialDoctors, siteSettings?.directoryDoctors]);
 
   // Regional Currency & Language Switcher State
   const [selectedCountry, setSelectedCountry] = useState<CountryOption>(COUNTRIES[0]);
@@ -182,128 +236,120 @@ export const SiteFooter: React.FC<SiteFooterProps> = ({ siteSettings = {} }) => 
             </div>
           </div>
 
-          {activeTab === "treatments" && (
-            <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-3">
-              {DIRECTORY_TABS.treatments.map((item, idx) => (
-                <a
-                  key={idx}
-                  href={`https://wa.me/${phoneClean}?text=Hello%20Akeezo,%20I%20would%20like%20to%20inquire%20about%20${encodeURIComponent(item.name)}`}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="group rounded-xl border border-border p-3.5 hover:border-action hover:bg-surface-teal/30 transition-all cursor-pointer block"
-                >
-                  <div className="flex items-center justify-between gap-2 mb-2">
-                    <div className="w-8 h-8 rounded-lg bg-surface-teal text-action flex items-center justify-center shrink-0 group-hover:bg-action group-hover:text-white transition-colors">
-                      {getTreatmentIcon(item.name, item.category)}
-                    </div>
-                    <div className="text-[11px] font-semibold text-action uppercase tracking-wider truncate">
-                      {item.category}
-                    </div>
+          <div className={activeTab === "treatments" ? "grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-3" : "hidden"}>
+            {DIRECTORY_TABS.treatments.map((item, idx) => (
+              <a
+                key={idx}
+                href={`https://wa.me/${phoneClean}?text=Hello%20Akeezo,%20I%20would%20like%20to%20inquire%20about%20${encodeURIComponent(item.name)}`}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="group rounded-xl border border-border p-3.5 hover:border-action hover:bg-surface-teal/30 transition-all cursor-pointer block"
+              >
+                <div className="flex items-center justify-between gap-2 mb-2">
+                  <div className="w-8 h-8 rounded-lg bg-surface-teal text-action flex items-center justify-center shrink-0 group-hover:bg-action group-hover:text-white transition-colors">
+                    {getTreatmentIcon(item.name, item.category)}
                   </div>
-                  <div className="text-sm font-bold text-ink group-hover:text-action transition-colors leading-snug">
-                    {item.name}
+                  <div className="text-[11px] font-semibold text-action uppercase tracking-wider truncate">
+                    {item.category}
                   </div>
-                  <div className="text-xs text-ink-muted mt-2 flex items-center gap-1 group-hover:text-action transition-colors">
-                    <span>Free Clinical Opinion &amp; Estimate</span>
-                    <span className="transition-transform group-hover:translate-x-0.5">&rarr;</span>
-                  </div>
-                </a>
-              ))}
-            </div>
-          )}
+                </div>
+                <div className="text-sm font-bold text-ink group-hover:text-action transition-colors leading-snug">
+                  {item.name}
+                </div>
+                <div className="text-xs text-ink-muted mt-2 flex items-center gap-1 group-hover:text-action transition-colors">
+                  <span>Free Clinical Opinion &amp; Estimate</span>
+                  <span className="transition-transform group-hover:translate-x-0.5">&rarr;</span>
+                </div>
+              </a>
+            ))}
+          </div>
 
-          {activeTab === "hospitals" && (
-            <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-3">
-              {DIRECTORY_TABS.hospitals.map((item, idx) => (
-                <a
-                  key={idx}
-                  href={`https://wa.me/${phoneClean}?text=Hello%20Akeezo,%20I%20would%20like%20to%20inquire%20about%20admission%20at%20${encodeURIComponent(item.name)}`}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="group rounded-xl border border-border p-3.5 hover:border-action hover:bg-surface-teal/30 transition-all cursor-pointer block"
-                >
-                  <div className="flex items-center justify-between gap-2 mb-2">
-                    <div className="w-8 h-8 rounded-lg bg-surface-teal text-action flex items-center justify-center shrink-0 group-hover:bg-action group-hover:text-white transition-colors">
-                      <Building2 className="w-4 h-4" />
-                    </div>
-                    <div className="text-xs text-action font-semibold flex items-center gap-1 truncate">
-                      <MapPin className="w-3 h-3 shrink-0" />
-                      <span>{item.location}</span>
-                    </div>
+          <div className={activeTab === "hospitals" ? "grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-3" : "hidden"}>
+            {DIRECTORY_TABS.hospitals.map((item, idx) => (
+              <a
+                key={idx}
+                href={`https://wa.me/${phoneClean}?text=Hello%20Akeezo,%20I%20would%20like%20to%20inquire%20about%20admission%20at%20${encodeURIComponent(item.name)}`}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="group rounded-xl border border-border p-3.5 hover:border-action hover:bg-surface-teal/30 transition-all cursor-pointer block"
+              >
+                <div className="flex items-center justify-between gap-2 mb-2">
+                  <div className="w-8 h-8 rounded-lg bg-surface-teal text-action flex items-center justify-center shrink-0 group-hover:bg-action group-hover:text-white transition-colors">
+                    <Building2 className="w-4 h-4" />
                   </div>
-                  <div className="text-sm font-bold text-ink group-hover:text-action transition-colors leading-snug">
-                    {item.name}
+                  <div className="text-xs text-action font-semibold flex items-center gap-1 truncate">
+                    <MapPin className="w-3 h-3 shrink-0" />
+                    <span>{item.location}</span>
                   </div>
-                  <div className="text-xs text-ink-muted mt-2 flex items-center gap-1.5">
-                    <ShieldCheck className="w-3.5 h-3.5 text-action shrink-0" />
-                    <span>NABH / JCI Accredited Quaternary</span>
-                  </div>
-                </a>
-              ))}
-            </div>
-          )}
+                </div>
+                <div className="text-sm font-bold text-ink group-hover:text-action transition-colors leading-snug">
+                  {item.name}
+                </div>
+                <div className="text-xs text-ink-muted mt-2 flex items-center gap-1.5">
+                  <ShieldCheck className="w-3.5 h-3.5 text-action shrink-0" />
+                  <span>NABH / JCI Accredited Quaternary</span>
+                </div>
+              </a>
+            ))}
+          </div>
 
-          {activeTab === "doctors" && (
-            <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-3">
-              {DIRECTORY_TABS.doctors.map((item, idx) => (
-                <a
-                  key={idx}
-                  href={`https://wa.me/${phoneClean}?text=Hello%20Akeezo,%20I%20would%20like%20to%20consult%20with%20${encodeURIComponent(item.name)}`}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="group rounded-xl border border-border p-3.5 hover:border-action hover:bg-surface-teal/30 transition-all cursor-pointer block"
-                >
-                  <div className="flex items-center justify-between gap-2 mb-2">
-                    <div className="w-8 h-8 rounded-lg bg-surface-teal text-action flex items-center justify-center shrink-0 group-hover:bg-action group-hover:text-white transition-colors">
-                      {getDoctorIcon(item.name, item.role)}
-                    </div>
-                    <div className="text-xs text-ink-muted font-medium flex items-center gap-1 bg-surface-muted px-2 py-0.5 rounded-full border border-border">
-                      <Award className="w-3 h-3 text-action shrink-0" />
-                      <span>{item.experience}</span>
-                    </div>
+          <div className={activeTab === "doctors" ? "grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-3" : "hidden"}>
+            {doctorsList.map((item, idx) => (
+              <a
+                key={item.slug || idx}
+                href={`https://wa.me/${phoneClean}?text=Hello%20Akeezo,%20I%20would%20like%20to%20consult%20with%20${encodeURIComponent(item.name)}`}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="group rounded-xl border border-border p-3.5 hover:border-action hover:bg-surface-teal/30 transition-all cursor-pointer block"
+              >
+                <div className="flex items-center justify-between gap-2 mb-2">
+                  <div className="w-8 h-8 rounded-lg bg-surface-teal text-action flex items-center justify-center shrink-0 group-hover:bg-action group-hover:text-white transition-colors">
+                    {getDoctorIcon(item.name, item.role)}
                   </div>
-                  <div className="text-sm font-bold text-ink group-hover:text-action transition-colors leading-snug">
-                    {item.name}
+                  <div className="text-xs text-ink-muted font-medium flex items-center gap-1 bg-surface-muted px-2 py-0.5 rounded-full border border-border">
+                    <Award className="w-3 h-3 text-action shrink-0" />
+                    <span>{item.experience}</span>
                   </div>
-                  <div className="text-xs text-action font-semibold mt-2 flex items-center gap-1.5 truncate">
-                    <Stethoscope className="w-3.5 h-3.5 shrink-0 text-action/70" />
-                    <span className="truncate">{item.role}</span>
-                  </div>
-                </a>
-              ))}
-            </div>
-          )}
+                </div>
+                <div className="text-sm font-bold text-ink group-hover:text-action transition-colors leading-snug">
+                  {item.name}
+                </div>
+                <div className="text-xs text-action font-semibold mt-2 flex items-center gap-1.5 truncate">
+                  <Stethoscope className="w-3.5 h-3.5 shrink-0 text-action/70" />
+                  <span className="truncate">{item.role}</span>
+                </div>
+              </a>
+            ))}
+          </div>
 
-          {activeTab === "destinations" && (
-            <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-3">
-              {DIRECTORY_TABS.destinations.map((item, idx) => (
-                <a
-                  key={idx}
-                  href={`https://wa.me/${phoneClean}?text=Hello%20Akeezo,%20I%20am%20planning%20medical%20treatment%20in%20${encodeURIComponent(item.name)}`}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="group rounded-xl border border-border p-3.5 hover:border-action hover:bg-surface-teal/30 transition-all cursor-pointer block"
-                >
-                  <div className="flex items-center justify-between gap-2 mb-2">
-                    <div className="w-8 h-8 rounded-lg bg-surface-teal flex items-center justify-center text-base shrink-0 group-hover:bg-action group-hover:text-white transition-colors">
-                      {item.flag}
-                    </div>
-                    <div className="text-xs text-action font-semibold flex items-center gap-1 bg-surface-teal/50 px-2 py-0.5 rounded-full border border-border-teal/40">
-                      <MapPin className="w-3 h-3 shrink-0" />
-                      <span>India Hub</span>
-                    </div>
+          <div className={activeTab === "destinations" ? "grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-3" : "hidden"}>
+            {DIRECTORY_TABS.destinations.map((item, idx) => (
+              <a
+                key={idx}
+                href={`https://wa.me/${phoneClean}?text=Hello%20Akeezo,%20I%20am%20planning%20medical%20treatment%20in%20${encodeURIComponent(item.name)}`}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="group rounded-xl border border-border p-3.5 hover:border-action hover:bg-surface-teal/30 transition-all cursor-pointer block"
+              >
+                <div className="flex items-center justify-between gap-2 mb-2">
+                  <div className="w-8 h-8 rounded-lg bg-surface-teal flex items-center justify-center text-base shrink-0 group-hover:bg-action group-hover:text-white transition-colors">
+                    {item.flag}
                   </div>
-                  <div className="text-sm font-bold text-ink group-hover:text-action transition-colors leading-snug">
-                    {item.name}
+                  <div className="text-xs text-action font-semibold flex items-center gap-1 bg-surface-teal/50 px-2 py-0.5 rounded-full border border-border-teal/40">
+                    <MapPin className="w-3 h-3 shrink-0" />
+                    <span>India Hub</span>
                   </div>
-                  <div className="text-xs text-ink-muted mt-2 flex items-center gap-1.5">
-                    <Building2 className="w-3.5 h-3.5 text-action shrink-0" />
-                    <span>{item.count}</span>
-                  </div>
-                </a>
-              ))}
-            </div>
-          )}
+                </div>
+                <div className="text-sm font-bold text-ink group-hover:text-action transition-colors leading-snug">
+                  {item.name}
+                </div>
+                <div className="text-xs text-ink-muted mt-2 flex items-center gap-1.5">
+                  <Building2 className="w-3.5 h-3.5 text-action shrink-0" />
+                  <span>{item.count}</span>
+                </div>
+              </a>
+            ))}
+          </div>
         </div>
 
         <hr className="border-border my-8" />

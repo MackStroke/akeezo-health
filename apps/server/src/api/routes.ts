@@ -1,6 +1,6 @@
 import { Router, type Request, type Response } from "express";
 import mongoose from "mongoose";
-import { RouteEntry, ContentRevision, SiteSettings, ChangelogModel, BlogPostModel, EnquiryModel, CommunityThreadModel } from "../db/models/index.js";
+import { RouteEntry, ContentRevision, Page, SiteSettings, ChangelogModel, BlogPostModel, EnquiryModel, CommunityThreadModel } from "../db/models/index.js";
 import {
   type PublicRouteResponseDTO,
   type SeoMetadata,
@@ -45,6 +45,35 @@ apiRouter.get("/health", (_req: Request, res: Response) => {
   });
 });
 
+// Helper to fetch directory doctors from Page CMS for siteSettings
+async function getDirectoryDoctorsFromDb(): Promise<any[] | undefined> {
+  if (mongoose.connection.readyState !== 1) return undefined;
+  try {
+    const docPage = await Page.findOne({ slug: "doctors", locale: "en" }).lean();
+    if (docPage) {
+      const revId = docPage.publishedRevisionId || docPage.draftRevisionId;
+      if (revId) {
+        const rev = await ContentRevision.findById(revId).lean();
+        const docList = (rev?.payload as any)?.doctors;
+        if (Array.isArray(docList) && docList.length > 0) {
+          return docList
+            .filter((d: any) => d.active !== false)
+            .slice(0, 8)
+            .map((d: any) => ({
+              name: d.name,
+              role: d.role || d.designation || d.specialty || "Medical Specialist",
+              experience: d.experience || (d.experienceYears ? `${d.experienceYears}+ Years Exp` : "15+ Years Exp"),
+              slug: d.slug,
+              hospital: d.hospital,
+              image: d.image
+            }));
+        }
+      }
+    }
+  } catch {}
+  return undefined;
+}
+
 // GET /api/v1/site
 apiRouter.get("/site", async (_req: Request, res: Response) => {
   try {
@@ -53,10 +82,35 @@ apiRouter.get("/site", async (_req: Request, res: Response) => {
         ? (await SiteSettings.findOne({ environment: "development" }).lean()) ||
           (await SiteSettings.findOne().lean())
         : null;
-    const siteSettings = toSafeSiteSettings(settingsDoc);
+    const directoryDoctors = await getDirectoryDoctorsFromDb();
+    const siteSettings = toSafeSiteSettings({ ...settingsDoc, directoryDoctors });
     res.json({ data: siteSettings });
   } catch (err) {
     res.json({ data: toSafeSiteSettings(null) });
+  }
+});
+
+// GET /api/v1/doctors (public directory list)
+apiRouter.get("/doctors", async (_req: Request, res: Response) => {
+  try {
+    if (mongoose.connection.readyState !== 1) {
+      return res.json({ data: [] });
+    }
+    const docPage = await Page.findOne({ slug: "doctors", locale: "en" }).lean();
+    let docList: any[] = [];
+    if (docPage) {
+      const revId = docPage.publishedRevisionId || docPage.draftRevisionId;
+      if (revId) {
+        const rev = await ContentRevision.findById(revId).lean();
+        const rawList = (rev?.payload as any)?.doctors;
+        if (Array.isArray(rawList)) {
+          docList = rawList.filter((d: any) => d.active !== false);
+        }
+      }
+    }
+    res.json({ data: docList });
+  } catch (err: any) {
+    res.status(500).json({ error: { code: "FETCH_DOCTORS_FAILED", message: err.message } });
   }
 });
 
@@ -175,15 +229,17 @@ apiRouter.get("/route", async (req: Request, res: Response) => {
 
     let settingsDoc = null;
     let routeEntry = null;
+    let directoryDoctors: any[] | undefined = undefined;
 
     if (mongoose.connection.readyState === 1) {
       settingsDoc =
         (await SiteSettings.findOne({ environment: "development" }).lean()) ||
         (await SiteSettings.findOne().lean());
       routeEntry = await RouteEntry.findOne({ locale, path: normalizedPath }).lean();
+      directoryDoctors = await getDirectoryDoctorsFromDb();
     }
 
-    const siteSettings = toSafeSiteSettings(settingsDoc);
+    const siteSettings = toSafeSiteSettings({ ...settingsDoc, directoryDoctors });
 
     if (!routeEntry) {
       if (normalizedPath === "/500") {
@@ -360,8 +416,20 @@ apiRouter.get("/route", async (req: Request, res: Response) => {
           : "";
         const isDetail = Boolean(slug);
 
+        let fallbackDoctors: any[] | undefined = undefined;
+        try {
+          const docPage = await Page.findOne({ slug: "doctors", locale: "en" }).lean();
+          if (docPage) {
+            const revId = docPage.publishedRevisionId || docPage.draftRevisionId;
+            if (revId) {
+              const rev = await ContentRevision.findById(revId).lean();
+              fallbackDoctors = (rev?.payload as any)?.doctors;
+            }
+          }
+        } catch {}
+
         if (isDetail) {
-          const doctor = getDoctorDetail(slug);
+          const doctor = getDoctorDetail(slug, fallbackDoctors);
           if (doctor) {
             const detailDto: PublicRouteResponseDTO = {
               pageKind: "doctorDetail",
@@ -420,7 +488,8 @@ apiRouter.get("/route", async (req: Request, res: Response) => {
           },
           payload: {
             headline: "World-Class Doctors, Personally Matched for You",
-            subheadline: "Search, compare, and connect with leading specialists across the globe."
+            subheadline: "Search, compare, and connect with leading specialists across the globe.",
+            doctors: fallbackDoctors || undefined
           },
           siteSettings,
           statusCode: 200
@@ -765,8 +834,21 @@ apiRouter.get("/route", async (req: Request, res: Response) => {
 });
 
 // GET /api/v1/doctors/:slug (Public Doctor Detail API)
-apiRouter.get("/doctors/:slug", (req: Request, res: Response) => {
-  const doctor = getDoctorDetail(req.params.slug);
+apiRouter.get("/doctors/:slug", async (req: Request, res: Response) => {
+  let fallbackDoctors: any[] | undefined = undefined;
+  if (mongoose.connection.readyState === 1) {
+    try {
+      const docPage = await Page.findOne({ slug: "doctors", locale: "en" }).lean();
+      if (docPage) {
+        const revId = docPage.publishedRevisionId || docPage.draftRevisionId;
+        if (revId) {
+          const rev = await ContentRevision.findById(revId).lean();
+          fallbackDoctors = (rev?.payload as any)?.doctors;
+        }
+      }
+    } catch {}
+  }
+  const doctor = getDoctorDetail(req.params.slug, fallbackDoctors);
   if (!doctor) {
     res.status(404).json({ error: { code: "NOT_FOUND", message: "Doctor not found" } });
     return;

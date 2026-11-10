@@ -251,14 +251,14 @@ export const DIRECTORY_TABS = {
     { name: "Artemis Hospital (JCI)", href: "/#hospitals", location: "Gurugram" }
   ],
   doctors: [
-    { name: "Dr. Ashok Rajgopal", role: "Orthopedic & Joint Surgeon", experience: "40+ Years Exp" },
-    { name: "Dr. Naresh Trehan", role: "Chairman & Chief Cardiovascular Surgeon", experience: "45+ Years Exp" },
-    { name: "Dr. Arvinder Singh Soin", role: "Chairman of Liver Transplantation", experience: "32+ Years Exp" },
-    { name: "Dr. Sandeep Vaishya", role: "Executive Director - Neurosurgery", experience: "28+ Years Exp" },
-    { name: "Dr. Vinod Raina", role: "Director - Medical Oncology", experience: "35+ Years Exp" },
-    { name: "Dr. B.S. Murthy", role: "Senior Director - Robotic Joint Replacement", experience: "30+ Years Exp" },
-    { name: "Dr. Subhash Gupta", role: "Chief of Liver Transplant Surgery", experience: "31+ Years Exp" },
-    { name: "Dr. Z.S. Meharwal", role: "Executive Director - Adult Cardiac Surgery", experience: "33+ Years Exp" }
+    { name: "Dr. Ashok Rajgopal", role: "Orthopedic & Joint Surgeon", experience: "40+ Years Exp", slug: "ashok-rajgopal", hospital: "Medanta - The Medicity" },
+    { name: "Dr. Naresh Trehan", role: "Chairman & Chief Cardiovascular Surgeon", experience: "45+ Years Exp", slug: "dr-naresh-trehan", hospital: "Medanta - The Medicity" },
+    { name: "Dr. Arvinder Singh Soin", role: "Chairman of Liver Transplantation", experience: "32+ Years Exp", slug: "arvinder-singh-soin", hospital: "Medanta - The Medicity" },
+    { name: "Dr. Sandeep Vaishya", role: "Executive Director - Neurosurgery", experience: "28+ Years Exp", slug: "sandeep-vaishya", hospital: "Fortis Memorial Research Institute (FMRI)" },
+    { name: "Dr. Vinod Raina", role: "Director - Medical Oncology", experience: "35+ Years Exp", slug: "vinod-raina", hospital: "Fortis Memorial Research Institute (FMRI)" },
+    { name: "Dr. B.S. Murthy", role: "Senior Director - Robotic Joint Replacement", experience: "30+ Years Exp", slug: "bs-murthy", hospital: "Apollo Hospitals, New Delhi" },
+    { name: "Dr. Subhash Gupta", role: "Chief of Liver Transplant Surgery", experience: "31+ Years Exp", slug: "subhash-gupta", hospital: "Max Super Speciality Hospital" },
+    { name: "Dr. Z.S. Meharwal", role: "Executive Director - Adult Cardiac Surgery", experience: "33+ Years Exp", slug: "zs-meharwal", hospital: "Fortis Escorts Heart Institute" }
   ],
   destinations: [
     { name: "New Delhi & National Capital Region", count: "45+ Accredited Hospitals", flag: "🏛️" },

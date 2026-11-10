@@ -891,7 +891,7 @@ export function DoctorDetailTemplate({ data }: DoctorDetailTemplateProps) {
       </main>
 
       {/* Global Footer */}
-      <SiteFooter />
+      <SiteFooter siteSettings={data.siteSettings} />
 
       {/* Mobile Sticky Bottom Rail */}
       <DoctorStickyBottomBar doctor={doctor} onOpenBooking={() => handleOpenBooking()} />

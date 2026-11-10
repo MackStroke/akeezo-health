@@ -144,4 +144,54 @@ describe("Doctor Details Page & Lead Booking Suite", () => {
     const res = await fetch(`${baseUrl}/doctors/unknown-non-existent-doctor-slug`);
     assert.equal(res.status, 404);
   });
+
+  test("10. Public API GET /api/v1/doctors returns synced database doctors with prominent doctors first", async () => {
+    const res = await fetch(`${baseUrl}/api/v1/doctors`);
+    assert.equal(res.status, 200);
+    const json = await res.json();
+
+    assert.ok(Array.isArray(json.data), "data must be an array");
+    assert.ok(json.data.length >= 8, "Must have at least 8 doctors");
+
+    const firstEight = json.data.slice(0, 8);
+    const names = firstEight.map((d: any) => d.name);
+    assert.ok(names.includes("Dr. Ashok Rajgopal"), "Must include Dr. Ashok Rajgopal");
+    assert.ok(names.includes("Dr. Naresh Trehan"), "Must include Dr. Naresh Trehan");
+    assert.ok(names.includes("Dr. Arvinder Singh Soin"), "Must include Dr. Arvinder Singh Soin");
+    assert.ok(names.includes("Dr. Sandeep Vaishya"), "Must include Dr. Sandeep Vaishya");
+    assert.ok(names.includes("Dr. Vinod Raina"), "Must include Dr. Vinod Raina");
+    assert.ok(names.includes("Dr. B.S. Murthy"), "Must include Dr. B.S. Murthy");
+    assert.ok(names.includes("Dr. Subhash Gupta"), "Must include Dr. Subhash Gupta");
+    assert.ok(names.includes("Dr. Z.S. Meharwal"), "Must include Dr. Z.S. Meharwal");
+
+    const drAshok = json.data.find((d: any) => d.name === "Dr. Ashok Rajgopal");
+    assert.equal(drAshok.role, "Orthopedic & Joint Surgeon");
+    assert.equal(drAshok.experience, "40+ Years Exp");
+  });
+
+  test("11. Public API GET /api/v1/site and GET /api/v1/route include directoryDoctors in siteSettings", async () => {
+    const resSite = await fetch(`${baseUrl}/api/v1/site`);
+    assert.equal(resSite.status, 200);
+    const jsonSite = await resSite.json();
+    assert.ok(Array.isArray(jsonSite.data.directoryDoctors), "directoryDoctors must be an array in siteSettings");
+    assert.equal(jsonSite.data.directoryDoctors.length, 8, "directoryDoctors must contain top 8 synced doctors");
+    assert.equal(jsonSite.data.directoryDoctors[0].name, "Dr. Ashok Rajgopal");
+
+    const resRoute = await fetch(`${baseUrl}/api/v1/route?path=/`);
+    assert.equal(resRoute.status, 200);
+    const jsonRoute = await resRoute.json();
+    assert.ok(Array.isArray(jsonRoute.data.siteSettings.directoryDoctors));
+    assert.equal(jsonRoute.data.siteSettings.directoryDoctors[0].name, "Dr. Ashok Rajgopal");
+  });
+
+  test("12. SSR HTML on home route renders footer doctor cards with exact WhatsApp links", async () => {
+    const res = await fetch(`${baseUrl}/`);
+    assert.equal(res.status, 200);
+    const html = await res.text();
+
+    assert.ok(html.includes("Dr. Ashok Rajgopal"), "Must render Dr. Ashok Rajgopal in SSR HTML");
+    assert.ok(html.includes("40+ Years Exp"), "Must render 40+ Years Exp in SSR HTML");
+    assert.ok(html.includes("Orthopedic &amp; Joint Surgeon") || html.includes("Orthopedic & Joint Surgeon"), "Must render Orthopedic & Joint Surgeon");
+    assert.ok(html.includes("Hello%20Akeezo,%20I%20would%20like%20to%20consult%20with%20Dr.%20Ashok%20Rajgopal"), "Must render WhatsApp consult link for Dr. Ashok Rajgopal");
+  });
 });
