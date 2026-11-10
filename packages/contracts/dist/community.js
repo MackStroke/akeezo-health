@@ -378,6 +378,7 @@ export const CURATED_COMMUNITY_THREADS = [
     },
 ];
 export function getCommunityThreadBySlug(slug, fallbackThreads = CURATED_COMMUNITY_THREADS) {
-    const match = fallbackThreads.find((t) => t.slug === slug || t.id === slug);
+    const clean = slug.toLowerCase().trim().replace(/^\//, "").replace(/\/$/, "");
+    const match = fallbackThreads.find((t) => t.slug.toLowerCase() === clean || t.id.toLowerCase() === clean);
     return match || null;
 }

@@ -46,7 +46,8 @@ async function main() {
     ALL_TREATMENTS = [],
     ALL_HOSPITALS = [],
     ALL_DOCTORS = [],
-    ALL_BLOG_ARTICLES = []
+    ALL_BLOG_ARTICLES = [],
+    CURATED_COMMUNITY_THREADS = []
   } = await import(serverEntryUrl);
 
   const coreRoutes = [
@@ -69,7 +70,10 @@ async function main() {
     "/blogs",
     "/articles",
     "/changelog",
-    "/faq"
+    "/faq",
+    "/community",
+    "/ask-cma",
+    "/ask-akeezo"
   ];
 
   const treatmentRoutes = ALL_TREATMENTS.map((t) => `/treatments/${t.slug}`);
@@ -79,6 +83,7 @@ async function main() {
     `/blogs/${b.slug}`,
     `/blog/${b.slug}`
   ]);
+  const communityRoutes = CURATED_COMMUNITY_THREADS.map((t) => `/community/${t.slug}`);
 
   const allRoutes = Array.from(
     new Set([
@@ -86,7 +91,8 @@ async function main() {
       ...treatmentRoutes,
       ...hospitalRoutes,
       ...doctorRoutes,
-      ...blogRoutes
+      ...blogRoutes,
+      ...communityRoutes
     ])
   );
 

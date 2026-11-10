@@ -1,7 +1,7 @@
 import { Router } from "express";
 import mongoose from "mongoose";
-import { RouteEntry, ContentRevision, SiteSettings, ChangelogModel, BlogPostModel, EnquiryModel } from "../db/models/index.js";
-import { getDoctorDetail, getHospitalDetail } from "@akeezo/contracts";
+import { RouteEntry, ContentRevision, SiteSettings, ChangelogModel, BlogPostModel, EnquiryModel, CommunityThreadModel } from "../db/models/index.js";
+import { getDoctorDetail, getHospitalDetail, CURATED_COMMUNITY_THREADS, getCommunityThreadBySlug } from "@akeezo/contracts";
 import { toSafeSiteSettings } from "../ssr/renderer.js";
 import { caseManagementRouter } from "./caseManagementRoutes.js";
 import { authRouter } from "./authRoutes.js";
@@ -397,6 +397,103 @@ apiRouter.get("/route", async (req, res) => {
                     statusCode: 200
                 };
                 res.json({ data: aboutDto });
+                return;
+            }
+            if (normalizedPath === "/ask-cma" || normalizedPath === "/ask-akeezo") {
+                res.status(301).json({
+                    data: {
+                        redirectTo: "/community",
+                        statusCode: 301,
+                    },
+                });
+                return;
+            }
+            if (normalizedPath === "/community" || normalizedPath.startsWith("/community/")) {
+                const slug = normalizedPath.startsWith("/community/")
+                    ? normalizedPath.replace(/^\/community\/?/, "").split("/")[0]
+                    : "";
+                const isDetail = Boolean(slug);
+                if (isDetail) {
+                    let thread = null;
+                    if (mongoose.connection.readyState === 1) {
+                        const doc = await CommunityThreadModel.findOne({ slug, status: "published" }).lean();
+                        if (doc)
+                            thread = doc;
+                    }
+                    if (!thread) {
+                        thread = getCommunityThreadBySlug(slug);
+                    }
+                    if (thread) {
+                        const threadDto = {
+                            pageKind: "communityThread",
+                            path: normalizedPath,
+                            locale,
+                            seo: {
+                                title: `${thread.title} | Ask Akeezo Community`,
+                                description: thread.content.slice(0, 160),
+                                canonicalPath: `/community/${thread.slug}`,
+                                robots: "index,follow",
+                                schemaKind: "QAPage",
+                            },
+                            payload: {
+                                thread,
+                                slug: thread.slug,
+                            },
+                            siteSettings,
+                            statusCode: 200,
+                        };
+                        res.json({ data: threadDto });
+                        return;
+                    }
+                    const notFoundDto = {
+                        pageKind: "notFound",
+                        path: normalizedPath,
+                        locale,
+                        seo: {
+                            title: "Discussion Not Found | AKEEZO Healthcare Community",
+                            description: "The requested medical travel discussion thread could not be located.",
+                            canonicalPath: "/community",
+                            robots: "noindex,nofollow",
+                            schemaKind: "WebPage",
+                        },
+                        payload: {},
+                        siteSettings,
+                        statusCode: 404,
+                    };
+                    res.status(404).json({ error: { code: "NOT_FOUND", message: "Thread not found" }, data: notFoundDto });
+                    return;
+                }
+                let threads = [];
+                if (mongoose.connection.readyState === 1) {
+                    const docs = await CommunityThreadModel.find({ status: "published" })
+                        .sort({ isPinned: -1, upvotes: -1, createdAt: -1 })
+                        .lean();
+                    if (docs && docs.length > 0)
+                        threads = docs;
+                }
+                if (threads.length === 0) {
+                    threads = CURATED_COMMUNITY_THREADS;
+                }
+                const communityDto = {
+                    pageKind: "community",
+                    path: normalizedPath,
+                    locale,
+                    seo: {
+                        title: "Medical Travel Q&A & Real Patient Stories | Ask Akeezo Community",
+                        description: "Browse transparent surgical costs, hospital experiences, post-op recovery advice, and doctor-verified answers from 45+ countries.",
+                        canonicalPath: "/community",
+                        robots: "index,follow",
+                        schemaKind: "MedicalWebPage",
+                    },
+                    payload: {
+                        threads,
+                        headline: "Medical Travel Q&A & Real Patient Stories",
+                        subheadline: "Transparent surgical costs, hospital experiences, post-op recovery advice, and doctor-verified answers from 45+ countries.",
+                    },
+                    siteSettings,
+                    statusCode: 200,
+                };
+                res.json({ data: communityDto });
                 return;
             }
             // Check legal compliance pages

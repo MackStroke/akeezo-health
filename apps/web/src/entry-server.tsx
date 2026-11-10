@@ -3,7 +3,8 @@ import { renderToPipeableStream, renderToString, type RenderToPipeableStreamOpti
 import {
   type PublicRouteResponseDTO,
   generateWebsiteThemeCss,
-  getGoogleFontUrl
+  getGoogleFontUrl,
+  CURATED_COMMUNITY_THREADS
 } from "@akeezo/contracts";
 import { App } from "./App.js";
 import { getDefaultRouteData, DEFAULT_SITE_SETTINGS } from "./defaultData.js";
@@ -42,7 +43,8 @@ export {
   ALL_TREATMENTS,
   ALL_HOSPITALS,
   ALL_DOCTORS,
-  ALL_BLOG_ARTICLES
+  ALL_BLOG_ARTICLES,
+  CURATED_COMMUNITY_THREADS
 };
 
 

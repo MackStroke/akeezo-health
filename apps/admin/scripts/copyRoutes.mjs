@@ -20,6 +20,7 @@ const routes = [
   "treatments",
   "destinations",
   "blog",
+  "community",
   "content",
   "media",
   "enquiries",
