@@ -1,7 +1,7 @@
 import { Router } from "express";
 import mongoose from "mongoose";
 import { RouteEntry, ContentRevision, SiteSettings, ChangelogModel, BlogPostModel, EnquiryModel, CommunityThreadModel } from "../db/models/index.js";
-import { getDoctorDetail, getHospitalDetail, CURATED_COMMUNITY_THREADS, getCommunityThreadBySlug } from "@akeezo/contracts";
+import { getDoctorDetail, getHospitalDetail, CURATED_COMMUNITY_THREADS, getCommunityThreadBySlug, ALL_DESTINATIONS, getDestinationDetail } from "@akeezo/contracts";
 import { toSafeSiteSettings } from "../ssr/renderer.js";
 import { caseManagementRouter } from "./caseManagementRoutes.js";
 import { authRouter } from "./authRoutes.js";
@@ -421,6 +421,77 @@ apiRouter.get("/route", async (req, res) => {
                 res.json({ data: contactDto });
                 return;
             }
+            if (normalizedPath === "/destinations" || normalizedPath.startsWith("/destinations/")) {
+                const slug = normalizedPath.startsWith("/destinations/")
+                    ? normalizedPath.replace(/^\/destinations\/?/, "").split("/")[0]
+                    : "";
+                const isDetail = Boolean(slug);
+                if (isDetail) {
+                    const destination = getDestinationDetail(slug);
+                    if (destination) {
+                        const detailDto = {
+                            pageKind: "destinationDetail",
+                            path: normalizedPath,
+                            locale,
+                            seo: {
+                                title: destination.title,
+                                description: destination.subheadline,
+                                canonicalPath: `/destinations/${destination.slug}`,
+                                robots: "index,follow",
+                                schemaKind: "MedicalWebPage"
+                            },
+                            payload: {
+                                destination,
+                                slug: destination.slug,
+                                headline: destination.headline,
+                                subheadline: destination.subheadline
+                            },
+                            siteSettings,
+                            statusCode: 200
+                        };
+                        res.json({ data: detailDto });
+                        return;
+                    }
+                    const notFoundDto = {
+                        pageKind: "notFound",
+                        path: normalizedPath,
+                        locale,
+                        seo: {
+                            title: "Destination Not Found | AKEEZO Healthcare Platform",
+                            description: "The requested medical tourism destination could not be located. Explore our premier global medical tourism destinations directory.",
+                            canonicalPath: "/destinations",
+                            robots: "noindex,nofollow",
+                            schemaKind: "WebPage"
+                        },
+                        payload: {},
+                        siteSettings,
+                        statusCode: 404
+                    };
+                    res.status(404).json({ error: { code: "NOT_FOUND", message: "Destination not found" }, data: notFoundDto });
+                    return;
+                }
+                const destinationsDto = {
+                    pageKind: "destinationDirectory",
+                    path: normalizedPath,
+                    locale,
+                    seo: {
+                        title: "All Destinations - Medical Tourism & Treatment in India | AKEEZO",
+                        description: "Explore premier global medical tourism destinations and Indian healthcare hub cities. Compare hospital accreditations, treatment costs, and save up to 85% with AKEEZO.",
+                        canonicalPath: "/destinations",
+                        robots: "index,follow",
+                        schemaKind: "MedicalWebPage"
+                    },
+                    payload: {
+                        headline: "Premier Medical Tourism Destinations",
+                        subheadline: "Discover world-class accredited hospitals, board-certified surgeons, and up to 85% cost savings across premier healthcare destinations.",
+                        destinations: ALL_DESTINATIONS
+                    },
+                    siteSettings,
+                    statusCode: 200
+                };
+                res.json({ data: destinationsDto });
+                return;
+            }
             if (normalizedPath === "/ask-cma" || normalizedPath === "/ask-akeezo") {
                 res.status(301).json({
                     data: {
@@ -636,11 +707,25 @@ apiRouter.get("/hospitals/:slug", (req, res) => {
     }
     res.json({ data: hospital });
 });
+// GET /api/v1/destinations (Public Destinations Directory API)
+apiRouter.get("/destinations", (_req, res) => {
+    res.json({ data: ALL_DESTINATIONS });
+});
+// GET /api/v1/destinations/:slug (Public Destination Detail API)
+apiRouter.get("/destinations/:slug", (req, res) => {
+    const destination = getDestinationDetail(req.params.slug);
+    if (!destination) {
+        res.status(404).json({ error: { code: "NOT_FOUND", message: "Destination not found" } });
+        return;
+    }
+    res.json({ data: destination });
+});
 // POST /api/v1/enquiries (Public Consultation & Lead Submission)
 apiRouter.post("/enquiries", async (req, res) => {
     try {
-        const { requesterName, phone, email, country, serviceType = "consultation", message, notes, sourcePath, doctorName, doctorSlug, hospital, hospitalName, hospitalSlug, procedure, consultationType, preferredDate, preferredSlot, } = req.body;
-        if (!requesterName || !requesterName.trim()) {
+        const { requesterName, fullName, phone, email, country, destinationCountry, treatmentName, serviceType = "consultation", message, notes, sourcePath, doctorName, doctorSlug, hospital, hospitalName, hospitalSlug, procedure, consultationType, preferredDate, preferredSlot, } = req.body;
+        const patientName = (requesterName || fullName || "").trim();
+        if (!patientName) {
             res.status(400).json({ error: { code: "VALIDATION_FAILED", message: "Patient name is required" } });
             return;
         }
@@ -649,35 +734,55 @@ apiRouter.post("/enquiries", async (req, res) => {
             return;
         }
         const receiptSuffix = Math.random().toString(36).substring(2, 7).toUpperCase();
-        const prefix = hospitalSlug ? "AKZ-HSP" : (doctorSlug ? "AKZ-DOC" : "AKZ-ENQ");
+        const prefix = hospitalSlug
+            ? "AKZ-HSP"
+            : doctorSlug
+                ? "AKZ-DOC"
+                : destinationCountry || serviceType === "destination"
+                    ? "AKZ-DST"
+                    : "AKZ-ENQ";
         const receiptId = `${prefix}-${Date.now().toString(36).toUpperCase()}-${receiptSuffix}`;
         const targetHospital = hospitalName || hospital;
+        const procedureVal = procedure || treatmentName;
         const combinedNotes = [
             notes,
+            destinationCountry ? `Destination: ${destinationCountry}` : null,
             doctorName ? `Doctor: ${doctorName} (${doctorSlug || ""})` : null,
             targetHospital ? `Hospital: ${targetHospital} (${hospitalSlug || ""})` : null,
-            procedure ? `Procedure: ${procedure}` : null,
+            procedureVal ? `Procedure: ${procedureVal}` : null,
             consultationType ? `Mode: ${consultationType}` : null,
             preferredDate ? `Preferred Date: ${preferredDate}` : null,
             preferredSlot ? `Preferred Slot: ${preferredSlot}` : null,
         ].filter(Boolean).join(" | ");
-        const enquiry = await EnquiryModel.create({
-            receiptId,
-            requesterName: requesterName.trim(),
-            email: email?.trim(),
-            phone: phone?.trim(),
-            country: country?.trim() || "International",
-            serviceType: serviceType || "consultation",
-            message: message?.trim() || `Consultation request for ${targetHospital || doctorName || "Specialist"}`,
-            notes: combinedNotes,
-            sourcePath: sourcePath || (hospitalSlug ? `/hospitals/${hospitalSlug}` : (doctorSlug ? `/doctors/${doctorSlug}` : "/enquiries")),
-            status: "received",
-        });
+        let enquiryId = new mongoose.Types.ObjectId();
+        if (mongoose.connection.readyState === 1) {
+            const enquiry = await EnquiryModel.create({
+                receiptId,
+                requesterName: patientName,
+                email: email?.trim(),
+                phone: phone?.trim(),
+                country: country?.trim() || destinationCountry?.trim() || "International",
+                serviceType: serviceType || (destinationCountry ? "destination" : "consultation"),
+                message: message?.trim() ||
+                    `Consultation request for ${destinationCountry || targetHospital || doctorName || "Specialist"}`,
+                notes: combinedNotes,
+                sourcePath: sourcePath ||
+                    (destinationCountry
+                        ? `/destinations/${destinationCountry.toLowerCase()}`
+                        : hospitalSlug
+                            ? `/hospitals/${hospitalSlug}`
+                            : doctorSlug
+                                ? `/doctors/${doctorSlug}`
+                                : "/enquiries"),
+                status: "received",
+            });
+            enquiryId = enquiry._id;
+        }
         res.status(201).json({
             data: {
                 success: true,
-                receiptId: enquiry.receiptId,
-                enquiryId: enquiry._id,
+                receiptId,
+                enquiryId,
                 message: "Your teleconsultation request has been registered. Our care team will contact you within 2 hours.",
             },
         });

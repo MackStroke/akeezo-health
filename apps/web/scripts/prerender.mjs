@@ -47,7 +47,8 @@ async function main() {
     ALL_HOSPITALS = [],
     ALL_DOCTORS = [],
     ALL_BLOG_ARTICLES = [],
-    CURATED_COMMUNITY_THREADS = []
+    CURATED_COMMUNITY_THREADS = [],
+    ALL_DESTINATIONS = []
   } = await import(serverEntryUrl);
 
   const coreRoutes = [
@@ -64,6 +65,7 @@ async function main() {
     "/treatments",
     "/hospitals",
     "/doctors",
+    "/destinations",
     "/about",
     "/about-us",
     "/contact",
@@ -81,6 +83,7 @@ async function main() {
   const treatmentRoutes = ALL_TREATMENTS.map((t) => `/treatments/${t.slug}`);
   const hospitalRoutes = ALL_HOSPITALS.map((h) => `/hospitals/${h.slug}`);
   const doctorRoutes = ALL_DOCTORS.map((d) => `/doctors/${d.slug}`);
+  const destinationRoutes = ALL_DESTINATIONS.map((d) => `/destinations/${d.slug}`);
   const blogRoutes = ALL_BLOG_ARTICLES.flatMap((b) => [
     `/blogs/${b.slug}`,
     `/blog/${b.slug}`
@@ -93,6 +96,7 @@ async function main() {
       ...treatmentRoutes,
       ...hospitalRoutes,
       ...doctorRoutes,
+      ...destinationRoutes,
       ...blogRoutes,
       ...communityRoutes
     ])

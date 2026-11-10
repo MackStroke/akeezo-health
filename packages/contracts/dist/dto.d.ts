@@ -230,16 +230,16 @@ export declare const PublicRouteResponseSchema: z.ZodObject<{
             }, "strip", z.ZodTypeAny, {
                 status: "error" | "connected" | "unconfigured";
                 enabled: boolean;
+                region: string;
                 projectId: string;
                 clientEmail: string;
-                region: string;
                 storageBucket: string;
             }, {
                 status?: "error" | "connected" | "unconfigured" | undefined;
                 enabled?: boolean | undefined;
+                region?: string | undefined;
                 projectId?: string | undefined;
                 clientEmail?: string | undefined;
-                region?: string | undefined;
                 storageBucket?: string | undefined;
             }>>;
             metaPixel: z.ZodDefault<z.ZodObject<{
@@ -264,7 +264,7 @@ export declare const PublicRouteResponseSchema: z.ZodObject<{
                 status: z.ZodDefault<z.ZodEnum<["active", "unconfigured", "error"]>>;
                 lastTestedAt: z.ZodOptional<z.ZodString>;
             }, "strip", z.ZodTypeAny, {
-                status: "error" | "unconfigured" | "active";
+                status: "error" | "active" | "unconfigured";
                 enabled: boolean;
                 apiKey: string;
                 apiKeyMasked: string;
@@ -272,7 +272,7 @@ export declare const PublicRouteResponseSchema: z.ZodObject<{
                 temperature: number;
                 lastTestedAt?: string | undefined;
             }, {
-                status?: "error" | "unconfigured" | "active" | undefined;
+                status?: "error" | "active" | "unconfigured" | undefined;
                 enabled?: boolean | undefined;
                 apiKey?: string | undefined;
                 apiKeyMasked?: string | undefined;
@@ -305,9 +305,9 @@ export declare const PublicRouteResponseSchema: z.ZodObject<{
             googleCloud: {
                 status: "error" | "connected" | "unconfigured";
                 enabled: boolean;
+                region: string;
                 projectId: string;
                 clientEmail: string;
-                region: string;
                 storageBucket: string;
             };
             metaPixel: {
@@ -316,7 +316,7 @@ export declare const PublicRouteResponseSchema: z.ZodObject<{
                 testEventCode: string;
             };
             gemini: {
-                status: "error" | "unconfigured" | "active";
+                status: "error" | "active" | "unconfigured";
                 enabled: boolean;
                 apiKey: string;
                 apiKeyMasked: string;
@@ -341,9 +341,9 @@ export declare const PublicRouteResponseSchema: z.ZodObject<{
             googleCloud?: {
                 status?: "error" | "connected" | "unconfigured" | undefined;
                 enabled?: boolean | undefined;
+                region?: string | undefined;
                 projectId?: string | undefined;
                 clientEmail?: string | undefined;
-                region?: string | undefined;
                 storageBucket?: string | undefined;
             } | undefined;
             metaPixel?: {
@@ -352,7 +352,7 @@ export declare const PublicRouteResponseSchema: z.ZodObject<{
                 testEventCode?: string | undefined;
             } | undefined;
             gemini?: {
-                status?: "error" | "unconfigured" | "active" | undefined;
+                status?: "error" | "active" | "unconfigured" | undefined;
                 enabled?: boolean | undefined;
                 apiKey?: string | undefined;
                 apiKeyMasked?: string | undefined;
@@ -480,8 +480,8 @@ export declare const PublicRouteResponseSchema: z.ZodObject<{
         }>, "many">>>;
     }, "strip", z.ZodTypeAny, {
         phone: string;
-        brandName: string;
         tagline: string;
+        brandName: string;
         legalEntityName: string;
         officeAddress: string;
         careEmail: string;
@@ -578,9 +578,9 @@ export declare const PublicRouteResponseSchema: z.ZodObject<{
             googleCloud: {
                 status: "error" | "connected" | "unconfigured";
                 enabled: boolean;
+                region: string;
                 projectId: string;
                 clientEmail: string;
-                region: string;
                 storageBucket: string;
             };
             metaPixel: {
@@ -589,7 +589,7 @@ export declare const PublicRouteResponseSchema: z.ZodObject<{
                 testEventCode: string;
             };
             gemini: {
-                status: "error" | "unconfigured" | "active";
+                status: "error" | "active" | "unconfigured";
                 enabled: boolean;
                 apiKey: string;
                 apiKeyMasked: string;
@@ -635,12 +635,12 @@ export declare const PublicRouteResponseSchema: z.ZodObject<{
         socialLinks?: Record<string, string> | undefined;
     }, {
         phone?: string | undefined;
+        tagline?: string | undefined;
         primaryColor?: string | undefined;
         secondaryColor?: string | undefined;
         accentColor?: string | undefined;
         actionColor?: string | undefined;
         brandName?: string | undefined;
-        tagline?: string | undefined;
         legalEntityName?: string | undefined;
         officeAddress?: string | undefined;
         headquartersAddress?: string | undefined;
@@ -719,9 +719,9 @@ export declare const PublicRouteResponseSchema: z.ZodObject<{
             googleCloud?: {
                 status?: "error" | "connected" | "unconfigured" | undefined;
                 enabled?: boolean | undefined;
+                region?: string | undefined;
                 projectId?: string | undefined;
                 clientEmail?: string | undefined;
-                region?: string | undefined;
                 storageBucket?: string | undefined;
             } | undefined;
             metaPixel?: {
@@ -730,7 +730,7 @@ export declare const PublicRouteResponseSchema: z.ZodObject<{
                 testEventCode?: string | undefined;
             } | undefined;
             gemini?: {
-                status?: "error" | "unconfigured" | "active" | undefined;
+                status?: "error" | "active" | "unconfigured" | undefined;
                 enabled?: boolean | undefined;
                 apiKey?: string | undefined;
                 apiKeyMasked?: string | undefined;
@@ -806,8 +806,8 @@ export declare const PublicRouteResponseSchema: z.ZodObject<{
     statusCode: number;
     siteSettings: {
         phone: string;
-        brandName: string;
         tagline: string;
+        brandName: string;
         legalEntityName: string;
         officeAddress: string;
         careEmail: string;
@@ -904,9 +904,9 @@ export declare const PublicRouteResponseSchema: z.ZodObject<{
             googleCloud: {
                 status: "error" | "connected" | "unconfigured";
                 enabled: boolean;
+                region: string;
                 projectId: string;
                 clientEmail: string;
-                region: string;
                 storageBucket: string;
             };
             metaPixel: {
@@ -915,7 +915,7 @@ export declare const PublicRouteResponseSchema: z.ZodObject<{
                 testEventCode: string;
             };
             gemini: {
-                status: "error" | "unconfigured" | "active";
+                status: "error" | "active" | "unconfigured";
                 enabled: boolean;
                 apiKey: string;
                 apiKeyMasked: string;
@@ -975,12 +975,12 @@ export declare const PublicRouteResponseSchema: z.ZodObject<{
     pageKind: "home" | "treatmentDirectory" | "treatmentDetail" | "procedureDetail" | "hospitalDirectory" | "hospitalDetail" | "doctorDirectory" | "doctorDetail" | "destinationDirectory" | "destinationDetail" | "cityDetail" | "calculatorLanding" | "calculatorWizard" | "calculatorResult" | "journeyPlanner" | "blogDirectory" | "article" | "contributorProfile" | "about" | "missionVision" | "partnerLanding" | "partnerComparison" | "partnerApplication" | "contact" | "faq" | "helpCentre" | "legal" | "specializedGuide" | "serviceDetail" | "medicineEnquiry" | "community" | "communityThread" | "notFound" | "serverError";
     siteSettings: {
         phone?: string | undefined;
+        tagline?: string | undefined;
         primaryColor?: string | undefined;
         secondaryColor?: string | undefined;
         accentColor?: string | undefined;
         actionColor?: string | undefined;
         brandName?: string | undefined;
-        tagline?: string | undefined;
         legalEntityName?: string | undefined;
         officeAddress?: string | undefined;
         headquartersAddress?: string | undefined;
@@ -1059,9 +1059,9 @@ export declare const PublicRouteResponseSchema: z.ZodObject<{
             googleCloud?: {
                 status?: "error" | "connected" | "unconfigured" | undefined;
                 enabled?: boolean | undefined;
+                region?: string | undefined;
                 projectId?: string | undefined;
                 clientEmail?: string | undefined;
-                region?: string | undefined;
                 storageBucket?: string | undefined;
             } | undefined;
             metaPixel?: {
@@ -1070,7 +1070,7 @@ export declare const PublicRouteResponseSchema: z.ZodObject<{
                 testEventCode?: string | undefined;
             } | undefined;
             gemini?: {
-                status?: "error" | "unconfigured" | "active" | undefined;
+                status?: "error" | "active" | "unconfigured" | undefined;
                 enabled?: boolean | undefined;
                 apiKey?: string | undefined;
                 apiKeyMasked?: string | undefined;

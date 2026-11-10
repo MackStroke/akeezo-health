@@ -11,6 +11,7 @@ import {
 } from "@akeezo/contracts";
 import { ALL_BLOG_ARTICLES } from "./data/blogData.js";
 import { ALL_DOCTORS } from "./data/doctorsData.js";
+import { ALL_DESTINATIONS, getDestinationDetail } from "./data/destinationsData.js";
 
 export const DEFAULT_SITE_SETTINGS: SiteSettings = {
   brandName: "AKEEZO",
@@ -342,6 +343,79 @@ export function getDefaultRouteData(path = "/"): PublicRouteResponseDTO {
         headline: "Contact Us",
         subheadline:
           "AKEEZO – Your trusted global platform to discover and compare world-class medical treatments in India."
+      },
+      siteSettings: DEFAULT_SITE_SETTINGS,
+      statusCode: 200
+    };
+  }
+
+  if (normalized === "/destinations" || normalized.startsWith("/destinations/")) {
+    const slug = normalized.startsWith("/destinations/")
+      ? normalized.replace(/^\/destinations\/?/, "").split("/")[0]
+      : "";
+
+    if (slug) {
+      const destination = getDestinationDetail(slug);
+      if (destination) {
+        return {
+          pageKind: "destinationDetail",
+          path: normalized,
+          locale: "en",
+          seo: {
+            title: destination.title,
+            description: destination.subheadline,
+            canonicalPath: `/destinations/${destination.slug}`,
+            robots: "index,follow",
+            schemaKind: "MedicalWebPage"
+          },
+          payload: {
+            destination,
+            slug: destination.slug,
+            headline: destination.headline,
+            subheadline: destination.subheadline
+          },
+          siteSettings: DEFAULT_SITE_SETTINGS,
+          statusCode: 200
+        };
+      }
+
+      return {
+        pageKind: "notFound",
+        path: normalized,
+        locale: "en",
+        seo: {
+          title: "Destination Not Found | AKEEZO",
+          description: "The medical tourism destination you requested is not listed in our verified directories.",
+          canonicalPath: normalized,
+          robots: "noindex,nofollow",
+          schemaKind: "WebPage"
+        },
+        payload: {
+          headline: "Destination Not Found",
+          message: "The requested medical travel destination is not available in our verified network."
+        },
+        siteSettings: DEFAULT_SITE_SETTINGS,
+        statusCode: 404
+      };
+    }
+
+    return {
+      pageKind: "destinationDirectory",
+      path: normalized,
+      locale: "en",
+      seo: {
+        title: "All Destinations - Medical Tourism & Treatment in India | AKEEZO",
+        description:
+          "Explore premier global medical tourism destinations and Indian healthcare hub cities. Compare hospital accreditations, treatment costs, and save up to 85% with AKEEZO.",
+        canonicalPath: "/destinations",
+        robots: "index,follow",
+        schemaKind: "MedicalWebPage"
+      },
+      payload: {
+        headline: "Premier Medical Tourism Destinations",
+        subheadline:
+          "Discover world-class accredited hospitals, board-certified surgeons, and up to 85% cost savings across premier healthcare destinations.",
+        destinations: ALL_DESTINATIONS
       },
       siteSettings: DEFAULT_SITE_SETTINGS,
       statusCode: 200

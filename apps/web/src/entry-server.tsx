@@ -12,6 +12,7 @@ import { ALL_TREATMENTS } from "./data/treatmentsData.js";
 import { ALL_HOSPITALS } from "./data/hospitalsData.js";
 import { ALL_DOCTORS } from "./data/doctorsData.js";
 import { ALL_BLOG_ARTICLES } from "./data/blogData.js";
+import { ALL_DESTINATIONS } from "./data/destinationsData.js";
 
 export function render(
   _url: string,
@@ -44,7 +45,8 @@ export {
   ALL_HOSPITALS,
   ALL_DOCTORS,
   ALL_BLOG_ARTICLES,
-  CURATED_COMMUNITY_THREADS
+  CURATED_COMMUNITY_THREADS,
+  ALL_DESTINATIONS
 };
 
 

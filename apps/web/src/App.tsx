@@ -15,6 +15,8 @@ import { BlogTemplate } from "./templates/BlogTemplate.js";
 import { CommunityTemplate } from "./templates/CommunityTemplate.js";
 import { CommunityThreadTemplate } from "./templates/CommunityThreadTemplate.js";
 import { ContactTemplate } from "./templates/ContactTemplate.js";
+import { DestinationsTemplate } from "./templates/DestinationsTemplate.js";
+import { DestinationDetailTemplate } from "./templates/DestinationDetailTemplate.js";
 import { FloatingActionButtons } from "./components/FloatingActionButtons.js";
 import { getDefaultRouteData } from "./defaultData.js";
 
@@ -132,6 +134,11 @@ export function App({ data }: AppProps) {
         return <AboutTemplate data={currentData} />;
       case "contact":
         return <ContactTemplate data={currentData} />;
+      case "destinationDirectory":
+        return <DestinationsTemplate data={currentData} />;
+      case "destinationDetail":
+      case "cityDetail":
+        return <DestinationDetailTemplate data={currentData} />;
       case "blogDirectory":
         return <BlogTemplate data={currentData} />;
       case "community":

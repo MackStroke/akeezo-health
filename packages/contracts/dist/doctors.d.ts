@@ -43,7 +43,7 @@ export declare const DoctorReviewItemSchema: z.ZodObject<{
     date: string;
     author: string;
     treatment: string;
-    source: "google" | "akeezo" | "hospital" | "verified_patient";
+    source: "hospital" | "google" | "akeezo" | "verified_patient";
     country: string;
     rating: number;
     comment: string;
@@ -54,7 +54,7 @@ export declare const DoctorReviewItemSchema: z.ZodObject<{
     author: string;
     treatment: string;
     comment: string;
-    source?: "google" | "akeezo" | "hospital" | "verified_patient" | undefined;
+    source?: "hospital" | "google" | "akeezo" | "verified_patient" | undefined;
     country?: string | undefined;
     rating?: number | undefined;
     verified?: boolean | undefined;
@@ -131,15 +131,15 @@ export declare const DoctorDetailSchema: z.ZodObject<{
         responseTime: z.ZodDefault<z.ZodString>;
         accreditations: z.ZodDefault<z.ZodArray<z.ZodString, "many">>;
     }, "strip", z.ZodTypeAny, {
+        accreditations: string[];
         surgeriesCount: string;
         successRate: string;
         responseTime: string;
-        accreditations: string[];
     }, {
+        accreditations?: string[] | undefined;
         surgeriesCount?: string | undefined;
         successRate?: string | undefined;
         responseTime?: string | undefined;
-        accreditations?: string[] | undefined;
     }>;
     experiences: z.ZodDefault<z.ZodArray<z.ZodObject<{
         title: z.ZodString;
@@ -216,7 +216,7 @@ export declare const DoctorDetailSchema: z.ZodObject<{
         date: string;
         author: string;
         treatment: string;
-        source: "google" | "akeezo" | "hospital" | "verified_patient";
+        source: "hospital" | "google" | "akeezo" | "verified_patient";
         country: string;
         rating: number;
         comment: string;
@@ -227,7 +227,7 @@ export declare const DoctorDetailSchema: z.ZodObject<{
         author: string;
         treatment: string;
         comment: string;
-        source?: "google" | "akeezo" | "hospital" | "verified_patient" | undefined;
+        source?: "hospital" | "google" | "akeezo" | "verified_patient" | undefined;
         country?: string | undefined;
         rating?: number | undefined;
         verified?: boolean | undefined;
@@ -253,13 +253,17 @@ export declare const DoctorDetailSchema: z.ZodObject<{
     badge: string;
     country: string;
     rating: number;
-    verified: boolean;
-    hospital: string;
-    image: string;
-    designation: string;
-    experience: string;
-    experienceYears: number;
     city: string;
+    image: string;
+    hospital: string;
+    experience: string;
+    faqs: {
+        question: string;
+        answer: string;
+    }[];
+    verified: boolean;
+    designation: string;
+    experienceYears: number;
     reviewCount: number;
     bio: string;
     aboutBio: string;
@@ -271,10 +275,10 @@ export declare const DoctorDetailSchema: z.ZodObject<{
     };
     innovations: string[];
     goodToKnow: {
+        accreditations: string[];
         surgeriesCount: string;
         successRate: string;
         responseTime: string;
-        accreditations: string[];
     };
     experiences: {
         title: string;
@@ -303,15 +307,11 @@ export declare const DoctorDetailSchema: z.ZodObject<{
         date: string;
         author: string;
         treatment: string;
-        source: "google" | "akeezo" | "hospital" | "verified_patient";
+        source: "hospital" | "google" | "akeezo" | "verified_patient";
         country: string;
         rating: number;
         comment: string;
         verified: boolean;
-    }[];
-    faqs: {
-        question: string;
-        answer: string;
     }[];
     teleconsultationFeeUsd: string;
     isTopDoctor: boolean;
@@ -325,11 +325,11 @@ export declare const DoctorDetailSchema: z.ZodObject<{
     specialty: string;
     badge: string;
     country: string;
-    hospital: string;
-    image: string;
-    designation: string;
-    experience: string;
     city: string;
+    image: string;
+    hospital: string;
+    experience: string;
+    designation: string;
     bio: string;
     aboutBio: string;
     professionalBackground: {
@@ -339,12 +339,16 @@ export declare const DoctorDetailSchema: z.ZodObject<{
         languages?: string[] | undefined;
     };
     goodToKnow: {
+        accreditations?: string[] | undefined;
         surgeriesCount?: string | undefined;
         successRate?: string | undefined;
         responseTime?: string | undefined;
-        accreditations?: string[] | undefined;
     };
     rating?: number | undefined;
+    faqs?: {
+        question: string;
+        answer: string;
+    }[] | undefined;
     verified?: boolean | undefined;
     href?: string | undefined;
     imageFallback?: string | undefined;
@@ -380,14 +384,10 @@ export declare const DoctorDetailSchema: z.ZodObject<{
         author: string;
         treatment: string;
         comment: string;
-        source?: "google" | "akeezo" | "hospital" | "verified_patient" | undefined;
+        source?: "hospital" | "google" | "akeezo" | "verified_patient" | undefined;
         country?: string | undefined;
         rating?: number | undefined;
         verified?: boolean | undefined;
-    }[] | undefined;
-    faqs?: {
-        question: string;
-        answer: string;
     }[] | undefined;
     teleconsultationFeeUsd?: string | undefined;
     isTopDoctor?: boolean | undefined;

@@ -20,7 +20,10 @@ import {
   type HospitalDetail,
   CURATED_COMMUNITY_THREADS,
   getCommunityThreadBySlug,
-  type CommunityThread
+  type CommunityThread,
+  ALL_DESTINATIONS,
+  getDestinationDetail,
+  type DestinationDetail
 } from "@akeezo/contracts";
 import { env } from "../config/env.js";
 
@@ -591,6 +594,83 @@ export async function handleSsr(req: Request, res: Response, next: NextFunction)
             ...(revData?.payload || {}),
             headline: (revData?.payload as any)?.headline || "World-Class Doctors, Personally Matched for You",
             subheadline: (revData?.payload as any)?.subheadline || "Search, compare, and connect with leading specialists across the globe."
+          },
+          siteSettings,
+          statusCode: 200
+        };
+      }
+    } else if (normalizedPath === "/destinations" || normalizedPath.startsWith("/destinations/")) {
+      const slug = normalizedPath.startsWith("/destinations/")
+        ? normalizedPath.replace(/^\/destinations\/?/, "").split("/")[0]
+        : "";
+      const isDetail = Boolean(slug);
+      const revData = await getFallbackPageRevision("destinations");
+
+      if (isDetail) {
+        const destination: DestinationDetail | undefined = getDestinationDetail(slug);
+        if (destination) {
+          statusCode = 200;
+          dto = {
+            pageKind: "destinationDetail",
+            path: normalizedPath,
+            locale: "en",
+            seo: {
+              title: destination.title,
+              description: destination.subheadline,
+              canonicalPath: `/destinations/${destination.slug}`,
+              robots: "index,follow",
+              schemaKind: "MedicalWebPage"
+            },
+            payload: {
+              destination,
+              slug: destination.slug,
+              headline: destination.headline,
+              subheadline: destination.subheadline,
+              breadcrumbs: [
+                { name: "Home", item: "/" },
+                { name: "Destinations", item: "/destinations" },
+                { name: destination.name, item: `/destinations/${destination.slug}` }
+              ]
+            },
+            siteSettings,
+            statusCode: 200
+          };
+        } else {
+          statusCode = 404;
+          dto = {
+            pageKind: "notFound",
+            path: normalizedPath,
+            locale: "en",
+            seo: {
+              title: "Destination Not Found | AKEEZO Healthcare Platform",
+              description: "The requested medical tourism destination could not be located. Explore our premier global medical tourism destinations directory.",
+              canonicalPath: "/destinations",
+              robots: "noindex,nofollow",
+              schemaKind: "WebPage"
+            },
+            payload: {},
+            siteSettings,
+            statusCode: 404
+          };
+        }
+      } else {
+        statusCode = 200;
+        dto = {
+          pageKind: "destinationDirectory",
+          path: normalizedPath,
+          locale: "en",
+          seo: revData?.seo || {
+            title: "All Destinations - Medical Tourism & Treatment in India | AKEEZO",
+            description: "Explore premier global medical tourism destinations and Indian healthcare hub cities. Compare hospital accreditations, treatment costs, and save up to 85% with AKEEZO.",
+            canonicalPath: "/destinations",
+            robots: "index,follow",
+            schemaKind: "MedicalWebPage"
+          },
+          payload: {
+            ...(revData?.payload || {}),
+            headline: (revData?.payload as any)?.headline || "Premier Medical Tourism Destinations",
+            subheadline: (revData?.payload as any)?.subheadline || "Discover world-class accredited hospitals, board-certified surgeons, and up to 85% cost savings across premier healthcare destinations.",
+            destinations: ALL_DESTINATIONS
           },
           siteSettings,
           statusCode: 200

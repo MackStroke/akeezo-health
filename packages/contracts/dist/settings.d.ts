@@ -216,16 +216,16 @@ export declare const GoogleCloudConfigSchema: z.ZodObject<{
 }, "strip", z.ZodTypeAny, {
     status: "error" | "connected" | "unconfigured";
     enabled: boolean;
+    region: string;
     projectId: string;
     clientEmail: string;
-    region: string;
     storageBucket: string;
 }, {
     status?: "error" | "connected" | "unconfigured" | undefined;
     enabled?: boolean | undefined;
+    region?: string | undefined;
     projectId?: string | undefined;
     clientEmail?: string | undefined;
-    region?: string | undefined;
     storageBucket?: string | undefined;
 }>;
 export type GoogleCloudConfig = z.infer<typeof GoogleCloudConfigSchema>;
@@ -252,7 +252,7 @@ export declare const GeminiApiConfigSchema: z.ZodObject<{
     status: z.ZodDefault<z.ZodEnum<["active", "unconfigured", "error"]>>;
     lastTestedAt: z.ZodOptional<z.ZodString>;
 }, "strip", z.ZodTypeAny, {
-    status: "error" | "unconfigured" | "active";
+    status: "error" | "active" | "unconfigured";
     enabled: boolean;
     apiKey: string;
     apiKeyMasked: string;
@@ -260,7 +260,7 @@ export declare const GeminiApiConfigSchema: z.ZodObject<{
     temperature: number;
     lastTestedAt?: string | undefined;
 }, {
-    status?: "error" | "unconfigured" | "active" | undefined;
+    status?: "error" | "active" | "unconfigured" | undefined;
     enabled?: boolean | undefined;
     apiKey?: string | undefined;
     apiKeyMasked?: string | undefined;
@@ -304,16 +304,16 @@ export declare const PlatformIntegrationsSchema: z.ZodObject<{
     }, "strip", z.ZodTypeAny, {
         status: "error" | "connected" | "unconfigured";
         enabled: boolean;
+        region: string;
         projectId: string;
         clientEmail: string;
-        region: string;
         storageBucket: string;
     }, {
         status?: "error" | "connected" | "unconfigured" | undefined;
         enabled?: boolean | undefined;
+        region?: string | undefined;
         projectId?: string | undefined;
         clientEmail?: string | undefined;
-        region?: string | undefined;
         storageBucket?: string | undefined;
     }>>;
     metaPixel: z.ZodDefault<z.ZodObject<{
@@ -338,7 +338,7 @@ export declare const PlatformIntegrationsSchema: z.ZodObject<{
         status: z.ZodDefault<z.ZodEnum<["active", "unconfigured", "error"]>>;
         lastTestedAt: z.ZodOptional<z.ZodString>;
     }, "strip", z.ZodTypeAny, {
-        status: "error" | "unconfigured" | "active";
+        status: "error" | "active" | "unconfigured";
         enabled: boolean;
         apiKey: string;
         apiKeyMasked: string;
@@ -346,7 +346,7 @@ export declare const PlatformIntegrationsSchema: z.ZodObject<{
         temperature: number;
         lastTestedAt?: string | undefined;
     }, {
-        status?: "error" | "unconfigured" | "active" | undefined;
+        status?: "error" | "active" | "unconfigured" | undefined;
         enabled?: boolean | undefined;
         apiKey?: string | undefined;
         apiKeyMasked?: string | undefined;
@@ -379,9 +379,9 @@ export declare const PlatformIntegrationsSchema: z.ZodObject<{
     googleCloud: {
         status: "error" | "connected" | "unconfigured";
         enabled: boolean;
+        region: string;
         projectId: string;
         clientEmail: string;
-        region: string;
         storageBucket: string;
     };
     metaPixel: {
@@ -390,7 +390,7 @@ export declare const PlatformIntegrationsSchema: z.ZodObject<{
         testEventCode: string;
     };
     gemini: {
-        status: "error" | "unconfigured" | "active";
+        status: "error" | "active" | "unconfigured";
         enabled: boolean;
         apiKey: string;
         apiKeyMasked: string;
@@ -415,9 +415,9 @@ export declare const PlatformIntegrationsSchema: z.ZodObject<{
     googleCloud?: {
         status?: "error" | "connected" | "unconfigured" | undefined;
         enabled?: boolean | undefined;
+        region?: string | undefined;
         projectId?: string | undefined;
         clientEmail?: string | undefined;
-        region?: string | undefined;
         storageBucket?: string | undefined;
     } | undefined;
     metaPixel?: {
@@ -426,7 +426,7 @@ export declare const PlatformIntegrationsSchema: z.ZodObject<{
         testEventCode?: string | undefined;
     } | undefined;
     gemini?: {
-        status?: "error" | "unconfigured" | "active" | undefined;
+        status?: "error" | "active" | "unconfigured" | undefined;
         enabled?: boolean | undefined;
         apiKey?: string | undefined;
         apiKeyMasked?: string | undefined;
@@ -689,16 +689,16 @@ export declare const SiteSettingsSchema: z.ZodObject<{
         }, "strip", z.ZodTypeAny, {
             status: "error" | "connected" | "unconfigured";
             enabled: boolean;
+            region: string;
             projectId: string;
             clientEmail: string;
-            region: string;
             storageBucket: string;
         }, {
             status?: "error" | "connected" | "unconfigured" | undefined;
             enabled?: boolean | undefined;
+            region?: string | undefined;
             projectId?: string | undefined;
             clientEmail?: string | undefined;
-            region?: string | undefined;
             storageBucket?: string | undefined;
         }>>;
         metaPixel: z.ZodDefault<z.ZodObject<{
@@ -723,7 +723,7 @@ export declare const SiteSettingsSchema: z.ZodObject<{
             status: z.ZodDefault<z.ZodEnum<["active", "unconfigured", "error"]>>;
             lastTestedAt: z.ZodOptional<z.ZodString>;
         }, "strip", z.ZodTypeAny, {
-            status: "error" | "unconfigured" | "active";
+            status: "error" | "active" | "unconfigured";
             enabled: boolean;
             apiKey: string;
             apiKeyMasked: string;
@@ -731,7 +731,7 @@ export declare const SiteSettingsSchema: z.ZodObject<{
             temperature: number;
             lastTestedAt?: string | undefined;
         }, {
-            status?: "error" | "unconfigured" | "active" | undefined;
+            status?: "error" | "active" | "unconfigured" | undefined;
             enabled?: boolean | undefined;
             apiKey?: string | undefined;
             apiKeyMasked?: string | undefined;
@@ -764,9 +764,9 @@ export declare const SiteSettingsSchema: z.ZodObject<{
         googleCloud: {
             status: "error" | "connected" | "unconfigured";
             enabled: boolean;
+            region: string;
             projectId: string;
             clientEmail: string;
-            region: string;
             storageBucket: string;
         };
         metaPixel: {
@@ -775,7 +775,7 @@ export declare const SiteSettingsSchema: z.ZodObject<{
             testEventCode: string;
         };
         gemini: {
-            status: "error" | "unconfigured" | "active";
+            status: "error" | "active" | "unconfigured";
             enabled: boolean;
             apiKey: string;
             apiKeyMasked: string;
@@ -800,9 +800,9 @@ export declare const SiteSettingsSchema: z.ZodObject<{
         googleCloud?: {
             status?: "error" | "connected" | "unconfigured" | undefined;
             enabled?: boolean | undefined;
+            region?: string | undefined;
             projectId?: string | undefined;
             clientEmail?: string | undefined;
-            region?: string | undefined;
             storageBucket?: string | undefined;
         } | undefined;
         metaPixel?: {
@@ -811,7 +811,7 @@ export declare const SiteSettingsSchema: z.ZodObject<{
             testEventCode?: string | undefined;
         } | undefined;
         gemini?: {
-            status?: "error" | "unconfigured" | "active" | undefined;
+            status?: "error" | "active" | "unconfigured" | undefined;
             enabled?: boolean | undefined;
             apiKey?: string | undefined;
             apiKeyMasked?: string | undefined;
@@ -939,8 +939,8 @@ export declare const SiteSettingsSchema: z.ZodObject<{
     }>, "many">>>;
 }, "strip", z.ZodTypeAny, {
     phone: string;
-    brandName: string;
     tagline: string;
+    brandName: string;
     legalEntityName: string;
     officeAddress: string;
     careEmail: string;
@@ -1037,9 +1037,9 @@ export declare const SiteSettingsSchema: z.ZodObject<{
         googleCloud: {
             status: "error" | "connected" | "unconfigured";
             enabled: boolean;
+            region: string;
             projectId: string;
             clientEmail: string;
-            region: string;
             storageBucket: string;
         };
         metaPixel: {
@@ -1048,7 +1048,7 @@ export declare const SiteSettingsSchema: z.ZodObject<{
             testEventCode: string;
         };
         gemini: {
-            status: "error" | "unconfigured" | "active";
+            status: "error" | "active" | "unconfigured";
             enabled: boolean;
             apiKey: string;
             apiKeyMasked: string;
@@ -1094,12 +1094,12 @@ export declare const SiteSettingsSchema: z.ZodObject<{
     socialLinks?: Record<string, string> | undefined;
 }, {
     phone?: string | undefined;
+    tagline?: string | undefined;
     primaryColor?: string | undefined;
     secondaryColor?: string | undefined;
     accentColor?: string | undefined;
     actionColor?: string | undefined;
     brandName?: string | undefined;
-    tagline?: string | undefined;
     legalEntityName?: string | undefined;
     officeAddress?: string | undefined;
     headquartersAddress?: string | undefined;
@@ -1178,9 +1178,9 @@ export declare const SiteSettingsSchema: z.ZodObject<{
         googleCloud?: {
             status?: "error" | "connected" | "unconfigured" | undefined;
             enabled?: boolean | undefined;
+            region?: string | undefined;
             projectId?: string | undefined;
             clientEmail?: string | undefined;
-            region?: string | undefined;
             storageBucket?: string | undefined;
         } | undefined;
         metaPixel?: {
@@ -1189,7 +1189,7 @@ export declare const SiteSettingsSchema: z.ZodObject<{
             testEventCode?: string | undefined;
         } | undefined;
         gemini?: {
-            status?: "error" | "unconfigured" | "active" | undefined;
+            status?: "error" | "active" | "unconfigured" | undefined;
             enabled?: boolean | undefined;
             apiKey?: string | undefined;
             apiKeyMasked?: string | undefined;

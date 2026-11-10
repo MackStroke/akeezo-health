@@ -6,7 +6,7 @@ export interface IEnquiry extends Document {
   email?: string;
   phone?: string;
   country?: string;
-  serviceType: "medical_tourism" | "emergency" | "home_healthcare" | "consultation" | "general" | "contact";
+  serviceType: "medical_tourism" | "emergency" | "home_healthcare" | "consultation" | "general" | "contact" | "destination";
   message?: string;
   sourcePath?: string;
   status: "received" | "triage" | "contacted" | "options_prepared" | "converted" | "closed" | "new" | "in_progress" | "resolved" | "spam" | "archived";
@@ -25,7 +25,7 @@ const EnquirySchema = new Schema<IEnquiry>(
     country: { type: String, trim: true },
     serviceType: {
       type: String,
-      enum: ["medical_tourism", "emergency", "home_healthcare", "consultation", "general", "contact"],
+      enum: ["medical_tourism", "emergency", "home_healthcare", "consultation", "general", "contact", "destination"],
       default: "medical_tourism",
     },
     message: { type: String },

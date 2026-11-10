@@ -269,11 +269,28 @@ export declare const HospitalDetailSchema: z.ZodObject<{
     summary: string;
     country: string;
     rating: number;
-    verified: boolean;
-    image: string;
     city: string;
-    reviewCount: number;
+    image: string;
     accreditations: string[];
+    specialties: string[];
+    bedsCount: number;
+    rankBadge: string;
+    doctors: {
+        id: string;
+        slug: string;
+        name: string;
+        specialty: string;
+        rating: number;
+        image: string;
+        experience: string;
+    }[];
+    faqs: {
+        question: string;
+        answer: string;
+    }[];
+    active: boolean;
+    verified: boolean;
+    reviewCount: number;
     reviews: {
         id: string;
         date: string;
@@ -284,22 +301,15 @@ export declare const HospitalDetailSchema: z.ZodObject<{
         comment: string;
         verified: boolean;
     }[];
-    faqs: {
-        question: string;
-        answer: string;
-    }[];
-    active: boolean;
     address: string;
     hospitalType: string;
     ownership: string;
-    rankBadge: string;
     rank: number;
     postalCode: string;
     telephone: string;
     ratingDisplay: string;
     patientSatisfactionRate: string;
     establishedYear: number;
-    bedsCount: number;
     icuCount: number;
     operatingRooms: number;
     dailyPatients: string;
@@ -316,7 +326,6 @@ export declare const HospitalDetailSchema: z.ZodObject<{
         amenities: string[];
     }[];
     paymentMethods: string[];
-    specialties: string[];
     surgeriesCost: {
         id: string;
         category: string;
@@ -325,15 +334,6 @@ export declare const HospitalDetailSchema: z.ZodObject<{
         savingsPercent: number;
         hospitalPriceUsd: string;
         usUkPriceUsd: string;
-    }[];
-    doctors: {
-        id: string;
-        slug: string;
-        name: string;
-        specialty: string;
-        rating: number;
-        image: string;
-        experience: string;
     }[];
     href?: string | undefined;
     location?: {
@@ -352,12 +352,29 @@ export declare const HospitalDetailSchema: z.ZodObject<{
     aboutMarkdown: string;
     country?: string | undefined;
     rating?: number | undefined;
+    city?: string | undefined;
+    image?: string | undefined;
+    accreditations?: string[] | undefined;
+    specialties?: string[] | undefined;
+    bedsCount?: number | undefined;
+    rankBadge?: string | undefined;
+    doctors?: {
+        id: string;
+        slug: string;
+        name: string;
+        specialty: string;
+        image: string;
+        rating?: number | undefined;
+        experience?: string | undefined;
+    }[] | undefined;
+    faqs?: {
+        question: string;
+        answer: string;
+    }[] | undefined;
+    active?: boolean | undefined;
     verified?: boolean | undefined;
     href?: string | undefined;
-    image?: string | undefined;
-    city?: string | undefined;
     reviewCount?: number | undefined;
-    accreditations?: string[] | undefined;
     reviews?: {
         id: string;
         date: string;
@@ -368,21 +385,14 @@ export declare const HospitalDetailSchema: z.ZodObject<{
         rating?: number | undefined;
         verified?: boolean | undefined;
     }[] | undefined;
-    faqs?: {
-        question: string;
-        answer: string;
-    }[] | undefined;
-    active?: boolean | undefined;
     hospitalType?: string | undefined;
     ownership?: string | undefined;
-    rankBadge?: string | undefined;
     rank?: number | undefined;
     postalCode?: string | undefined;
     telephone?: string | undefined;
     ratingDisplay?: string | undefined;
     patientSatisfactionRate?: string | undefined;
     establishedYear?: number | undefined;
-    bedsCount?: number | undefined;
     icuCount?: number | undefined;
     operatingRooms?: number | undefined;
     dailyPatients?: string | undefined;
@@ -398,7 +408,6 @@ export declare const HospitalDetailSchema: z.ZodObject<{
         amenities?: string[] | undefined;
     }[] | undefined;
     paymentMethods?: string[] | undefined;
-    specialties?: string[] | undefined;
     surgeriesCost?: {
         id: string;
         procedure: string;
@@ -407,15 +416,6 @@ export declare const HospitalDetailSchema: z.ZodObject<{
         savingsPercent?: number | undefined;
         hospitalPriceUsd?: string | undefined;
         usUkPriceUsd?: string | undefined;
-    }[] | undefined;
-    doctors?: {
-        id: string;
-        slug: string;
-        name: string;
-        specialty: string;
-        image: string;
-        rating?: number | undefined;
-        experience?: string | undefined;
     }[] | undefined;
     location?: {
         latitude?: number | undefined;

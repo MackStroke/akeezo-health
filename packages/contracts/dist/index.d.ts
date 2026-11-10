@@ -13,4 +13,5 @@ export * from "./pageCms.js";
 export * from "./doctors.js";
 export * from "./hospitals.js";
 export * from "./community.js";
+export * from "./destinations.js";
 //# sourceMappingURL=index.d.ts.map

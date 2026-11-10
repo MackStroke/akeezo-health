@@ -7,7 +7,7 @@ const EnquirySchema = new Schema({
     country: { type: String, trim: true },
     serviceType: {
         type: String,
-        enum: ["medical_tourism", "emergency", "home_healthcare", "consultation", "general", "contact"],
+        enum: ["medical_tourism", "emergency", "home_healthcare", "consultation", "general", "contact", "destination"],
         default: "medical_tourism",
     },
     message: { type: String },
