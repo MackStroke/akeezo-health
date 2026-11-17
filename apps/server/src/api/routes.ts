@@ -45,6 +45,28 @@ apiRouter.get("/health", (_req: Request, res: Response) => {
   });
 });
 
+// Location and Geo IP resolution endpoint
+apiRouter.get("/geo", (req: Request, res: Response) => {
+  const countryHeader =
+    (req.headers["x-vercel-ip-country"] as string) ||
+    (req.headers["cf-ipcountry"] as string) ||
+    (req.headers["x-country-code"] as string) ||
+    (req.headers["x-real-ip-country"] as string) ||
+    "";
+
+  const acceptLang = (req.headers["accept-language"] as string) || "";
+  const clientIp =
+    (req.headers["x-forwarded-for"] as string)?.split(",")[0]?.trim() ||
+    req.socket.remoteAddress ||
+    "";
+
+  res.status(200).json({
+    countryCode: countryHeader ? countryHeader.toUpperCase() : null,
+    acceptLanguage: acceptLang,
+    clientIp
+  });
+});
+
 // Helper to fetch directory doctors from Page CMS for siteSettings
 async function getDirectoryDoctorsFromDb(): Promise<any[] | undefined> {
   if (mongoose.connection.readyState !== 1) return undefined;

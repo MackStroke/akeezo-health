@@ -74,14 +74,21 @@ export const SiteHeader: React.FC<SiteHeaderProps> = ({
   };
 
   useEffect(() => {
-    const savedCode = getSavedLanguageCode();
-    if (savedCode && savedCode !== "en") {
-      const match = LANGUAGES.find((l) => l.code.toLowerCase() === savedCode);
-      if (match) {
-        setSelectedLanguage(match);
+    const syncLang = () => {
+      const savedCode = getSavedLanguageCode();
+      if (savedCode) {
+        const match = LANGUAGES.find((l) => l.code.toLowerCase() === savedCode.toLowerCase());
+        if (match) {
+          setSelectedLanguage(match);
+        }
       }
-      initGoogleTranslate();
-    }
+      if (savedCode && savedCode !== "en") {
+        initGoogleTranslate();
+      }
+    };
+    syncLang();
+    window.addEventListener("akeezo:language-change", syncLang);
+    return () => window.removeEventListener("akeezo:language-change", syncLang);
   }, []);
 
   // Interactive Modals (controlled or internal)

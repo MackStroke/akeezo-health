@@ -18,6 +18,7 @@ import { ContactTemplate } from "./templates/ContactTemplate.js";
 import { DestinationsTemplate } from "./templates/DestinationsTemplate.js";
 import { DestinationDetailTemplate } from "./templates/DestinationDetailTemplate.js";
 import { FloatingActionButtons } from "./components/FloatingActionButtons.js";
+import { LocationLanguagePrompt } from "./components/LocationLanguagePrompt.js";
 import { getDefaultRouteData } from "./defaultData.js";
 
 export interface AppProps {
@@ -159,6 +160,7 @@ export function App({ data }: AppProps) {
   return (
     <ErrorBoundary data={currentData}>
       {renderContent()}
+      <LocationLanguagePrompt />
       <FloatingActionButtons siteSettings={currentData.siteSettings} />
     </ErrorBoundary>
   );

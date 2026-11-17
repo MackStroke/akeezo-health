@@ -152,7 +152,16 @@ export const LANGUAGES = [
   { code: "fr", name: "French", local: "Français" },
   { code: "ru", name: "Russian", local: "Русский" },
   { code: "sw", name: "Swahili", local: "Kiswahili" },
-  { code: "hi", name: "Hindi", local: "हिन्दी" }
+  { code: "hi", name: "Hindi", local: "हिन्दी" },
+  { code: "es", name: "Spanish", local: "Español" },
+  { code: "de", name: "German", local: "Deutsch" },
+  { code: "tr", name: "Turkish", local: "Türkçe" },
+  { code: "ur", name: "Urdu", local: "اردو" },
+  { code: "fa", name: "Persian", local: "فارسی" },
+  { code: "zh-CN", name: "Chinese (Simplified)", local: "简体中文" },
+  { code: "ja", name: "Japanese", local: "日本語" },
+  { code: "ko", name: "Korean", local: "한국어" },
+  { code: "pt", name: "Portuguese", local: "Português" }
 ];
 
 export function formatEstimate(minUsd: number, maxUsd: number, country: CountryOption): string {
