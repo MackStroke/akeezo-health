@@ -3,13 +3,11 @@ import type { SiteSettings } from "@akeezo/contracts";
 import {
   Search,
   X,
-  ChevronDown,
   ChevronRight,
   Calculator,
   Check,
   Phone,
   Building2,
-  Globe2,
   Languages,
   User2
 } from "lucide-react";
@@ -193,122 +191,9 @@ export const SiteHeader: React.FC<SiteHeaderProps> = ({
   const phone = siteSettings.phone || siteSettings.emergencyHelpline || "+91 82876 39443";
   const phoneClean = phone.replace(/[^0-9]/g, "");
 
-  const emergencyPhone = siteSettings.emergencyHelpline || siteSettings.phone || "+91 82876 39443";
-  const emergencyPhoneClean = emergencyPhone.replace(/[^0-9]/g, "");
-  const whatsappPhone = siteSettings.whatsappHelpline || siteSettings.phone || "+91 82876 39443";
-  const whatsappPhoneClean = whatsappPhone.replace(/[^0-9]/g, "");
-
   return (
     <>
-      {/* 1. Top Utility & Emergency Bar (Synchronized with Admin Settings across ALL pages) */}
-      {siteSettings.showTopUtilityBar !== false && (
-        <div className="hidden lg:block bg-black text-white font-sans text-ink">
-          <div className="mx-auto flex max-w-[76rem] flex-wrap items-center justify-between gap-x-6 gap-y-1.5 px-4 py-1.5 text-[0.78rem]">
-            <div className="flex items-center gap-2 font-bold flex-wrap">
-              <span className="relative flex size-2 shrink-0">
-                <span className="absolute inline-flex size-full animate-ping rounded-full bg-emergency opacity-75 motion-reduce:animate-none"></span>
-                <span className="relative inline-flex size-2 rounded-full bg-emergency"></span>
-              </span>
-              <span className="text-white/90 uppercase">{siteSettings.emergencyNotice || "EMERGENCY?"}</span>
-              <a
-                href={`tel:${emergencyPhoneClean}`}
-                title={`Call: ${emergencyPhone}`}
-                aria-label={`Call: ${emergencyPhone}`}
-                className="inline-flex size-7 items-center justify-center rounded-full bg-emergency text-white hover:bg-emergency-strong hover:scale-105 transition-all shadow-xs"
-              >
-                <Phone className="size-3.5" aria-hidden="true" />
-              </a>
-              <a
-                href={`https://wa.me/${whatsappPhoneClean}?text=Hello%20AKEEZO%2C%20I%20need%20help%20with%20a%20healthcare%20requirement.`}
-                target="_blank"
-                rel="noopener noreferrer"
-                title={`WhatsApp: ${whatsappPhone}`}
-                aria-label={`WhatsApp: ${whatsappPhone}`}
-                className="inline-flex size-7 items-center justify-center rounded-full bg-[#25D366] text-white hover:bg-[#20bd5a] hover:scale-105 transition-all shadow-xs"
-              >
-                <svg className="size-3.5 text-white" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
-                  <path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.501-.669-.51l-.57-.01c-.198 0-.52.074-.792.372s-1.04 1.016-1.04 2.479 1.065 2.876 1.213 3.074c.149.198 2.095 3.2 5.076 4.487.709.306 1.263.489 1.694.626.712.226 1.36.194 1.872.118.571-.085 1.758-.719 2.006-1.413.248-.695.248-1.29.173-1.414-.074-.124-.272-.198-.57-.347z"></path>
-                  <path fillRule="evenodd" clipRule="evenodd" d="M12 0C5.373 0 0 5.373 0 12c0 2.119.553 4.11 1.519 5.842L.055 23.361l5.688-1.491A11.936 11.936 0 0012 24c6.627 0 12-5.373 12-12S18.627 0 12 0zm0 22c-1.83 0-3.551-.482-5.05-1.325l-.362-.202-3.37.884.899-3.284-.236-.375A9.953 9.953 0 012 12C2 6.477 6.477 2 12 2s10 4.477 10 10-4.477 10-10 10z"></path>
-                </svg>
-              </a>
-            </div>
-            <ul className="flex flex-wrap items-center gap-x-5 gap-y-1">
-              <li>
-                <button
-                  type="button"
-                  onClick={() => {
-                    setPartnerType("hospital");
-                    setIsPartnerModalOpen(true);
-                  }}
-                  className="flex items-center gap-1.5 font-bold hover:underline cursor-pointer bg-transparent border-0 text-inherit p-0 font-inherit"
-                >
-                  <Building2 className="size-3.5" aria-hidden="true" />
-                  <span>List your hospital</span>
-                </button>
-              </li>
-              <li>
-                <button
-                  type="button"
-                  onClick={() => {
-                    setPartnerType("agent");
-                    setIsPartnerModalOpen(true);
-                  }}
-                  className="flex items-center gap-1.5 font-bold hover:underline cursor-pointer bg-transparent border-0 text-inherit p-0 font-inherit"
-                >
-                  <Globe2 className="size-3.5" aria-hidden="true" />
-                  <span>Agent portal</span>
-                </button>
-              </li>
-              <li>
-                <button
-                  type="button"
-                  onClick={() => setIsPatientModalOpen(true)}
-                  className="flex items-center gap-1.5 font-bold hover:underline cursor-pointer bg-transparent border-0 text-inherit p-0 font-inherit"
-                >
-                  <User2 className="size-3.5" aria-hidden="true" />
-                  <span>My journey / Patient Login</span>
-                </button>
-              </li>
-              <li className="list-none">
-                <button
-                  type="button"
-                  data-cy="country-lang-switcher"
-                  data-testid="country-lang-switcher"
-                  onClick={() => {
-                    setSwitcherTab("currency");
-                    setSwitcherSearch("");
-                    setIsCountryLangOpen(true);
-                  }}
-                  className="flex items-center gap-1.5 rounded-sm bg-white/15 px-2.5 py-1 text-[0.75rem] font-bold text-white transition-colors hover:bg-white/25 focus-visible:outline-2 focus-visible:outline-white cursor-pointer border-0"
-                  aria-label={`Selected currency: ${selectedCountry.currencyCode}, language: ${selectedLanguage.name}`}
-                  aria-haspopup="dialog"
-                  aria-expanded={isCountryLangOpen}
-                  data-state={isCountryLangOpen ? "open" : "closed"}
-                  data-slot="popover-trigger"
-                >
-                  <span className="inline-flex items-center shrink-0">
-                    <img
-                      alt={selectedCountry.countryName}
-                      className="h-3 w-4.5 rounded-[1px] object-cover shadow-xs"
-                      srcSet={`https://flagcdn.com/w80/${selectedCountry.countryCode.toLowerCase()}.png 2x`}
-                      src={selectedCountry.flagUrl}
-                    />
-                  </span>
-                  <span className="font-extrabold uppercase tracking-tight">{selectedCountry.currencyCode}</span>
-                  <span className="text-white/60">|</span>
-                  <span className="font-medium text-white/90">{selectedLanguage.name}</span>
-                  <ChevronDown
-                    className={`size-3 text-white/80 transition-transform duration-200 ${isCountryLangOpen ? "rotate-180" : ""}`}
-                    aria-hidden="true"
-                  />
-                </button>
-              </li>
-            </ul>
-          </div>
-        </div>
-      )}
-
-      {/* 2. Main Sticky Navigation Header - Reference Two-Tier Structure */}
+      {/* Main Sticky Navigation Header - Reference Two-Tier Structure */}
       <header className="sticky top-0 z-[51] border-b shadow-xs transition-colors duration-300 bg-[#f9fbff] font-sans text-ink">
         {/* Tier 1: Upper Main Navigation Bar */}
         <div className="mx-auto flex min-w-0 max-w-7xl items-center gap-3 px-4 py-1.5 lg:min-h-[64px] lg:gap-6 lg:px-6">
