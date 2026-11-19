@@ -7,6 +7,7 @@ import mongoose from "mongoose";
 import { RouteEntry, ContentRevision, Page, SiteSettings, ChangelogModel, BlogPostModel, CommunityThreadModel } from "../db/models/index.js";
 import { SiteSettingsSchema, DEFAULT_CAROUSEL_SLIDES, generateWebsiteThemeCss, getGoogleFontUrl, getDoctorDetail, getHospitalDetail, CURATED_COMMUNITY_THREADS, getCommunityThreadBySlug, ALL_DESTINATIONS, getDestinationDetail } from "@akeezo/contracts";
 import { env } from "../config/env.js";
+import { SEED_TREATMENTS } from "../seeds/pageCmsSeedData.js";
 function getSafePaths() {
     try {
         if (typeof import.meta !== "undefined" && import.meta?.url && import.meta.url.startsWith("file:")) {
@@ -130,7 +131,9 @@ export function toSafeSiteSettings(doc) {
         integrations: doc?.integrations,
         carouselSlides: doc?.carouselSlides && doc.carouselSlides.length > 0 ? doc.carouselSlides : DEFAULT_CAROUSEL_SLIDES,
         directoryDoctors: doc?.directoryDoctors || undefined,
-        directoryHospitals: doc?.directoryHospitals || undefined
+        directoryHospitals: doc?.directoryHospitals || undefined,
+        directoryTreatments: doc?.directoryTreatments || undefined,
+        directoryDestinations: doc?.directoryDestinations || undefined
     });
 }
 export function renderFallback500Html(siteSettings) {
@@ -217,7 +220,9 @@ ${dynamicThemeCss}
 </html>`;
 }
 function escapeHtml(str) {
-    return str
+    if (!str)
+        return "";
+    return String(str)
         .replace(/&/g, "&amp;")
         .replace(/</g, "&lt;")
         .replace(/>/g, "&gt;")
@@ -262,6 +267,8 @@ export async function handleSsr(req, res, next) {
             (await SiteSettings.findOne().lean());
         let directoryDoctors = undefined;
         let directoryHospitals = undefined;
+        let directoryTreatments = undefined;
+        let directoryDestinations = undefined;
         if (mongoose.connection.readyState === 1) {
             try {
                 const docPage = await Page.findOne({ slug: "doctors", locale: "en" }).lean();
@@ -306,8 +313,60 @@ export async function handleSsr(req, res, next) {
                 }
             }
             catch { }
+            try {
+                const trtPage = await Page.findOne({ slug: "treatments", locale: "en" }).lean();
+                if (trtPage) {
+                    const revId = trtPage.publishedRevisionId || trtPage.draftRevisionId;
+                    if (revId) {
+                        const rev = await ContentRevision.findById(revId).lean();
+                        const trtList = rev?.payload?.treatments;
+                        if (Array.isArray(trtList) && trtList.length > 0) {
+                            directoryTreatments = trtList.filter((t) => t.active !== false).slice(0, 8).map((t) => ({
+                                name: t.title || t.name,
+                                category: t.category || "Speciality",
+                                slug: t.slug,
+                                avgCostAbroad: t.avgCostAbroad,
+                                avgCostHome: t.avgCostHome,
+                                recoveryTime: t.recoveryTime,
+                                isTopTreatment: Boolean(t.isTopTreatment),
+                                image: t.image
+                            }));
+                        }
+                    }
+                }
+            }
+            catch { }
+            try {
+                const destPage = await Page.findOne({ slug: "destinations", locale: "en" }).lean();
+                if (destPage) {
+                    const revId = destPage.publishedRevisionId || destPage.draftRevisionId;
+                    if (revId) {
+                        const rev = await ContentRevision.findById(revId).lean();
+                        const destList = rev?.payload?.destinations;
+                        if (Array.isArray(destList) && destList.length > 0) {
+                            directoryDestinations = destList.filter((d) => d.active !== false).slice(0, 8).map((d) => ({
+                                country: d.country || d.name,
+                                name: d.country || d.name,
+                                cityHighlights: d.cityHighlights,
+                                savingsPercentage: d.savingsPercentage,
+                                hospitalCount: d.hospitalCount,
+                                tagline: d.tagline,
+                                slug: d.slug,
+                                image: d.image
+                            }));
+                        }
+                    }
+                }
+            }
+            catch { }
         }
-        const siteSettings = toSafeSiteSettings({ ...settingsDoc, directoryDoctors, directoryHospitals });
+        const siteSettings = toSafeSiteSettings({
+            ...settingsDoc,
+            directoryDoctors,
+            directoryHospitals,
+            directoryTreatments,
+            directoryDestinations
+        });
         // 2. Resolve RouteEntry
         const routeEntry = await RouteEntry.findOne({ locale: "en", path: normalizedPath }).lean();
         let dto;
@@ -387,6 +446,29 @@ export async function handleSsr(req, res, next) {
             };
             statusCode = dto.statusCode;
         }
+        else if (normalizedPath === "/") {
+            statusCode = 200;
+            const revData = await getFallbackPageRevision("home");
+            dto = {
+                pageKind: "home",
+                path: "/",
+                locale: "en",
+                seo: revData?.seo || {
+                    title: "AKEEZO | Heal In India, Heal By Akeezo - Medical Tourism & Treatment in India",
+                    description: "Discover accredited Indian hospitals, consult top doctors, and receive guided care coordination and transparent cost estimates.",
+                    canonicalPath: "/",
+                    robots: "index,follow",
+                    schemaKind: "MedicalWebPage"
+                },
+                payload: {
+                    headline: "World-Class Medical Care in India, Simplified & Guided",
+                    tagline: "Heal In India, Heal By Akeezo",
+                    ...(revData?.payload || {})
+                },
+                siteSettings,
+                statusCode: 200
+            };
+        }
         else if (normalizedPath === "/cost-calculator" || normalizedPath === "/calculator" || normalizedPath === "/cma-planner") {
             statusCode = 200;
             const revData = await getFallbackPageRevision("cost-calculator");
@@ -407,46 +489,94 @@ export async function handleSsr(req, res, next) {
             };
         }
         else if (normalizedPath === "/treatments" || normalizedPath.startsWith("/treatments/")) {
-            statusCode = 200;
             const slug = normalizedPath.startsWith("/treatments/")
                 ? normalizedPath.replace(/^\/treatments\/?/, "").split("/")[0]
                 : "";
             const isDetail = Boolean(slug);
-            const formattedTitle = slug
-                ? slug
-                    .split("-")
-                    .map((w) => w.charAt(0).toUpperCase() + w.slice(1))
-                    .join(" ")
-                : "Medical Treatments Worldwide";
             const revData = await getFallbackPageRevision("treatments");
-            dto = {
-                pageKind: isDetail ? "treatmentDetail" : "treatmentDirectory",
-                path: normalizedPath,
-                locale: "en",
-                seo: isDetail
-                    ? {
-                        title: `${formattedTitle} Abroad | Accredited Hospitals & Pricing | AKEEZO`,
-                        description: `Compare ${formattedTitle} costs abroad, find accredited international hospitals, and get free treatment planning with AKEEZO.`,
-                        canonicalPath: normalizedPath,
-                        robots: "index,follow",
-                        schemaKind: "MedicalWebPage"
-                    }
-                    : (revData?.seo || {
+            const fallbackTreatments = revData?.payload?.treatments &&
+                Array.isArray(revData?.payload?.treatments) &&
+                revData?.payload?.treatments.length > 0
+                ? revData?.payload?.treatments.filter((t) => t.active !== false)
+                : SEED_TREATMENTS;
+            const TREATMENT_SLUG_ALIASES = {
+                "ivf-treatment": "ivf-fertility-treatment",
+                "cancer-treatment": "oncology-cancer-care",
+                "bariatric-surgery": "bariatric-weight-loss-surgery",
+                "obesity-bariatric-surgery": "bariatric-weight-loss-surgery",
+                "orthopedics": "orthopedic-surgery",
+                "dental": "dental-treatment",
+            };
+            if (isDetail) {
+                const aliasSlug = TREATMENT_SLUG_ALIASES[slug] || slug;
+                const treatment = fallbackTreatments.find((t) => t.slug === slug || t.slug === aliasSlug || TREATMENT_SLUG_ALIASES[t.slug] === slug);
+                if (treatment) {
+                    statusCode = 200;
+                    dto = {
+                        pageKind: "treatmentDetail",
+                        path: normalizedPath,
+                        locale: "en",
+                        seo: {
+                            title: `${treatment.title || treatment.name} | Medical Treatment in India | AKEEZO`,
+                            description: treatment.description ||
+                                `Explore ${treatment.title || treatment.name} in India. Cost savings up to 70%, top accredited hospitals, and experienced surgeons with AKEEZO.`,
+                            canonicalPath: `/treatments/${treatment.slug || slug}`,
+                            robots: "index,follow",
+                            schemaKind: "MedicalWebPage"
+                        },
+                        payload: {
+                            ...(revData?.payload || {}),
+                            treatment,
+                            slug: treatment.slug || slug,
+                            headline: treatment.title || treatment.name,
+                            subheadline: treatment.category || "World-class care in India"
+                        },
+                        siteSettings,
+                        statusCode: 200
+                    };
+                }
+                else {
+                    statusCode = 404;
+                    dto = {
+                        pageKind: "notFound",
+                        path: normalizedPath,
+                        locale: "en",
+                        seo: {
+                            title: "Treatment Not Found | AKEEZO Healthcare Platform",
+                            description: "The requested medical treatment could not be located. Explore our comprehensive medical treatments directory.",
+                            canonicalPath: "/treatments",
+                            robots: "noindex,nofollow",
+                            schemaKind: "WebPage"
+                        },
+                        payload: {},
+                        siteSettings,
+                        statusCode: 404
+                    };
+                }
+            }
+            else {
+                statusCode = 200;
+                dto = {
+                    pageKind: "treatmentDirectory",
+                    path: normalizedPath,
+                    locale: "en",
+                    seo: revData?.seo || {
                         title: "Medical Treatments Worldwide | Find Best Treatment Options | AKEEZO",
                         description: "Discover comprehensive medical treatments worldwide. Compare prices, read reviews, and find accredited international healthcare options with AKEEZO.",
-                        canonicalPath: normalizedPath,
+                        canonicalPath: "/treatments",
                         robots: "index,follow",
                         schemaKind: "MedicalWebPage"
-                    }),
-                payload: {
-                    ...(revData?.payload || {}),
-                    slug: slug || undefined,
-                    headline: isDetail ? formattedTitle : (revData?.payload?.headline || "Find The Best Treatments Worldwide"),
-                    subheadline: revData?.payload?.subheadline || "World-class care, anywhere in the world."
-                },
-                siteSettings,
-                statusCode: 200
-            };
+                    },
+                    payload: {
+                        ...(revData?.payload || {}),
+                        headline: revData?.payload?.headline || "Find The Best Treatments Worldwide",
+                        subheadline: revData?.payload?.subheadline || "World-class care, anywhere in the world.",
+                        treatments: fallbackTreatments
+                    },
+                    siteSettings,
+                    statusCode: 200
+                };
+            }
         }
         else if (normalizedPath === "/hospital" || normalizedPath.startsWith("/hospital/")) {
             const sub = normalizedPath.replace(/^\/hospital\/?/, "");
@@ -620,8 +750,13 @@ export async function handleSsr(req, res, next) {
                 : "";
             const isDetail = Boolean(slug);
             const revData = await getFallbackPageRevision("destinations");
+            const fallbackDestinations = revData?.payload?.destinations &&
+                Array.isArray(revData?.payload?.destinations) &&
+                revData?.payload?.destinations.length > 0
+                ? revData?.payload?.destinations.filter((d) => d.active !== false)
+                : ALL_DESTINATIONS;
             if (isDetail) {
-                const destination = getDestinationDetail(slug);
+                const destination = getDestinationDetail(slug, fallbackDestinations);
                 if (destination) {
                     statusCode = 200;
                     dto = {
@@ -631,19 +766,19 @@ export async function handleSsr(req, res, next) {
                         seo: {
                             title: destination.title,
                             description: destination.subheadline,
-                            canonicalPath: `/destinations/${destination.slug}`,
+                            canonicalPath: `/destinations/${destination.slug || slug}`,
                             robots: "index,follow",
                             schemaKind: "MedicalWebPage"
                         },
                         payload: {
                             destination,
-                            slug: destination.slug,
+                            slug: destination.slug || slug,
                             headline: destination.headline,
                             subheadline: destination.subheadline,
                             breadcrumbs: [
                                 { name: "Home", item: "/" },
                                 { name: "Destinations", item: "/destinations" },
-                                { name: destination.name, item: `/destinations/${destination.slug}` }
+                                { name: destination.name, item: `/destinations/${destination.slug || slug}` }
                             ]
                         },
                         siteSettings,
@@ -686,7 +821,7 @@ export async function handleSsr(req, res, next) {
                         ...(revData?.payload || {}),
                         headline: revData?.payload?.headline || "Premier Medical Tourism Destinations",
                         subheadline: revData?.payload?.subheadline || "Discover world-class accredited hospitals, board-certified surgeons, and up to 85% cost savings across premier healthcare destinations.",
-                        destinations: ALL_DESTINATIONS
+                        destinations: fallbackDestinations
                     },
                     siteSettings,
                     statusCode: 200

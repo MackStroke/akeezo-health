@@ -716,6 +716,36 @@ export const SiteSettingsSchema = z.object({
         image: z.string().optional(),
       })
     )
+    .optional(),
+  directoryTreatments: z
+    .array(
+      z.object({
+        name: z.string(),
+        category: z.string().optional(),
+        slug: z.string().optional(),
+        avgCostAbroad: z.string().optional(),
+        avgCostHome: z.string().optional(),
+        recoveryTime: z.string().optional(),
+        isTopTreatment: z.boolean().optional(),
+        image: z.string().optional(),
+        active: z.boolean().optional(),
+      })
+    )
+    .optional(),
+  directoryDestinations: z
+    .array(
+      z.object({
+        country: z.string(),
+        name: z.string().optional(),
+        cityHighlights: z.string().optional(),
+        savingsPercentage: z.number().optional(),
+        hospitalCount: z.number().optional(),
+        tagline: z.string().optional(),
+        slug: z.string().optional(),
+        image: z.string().optional(),
+        active: z.boolean().optional(),
+      })
+    )
     .optional()
 });
 

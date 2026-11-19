@@ -505,9 +505,9 @@ export declare const TreatmentCatalogueItemSchema: z.ZodObject<{
     procedures: string[];
     avgCostAbroad: string;
     avgCostHome: string;
-    fallbackImage: string;
     recoveryTime: string;
     isTopTreatment: boolean;
+    fallbackImage: string;
 }, {
     id: string;
     title: string;
@@ -520,9 +520,9 @@ export declare const TreatmentCatalogueItemSchema: z.ZodObject<{
     procedures?: string[] | undefined;
     avgCostAbroad?: string | undefined;
     avgCostHome?: string | undefined;
-    fallbackImage?: string | undefined;
     recoveryTime?: string | undefined;
     isTopTreatment?: boolean | undefined;
+    fallbackImage?: string | undefined;
 }>;
 export type TreatmentCatalogueItem = z.infer<typeof TreatmentCatalogueItemSchema>;
 export declare const TreatmentsPagePayloadSchema: z.ZodObject<{
@@ -561,9 +561,9 @@ export declare const TreatmentsPagePayloadSchema: z.ZodObject<{
         procedures: string[];
         avgCostAbroad: string;
         avgCostHome: string;
-        fallbackImage: string;
         recoveryTime: string;
         isTopTreatment: boolean;
+        fallbackImage: string;
     }, {
         id: string;
         title: string;
@@ -576,9 +576,9 @@ export declare const TreatmentsPagePayloadSchema: z.ZodObject<{
         procedures?: string[] | undefined;
         avgCostAbroad?: string | undefined;
         avgCostHome?: string | undefined;
-        fallbackImage?: string | undefined;
         recoveryTime?: string | undefined;
         isTopTreatment?: boolean | undefined;
+        fallbackImage?: string | undefined;
     }>, "many">>;
 }, "strip", z.ZodTypeAny, {
     headline: string;
@@ -601,9 +601,9 @@ export declare const TreatmentsPagePayloadSchema: z.ZodObject<{
         procedures: string[];
         avgCostAbroad: string;
         avgCostHome: string;
-        fallbackImage: string;
         recoveryTime: string;
         isTopTreatment: boolean;
+        fallbackImage: string;
     }[];
 }, {
     headline?: string | undefined;
@@ -626,9 +626,9 @@ export declare const TreatmentsPagePayloadSchema: z.ZodObject<{
         procedures?: string[] | undefined;
         avgCostAbroad?: string | undefined;
         avgCostHome?: string | undefined;
-        fallbackImage?: string | undefined;
         recoveryTime?: string | undefined;
         isTopTreatment?: boolean | undefined;
+        fallbackImage?: string | undefined;
     }[] | undefined;
 }>;
 export type TreatmentsPagePayload = z.infer<typeof TreatmentsPagePayloadSchema>;

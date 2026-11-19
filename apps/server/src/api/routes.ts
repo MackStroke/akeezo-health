@@ -16,6 +16,7 @@ import {
   type DestinationDetail
 } from "@akeezo/contracts";
 import { toSafeSiteSettings } from "../ssr/renderer.js";
+import { SEED_TREATMENTS } from "../seeds/pageCmsSeedData.js";
 import { caseManagementRouter } from "./caseManagementRoutes.js";
 import { authRouter } from "./authRoutes.js";
 import { cmsAdminRouter } from "./cmsAdminRoutes.js";
@@ -126,6 +127,68 @@ async function getDirectoryHospitalsFromDb(): Promise<any[] | undefined> {
   return undefined;
 }
 
+// Helper to fetch directory treatments from Page CMS for siteSettings
+async function getDirectoryTreatmentsFromDb(): Promise<any[] | undefined> {
+  if (mongoose.connection.readyState !== 1) return undefined;
+  try {
+    const page = await Page.findOne({ slug: "treatments", locale: "en" }).lean();
+    if (page) {
+      const revId = page.publishedRevisionId || page.draftRevisionId;
+      if (revId) {
+        const rev = await ContentRevision.findById(revId).lean();
+        const list = (rev?.payload as any)?.treatments;
+        if (Array.isArray(list) && list.length > 0) {
+          return list
+            .filter((t: any) => t.active !== false)
+            .slice(0, 8)
+            .map((t: any) => ({
+              name: t.title || t.name,
+              category: t.category || "Speciality",
+              slug: t.slug,
+              avgCostAbroad: t.avgCostAbroad,
+              avgCostHome: t.avgCostHome,
+              recoveryTime: t.recoveryTime,
+              isTopTreatment: Boolean(t.isTopTreatment),
+              image: t.image
+            }));
+        }
+      }
+    }
+  } catch {}
+  return undefined;
+}
+
+// Helper to fetch directory destinations from Page CMS for siteSettings
+async function getDirectoryDestinationsFromDb(): Promise<any[] | undefined> {
+  if (mongoose.connection.readyState !== 1) return undefined;
+  try {
+    const page = await Page.findOne({ slug: "destinations", locale: "en" }).lean();
+    if (page) {
+      const revId = page.publishedRevisionId || page.draftRevisionId;
+      if (revId) {
+        const rev = await ContentRevision.findById(revId).lean();
+        const list = (rev?.payload as any)?.destinations;
+        if (Array.isArray(list) && list.length > 0) {
+          return list
+            .filter((d: any) => d.active !== false)
+            .slice(0, 8)
+            .map((d: any) => ({
+              country: d.country || d.name,
+              name: d.country || d.name,
+              cityHighlights: d.cityHighlights,
+              savingsPercentage: d.savingsPercentage,
+              hospitalCount: d.hospitalCount,
+              tagline: d.tagline,
+              slug: d.slug,
+              image: d.image
+            }));
+        }
+      }
+    }
+  } catch {}
+  return undefined;
+}
+
 // GET /api/v1/site
 apiRouter.get("/site", async (_req: Request, res: Response) => {
   try {
@@ -134,14 +197,88 @@ apiRouter.get("/site", async (_req: Request, res: Response) => {
         ? (await SiteSettings.findOne({ environment: "development" }).lean()) ||
           (await SiteSettings.findOne().lean())
         : null;
-    const [directoryDoctors, directoryHospitals] = await Promise.all([
+    const [directoryDoctors, directoryHospitals, directoryTreatments, directoryDestinations] = await Promise.all([
       getDirectoryDoctorsFromDb(),
-      getDirectoryHospitalsFromDb()
+      getDirectoryHospitalsFromDb(),
+      getDirectoryTreatmentsFromDb(),
+      getDirectoryDestinationsFromDb()
     ]);
-    const siteSettings = toSafeSiteSettings({ ...settingsDoc, directoryDoctors, directoryHospitals });
+    const siteSettings = toSafeSiteSettings({
+      ...settingsDoc,
+      directoryDoctors,
+      directoryHospitals,
+      directoryTreatments,
+      directoryDestinations
+    });
     res.json({ data: siteSettings });
   } catch (err) {
     res.json({ data: toSafeSiteSettings(null) });
+  }
+});
+
+// GET /api/v1/treatments (public directory list synced with Admin CMS)
+apiRouter.get("/treatments", async (_req: Request, res: Response) => {
+  try {
+    let list: any[] = [];
+    if (mongoose.connection.readyState === 1) {
+      const page = await Page.findOne({ slug: "treatments", locale: "en" }).lean();
+      if (page) {
+        const revId = page.publishedRevisionId || page.draftRevisionId;
+        if (revId) {
+          const rev = await ContentRevision.findById(revId).lean();
+          const rawList = (rev?.payload as any)?.treatments;
+          if (Array.isArray(rawList) && rawList.length > 0) {
+            list = rawList.filter((t: any) => t.active !== false);
+          }
+        }
+      }
+    }
+    if (list.length === 0) {
+      list = SEED_TREATMENTS;
+    }
+    res.json({ data: list });
+  } catch (err: any) {
+    res.status(500).json({ error: { code: "FETCH_TREATMENTS_FAILED", message: err.message } });
+  }
+});
+
+export const TREATMENT_SLUG_ALIASES: Record<string, string> = {
+  "ivf-treatment": "ivf-fertility-treatment",
+  "cancer-treatment": "oncology-cancer-care",
+  "bariatric-surgery": "bariatric-weight-loss-surgery",
+  "obesity-bariatric-surgery": "bariatric-weight-loss-surgery",
+  "orthopedics": "orthopedic-surgery",
+  "dental": "dental-treatment",
+};
+
+// GET /api/v1/treatments/:slug (public treatment detail synced with Admin CMS)
+apiRouter.get("/treatments/:slug", async (req: Request, res: Response) => {
+  try {
+    const slug = req.params.slug.toLowerCase().trim();
+    const aliasSlug = TREATMENT_SLUG_ALIASES[slug] || slug;
+    let treatment: any = null;
+    if (mongoose.connection.readyState === 1) {
+      const page = await Page.findOne({ slug: "treatments", locale: "en" }).lean();
+      if (page) {
+        const revId = page.publishedRevisionId || page.draftRevisionId;
+        if (revId) {
+          const rev = await ContentRevision.findById(revId).lean();
+          const list = (rev?.payload as any)?.treatments;
+          if (Array.isArray(list)) {
+            treatment = list.find((t: any) => (t.slug === slug || t.slug === aliasSlug || TREATMENT_SLUG_ALIASES[t.slug] === slug) && t.active !== false) || null;
+          }
+        }
+      }
+    }
+    if (!treatment) {
+      treatment = SEED_TREATMENTS.find((t: any) => (t.slug === slug || t.slug === aliasSlug || TREATMENT_SLUG_ALIASES[t.slug] === slug)) || null;
+    }
+    if (!treatment) {
+      return res.status(404).json({ error: { code: "NOT_FOUND", message: "Treatment not found" } });
+    }
+    res.json({ data: treatment });
+  } catch (err: any) {
+    res.status(500).json({ error: { code: "FETCH_TREATMENT_FAILED", message: err.message } });
   }
 });
 
@@ -310,19 +447,29 @@ apiRouter.get("/route", async (req: Request, res: Response) => {
     let routeEntry = null;
     let directoryDoctors: any[] | undefined = undefined;
     let directoryHospitals: any[] | undefined = undefined;
+    let directoryTreatments: any[] | undefined = undefined;
+    let directoryDestinations: any[] | undefined = undefined;
 
     if (mongoose.connection.readyState === 1) {
       settingsDoc =
         (await SiteSettings.findOne({ environment: "development" }).lean()) ||
         (await SiteSettings.findOne().lean());
       routeEntry = await RouteEntry.findOne({ locale, path: normalizedPath }).lean();
-      [directoryDoctors, directoryHospitals] = await Promise.all([
+      [directoryDoctors, directoryHospitals, directoryTreatments, directoryDestinations] = await Promise.all([
         getDirectoryDoctorsFromDb(),
-        getDirectoryHospitalsFromDb()
+        getDirectoryHospitalsFromDb(),
+        getDirectoryTreatmentsFromDb(),
+        getDirectoryDestinationsFromDb()
       ]);
     }
 
-    const siteSettings = toSafeSiteSettings({ ...settingsDoc, directoryDoctors, directoryHospitals });
+    const siteSettings = toSafeSiteSettings({
+      ...settingsDoc,
+      directoryDoctors,
+      directoryHospitals,
+      directoryTreatments,
+      directoryDestinations
+    });
 
     if (!routeEntry) {
       if (normalizedPath === "/500") {
@@ -347,22 +494,42 @@ apiRouter.get("/route", async (req: Request, res: Response) => {
 
       // Default home route response
       if (normalizedPath === "/") {
+        let homePayload: Record<string, any> = {
+          headline: "World-Class Medical Care in India, Simplified & Guided",
+          tagline: "Heal In India, Heal By Akeezo"
+        };
+        let homeRevisionId: string | undefined = undefined;
+        let homeSeo: SeoMetadata = {
+          title: "AKEEZO | Heal In India, Heal By Akeezo - Medical Tourism & Treatment in India",
+          description:
+            "Discover accredited Indian hospitals, consult top doctors, and receive guided care coordination and transparent cost estimates.",
+          canonicalPath: "/",
+          robots: "index,follow",
+          schemaKind: "MedicalWebPage"
+        };
+        if (mongoose.connection.readyState === 1) {
+          try {
+            const homePage = await Page.findOne({ slug: "home", locale: "en" }).lean();
+            if (homePage) {
+              const revId = homePage.publishedRevisionId || homePage.draftRevisionId;
+              if (revId) {
+                const rev = await ContentRevision.findById(revId).lean();
+                if (rev) {
+                  homeRevisionId = rev._id.toString();
+                  if (rev.payload) homePayload = { ...homePayload, ...rev.payload };
+                  if (rev.seo) homeSeo = { ...homeSeo, ...rev.seo };
+                }
+              }
+            }
+          } catch {}
+        }
         const homeDto: PublicRouteResponseDTO = {
           pageKind: "home",
           path: "/",
           locale,
-          seo: {
-            title: "AKEEZO | Heal In India, Heal By Akeezo - Medical Tourism & Treatment in India",
-            description:
-              "Discover accredited Indian hospitals, consult top doctors, and receive guided care coordination and transparent cost estimates.",
-            canonicalPath: "/",
-            robots: "index,follow",
-            schemaKind: "MedicalWebPage"
-          },
-          payload: {
-            headline: "World-Class Medical Care in India, Simplified & Guided",
-            tagline: "Heal In India, Heal By Akeezo"
-          },
+          seo: homeSeo,
+          payload: homePayload,
+          revisionId: homeRevisionId,
           siteSettings,
           statusCode: 200
         };
@@ -371,18 +538,38 @@ apiRouter.get("/route", async (req: Request, res: Response) => {
       }
 
       if (normalizedPath === "/cost-calculator" || normalizedPath === "/calculator") {
+        let calcPayload: Record<string, any> = {};
+        let calcRevisionId: string | undefined = undefined;
+        let calcSeo: SeoMetadata = {
+          title: "Surgery Cost Calculator Tool | Save up to 70% | AKEEZO",
+          description: "Compare surgery costs across top medical destinations and accredited international hospitals. Get transparent estimates and connect with world-class surgeons.",
+          canonicalPath: "/cost-calculator",
+          robots: "index,follow",
+          schemaKind: "MedicalWebPage"
+        };
+        if (mongoose.connection.readyState === 1) {
+          try {
+            const calcPage = await Page.findOne({ slug: "cost-calculator", locale: "en" }).lean();
+            if (calcPage) {
+              const revId = calcPage.publishedRevisionId || calcPage.draftRevisionId;
+              if (revId) {
+                const rev = await ContentRevision.findById(revId).lean();
+                if (rev) {
+                  calcRevisionId = rev._id.toString();
+                  if (rev.payload) calcPayload = { ...calcPayload, ...rev.payload };
+                  if (rev.seo) calcSeo = { ...calcSeo, ...rev.seo };
+                }
+              }
+            }
+          } catch {}
+        }
         const calculatorDto: PublicRouteResponseDTO = {
           pageKind: "calculatorLanding",
           path: normalizedPath,
           locale,
-          seo: {
-            title: "Surgery Cost Calculator Tool | Save up to 70% | AKEEZO",
-            description: "Compare surgery costs across top medical destinations and accredited international hospitals. Get transparent estimates and connect with world-class surgeons.",
-            canonicalPath: "/cost-calculator",
-            robots: "index,follow",
-            schemaKind: "MedicalWebPage"
-          },
-          payload: {},
+          seo: calcSeo,
+          payload: calcPayload,
+          revisionId: calcRevisionId,
           siteSettings,
           statusCode: 200
         };
@@ -391,6 +578,83 @@ apiRouter.get("/route", async (req: Request, res: Response) => {
       }
 
       if (normalizedPath === "/treatments" || normalizedPath.startsWith("/treatments/")) {
+        const slug = normalizedPath.startsWith("/treatments/")
+          ? normalizedPath.replace(/^\/treatments\/?/, "").split("/")[0]
+          : "";
+        const isDetail = Boolean(slug);
+
+        let fallbackTreatments: any[] = [];
+        let treatmentsPageRev: any = null;
+        if (mongoose.connection.readyState === 1) {
+          try {
+            const page = await Page.findOne({ slug: "treatments", locale: "en" }).lean();
+            if (page) {
+              const revId = page.publishedRevisionId || page.draftRevisionId;
+              if (revId) {
+                treatmentsPageRev = await ContentRevision.findById(revId).lean();
+                const rawList = (treatmentsPageRev?.payload as any)?.treatments;
+                if (Array.isArray(rawList) && rawList.length > 0) {
+                  fallbackTreatments = rawList.filter((t: any) => t.active !== false);
+                }
+              }
+            }
+          } catch {}
+        }
+        if (fallbackTreatments.length === 0) {
+          fallbackTreatments = SEED_TREATMENTS;
+        }
+
+        if (isDetail) {
+          const aliasSlug = TREATMENT_SLUG_ALIASES[slug] || slug;
+          const treatment = fallbackTreatments.find(
+            (t: any) => t.slug === slug || t.slug === aliasSlug || TREATMENT_SLUG_ALIASES[t.slug] === slug
+          );
+          if (treatment) {
+            const detailDto: PublicRouteResponseDTO = {
+              pageKind: "treatmentDetail",
+              path: normalizedPath,
+              locale,
+              seo: {
+                title: `${treatment.title || treatment.name} | Medical Treatment in India | AKEEZO`,
+                description:
+                  treatment.description ||
+                  `Explore ${treatment.title || treatment.name} in India. Cost savings up to 70%, top accredited hospitals, and experienced surgeons with AKEEZO.`,
+                canonicalPath: `/treatments/${treatment.slug || slug}`,
+                robots: "index,follow",
+                schemaKind: "MedicalWebPage"
+              },
+              payload: {
+                treatment,
+                slug: treatment.slug || slug,
+                headline: treatment.title || treatment.name,
+                subheadline: treatment.category || "World-class care in India"
+              },
+              siteSettings,
+              statusCode: 200
+            };
+            res.json({ data: detailDto });
+            return;
+          }
+
+          const notFoundDto: PublicRouteResponseDTO = {
+            pageKind: "notFound",
+            path: normalizedPath,
+            locale,
+            seo: {
+              title: "Treatment Not Found | AKEEZO Healthcare Platform",
+              description: "The requested medical treatment could not be located. Explore our comprehensive medical treatments directory.",
+              canonicalPath: "/treatments",
+              robots: "noindex,nofollow",
+              schemaKind: "WebPage"
+            },
+            payload: {},
+            siteSettings,
+            statusCode: 404
+          };
+          res.status(404).json({ error: { code: "NOT_FOUND", message: "Treatment not found" }, data: notFoundDto });
+          return;
+        }
+
         const treatmentsDto: PublicRouteResponseDTO = {
           pageKind: "treatmentDirectory",
           path: normalizedPath,
@@ -404,8 +668,9 @@ apiRouter.get("/route", async (req: Request, res: Response) => {
             schemaKind: "MedicalWebPage"
           },
           payload: {
-            headline: "Find The Best Treatments Worldwide",
-            subheadline: "World-class care, anywhere in the world."
+            headline: (treatmentsPageRev?.payload as any)?.headline || "Find The Best Treatments Worldwide",
+            subheadline: (treatmentsPageRev?.payload as any)?.subheadline || "World-class care, anywhere in the world.",
+            treatments: fallbackTreatments
           },
           siteSettings,
           statusCode: 200
@@ -595,23 +860,43 @@ apiRouter.get("/route", async (req: Request, res: Response) => {
       }
 
       if (normalizedPath === "/about" || normalizedPath === "/about-us") {
+        let aboutPayload: Record<string, any> = {
+          headline: "Hey! We're AKEEZO",
+          subheadline:
+            "We're a team of patient advocates, healthcare researchers, and travel experts — obsessed with one thing: making world-class medical care reachable for anyone, anywhere."
+        };
+        let aboutRevisionId: string | undefined = undefined;
+        let aboutSeo: SeoMetadata = {
+          title: "About Us | Hey! We're AKEEZO Healthcare Platform",
+          description:
+            "Meet the team behind AKEEZO. A dedicated group of patient advocates, healthcare researchers, and travel experts making world-class medical care reachable for anyone, anywhere.",
+          canonicalPath: "/about",
+          robots: "index,follow",
+          schemaKind: "AboutPage"
+        };
+        if (mongoose.connection.readyState === 1) {
+          try {
+            const page = await Page.findOne({ slug: "about", locale: "en" }).lean();
+            if (page) {
+              const revId = page.publishedRevisionId || page.draftRevisionId;
+              if (revId) {
+                const rev = await ContentRevision.findById(revId).lean();
+                if (rev) {
+                  aboutRevisionId = rev._id.toString();
+                  if (rev.payload) aboutPayload = { ...aboutPayload, ...rev.payload };
+                  if (rev.seo) aboutSeo = { ...aboutSeo, ...rev.seo };
+                }
+              }
+            }
+          } catch {}
+        }
         const aboutDto: PublicRouteResponseDTO = {
           pageKind: "about",
           path: normalizedPath,
           locale,
-          seo: {
-            title: "About Us | Hey! We're AKEEZO Healthcare Platform",
-            description:
-              "Meet the team behind AKEEZO. A dedicated group of patient advocates, healthcare researchers, and travel experts making world-class medical care reachable for anyone, anywhere.",
-            canonicalPath: "/about",
-            robots: "index,follow",
-            schemaKind: "AboutPage"
-          },
-          payload: {
-            headline: "Hey! We're AKEEZO",
-            subheadline:
-              "We're a team of patient advocates, healthcare researchers, and travel experts — obsessed with one thing: making world-class medical care reachable for anyone, anywhere."
-          },
+          seo: aboutSeo,
+          payload: aboutPayload,
+          revisionId: aboutRevisionId,
           siteSettings,
           statusCode: 200
         };
@@ -620,23 +905,43 @@ apiRouter.get("/route", async (req: Request, res: Response) => {
       }
 
       if (normalizedPath === "/contact" || normalizedPath === "/contact-us") {
+        let contactPayload: Record<string, any> = {
+          headline: "Contact Us",
+          subheadline:
+            "AKEEZO – Your trusted global platform to discover and compare world-class medical treatments in India."
+        };
+        let contactRevisionId: string | undefined = undefined;
+        let contactSeo: SeoMetadata = {
+          title: "Contact Us - Medical Tourism & Patient Support | AKEEZO",
+          description:
+            "Get in touch with AKEEZO for personalized medical tourism assistance in India. Contact our care team for hospital quotes, specialist consultations, and travel guidance.",
+          canonicalPath: "/contact",
+          robots: "index,follow",
+          schemaKind: "ContactPage"
+        };
+        if (mongoose.connection.readyState === 1) {
+          try {
+            const page = await Page.findOne({ slug: "contact", locale: "en" }).lean();
+            if (page) {
+              const revId = page.publishedRevisionId || page.draftRevisionId;
+              if (revId) {
+                const rev = await ContentRevision.findById(revId).lean();
+                if (rev) {
+                  contactRevisionId = rev._id.toString();
+                  if (rev.payload) contactPayload = { ...contactPayload, ...rev.payload };
+                  if (rev.seo) contactSeo = { ...contactSeo, ...rev.seo };
+                }
+              }
+            }
+          } catch {}
+        }
         const contactDto: PublicRouteResponseDTO = {
           pageKind: "contact",
           path: normalizedPath,
           locale,
-          seo: {
-            title: "Contact Us - Medical Tourism & Patient Support | AKEEZO",
-            description:
-              "Get in touch with AKEEZO for personalized medical tourism assistance in India. Contact our care team for hospital quotes, specialist consultations, and travel guidance.",
-            canonicalPath: "/contact",
-            robots: "index,follow",
-            schemaKind: "ContactPage"
-          },
-          payload: {
-            headline: "Contact Us",
-            subheadline:
-              "AKEEZO – Your trusted global platform to discover and compare world-class medical treatments in India."
-          },
+          seo: contactSeo,
+          payload: contactPayload,
+          revisionId: contactRevisionId,
           siteSettings,
           statusCode: 200
         };
@@ -650,8 +955,29 @@ apiRouter.get("/route", async (req: Request, res: Response) => {
           : "";
         const isDetail = Boolean(slug);
 
+        let fallbackDestinations: any[] | undefined = undefined;
+        let destinationsPageRev: any = null;
+        if (mongoose.connection.readyState === 1) {
+          try {
+            const page = await Page.findOne({ slug: "destinations", locale: "en" }).lean();
+            if (page) {
+              const revId = page.publishedRevisionId || page.draftRevisionId;
+              if (revId) {
+                destinationsPageRev = await ContentRevision.findById(revId).lean();
+                const rawList = (destinationsPageRev?.payload as any)?.destinations;
+                if (Array.isArray(rawList) && rawList.length > 0) {
+                  fallbackDestinations = rawList.filter((d: any) => d.active !== false);
+                }
+              }
+            }
+          } catch {}
+        }
+        if (!fallbackDestinations || fallbackDestinations.length === 0) {
+          fallbackDestinations = ALL_DESTINATIONS;
+        }
+
         if (isDetail) {
-          const destination = getDestinationDetail(slug);
+          const destination = getDestinationDetail(slug, fallbackDestinations);
           if (destination) {
             const detailDto: PublicRouteResponseDTO = {
               pageKind: "destinationDetail",
@@ -660,13 +986,13 @@ apiRouter.get("/route", async (req: Request, res: Response) => {
               seo: {
                 title: destination.title,
                 description: destination.subheadline,
-                canonicalPath: `/destinations/${destination.slug}`,
+                canonicalPath: `/destinations/${destination.slug || slug}`,
                 robots: "index,follow",
                 schemaKind: "MedicalWebPage"
               },
               payload: {
                 destination,
-                slug: destination.slug,
+                slug: destination.slug || slug,
                 headline: destination.headline,
                 subheadline: destination.subheadline
               },
@@ -708,9 +1034,9 @@ apiRouter.get("/route", async (req: Request, res: Response) => {
             schemaKind: "MedicalWebPage"
           },
           payload: {
-            headline: "Premier Medical Tourism Destinations",
-            subheadline: "Discover world-class accredited hospitals, board-certified surgeons, and up to 85% cost savings across premier healthcare destinations.",
-            destinations: ALL_DESTINATIONS
+            headline: (destinationsPageRev?.payload as any)?.headline || "Premier Medical Tourism Destinations",
+            subheadline: (destinationsPageRev?.payload as any)?.subheadline || "Discover world-class accredited hospitals, board-certified surgeons, and up to 85% cost savings across premier healthcare destinations.",
+            destinations: fallbackDestinations
           },
           siteSettings,
           statusCode: 200
@@ -975,19 +1301,62 @@ apiRouter.get("/hospitals/:slug", async (req: Request, res: Response) => {
   res.json({ data: hospital });
 });
 
-// GET /api/v1/destinations (Public Destinations Directory API)
-apiRouter.get("/destinations", (_req: Request, res: Response) => {
-  res.json({ data: ALL_DESTINATIONS });
+// GET /api/v1/destinations (Public Destinations Directory API synced with Admin CMS)
+apiRouter.get("/destinations", async (_req: Request, res: Response) => {
+  try {
+    let list: any[] = [];
+    if (mongoose.connection.readyState === 1) {
+      const page = await Page.findOne({ slug: "destinations", locale: "en" }).lean();
+      if (page) {
+        const revId = page.publishedRevisionId || page.draftRevisionId;
+        if (revId) {
+          const rev = await ContentRevision.findById(revId).lean();
+          const rawList = (rev?.payload as any)?.destinations;
+          if (Array.isArray(rawList) && rawList.length > 0) {
+            list = rawList.filter((d: any) => d.active !== false);
+          }
+        }
+      }
+    }
+    // Merge database list with ALL_DESTINATIONS so custom CMS edits apply while preserving all countries & hub cities
+    const mergedMap = new Map<string, any>();
+    for (const item of ALL_DESTINATIONS) {
+      mergedMap.set(item.slug, item);
+    }
+    for (const item of list) {
+      const existing = mergedMap.get(item.slug);
+      mergedMap.set(item.slug, existing ? { ...existing, ...item } : item);
+    }
+    const result = Array.from(mergedMap.values());
+    res.json({ data: result });
+  } catch (err: any) {
+    res.status(500).json({ error: { code: "FETCH_DESTINATIONS_FAILED", message: err.message } });
+  }
 });
 
-// GET /api/v1/destinations/:slug (Public Destination Detail API)
-apiRouter.get("/destinations/:slug", (req: Request, res: Response) => {
-  const destination = getDestinationDetail(req.params.slug);
-  if (!destination) {
-    res.status(404).json({ error: { code: "NOT_FOUND", message: "Destination not found" } });
-    return;
+// GET /api/v1/destinations/:slug (Public Destination Detail API synced with Admin CMS)
+apiRouter.get("/destinations/:slug", async (req: Request, res: Response) => {
+  try {
+    let fallbackDestinations: any[] | undefined = undefined;
+    if (mongoose.connection.readyState === 1) {
+      const page = await Page.findOne({ slug: "destinations", locale: "en" }).lean();
+      if (page) {
+        const revId = page.publishedRevisionId || page.draftRevisionId;
+        if (revId) {
+          const rev = await ContentRevision.findById(revId).lean();
+          fallbackDestinations = (rev?.payload as any)?.destinations;
+        }
+      }
+    }
+    const destination = getDestinationDetail(req.params.slug, fallbackDestinations);
+    if (!destination) {
+      res.status(404).json({ error: { code: "NOT_FOUND", message: "Destination not found" } });
+      return;
+    }
+    res.json({ data: destination });
+  } catch (err: any) {
+    res.status(500).json({ error: { code: "FETCH_DESTINATION_FAILED", message: err.message } });
   }
-  res.json({ data: destination });
 });
 
 // POST /api/v1/enquiries (Public Consultation & Lead Submission)

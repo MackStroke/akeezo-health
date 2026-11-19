@@ -1271,18 +1271,41 @@ While renowned worldwide as the undisputed capital for Sapphire FUE and DHI hair
 };
 
 // Helper function to resolve any destination detail
-export function getDestinationDetail(slug: string, customList?: DestinationDetail[]): DestinationDetail | undefined {
+export function getDestinationDetail(slug: string, customList?: (DestinationDetail | any)[]): DestinationDetail | undefined {
   const normalizedSlug = slug.toLowerCase().trim();
-  
+
+  // 1. Identify baseline detailed destination if available
+  let baseDetail: DestinationDetail | undefined = undefined;
+  if (normalizedSlug === "mexico") baseDetail = MEXICO_DESTINATION_DETAIL;
+  else if (normalizedSlug === "india") baseDetail = INDIA_DESTINATION_DETAIL;
+  else if (normalizedSlug === "thailand") baseDetail = THAILAND_DESTINATION_DETAIL;
+  else if (normalizedSlug === "turkey") baseDetail = TURKEY_DESTINATION_DETAIL;
+
+  // 2. If a custom record exists from Page CMS, merge with base detail or hydrate full schema
   if (customList && customList.length > 0) {
-    const found = customList.find((d) => d.slug.toLowerCase() === normalizedSlug);
-    if (found) return found;
+    const found = customList.find((d: any) => d.slug && d.slug.toLowerCase() === normalizedSlug);
+    if (found) {
+      if (found.overviewMarkdown && found.title) {
+        return found as DestinationDetail;
+      }
+      const fallbackBase = baseDetail || INDIA_DESTINATION_DETAIL;
+      return {
+        ...fallbackBase,
+        id: found.id || fallbackBase.id,
+        name: found.name || found.country || fallbackBase.name,
+        country: found.country || fallbackBase.country,
+        slug: found.slug || fallbackBase.slug,
+        title: found.title || (baseDetail ? baseDetail.title : `Medical Tourism in ${found.country || found.name || fallbackBase.country}: Clinics & Costs 2026 | AKEEZO`),
+        headline: found.headline || (baseDetail ? baseDetail.headline : `Medical Tourism in ${found.country || found.name || fallbackBase.country}: Clinics & Costs 2026`),
+        subheadline: found.subheadline || (baseDetail ? baseDetail.subheadline : found.tagline || fallbackBase.subheadline),
+        heroImage: found.image || found.heroImage || fallbackBase.heroImage,
+        popularProcedures: found.popularProcedures || fallbackBase.popularProcedures,
+        active: found.active !== false
+      };
+    }
   }
 
-  if (normalizedSlug === "mexico") return MEXICO_DESTINATION_DETAIL;
-  if (normalizedSlug === "india") return INDIA_DESTINATION_DETAIL;
-  if (normalizedSlug === "thailand") return THAILAND_DESTINATION_DETAIL;
-  if (normalizedSlug === "turkey") return TURKEY_DESTINATION_DETAIL;
+  if (baseDetail) return baseDetail;
 
   // Check if it's an Indian city slug
   const matchedCity = ALL_DESTINATIONS.find((d) => d.slug === normalizedSlug && d.type === "city");

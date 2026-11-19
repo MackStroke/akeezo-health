@@ -84,14 +84,126 @@ export interface SiteFooterProps {
   siteSettings?: Partial<SiteSettings>;
   doctors?: any[];
   hospitals?: any[];
+  treatments?: any[];
+  destinations?: any[];
 }
 
 export const SiteFooter: React.FC<SiteFooterProps> = ({
   siteSettings = {},
   doctors: initialDoctors,
-  hospitals: initialHospitals
+  hospitals: initialHospitals,
+  treatments: initialTreatments,
+  destinations: initialDestinations
 }) => {
   const [activeTab, setActiveTab] = useState<"treatments" | "hospitals" | "doctors" | "destinations">("treatments");
+
+  // Treatments directory synced with Admin Panel
+  const initialTreatmentsList =
+    initialTreatments && initialTreatments.length > 0
+      ? initialTreatments
+      : (siteSettings as any)?.directoryTreatments && (siteSettings as any).directoryTreatments.length > 0
+      ? (siteSettings as any).directoryTreatments
+      : DIRECTORY_TABS.treatments;
+
+  const [treatmentsList, setTreatmentsList] = useState<any[]>(initialTreatmentsList);
+
+  useEffect(() => {
+    if (initialTreatments && initialTreatments.length > 0) {
+      setTreatmentsList(initialTreatments);
+      return;
+    }
+    if ((siteSettings as any)?.directoryTreatments && (siteSettings as any).directoryTreatments.length > 0) {
+      setTreatmentsList((siteSettings as any).directoryTreatments);
+      return;
+    }
+
+    let isMounted = true;
+    fetch("/api/v1/treatments")
+      .then((res) => {
+        if (!res.ok) throw new Error("Failed to fetch treatments");
+        return res.json();
+      })
+      .then((json) => {
+        if (isMounted && Array.isArray(json?.data) && json.data.length > 0) {
+          const mapped = json.data
+            .filter((t: any) => t.active !== false)
+            .slice(0, 8)
+            .map((t: any) => ({
+              name: t.title || t.name,
+              category: t.category || "Speciality",
+              slug: t.slug,
+              avgCostAbroad: t.avgCostAbroad,
+              image: t.image
+            }));
+          if (mapped.length > 0) {
+            setTreatmentsList(mapped);
+          }
+        }
+      })
+      .catch(() => {
+        // Fallback silently to initialList
+      });
+
+    return () => {
+      isMounted = false;
+    };
+  }, [initialTreatments, (siteSettings as any)?.directoryTreatments]);
+
+  // Destinations directory synced with Admin Panel
+  const initialDestinationsList =
+    initialDestinations && initialDestinations.length > 0
+      ? initialDestinations
+      : (siteSettings as any)?.directoryDestinations && (siteSettings as any).directoryDestinations.length > 0
+      ? (siteSettings as any).directoryDestinations
+      : DIRECTORY_TABS.destinations;
+
+  const [destinationsList, setDestinationsList] = useState<any[]>(initialDestinationsList);
+
+  useEffect(() => {
+    if (initialDestinations && initialDestinations.length > 0) {
+      setDestinationsList(initialDestinations);
+      return;
+    }
+    if ((siteSettings as any)?.directoryDestinations && (siteSettings as any).directoryDestinations.length > 0) {
+      setDestinationsList((siteSettings as any).directoryDestinations);
+      return;
+    }
+
+    let isMounted = true;
+    fetch("/api/v1/destinations")
+      .then((res) => {
+        if (!res.ok) throw new Error("Failed to fetch destinations");
+        return res.json();
+      })
+      .then((json) => {
+        if (isMounted && Array.isArray(json?.data) && json.data.length > 0) {
+          const mapped = json.data
+            .filter((d: any) => d.active !== false)
+            .slice(0, 8)
+            .map((d: any) => ({
+              name: d.country || d.name,
+              country: d.country || d.name,
+              cityHighlights: d.cityHighlights,
+              savingsPercentage: d.savingsPercentage,
+              hospitalCount: d.hospitalCount ? `${d.hospitalCount}+ Partner Hospitals` : "25+ Partner Hospitals",
+              count: d.hospitalCount ? `${d.hospitalCount}+ Partner Hospitals` : "25+ Partner Hospitals",
+              slug: d.slug,
+              flag: d.flag || "🏥",
+              image: d.image
+            }));
+          if (mapped.length > 0) {
+            setDestinationsList(mapped);
+          }
+        }
+      })
+      .catch(() => {
+        // Fallback silently to initialList
+      });
+
+    return () => {
+      isMounted = false;
+    };
+  }, [initialDestinations, (siteSettings as any)?.directoryDestinations]);
 
   // Doctors directory synced with Admin Panel
   const initialDoctorsList =
@@ -303,27 +415,25 @@ export const SiteFooter: React.FC<SiteFooterProps> = ({
           </div>
 
           <div className={activeTab === "treatments" ? "grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-3" : "hidden"}>
-            {DIRECTORY_TABS.treatments.map((item, idx) => (
+            {treatmentsList.map((item, idx) => (
               <a
-                key={idx}
-                href={`https://wa.me/${phoneClean}?text=Hello%20Akeezo,%20I%20would%20like%20to%20inquire%20about%20${encodeURIComponent(item.name)}`}
-                target="_blank"
-                rel="noopener noreferrer"
+                key={item.slug || idx}
+                href={item.slug ? `/treatments/${item.slug}` : `https://wa.me/${phoneClean}?text=Hello%20Akeezo,%20I%20would%20like%20to%20inquire%20about%20${encodeURIComponent(item.name || item.title)}`}
                 className="group rounded-xl border border-border p-3.5 hover:border-action hover:bg-surface-teal/30 transition-all cursor-pointer block"
               >
                 <div className="flex items-center justify-between gap-2 mb-2">
                   <div className="w-8 h-8 rounded-lg bg-surface-teal text-action flex items-center justify-center shrink-0 group-hover:bg-action group-hover:text-white transition-colors">
-                    {getTreatmentIcon(item.name, item.category)}
+                    {getTreatmentIcon(item.name || item.title, item.category || "General")}
                   </div>
                   <div className="text-[11px] font-semibold text-action uppercase tracking-wider truncate">
-                    {item.category}
+                    {item.category || "Speciality"}
                   </div>
                 </div>
                 <div className="text-sm font-bold text-ink group-hover:text-action transition-colors leading-snug">
-                  {item.name}
+                  {item.name || item.title}
                 </div>
                 <div className="text-xs text-ink-muted mt-2 flex items-center gap-1 group-hover:text-action transition-colors">
-                  <span>Free Clinical Opinion &amp; Estimate</span>
+                  <span>{item.avgCostAbroad ? `From ${item.avgCostAbroad}` : "Free Clinical Opinion & Estimate"}</span>
                   <span className="transition-transform group-hover:translate-x-0.5">&rarr;</span>
                 </div>
               </a>
@@ -389,29 +499,27 @@ export const SiteFooter: React.FC<SiteFooterProps> = ({
           </div>
 
           <div className={activeTab === "destinations" ? "grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-3" : "hidden"}>
-            {DIRECTORY_TABS.destinations.map((item, idx) => (
+            {destinationsList.map((item, idx) => (
               <a
-                key={idx}
-                href={`https://wa.me/${phoneClean}?text=Hello%20Akeezo,%20I%20am%20planning%20medical%20treatment%20in%20${encodeURIComponent(item.name)}`}
-                target="_blank"
-                rel="noopener noreferrer"
+                key={item.slug || idx}
+                href={item.slug ? `/destinations/${item.slug}` : `https://wa.me/${phoneClean}?text=Hello%20Akeezo,%20I%20am%20planning%20medical%20treatment%20in%20${encodeURIComponent(item.name || item.country)}`}
                 className="group rounded-xl border border-border p-3.5 hover:border-action hover:bg-surface-teal/30 transition-all cursor-pointer block"
               >
                 <div className="flex items-center justify-between gap-2 mb-2">
                   <div className="w-8 h-8 rounded-lg bg-surface-teal flex items-center justify-center text-base shrink-0 group-hover:bg-action group-hover:text-white transition-colors">
-                    {item.flag}
+                    {item.flag || "🏥"}
                   </div>
                   <div className="text-xs text-action font-semibold flex items-center gap-1 bg-surface-teal/50 px-2 py-0.5 rounded-full border border-border-teal/40">
                     <MapPin className="w-3 h-3 shrink-0" />
-                    <span>India Hub</span>
+                    <span>{item.cityHighlights ? "Global Hub" : "India Hub"}</span>
                   </div>
                 </div>
                 <div className="text-sm font-bold text-ink group-hover:text-action transition-colors leading-snug">
-                  {item.name}
+                  {item.name || item.country}
                 </div>
                 <div className="text-xs text-ink-muted mt-2 flex items-center gap-1.5">
                   <Building2 className="w-3.5 h-3.5 text-action shrink-0" />
-                  <span>{item.count}</span>
+                  <span>{item.count || (item.hospitalCount ? `${item.hospitalCount}+ Partner Hospitals` : "25+ Partner Hospitals")}</span>
                 </div>
               </a>
             ))}

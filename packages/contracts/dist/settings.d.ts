@@ -984,6 +984,68 @@ export declare const SiteSettingsSchema: z.ZodObject<{
         image?: string | undefined;
         accreditation?: string | undefined;
     }>, "many">>;
+    directoryTreatments: z.ZodOptional<z.ZodArray<z.ZodObject<{
+        name: z.ZodString;
+        category: z.ZodOptional<z.ZodString>;
+        slug: z.ZodOptional<z.ZodString>;
+        avgCostAbroad: z.ZodOptional<z.ZodString>;
+        avgCostHome: z.ZodOptional<z.ZodString>;
+        recoveryTime: z.ZodOptional<z.ZodString>;
+        isTopTreatment: z.ZodOptional<z.ZodBoolean>;
+        image: z.ZodOptional<z.ZodString>;
+        active: z.ZodOptional<z.ZodBoolean>;
+    }, "strip", z.ZodTypeAny, {
+        name: string;
+        slug?: string | undefined;
+        category?: string | undefined;
+        image?: string | undefined;
+        active?: boolean | undefined;
+        avgCostAbroad?: string | undefined;
+        avgCostHome?: string | undefined;
+        recoveryTime?: string | undefined;
+        isTopTreatment?: boolean | undefined;
+    }, {
+        name: string;
+        slug?: string | undefined;
+        category?: string | undefined;
+        image?: string | undefined;
+        active?: boolean | undefined;
+        avgCostAbroad?: string | undefined;
+        avgCostHome?: string | undefined;
+        recoveryTime?: string | undefined;
+        isTopTreatment?: boolean | undefined;
+    }>, "many">>;
+    directoryDestinations: z.ZodOptional<z.ZodArray<z.ZodObject<{
+        country: z.ZodString;
+        name: z.ZodOptional<z.ZodString>;
+        cityHighlights: z.ZodOptional<z.ZodString>;
+        savingsPercentage: z.ZodOptional<z.ZodNumber>;
+        hospitalCount: z.ZodOptional<z.ZodNumber>;
+        tagline: z.ZodOptional<z.ZodString>;
+        slug: z.ZodOptional<z.ZodString>;
+        image: z.ZodOptional<z.ZodString>;
+        active: z.ZodOptional<z.ZodBoolean>;
+    }, "strip", z.ZodTypeAny, {
+        country: string;
+        slug?: string | undefined;
+        name?: string | undefined;
+        savingsPercentage?: number | undefined;
+        image?: string | undefined;
+        active?: boolean | undefined;
+        hospitalCount?: number | undefined;
+        cityHighlights?: string | undefined;
+        tagline?: string | undefined;
+    }, {
+        country: string;
+        slug?: string | undefined;
+        name?: string | undefined;
+        savingsPercentage?: number | undefined;
+        image?: string | undefined;
+        active?: boolean | undefined;
+        hospitalCount?: number | undefined;
+        cityHighlights?: string | undefined;
+        tagline?: string | undefined;
+    }>, "many">>;
 }, "strip", z.ZodTypeAny, {
     phone: string;
     tagline: string;
@@ -1156,6 +1218,28 @@ export declare const SiteSettingsSchema: z.ZodObject<{
         image?: string | undefined;
         accreditation?: string | undefined;
     }[] | undefined;
+    directoryTreatments?: {
+        name: string;
+        slug?: string | undefined;
+        category?: string | undefined;
+        image?: string | undefined;
+        active?: boolean | undefined;
+        avgCostAbroad?: string | undefined;
+        avgCostHome?: string | undefined;
+        recoveryTime?: string | undefined;
+        isTopTreatment?: boolean | undefined;
+    }[] | undefined;
+    directoryDestinations?: {
+        country: string;
+        slug?: string | undefined;
+        name?: string | undefined;
+        savingsPercentage?: number | undefined;
+        image?: string | undefined;
+        active?: boolean | undefined;
+        hospitalCount?: number | undefined;
+        cityHighlights?: string | undefined;
+        tagline?: string | undefined;
+    }[] | undefined;
 }, {
     phone?: string | undefined;
     tagline?: string | undefined;
@@ -1327,6 +1411,28 @@ export declare const SiteSettingsSchema: z.ZodObject<{
         city?: string | undefined;
         image?: string | undefined;
         accreditation?: string | undefined;
+    }[] | undefined;
+    directoryTreatments?: {
+        name: string;
+        slug?: string | undefined;
+        category?: string | undefined;
+        image?: string | undefined;
+        active?: boolean | undefined;
+        avgCostAbroad?: string | undefined;
+        avgCostHome?: string | undefined;
+        recoveryTime?: string | undefined;
+        isTopTreatment?: boolean | undefined;
+    }[] | undefined;
+    directoryDestinations?: {
+        country: string;
+        slug?: string | undefined;
+        name?: string | undefined;
+        savingsPercentage?: number | undefined;
+        image?: string | undefined;
+        active?: boolean | undefined;
+        hospitalCount?: number | undefined;
+        cityHighlights?: string | undefined;
+        tagline?: string | undefined;
     }[] | undefined;
 }>;
 export type SiteSettings = z.infer<typeof SiteSettingsSchema>;

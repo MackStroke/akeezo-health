@@ -63,15 +63,22 @@ export const TreatmentsTemplate: React.FC<TreatmentsTemplateProps> = ({ data }) 
     : "";
 
   const selectedDetailTreatment = useMemo(() => {
+    if (rawPayload.treatment) return rawPayload.treatment;
     if (!pathSlug) return undefined;
     const match = activeTreatmentsList.find((t: any) => t.slug === pathSlug);
     return match || getTreatmentBySlug(pathSlug);
-  }, [pathSlug, activeTreatmentsList]);
+  }, [rawPayload.treatment, pathSlug, activeTreatmentsList]);
 
   const isDetailPage = Boolean(selectedDetailTreatment);
 
-  // Search State for directory
-  const [searchQuery, setSearchQuery] = useState("");
+  // Search State for directory (reads URL query ?q= on client mount)
+  const [searchQuery, setSearchQuery] = useState(() => {
+    if (typeof window !== "undefined") {
+      const params = new URLSearchParams(window.location.search);
+      return params.get("q") || "";
+    }
+    return "";
+  });
 
   // Header & Consultation Modals
   const [isCalculatorOpen, setIsCalculatorOpen] = useState(false);

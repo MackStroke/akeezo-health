@@ -574,5 +574,5 @@ export declare const MEXICO_DESTINATION_DETAIL: DestinationDetail;
 export declare const INDIA_DESTINATION_DETAIL: DestinationDetail;
 export declare const THAILAND_DESTINATION_DETAIL: DestinationDetail;
 export declare const TURKEY_DESTINATION_DETAIL: DestinationDetail;
-export declare function getDestinationDetail(slug: string, customList?: DestinationDetail[]): DestinationDetail | undefined;
+export declare function getDestinationDetail(slug: string, customList?: (DestinationDetail | any)[]): DestinationDetail | undefined;
 //# sourceMappingURL=destinations.d.ts.map
