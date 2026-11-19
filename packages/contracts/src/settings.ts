@@ -574,6 +574,7 @@ export const CarouselSlideSchema = z.object({
   buttonLink: z.string().optional().default(""),
   accentColor: z.string().default("orange"), // "orange" | "teal" | "purple" | "blue" | "emerald"
   iconName: z.string().default("calculator"), // "calculator" | "compass" | "shield" | "heart" | "stethoscope" | "award" | "activity"
+  image: z.string().optional(),
   isActive: z.boolean().default(true),
   order: z.number().default(0)
 });
@@ -592,6 +593,7 @@ export const DEFAULT_CAROUSEL_SLIDES: CarouselSlide[] = [
     buttonLink: "/cost-calculator",
     accentColor: "orange",
     iconName: "calculator",
+    image: "/uploads/Personalized hospital price comparison clipboard-2.webp",
     isActive: true,
     order: 1
   },
@@ -606,6 +608,7 @@ export const DEFAULT_CAROUSEL_SLIDES: CarouselSlide[] = [
     buttonLink: "/hospitals",
     accentColor: "teal",
     iconName: "compass",
+    image: "/uploads/Healthcare directory with hospital and doctor-1.webp",
     isActive: true,
     order: 2
   },
@@ -620,6 +623,7 @@ export const DEFAULT_CAROUSEL_SLIDES: CarouselSlide[] = [
     buttonLink: "/#opinion",
     accentColor: "purple",
     iconName: "stethoscope",
+    image: "/uploads/Second Opinion, Clear Answers-1.webp",
     isActive: true,
     order: 3
   },
@@ -634,6 +638,7 @@ export const DEFAULT_CAROUSEL_SLIDES: CarouselSlide[] = [
     buttonLink: "/#visa",
     accentColor: "emerald",
     iconName: "shield",
+    image: "/uploads/Airport and hotel stay benefit-2.webp",
     isActive: true,
     order: 4
   }

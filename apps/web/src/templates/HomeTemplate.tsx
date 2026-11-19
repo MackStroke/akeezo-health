@@ -405,6 +405,17 @@ export const HomeTemplate: React.FC<HomeTemplateProps> = ({ data }) => {
               >
                 {slides.map((slide) => {
                   const styles = getSlideThemeStyles(slide.accentColor || slide.badgeStyle);
+                  const slideImage =
+                    slide.image ||
+                    (slide.id === "calculator"
+                      ? "/uploads/Personalized hospital price comparison clipboard-2.webp"
+                      : slide.id === "destinations"
+                      ? "/uploads/Healthcare directory with hospital and doctor-1.webp"
+                      : slide.id === "second-opinion"
+                      ? "/uploads/Second Opinion, Clear Answers-1.webp"
+                      : slide.id === "medical-visa"
+                      ? "/uploads/Airport and hotel stay benefit-2.webp"
+                      : undefined);
                   const handleAction = () => {
                     if (slide.buttonAction === "calculator") {
                       setIsCalculatorOpen(true);
@@ -439,14 +450,25 @@ export const HomeTemplate: React.FC<HomeTemplateProps> = ({ data }) => {
                         </p>
                       </div>
 
-                      {/* Decorative Subtle Right Graphic */}
-                      <div className="absolute right-4 top-1/2 -translate-y-1/2 opacity-10 group-hover:opacity-15 transition-opacity pointer-events-none hidden sm:block">
-                        <div
-                          className={`size-36 rounded-full border-8 ${styles.watermarkBorder} flex items-center justify-center`}
-                        >
-                          {getWatermarkIcon(slide.iconName, styles.watermarkText)}
+                      {/* Decorative Right Image / Graphic */}
+                      {slideImage ? (
+                        <div className="absolute -right-2 -bottom-1 sm:right-2 sm:bottom-0 w-[125px] sm:w-[150px] md:w-[185px] h-[85%] max-h-[250px] flex items-end justify-end pointer-events-none z-0 transition-transform duration-300 group-hover:scale-105">
+                          <img
+                            src={slideImage}
+                            alt={slide.title}
+                            className="h-full w-auto object-contain object-bottom drop-shadow-md select-none opacity-90 group-hover:opacity-100 transition-opacity"
+                            loading="lazy"
+                          />
                         </div>
-                      </div>
+                      ) : (
+                        <div className="absolute right-4 top-1/2 -translate-y-1/2 opacity-10 group-hover:opacity-15 transition-opacity pointer-events-none hidden sm:block">
+                          <div
+                            className={`size-36 rounded-full border-8 ${styles.watermarkBorder} flex items-center justify-center`}
+                          >
+                            {getWatermarkIcon(slide.iconName, styles.watermarkText)}
+                          </div>
+                        </div>
+                      )}
 
                       <div className="mt-8 flex items-center justify-between relative z-10 gap-3">
                         <button

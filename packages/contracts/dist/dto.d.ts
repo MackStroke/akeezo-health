@@ -449,6 +449,7 @@ export declare const PublicRouteResponseSchema: z.ZodObject<{
             buttonLink: z.ZodDefault<z.ZodOptional<z.ZodString>>;
             accentColor: z.ZodDefault<z.ZodString>;
             iconName: z.ZodDefault<z.ZodString>;
+            image: z.ZodOptional<z.ZodString>;
             isActive: z.ZodDefault<z.ZodBoolean>;
             order: z.ZodDefault<z.ZodNumber>;
         }, "strip", z.ZodTypeAny, {
@@ -464,6 +465,7 @@ export declare const PublicRouteResponseSchema: z.ZodObject<{
             buttonLink: string;
             iconName: string;
             isActive: boolean;
+            image?: string | undefined;
         }, {
             id: string;
             title: string;
@@ -471,6 +473,7 @@ export declare const PublicRouteResponseSchema: z.ZodObject<{
             badgeText: string;
             buttonText: string;
             order?: number | undefined;
+            image?: string | undefined;
             accentColor?: string | undefined;
             badgeStyle?: string | undefined;
             buttonAction?: string | undefined;
@@ -670,6 +673,7 @@ export declare const PublicRouteResponseSchema: z.ZodObject<{
             buttonLink: string;
             iconName: string;
             isActive: boolean;
+            image?: string | undefined;
         }[];
         primaryColor?: string | undefined;
         secondaryColor?: string | undefined;
@@ -929,6 +933,7 @@ export declare const PublicRouteResponseSchema: z.ZodObject<{
             badgeText: string;
             buttonText: string;
             order?: number | undefined;
+            image?: string | undefined;
             accentColor?: string | undefined;
             badgeStyle?: string | undefined;
             buttonAction?: string | undefined;
@@ -1074,6 +1079,7 @@ export declare const PublicRouteResponseSchema: z.ZodObject<{
             buttonLink: string;
             iconName: string;
             isActive: boolean;
+            image?: string | undefined;
         }[];
         primaryColor?: string | undefined;
         secondaryColor?: string | undefined;
@@ -1347,6 +1353,7 @@ export declare const PublicRouteResponseSchema: z.ZodObject<{
             badgeText: string;
             buttonText: string;
             order?: number | undefined;
+            image?: string | undefined;
             accentColor?: string | undefined;
             badgeStyle?: string | undefined;
             buttonAction?: string | undefined;
