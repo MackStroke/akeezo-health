@@ -561,7 +561,7 @@ export const HomeTemplate: React.FC<HomeTemplateProps> = ({ data }) => {
             {/* Promo Card 1: Free Hotel & Logistics */}
             <div
               id="concierge"
-              className="relative overflow-hidden rounded-[20px] border border-border-orange/80 bg-[#FFF9F5] p-6 sm:p-7 shadow-xs hover:shadow-md transition-all duration-300 group flex flex-col justify-between min-h-[230px] sm:min-h-[250px]"
+              className="relative overflow-hidden rounded-[20px] border border-border-orange/80 bg-white p-6 sm:p-7 shadow-xs hover:shadow-md transition-all duration-300 group flex flex-col justify-between min-h-[230px] sm:min-h-[250px]"
             >
               {/* Background Illustration Anchored to Right */}
               <div className="absolute inset-0 pointer-events-none select-none z-0 overflow-hidden">
@@ -571,8 +571,6 @@ export const HomeTemplate: React.FC<HomeTemplateProps> = ({ data }) => {
                   className="absolute inset-0 h-full w-full object-cover object-right transition-transform duration-700 ease-out group-hover:scale-105"
                   loading="lazy"
                 />
-                {/* Contrast mask: solid light surface on the left 55% for guaranteed sharp typography contrast, seamlessly fading into the right illustration */}
-                <div className="absolute inset-0 bg-gradient-to-r from-[#FFF9F5] via-[#FFF9F5] via-55% to-transparent" />
               </div>
 
               <div className="relative z-10 max-w-[65%] sm:max-w-[60%] md:max-w-[62%] lg:max-w-[58%]">
@@ -584,10 +582,7 @@ export const HomeTemplate: React.FC<HomeTemplateProps> = ({ data }) => {
                 </h3>
               </div>
 
-              <div className="relative z-10 mt-6 pt-4 border-t border-border-orange/40 flex items-center justify-between">
-                <span className="text-xs font-bold text-action-accent bg-white/90 backdrop-blur-xs px-2.5 py-1 rounded-md border border-border-orange/40 shadow-2xs">
-                  Terms Apply
-                </span>
+              <div className="relative z-10 mt-auto pt-6 flex items-end justify-between">
                 <a
                   href={`https://wa.me/${phoneClean}?text=Hello%20Akeezo,%20tell%20me%20about%20Free%20Hotel%20and%20Flights%20benefit`}
                   target="_blank"
@@ -597,13 +592,16 @@ export const HomeTemplate: React.FC<HomeTemplateProps> = ({ data }) => {
                   <span>Claim Now</span>
                   <ChevronRight className="size-3.5" />
                 </a>
+                <span className="text-[10px] font-medium text-ink-muted/80 bg-white/85 backdrop-blur-xs px-2 py-0.5 rounded-sm shadow-2xs select-none">
+                  Terms Apply
+                </span>
               </div>
             </div>
 
             {/* Promo Card 2: Free Second Opinion */}
             <div
               id="opinion"
-              className="relative overflow-hidden rounded-[20px] border border-border-teal/80 bg-[#F4FAF8] p-6 sm:p-7 shadow-xs hover:shadow-md transition-all duration-300 group flex flex-col justify-between min-h-[230px] sm:min-h-[250px]"
+              className="relative overflow-hidden rounded-[20px] border border-border-teal/80 bg-white p-6 sm:p-7 shadow-xs hover:shadow-md transition-all duration-300 group flex flex-col justify-between min-h-[230px] sm:min-h-[250px]"
             >
               {/* Background Illustration Anchored to Right */}
               <div className="absolute inset-0 pointer-events-none select-none z-0 overflow-hidden">
@@ -613,8 +611,6 @@ export const HomeTemplate: React.FC<HomeTemplateProps> = ({ data }) => {
                   className="absolute inset-0 h-full w-full object-cover object-right transition-transform duration-700 ease-out group-hover:scale-105"
                   loading="lazy"
                 />
-                {/* Contrast mask: solid light surface on the left 55% for guaranteed sharp typography contrast, seamlessly fading into the right illustration */}
-                <div className="absolute inset-0 bg-gradient-to-r from-[#F4FAF8] via-[#F4FAF8] via-55% to-transparent" />
               </div>
 
               <div className="relative z-10 max-w-[65%] sm:max-w-[60%] md:max-w-[62%] lg:max-w-[58%]">
@@ -626,10 +622,7 @@ export const HomeTemplate: React.FC<HomeTemplateProps> = ({ data }) => {
                 </h3>
               </div>
 
-              <div className="relative z-10 mt-6 pt-4 border-t border-border-teal/40 flex items-center justify-between">
-                <span className="text-xs font-bold text-action bg-white/90 backdrop-blur-xs px-2.5 py-1 rounded-md border border-border-teal/40 shadow-2xs">
-                  Zero Obligation
-                </span>
+              <div className="relative z-10 mt-auto pt-6 flex items-end justify-between">
                 <a
                   href={`https://wa.me/${phoneClean}?text=Hello%20Akeezo,%20I%20want%20a%20Free%20Second%20Opinion`}
                   target="_blank"
@@ -639,13 +632,16 @@ export const HomeTemplate: React.FC<HomeTemplateProps> = ({ data }) => {
                   <span>Upload Reports</span>
                   <ChevronRight className="size-3.5" />
                 </a>
+                <span className="text-[10px] font-medium text-ink-muted/80 bg-white/85 backdrop-blur-xs px-2 py-0.5 rounded-sm shadow-2xs select-none">
+                  Zero Obligation
+                </span>
               </div>
             </div>
 
             {/* Promo Card 3: Best Price Guarantee */}
             <div
               id="billing"
-              className="relative overflow-hidden rounded-[20px] border border-border/80 bg-[#F8F9FA] p-6 sm:p-7 shadow-xs hover:shadow-md transition-all duration-300 group flex flex-col justify-between min-h-[230px] sm:min-h-[250px]"
+              className="relative overflow-hidden rounded-[20px] border border-border/80 bg-white p-6 sm:p-7 shadow-xs hover:shadow-md transition-all duration-300 group flex flex-col justify-between min-h-[230px] sm:min-h-[250px]"
             >
               {/* Background Illustration Anchored to Right */}
               <div className="absolute inset-0 pointer-events-none select-none z-0 overflow-hidden">
@@ -655,8 +651,6 @@ export const HomeTemplate: React.FC<HomeTemplateProps> = ({ data }) => {
                   className="absolute inset-0 h-full w-full object-cover object-right transition-transform duration-700 ease-out group-hover:scale-105"
                   loading="lazy"
                 />
-                {/* Contrast mask: solid light surface on the left 55% for guaranteed sharp typography contrast, seamlessly fading into the right illustration */}
-                <div className="absolute inset-0 bg-gradient-to-r from-[#F8F9FA] via-[#F8F9FA] via-55% to-transparent" />
               </div>
 
               <div className="relative z-10 max-w-[65%] sm:max-w-[60%] md:max-w-[62%] lg:max-w-[58%]">
@@ -668,10 +662,7 @@ export const HomeTemplate: React.FC<HomeTemplateProps> = ({ data }) => {
                 </h3>
               </div>
 
-              <div className="relative z-10 mt-6 pt-4 border-t border-border/40 flex items-center justify-between">
-                <span className="text-xs font-bold text-ink-muted bg-white/90 backdrop-blur-xs px-2.5 py-1 rounded-md border border-border shadow-2xs">
-                  Transparent Quotes
-                </span>
+              <div className="relative z-10 mt-auto pt-6 flex items-end justify-between">
                 <button
                   type="button"
                   onClick={() => setIsCalculatorOpen(true)}
@@ -680,6 +671,9 @@ export const HomeTemplate: React.FC<HomeTemplateProps> = ({ data }) => {
                   <span>Check Pricing</span>
                   <ChevronRight className="size-3.5" />
                 </button>
+                <span className="text-[10px] font-medium text-ink-muted/80 bg-white/85 backdrop-blur-xs px-2 py-0.5 rounded-sm shadow-2xs select-none">
+                  Transparent Quotes
+                </span>
               </div>
             </div>
           </div>
