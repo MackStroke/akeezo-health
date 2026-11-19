@@ -561,9 +561,10 @@ export const HomeTemplate: React.FC<HomeTemplateProps> = ({ data }) => {
             {/* Promo Card 1: Free Hotel & Logistics */}
             <div
               id="concierge"
-              className="relative overflow-hidden rounded-[20px] border border-border-orange/80 bg-white p-6 sm:p-7 shadow-xs hover:shadow-md transition-all duration-300 group flex flex-col justify-between min-h-[230px] sm:min-h-[250px]"
+              style={{ aspectRatio: "2 / 1" }}
+              className="relative overflow-hidden rounded-[20px] border border-border-orange/80 bg-white aspect-[2/1] p-4 sm:p-5 lg:p-6 shadow-xs hover:shadow-md transition-all duration-300 group flex flex-col justify-between"
             >
-              {/* Background Illustration Anchored to Right */}
+              {/* Background Illustration Anchored to Right (Exact 2:1 ratio matching 1774x887 asset) */}
               <div className="absolute inset-0 pointer-events-none select-none z-0 overflow-hidden">
                 <img
                   src="/uploads/Airport and hotel stay benefit-2.webp"
@@ -573,26 +574,26 @@ export const HomeTemplate: React.FC<HomeTemplateProps> = ({ data }) => {
                 />
               </div>
 
-              <div className="relative z-10 max-w-[65%] sm:max-w-[60%] md:max-w-[62%] lg:max-w-[58%]">
-                <span className="inline-block rounded-md bg-white px-2.5 py-1 text-[11px] font-bold text-action-accent uppercase tracking-wider mb-3 border border-border-orange shadow-2xs">
+              <div className="relative z-10 max-w-[62%] sm:max-w-[58%]">
+                <span className="inline-block rounded-md bg-white px-2 py-0.5 text-[10px] sm:text-[11px] font-bold text-action-accent uppercase tracking-wider mb-1.5 sm:mb-2 border border-border-orange shadow-2xs">
                   Logistics Support
                 </span>
-                <h3 className="text-xl sm:text-2xl font-bold text-ink leading-snug">
+                <h3 className="text-base sm:text-lg lg:text-xl font-bold text-ink leading-snug">
                   Free Airport &amp; Hotel Stay
                 </h3>
               </div>
 
-              <div className="relative z-10 mt-auto pt-6 flex items-end justify-between">
+              <div className="relative z-10 mt-auto pt-2 sm:pt-4 flex items-end justify-between">
                 <a
                   href={`https://wa.me/${phoneClean}?text=Hello%20Akeezo,%20tell%20me%20about%20Free%20Hotel%20and%20Flights%20benefit`}
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="inline-flex items-center gap-1.5 text-xs font-bold text-brand-orange hover:text-brand-orange-alt hover:underline min-h-[38px] px-3.5 py-1.5 rounded-full bg-white/95 hover:bg-white border border-border-orange/60 shadow-2xs transition-all hover:scale-105"
+                  className="inline-flex items-center gap-1.5 text-[11px] sm:text-xs font-bold text-brand-orange hover:text-brand-orange-alt hover:underline min-h-[32px] sm:min-h-[36px] px-3 py-1 rounded-full bg-white/95 hover:bg-white border border-border-orange/60 shadow-2xs transition-all hover:scale-105"
                 >
                   <span>Claim Now</span>
-                  <ChevronRight className="size-3.5" />
+                  <ChevronRight className="size-3" />
                 </a>
-                <span className="text-[10px] font-medium text-ink-muted/80 bg-white/85 backdrop-blur-xs px-2 py-0.5 rounded-sm shadow-2xs select-none">
+                <span className="text-[9px] sm:text-[10px] font-medium text-ink-muted/80 bg-white/85 backdrop-blur-xs px-1.5 py-0.5 rounded-sm shadow-2xs select-none">
                   Terms Apply
                 </span>
               </div>
@@ -601,9 +602,10 @@ export const HomeTemplate: React.FC<HomeTemplateProps> = ({ data }) => {
             {/* Promo Card 2: Free Second Opinion */}
             <div
               id="opinion"
-              className="relative overflow-hidden rounded-[20px] border border-border-teal/80 bg-white p-6 sm:p-7 shadow-xs hover:shadow-md transition-all duration-300 group flex flex-col justify-between min-h-[230px] sm:min-h-[250px]"
+              style={{ aspectRatio: "2 / 1" }}
+              className="relative overflow-hidden rounded-[20px] border border-border-teal/80 bg-white aspect-[2/1] p-4 sm:p-5 lg:p-6 shadow-xs hover:shadow-md transition-all duration-300 group flex flex-col justify-between"
             >
-              {/* Background Illustration Anchored to Right */}
+              {/* Background Illustration Anchored to Right (Exact 2:1 ratio matching 1774x887 asset) */}
               <div className="absolute inset-0 pointer-events-none select-none z-0 overflow-hidden">
                 <img
                   src="/uploads/Second Opinion, Clear Answers-1.webp"
@@ -613,26 +615,26 @@ export const HomeTemplate: React.FC<HomeTemplateProps> = ({ data }) => {
                 />
               </div>
 
-              <div className="relative z-10 max-w-[65%] sm:max-w-[60%] md:max-w-[62%] lg:max-w-[58%]">
-                <span className="inline-block rounded-md bg-white px-2.5 py-1 text-[11px] font-bold text-action uppercase tracking-wider mb-3 border border-border-teal shadow-2xs">
+              <div className="relative z-10 max-w-[62%] sm:max-w-[58%]">
+                <span className="inline-block rounded-md bg-white px-2 py-0.5 text-[10px] sm:text-[11px] font-bold text-action uppercase tracking-wider mb-1.5 sm:mb-2 border border-border-teal shadow-2xs">
                   Clinical Care
                 </span>
-                <h3 className="text-xl sm:text-2xl font-bold text-ink leading-snug">
+                <h3 className="text-base sm:text-lg lg:text-xl font-bold text-ink leading-snug">
                   Free Second Opinion in 48h
                 </h3>
               </div>
 
-              <div className="relative z-10 mt-auto pt-6 flex items-end justify-between">
+              <div className="relative z-10 mt-auto pt-2 sm:pt-4 flex items-end justify-between">
                 <a
                   href={`https://wa.me/${phoneClean}?text=Hello%20Akeezo,%20I%20want%20a%20Free%20Second%20Opinion`}
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="inline-flex items-center gap-1.5 text-xs font-bold text-action hover:text-action-hover hover:underline min-h-[38px] px-3.5 py-1.5 rounded-full bg-white/95 hover:bg-white border border-border-teal/60 shadow-2xs transition-all hover:scale-105"
+                  className="inline-flex items-center gap-1.5 text-[11px] sm:text-xs font-bold text-action hover:text-action-hover hover:underline min-h-[32px] sm:min-h-[36px] px-3 py-1 rounded-full bg-white/95 hover:bg-white border border-border-teal/60 shadow-2xs transition-all hover:scale-105"
                 >
                   <span>Upload Reports</span>
-                  <ChevronRight className="size-3.5" />
+                  <ChevronRight className="size-3" />
                 </a>
-                <span className="text-[10px] font-medium text-ink-muted/80 bg-white/85 backdrop-blur-xs px-2 py-0.5 rounded-sm shadow-2xs select-none">
+                <span className="text-[9px] sm:text-[10px] font-medium text-ink-muted/80 bg-white/85 backdrop-blur-xs px-1.5 py-0.5 rounded-sm shadow-2xs select-none">
                   Zero Obligation
                 </span>
               </div>
@@ -641,9 +643,10 @@ export const HomeTemplate: React.FC<HomeTemplateProps> = ({ data }) => {
             {/* Promo Card 3: Best Price Guarantee */}
             <div
               id="billing"
-              className="relative overflow-hidden rounded-[20px] border border-border/80 bg-white p-6 sm:p-7 shadow-xs hover:shadow-md transition-all duration-300 group flex flex-col justify-between min-h-[230px] sm:min-h-[250px]"
+              style={{ aspectRatio: "2 / 1" }}
+              className="relative overflow-hidden rounded-[20px] border border-border/80 bg-white aspect-[2/1] p-4 sm:p-5 lg:p-6 shadow-xs hover:shadow-md transition-all duration-300 group flex flex-col justify-between"
             >
-              {/* Background Illustration Anchored to Right */}
+              {/* Background Illustration Anchored to Right (Exact 2:1 ratio matching 1774x887 asset) */}
               <div className="absolute inset-0 pointer-events-none select-none z-0 overflow-hidden">
                 <img
                   src="/uploads/Direct hospital billing made simple-3.webp"
@@ -653,25 +656,25 @@ export const HomeTemplate: React.FC<HomeTemplateProps> = ({ data }) => {
                 />
               </div>
 
-              <div className="relative z-10 max-w-[65%] sm:max-w-[60%] md:max-w-[62%] lg:max-w-[58%]">
-                <span className="inline-block rounded-md bg-white px-2.5 py-1 text-[11px] font-bold text-ink-muted uppercase tracking-wider mb-3 border border-border shadow-2xs">
+              <div className="relative z-10 max-w-[62%] sm:max-w-[58%]">
+                <span className="inline-block rounded-md bg-white px-2 py-0.5 text-[10px] sm:text-[11px] font-bold text-ink-muted uppercase tracking-wider mb-1.5 sm:mb-2 border border-border shadow-2xs">
                   Price Transparency
                 </span>
-                <h3 className="text-xl sm:text-2xl font-bold text-ink leading-snug">
+                <h3 className="text-base sm:text-lg lg:text-xl font-bold text-ink leading-snug">
                   Direct Hospital Billing
                 </h3>
               </div>
 
-              <div className="relative z-10 mt-auto pt-6 flex items-end justify-between">
+              <div className="relative z-10 mt-auto pt-2 sm:pt-4 flex items-end justify-between">
                 <button
                   type="button"
                   onClick={() => setIsCalculatorOpen(true)}
-                  className="inline-flex items-center gap-1.5 text-xs font-bold text-action hover:text-action-hover hover:underline cursor-pointer min-h-[38px] px-3.5 py-1.5 rounded-full bg-white/95 hover:bg-white border border-border shadow-2xs transition-all hover:scale-105"
+                  className="inline-flex items-center gap-1.5 text-[11px] sm:text-xs font-bold text-action hover:text-action-hover hover:underline cursor-pointer min-h-[32px] sm:min-h-[36px] px-3 py-1 rounded-full bg-white/95 hover:bg-white border border-border shadow-2xs transition-all hover:scale-105"
                 >
                   <span>Check Pricing</span>
-                  <ChevronRight className="size-3.5" />
+                  <ChevronRight className="size-3" />
                 </button>
-                <span className="text-[10px] font-medium text-ink-muted/80 bg-white/85 backdrop-blur-xs px-2 py-0.5 rounded-sm shadow-2xs select-none">
+                <span className="text-[9px] sm:text-[10px] font-medium text-ink-muted/80 bg-white/85 backdrop-blur-xs px-1.5 py-0.5 rounded-sm shadow-2xs select-none">
                   Transparent Quotes
                 </span>
               </div>
