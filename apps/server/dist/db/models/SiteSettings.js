@@ -17,6 +17,8 @@ const SiteSettingsSchema = new Schema({
     confidentBannerBgColor: { type: String, default: "#007A6C" },
     confidentBannerTextColor: { type: String, default: "#FFFFFF" },
     navActiveColor: { type: String, default: "#007A6C" },
+    floatingButtonBgColor: { type: String, default: "#007A6C" },
+    floatingButtonTextColor: { type: String, default: "#FFFFFF" },
     websiteTheme: {
         primaryColor: { type: String, default: "#00C7BE" },
         secondaryColor: { type: String, default: "#FF6B00" },
@@ -28,6 +30,8 @@ const SiteSettingsSchema = new Schema({
         confidentBannerBgColor: { type: String, default: "#007A6C" },
         confidentBannerTextColor: { type: String, default: "#FFFFFF" },
         navActiveColor: { type: String, default: "#007A6C" },
+        floatingButtonBgColor: { type: String, default: "#007A6C" },
+        floatingButtonTextColor: { type: String, default: "#FFFFFF" },
         backgroundColor: { type: String, default: "#FFFFFF" },
         surfaceColor: { type: String, default: "#FFFFFF" },
         surfaceMutedColor: { type: String, default: "#F4F6F9" },

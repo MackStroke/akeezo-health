@@ -104,6 +104,8 @@ export const ThemeProvider: React.FC<{ children: React.ReactNode }> = ({ childre
           confidentBannerBgColor: settings.websiteTheme?.confidentBannerBgColor || settings.confidentBannerBgColor || settings.websiteTheme?.actionColor || settings.actionColor || DEFAULT_WEBSITE_THEME.confidentBannerBgColor,
           confidentBannerTextColor: settings.websiteTheme?.confidentBannerTextColor || settings.confidentBannerTextColor || DEFAULT_WEBSITE_THEME.confidentBannerTextColor,
           navActiveColor: settings.websiteTheme?.navActiveColor || settings.navActiveColor || settings.websiteTheme?.actionColor || settings.actionColor || DEFAULT_WEBSITE_THEME.navActiveColor,
+          floatingButtonBgColor: settings.websiteTheme?.floatingButtonBgColor || settings.floatingButtonBgColor || settings.websiteTheme?.actionColor || settings.actionColor || DEFAULT_WEBSITE_THEME.floatingButtonBgColor,
+          floatingButtonTextColor: settings.websiteTheme?.floatingButtonTextColor || settings.floatingButtonTextColor || DEFAULT_WEBSITE_THEME.floatingButtonTextColor,
         };
 
         const loadedAdminTheme: AdminTheme = {
@@ -252,6 +254,8 @@ export const ThemeProvider: React.FC<{ children: React.ReactNode }> = ({ childre
           confidentBannerBgColor: websiteTheme.confidentBannerBgColor,
           confidentBannerTextColor: websiteTheme.confidentBannerTextColor,
           navActiveColor: websiteTheme.navActiveColor,
+          floatingButtonBgColor: websiteTheme.floatingButtonBgColor,
+          floatingButtonTextColor: websiteTheme.floatingButtonTextColor,
         }),
       });
 

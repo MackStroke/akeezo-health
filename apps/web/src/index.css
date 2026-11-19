@@ -42,6 +42,8 @@
   --color-confident-banner-text: var(--confident-banner-text, #ffffff);
   --color-nav-active: var(--nav-active, #007a6c);
   --color-nav-active-hover: var(--nav-active-hover, #005f54);
+  --color-floating-button-bg: var(--floating-button-bg, #007a6c);
+  --color-floating-button-text: var(--floating-button-text, #ffffff);
 
   /* Shadcn Semantic Mapping */
   --color-background: var(--background);
@@ -108,6 +110,8 @@
   --confident-banner-text: #ffffff;
   --nav-active: #007a6c;
   --nav-active-hover: #005f54;
+  --floating-button-bg: #007a6c;
+  --floating-button-text: #ffffff;
   --font-ui: 'Lato', system-ui, -apple-system, sans-serif;
   --page-max: 1280px;
   --page-gutter: clamp(16px, 4vw, 56px);

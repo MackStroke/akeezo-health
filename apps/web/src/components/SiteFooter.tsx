@@ -419,20 +419,20 @@ export const SiteFooter: React.FC<SiteFooterProps> = ({
               <a
                 key={item.slug || idx}
                 href={item.slug ? `/treatments/${item.slug}` : `https://wa.me/${phoneClean}?text=Hello%20Akeezo,%20I%20would%20like%20to%20inquire%20about%20${encodeURIComponent(item.name || item.title)}`}
-                className="group rounded-xl border border-border p-3.5 hover:border-action hover:bg-surface-teal/30 transition-all cursor-pointer block"
+                className="group rounded-xl border border-border p-3.5 hover:border-action hover:bg-surface-teal/30 transition-all cursor-pointer block text-left"
               >
-                <div className="flex items-center justify-between gap-2 mb-2">
+                <div className="flex items-center justify-start gap-2.5 mb-2 text-left">
                   <div className="w-8 h-8 rounded-lg bg-surface-teal text-action flex items-center justify-center shrink-0 group-hover:bg-action group-hover:text-white transition-colors">
                     {getTreatmentIcon(item.name || item.title, item.category || "General")}
                   </div>
-                  <div className="text-[11px] font-semibold text-action uppercase tracking-wider truncate">
+                  <div className="text-[11px] font-semibold text-action uppercase tracking-wider truncate text-left">
                     {item.category || "Speciality"}
                   </div>
                 </div>
-                <div className="text-sm font-bold text-ink group-hover:text-action transition-colors leading-snug">
+                <div className="text-sm font-bold text-ink group-hover:text-action transition-colors leading-snug text-left">
                   {item.name || item.title}
                 </div>
-                <div className="text-xs text-ink-muted mt-2 flex items-center gap-1 group-hover:text-action transition-colors">
+                <div className="text-xs text-ink-muted mt-2 flex items-center gap-1 group-hover:text-action transition-colors text-left">
                   <span>{item.avgCostAbroad ? `From ${item.avgCostAbroad}` : "Free Clinical Opinion & Estimate"}</span>
                   <span className="transition-transform group-hover:translate-x-0.5">&rarr;</span>
                 </div>
@@ -447,7 +447,7 @@ export const SiteFooter: React.FC<SiteFooterProps> = ({
                 href={`https://wa.me/${phoneClean}?text=Hello%20Akeezo,%20I%20would%20like%20to%20inquire%20about%20admission%20at%20${encodeURIComponent(item.name)}`}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="group rounded-xl border border-border p-3.5 hover:border-action hover:bg-surface-teal/30 transition-all cursor-pointer block"
+                className="group rounded-xl border border-border p-3.5 hover:border-action hover:bg-surface-teal/30 transition-all cursor-pointer block text-left"
               >
                 <div className="flex items-center justify-between gap-2 mb-2">
                   <div className="w-8 h-8 rounded-lg bg-surface-teal text-action flex items-center justify-center shrink-0 group-hover:bg-action group-hover:text-white transition-colors">
@@ -458,10 +458,10 @@ export const SiteFooter: React.FC<SiteFooterProps> = ({
                     <span>{item.location}</span>
                   </div>
                 </div>
-                <div className="text-sm font-bold text-ink group-hover:text-action transition-colors leading-snug">
+                <div className="text-sm font-bold text-ink group-hover:text-action transition-colors leading-snug text-left">
                   {item.name}
                 </div>
-                <div className="text-xs text-ink-muted mt-2 flex items-center gap-1.5">
+                <div className="text-xs text-ink-muted mt-2 flex items-center gap-1.5 text-left">
                   <ShieldCheck className="w-3.5 h-3.5 text-action shrink-0" />
                   <span>{item.accreditation || "NABH / JCI Accredited Quaternary"}</span>
                 </div>
@@ -476,7 +476,7 @@ export const SiteFooter: React.FC<SiteFooterProps> = ({
                 href={`https://wa.me/${phoneClean}?text=Hello%20Akeezo,%20I%20would%20like%20to%20consult%20with%20${encodeURIComponent(item.name)}`}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="group rounded-xl border border-border p-3.5 hover:border-action hover:bg-surface-teal/30 transition-all cursor-pointer block"
+                className="group rounded-xl border border-border p-3.5 hover:border-action hover:bg-surface-teal/30 transition-all cursor-pointer block text-left"
               >
                 <div className="flex items-center justify-between gap-2 mb-2">
                   <div className="w-8 h-8 rounded-lg bg-surface-teal text-action flex items-center justify-center shrink-0 group-hover:bg-action group-hover:text-white transition-colors">
@@ -487,10 +487,10 @@ export const SiteFooter: React.FC<SiteFooterProps> = ({
                     <span>{item.experience}</span>
                   </div>
                 </div>
-                <div className="text-sm font-bold text-ink group-hover:text-action transition-colors leading-snug">
+                <div className="text-sm font-bold text-ink group-hover:text-action transition-colors leading-snug text-left">
                   {item.name}
                 </div>
-                <div className="text-xs text-action font-semibold mt-2 flex items-center gap-1.5 truncate">
+                <div className="text-xs text-action font-semibold mt-2 flex items-center gap-1.5 truncate text-left">
                   <Stethoscope className="w-3.5 h-3.5 shrink-0 text-action/70" />
                   <span className="truncate">{item.role}</span>
                 </div>
@@ -503,7 +503,7 @@ export const SiteFooter: React.FC<SiteFooterProps> = ({
               <a
                 key={item.slug || idx}
                 href={item.slug ? `/destinations/${item.slug}` : `https://wa.me/${phoneClean}?text=Hello%20Akeezo,%20I%20am%20planning%20medical%20treatment%20in%20${encodeURIComponent(item.name || item.country)}`}
-                className="group rounded-xl border border-border p-3.5 hover:border-action hover:bg-surface-teal/30 transition-all cursor-pointer block"
+                className="group rounded-xl border border-border p-3.5 hover:border-action hover:bg-surface-teal/30 transition-all cursor-pointer block text-left"
               >
                 <div className="flex items-center justify-between gap-2 mb-2">
                   <div className="w-8 h-8 rounded-lg bg-surface-teal flex items-center justify-center text-base shrink-0 group-hover:bg-action group-hover:text-white transition-colors">
@@ -514,10 +514,10 @@ export const SiteFooter: React.FC<SiteFooterProps> = ({
                     <span>{item.cityHighlights ? "Global Hub" : "India Hub"}</span>
                   </div>
                 </div>
-                <div className="text-sm font-bold text-ink group-hover:text-action transition-colors leading-snug">
+                <div className="text-sm font-bold text-ink group-hover:text-action transition-colors leading-snug text-left">
                   {item.name || item.country}
                 </div>
-                <div className="text-xs text-ink-muted mt-2 flex items-center gap-1.5">
+                <div className="text-xs text-ink-muted mt-2 flex items-center gap-1.5 text-left">
                   <Building2 className="w-3.5 h-3.5 text-action shrink-0" />
                   <span>{item.count || (item.hospitalCount ? `${item.hospitalCount}+ Partner Hospitals` : "25+ Partner Hospitals")}</span>
                 </div>

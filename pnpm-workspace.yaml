@@ -3,7 +3,11 @@ packages:
   - 'apps/*'
 nodeLinker: hoisted
 allowBuilds:
+  '@firebase/util': true
   esbuild: true
+  protobufjs: true
 onlyBuiltDependencies:
+  - '@firebase/util'
   - esbuild
+  - protobufjs
 

@@ -563,4 +563,60 @@ describe("Theme Settings Architecture Verification Suite", async () => {
     assert.equal(resetJson.data.navActiveColor, DEFAULT_WEBSITE_THEME.navActiveColor);
     assert.equal(resetJson.data.websiteTheme.navActiveColor, DEFAULT_WEBSITE_THEME.navActiveColor);
   });
+
+  test("14. Floating Assistant Button Theme Control: Zero hardcoded purple/violet, admin customizable and SSR dynamic", async () => {
+    // 14a. Verify default SSR does not have hardcoded rgb(139, 92, 246) or rgb(124, 58, 237)
+    const initialRes = await fetch(`${baseUrl}/`);
+    assert.equal(initialRes.status, 200);
+    const initialHtml = await initialRes.text();
+    assert.ok(!initialHtml.includes("rgb(139, 92, 246)"), "Initial SSR must not contain hardcoded rgb(139, 92, 246)");
+    assert.ok(!initialHtml.includes("rgb(124, 58, 237)"), "Initial SSR must not contain hardcoded rgb(124, 58, 237)");
+    assert.ok(initialHtml.includes('aria-label="Chat with CMA Assistant, 1 unread message"'), "Must render Care Assistant button");
+
+    // 14b. Customize floatingButtonBgColor and floatingButtonTextColor via PUT /api/v1/admin/site-settings
+    const customButtonBg = "#2563EB";
+    const customButtonText = "#FEF08A";
+    const updateRes = await fetch(`${baseUrl}/api/v1/admin/site-settings`, {
+      method: "PUT",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${adminToken}`,
+      },
+      body: JSON.stringify({
+        floatingButtonBgColor: customButtonBg,
+        floatingButtonTextColor: customButtonText,
+        websiteTheme: {
+          floatingButtonBgColor: customButtonBg,
+          floatingButtonTextColor: customButtonText,
+        },
+      }),
+    });
+    assert.equal(updateRes.status, 200);
+    const updateJson = await updateRes.json();
+    assert.equal(updateJson.data.floatingButtonBgColor, customButtonBg);
+    assert.equal(updateJson.data.floatingButtonTextColor, customButtonText);
+    assert.equal(updateJson.data.websiteTheme.floatingButtonBgColor, customButtonBg);
+    assert.equal(updateJson.data.websiteTheme.floatingButtonTextColor, customButtonText);
+
+    // 14c. Verify SSR injects --floating-button-bg and --floating-button-text in dynamic style block and applies to button
+    const updatedRes = await fetch(`${baseUrl}/`);
+    const updatedHtml = await updatedRes.text();
+    assert.ok(updatedHtml.includes(`--floating-button-bg: ${customButtonBg}`), "Dynamic CSS must inject custom --floating-button-bg");
+    assert.ok(updatedHtml.includes(`--floating-button-text: ${customButtonText}`), "Dynamic CSS must inject custom --floating-button-text");
+    assert.ok(updatedHtml.includes(customButtonBg), "HTML must reflect customized floating button background color");
+
+    // 14d. Reset to default restores official brand default (#007A6C)
+    const resetRes = await fetch(`${baseUrl}/api/v1/admin/theme/reset`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${adminToken}`,
+      },
+      body: JSON.stringify({ target: "website" }),
+    });
+    assert.equal(resetRes.status, 200);
+    const resetJson = await resetRes.json();
+    assert.equal(resetJson.data.floatingButtonBgColor, DEFAULT_WEBSITE_THEME.floatingButtonBgColor);
+    assert.equal(resetJson.data.websiteTheme.floatingButtonBgColor, DEFAULT_WEBSITE_THEME.floatingButtonBgColor);
+  });
 });

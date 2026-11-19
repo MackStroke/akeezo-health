@@ -766,6 +766,8 @@ cmsAdminRouter.get("/site-settings", async (_req, res) => {
                     secondaryColor: settings.secondaryColor || DEFAULT_WEBSITE_THEME.secondaryColor,
                     accentColor: settings.accentColor || DEFAULT_WEBSITE_THEME.accentColor,
                     actionColor: settings.actionColor || DEFAULT_WEBSITE_THEME.actionColor,
+                    floatingButtonBgColor: settings.floatingButtonBgColor || DEFAULT_WEBSITE_THEME.floatingButtonBgColor,
+                    floatingButtonTextColor: settings.floatingButtonTextColor || DEFAULT_WEBSITE_THEME.floatingButtonTextColor,
                 };
             }
             if (!settings.adminTheme) {
@@ -847,6 +849,10 @@ cmsAdminRouter.put(["/site-settings", "/settings/:section"], async (req, res) =>
             updatePayload.confidentBannerTextColor = sanitizeCssValue(req.body.confidentBannerTextColor);
         if (req.body.navActiveColor !== undefined)
             updatePayload.navActiveColor = sanitizeCssValue(req.body.navActiveColor);
+        if (req.body.floatingButtonBgColor !== undefined)
+            updatePayload.floatingButtonBgColor = sanitizeCssValue(req.body.floatingButtonBgColor);
+        if (req.body.floatingButtonTextColor !== undefined)
+            updatePayload.floatingButtonTextColor = sanitizeCssValue(req.body.floatingButtonTextColor);
         if (req.body.websiteTheme !== undefined) {
             const existingWebsite = existingObj?.websiteTheme || {};
             const sanitized = sanitizeThemeObject(req.body.websiteTheme);
@@ -871,8 +877,12 @@ cmsAdminRouter.put(["/site-settings", "/settings/:section"], async (req, res) =>
                 updatePayload.confidentBannerTextColor = updatePayload.websiteTheme.confidentBannerTextColor;
             if (updatePayload.websiteTheme.navActiveColor)
                 updatePayload.navActiveColor = updatePayload.websiteTheme.navActiveColor;
+            if (updatePayload.websiteTheme.floatingButtonBgColor)
+                updatePayload.floatingButtonBgColor = updatePayload.websiteTheme.floatingButtonBgColor;
+            if (updatePayload.websiteTheme.floatingButtonTextColor)
+                updatePayload.floatingButtonTextColor = updatePayload.websiteTheme.floatingButtonTextColor;
         }
-        else if (updatePayload.primaryColor || updatePayload.secondaryColor || updatePayload.accentColor || updatePayload.actionColor || updatePayload.socialIconColor || updatePayload.confidentBannerBgColor || updatePayload.confidentBannerTextColor || updatePayload.navActiveColor) {
+        else if (updatePayload.primaryColor || updatePayload.secondaryColor || updatePayload.accentColor || updatePayload.actionColor || updatePayload.socialIconColor || updatePayload.confidentBannerBgColor || updatePayload.confidentBannerTextColor || updatePayload.navActiveColor || updatePayload.floatingButtonBgColor || updatePayload.floatingButtonTextColor) {
             const existingWebsite = existingObj?.websiteTheme || {};
             updatePayload.websiteTheme = {
                 ...DEFAULT_WEBSITE_THEME,
@@ -885,6 +895,8 @@ cmsAdminRouter.put(["/site-settings", "/settings/:section"], async (req, res) =>
                 ...(updatePayload.confidentBannerBgColor ? { confidentBannerBgColor: updatePayload.confidentBannerBgColor } : {}),
                 ...(updatePayload.confidentBannerTextColor ? { confidentBannerTextColor: updatePayload.confidentBannerTextColor } : {}),
                 ...(updatePayload.navActiveColor ? { navActiveColor: updatePayload.navActiveColor } : {}),
+                ...(updatePayload.floatingButtonBgColor ? { floatingButtonBgColor: updatePayload.floatingButtonBgColor } : {}),
+                ...(updatePayload.floatingButtonTextColor ? { floatingButtonTextColor: updatePayload.floatingButtonTextColor } : {}),
             };
         }
         if (req.body.adminTheme !== undefined) {
@@ -1235,6 +1247,10 @@ cmsAdminRouter.post("/theme/preset", async (req, res) => {
                 updatePayload.confidentBannerTextColor = preset.websiteTheme.confidentBannerTextColor;
             if (preset.websiteTheme.navActiveColor)
                 updatePayload.navActiveColor = preset.websiteTheme.navActiveColor;
+            if (preset.websiteTheme.floatingButtonBgColor)
+                updatePayload.floatingButtonBgColor = preset.websiteTheme.floatingButtonBgColor;
+            if (preset.websiteTheme.floatingButtonTextColor)
+                updatePayload.floatingButtonTextColor = preset.websiteTheme.floatingButtonTextColor;
         }
         if (target === "admin" || target === "both") {
             updatePayload.adminTheme = {
@@ -1267,6 +1283,8 @@ cmsAdminRouter.post("/theme/reset", async (req, res) => {
             updatePayload.confidentBannerBgColor = DEFAULT_WEBSITE_THEME.confidentBannerBgColor;
             updatePayload.confidentBannerTextColor = DEFAULT_WEBSITE_THEME.confidentBannerTextColor;
             updatePayload.navActiveColor = DEFAULT_WEBSITE_THEME.navActiveColor;
+            updatePayload.floatingButtonBgColor = DEFAULT_WEBSITE_THEME.floatingButtonBgColor;
+            updatePayload.floatingButtonTextColor = DEFAULT_WEBSITE_THEME.floatingButtonTextColor;
         }
         if (target === "admin" || target === "both") {
             updatePayload.adminTheme = { ...DEFAULT_ADMIN_THEME };

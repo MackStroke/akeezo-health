@@ -12,6 +12,8 @@ export declare const WebsiteThemeSchema: z.ZodObject<{
     confidentBannerBgColor: z.ZodDefault<z.ZodString>;
     confidentBannerTextColor: z.ZodDefault<z.ZodString>;
     navActiveColor: z.ZodDefault<z.ZodString>;
+    floatingButtonBgColor: z.ZodDefault<z.ZodString>;
+    floatingButtonTextColor: z.ZodDefault<z.ZodString>;
     backgroundColor: z.ZodDefault<z.ZodString>;
     surfaceColor: z.ZodDefault<z.ZodString>;
     surfaceMutedColor: z.ZodDefault<z.ZodString>;
@@ -44,6 +46,8 @@ export declare const WebsiteThemeSchema: z.ZodObject<{
     confidentBannerBgColor: string;
     confidentBannerTextColor: string;
     navActiveColor: string;
+    floatingButtonBgColor: string;
+    floatingButtonTextColor: string;
     backgroundColor: string;
     surfaceColor: string;
     surfaceMutedColor: string;
@@ -76,6 +80,8 @@ export declare const WebsiteThemeSchema: z.ZodObject<{
     confidentBannerBgColor?: string | undefined;
     confidentBannerTextColor?: string | undefined;
     navActiveColor?: string | undefined;
+    floatingButtonBgColor?: string | undefined;
+    floatingButtonTextColor?: string | undefined;
     backgroundColor?: string | undefined;
     surfaceColor?: string | undefined;
     surfaceMutedColor?: string | undefined;
@@ -516,6 +522,12 @@ export declare const SiteSettingsSchema: z.ZodObject<{
     secondaryColor: z.ZodOptional<z.ZodString>;
     accentColor: z.ZodOptional<z.ZodString>;
     actionColor: z.ZodOptional<z.ZodString>;
+    socialIconColor: z.ZodOptional<z.ZodString>;
+    confidentBannerBgColor: z.ZodOptional<z.ZodString>;
+    confidentBannerTextColor: z.ZodOptional<z.ZodString>;
+    navActiveColor: z.ZodOptional<z.ZodString>;
+    floatingButtonBgColor: z.ZodOptional<z.ZodString>;
+    floatingButtonTextColor: z.ZodOptional<z.ZodString>;
     websiteTheme: z.ZodDefault<z.ZodObject<{
         primaryColor: z.ZodDefault<z.ZodString>;
         secondaryColor: z.ZodDefault<z.ZodString>;
@@ -527,6 +539,8 @@ export declare const SiteSettingsSchema: z.ZodObject<{
         confidentBannerBgColor: z.ZodDefault<z.ZodString>;
         confidentBannerTextColor: z.ZodDefault<z.ZodString>;
         navActiveColor: z.ZodDefault<z.ZodString>;
+        floatingButtonBgColor: z.ZodDefault<z.ZodString>;
+        floatingButtonTextColor: z.ZodDefault<z.ZodString>;
         backgroundColor: z.ZodDefault<z.ZodString>;
         surfaceColor: z.ZodDefault<z.ZodString>;
         surfaceMutedColor: z.ZodDefault<z.ZodString>;
@@ -559,6 +573,8 @@ export declare const SiteSettingsSchema: z.ZodObject<{
         confidentBannerBgColor: string;
         confidentBannerTextColor: string;
         navActiveColor: string;
+        floatingButtonBgColor: string;
+        floatingButtonTextColor: string;
         backgroundColor: string;
         surfaceColor: string;
         surfaceMutedColor: string;
@@ -591,6 +607,8 @@ export declare const SiteSettingsSchema: z.ZodObject<{
         confidentBannerBgColor?: string | undefined;
         confidentBannerTextColor?: string | undefined;
         navActiveColor?: string | undefined;
+        floatingButtonBgColor?: string | undefined;
+        floatingButtonTextColor?: string | undefined;
         backgroundColor?: string | undefined;
         surfaceColor?: string | undefined;
         surfaceMutedColor?: string | undefined;
@@ -1080,6 +1098,8 @@ export declare const SiteSettingsSchema: z.ZodObject<{
         confidentBannerBgColor: string;
         confidentBannerTextColor: string;
         navActiveColor: string;
+        floatingButtonBgColor: string;
+        floatingButtonTextColor: string;
         backgroundColor: string;
         surfaceColor: string;
         surfaceMutedColor: string;
@@ -1141,6 +1161,12 @@ export declare const SiteSettingsSchema: z.ZodObject<{
     secondaryColor?: string | undefined;
     accentColor?: string | undefined;
     actionColor?: string | undefined;
+    socialIconColor?: string | undefined;
+    confidentBannerBgColor?: string | undefined;
+    confidentBannerTextColor?: string | undefined;
+    navActiveColor?: string | undefined;
+    floatingButtonBgColor?: string | undefined;
+    floatingButtonTextColor?: string | undefined;
     headquartersAddress?: string | undefined;
     contactEmail?: string | undefined;
     emergencyHelpline?: string | undefined;
@@ -1254,6 +1280,12 @@ export declare const SiteSettingsSchema: z.ZodObject<{
     secondaryColor?: string | undefined;
     accentColor?: string | undefined;
     actionColor?: string | undefined;
+    socialIconColor?: string | undefined;
+    confidentBannerBgColor?: string | undefined;
+    confidentBannerTextColor?: string | undefined;
+    navActiveColor?: string | undefined;
+    floatingButtonBgColor?: string | undefined;
+    floatingButtonTextColor?: string | undefined;
     brandName?: string | undefined;
     legalEntityName?: string | undefined;
     officeAddress?: string | undefined;
@@ -1283,6 +1315,8 @@ export declare const SiteSettingsSchema: z.ZodObject<{
         confidentBannerBgColor?: string | undefined;
         confidentBannerTextColor?: string | undefined;
         navActiveColor?: string | undefined;
+        floatingButtonBgColor?: string | undefined;
+        floatingButtonTextColor?: string | undefined;
         backgroundColor?: string | undefined;
         surfaceColor?: string | undefined;
         surfaceMutedColor?: string | undefined;

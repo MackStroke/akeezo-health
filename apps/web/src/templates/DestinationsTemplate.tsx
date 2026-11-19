@@ -258,10 +258,15 @@ export function DestinationsTemplate({ data }: DestinationsTemplateProps) {
                   {/* Card Image */}
                   <div className="relative h-48 w-full overflow-hidden bg-surface-muted">
                     <img
-                      src={dest.image}
+                      src={dest.image || "/images/destination-placeholder.svg"}
                       alt={dest.name}
                       className="h-full w-full object-cover transition-transform duration-500 group-hover:scale-105"
                       loading="lazy"
+                      onError={(e) => {
+                        const target = e.currentTarget as HTMLImageElement;
+                        target.onerror = null;
+                        target.src = "/images/destination-placeholder.svg";
+                      }}
                     />
                     <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/20 to-transparent" />
                     <div className="absolute top-3 left-3 flex items-center gap-1.5 rounded-full bg-white/90 backdrop-blur-xs px-2.5 py-1 text-xs font-bold text-ink shadow-sm">

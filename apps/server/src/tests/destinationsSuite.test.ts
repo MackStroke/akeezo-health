@@ -1,6 +1,8 @@
 import { test, describe, before, after } from "node:test";
 import assert from "node:assert/strict";
 import http from "node:http";
+import fs from "node:fs";
+import path from "node:path";
 import mongoose from "mongoose";
 import { app } from "../main.js";
 import { connectDB } from "../db/connection.js";
@@ -223,5 +225,50 @@ describe("Medical Tourism Destinations Directory & Detail Pages Suite", () => {
 
     const nonExistent = getDestinationDetail("non-existent-destination-xyz-123");
     assert.equal(nonExistent, undefined);
+  });
+
+  test("14. Destination placeholder image exists with centered Akeezo logo in grey tone and HomeTemplate uses it without third-party fallbacks", () => {
+    // 1. Verify physical placeholder SVG exists
+    const repoRoot = fs.existsSync(path.resolve(process.cwd(), "apps/web"))
+      ? process.cwd()
+      : path.resolve(process.cwd(), "../..");
+    const placeholderPath = path.resolve(repoRoot, "apps/web/public/images/destination-placeholder.svg");
+    assert.ok(fs.existsSync(placeholderPath), "destination-placeholder.svg must exist in apps/web/public/images");
+
+    const svgContent = fs.readFileSync(placeholderPath, "utf8");
+    assert.ok(svgContent.includes("<svg"), "Must be a valid SVG document");
+    assert.ok(svgContent.includes('viewBox="0 0 800 450"'), "Must have standard card aspect ratio 800x450");
+    assert.ok(svgContent.includes("fill=\"#64748B\""), "Logo elements must use sophisticated grey tones (#64748B)");
+    assert.ok(svgContent.includes("fill=\"#94A3B8\""), "Monogram accent must use grey tones (#94A3B8)");
+    assert.ok(!svgContent.includes("#FF6B00"), "Must not contain brand orange in grey-tone placeholder");
+    assert.ok(!svgContent.includes("#00C7BE"), "Must not contain brand teal in grey-tone placeholder");
+
+    // 2. Verify HomeTemplate.tsx destinations section uses the placeholder
+    const homeTemplatePath = path.resolve(repoRoot, "apps/web/src/templates/HomeTemplate.tsx");
+    const homeTemplateCode = fs.readFileSync(homeTemplatePath, "utf8");
+    const destMatch = homeTemplateCode.match(/id="destinations"[\s\S]*?<\/section>/);
+    assert.ok(destMatch, "HomeTemplate must contain #destinations section");
+    const destSectionCode = destMatch[0];
+
+    assert.ok(
+      destSectionCode.includes('src={dest.image || "/images/destination-placeholder.svg"}'),
+      "Destination card img must use /images/destination-placeholder.svg when dest.image is not set"
+    );
+    assert.ok(
+      destSectionCode.includes('target.src = "/images/destination-placeholder.svg"'),
+      "Destination card onError must fallback to /images/destination-placeholder.svg"
+    );
+    assert.ok(
+      !destSectionCode.includes("curemeabroad.com"),
+      "Destinations grid cards must not contain any external CureMeAbroad hotlink fallbacks"
+    );
+
+    // 3. Verify DestinationsTemplate.tsx also uses the placeholder
+    const destTemplatePath = path.resolve(repoRoot, "apps/web/src/templates/DestinationsTemplate.tsx");
+    const destTemplateCode = fs.readFileSync(destTemplatePath, "utf8");
+    assert.ok(
+      destTemplateCode.includes('src={dest.image || "/images/destination-placeholder.svg"}'),
+      "DestinationsTemplate card img must use /images/destination-placeholder.svg"
+    );
   });
 });

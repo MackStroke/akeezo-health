@@ -442,6 +442,18 @@ export const ThemeStudioView: React.FC = () => {
                       description="Controls highlighted color for active navigation links (Treatments, Hospitals, Doctors, etc.)"
                     />
                     <ColorField
+                      label="Floating Care Assistant Button Background"
+                      value={websiteTheme.floatingButtonBgColor || websiteTheme.actionColor || "#007A6C"}
+                      onChange={(v) => updateWebsiteToken("floatingButtonBgColor", v)}
+                      description="Controls background color for floating Care Assistant / CMA button (#root > div.fixed... > button)"
+                    />
+                    <ColorField
+                      label="Floating Care Assistant Button Text / Icon Color"
+                      value={websiteTheme.floatingButtonTextColor || "#FFFFFF"}
+                      onChange={(v) => updateWebsiteToken("floatingButtonTextColor", v)}
+                      description="Controls icon and text color inside the floating Care Assistant button & drawer header"
+                    />
+                    <ColorField
                       label="Emergency / Urgent Notice Color"
                       value={websiteTheme.emergencyColor}
                       onChange={(v) => updateWebsiteToken("emergencyColor", v)}
@@ -1149,6 +1161,43 @@ export const ThemeStudioView: React.FC = () => {
                   >
                     <div className="w-5 h-5 rounded-full bg-white/20 border border-white/40 shrink-0" />
                     <span className="truncate">Trusted information backed by real patient experiences.</span>
+                  </div>
+                </div>
+
+                {/* 7. Floating Care Assistant Button Preview */}
+                <div
+                  className="p-3 border shadow-xs rounded-xl flex items-center justify-between gap-3 overflow-hidden"
+                  style={{
+                    backgroundColor: websiteTheme.surfaceColor,
+                    borderColor: websiteTheme.borderColor,
+                  }}
+                >
+                  <span className="text-[10px] font-semibold shrink-0" style={{ color: websiteTheme.textMutedColor }}>
+                    Floating Assistant
+                  </span>
+                  <div className="flex items-center gap-3">
+                    <span className="text-[10px]" style={{ color: websiteTheme.textMutedColor }}>
+                      Care Desk
+                    </span>
+                    <div
+                      className="relative w-9 h-9 rounded-full shadow-md flex items-center justify-center cursor-pointer transition hover:scale-105"
+                      style={{
+                        background: websiteTheme.floatingButtonBgColor || websiteTheme.actionColor || "#007A6C",
+                        color: websiteTheme.floatingButtonTextColor || "#FFFFFF",
+                      }}
+                    >
+                      <svg
+                        xmlns="http://www.w3.org/2000/svg"
+                        className="w-4 h-4"
+                        viewBox="0 0 24 24"
+                        fill="currentColor"
+                      >
+                        <path d="M20 2H4a2 2 0 0 0-2 2v18l4-4h14a2 2 0 0 0 2-2V4a2 2 0 0 0-2-2zm-2 12H6v-2h12v2zm0-3H6V9h12v2zm0-3H6V6h12v2z" />
+                      </svg>
+                      <span className="absolute -top-1 -right-1 w-3.5 h-3.5 bg-red-500 text-white text-[8px] font-bold rounded-full flex items-center justify-center border border-white">
+                        1
+                      </span>
+                    </div>
                   </div>
                 </div>
               </div>

@@ -18,6 +18,22 @@ export const FloatingActionButtons: React.FC<FloatingActionButtonsProps> = ({
   );
   const whatsappUrl = `https://wa.me/${phoneClean}?text=${defaultText}`;
 
+  // Theme settings dynamically controlled from Admin Panel
+  const assistantButtonBg =
+    siteSettings.websiteTheme?.floatingButtonBgColor ||
+    siteSettings.floatingButtonBgColor ||
+    "var(--floating-button-bg, var(--action, #007A6C))";
+
+  const assistantButtonText =
+    siteSettings.websiteTheme?.floatingButtonTextColor ||
+    siteSettings.floatingButtonTextColor ||
+    "var(--floating-button-text, #FFFFFF)";
+
+  const assistantPingColor =
+    siteSettings.websiteTheme?.floatingButtonBgColor ||
+    siteSettings.floatingButtonBgColor ||
+    "var(--floating-button-bg, var(--brand-teal, #00C7BE))";
+
   return (
     <div className="fixed right-5 z-[9999] flex flex-col items-end gap-3 bottom-[86px] transition-all duration-300 ease-out lg:bottom-6 max-lg:pointer-events-none max-lg:translate-x-24 max-lg:opacity-0">
       {/* Interactive Quick Chat Drawer when assistant button is clicked */}
@@ -25,15 +41,18 @@ export const FloatingActionButtons: React.FC<FloatingActionButtonsProps> = ({
         <div className="w-[300px] sm:w-[340px] bg-white rounded-3xl shadow-2xl border border-gray-100 overflow-hidden mb-2 animate-in fade-in slide-in-from-bottom-4 duration-200 pointer-events-auto">
           {/* Header */}
           <div
-            className="p-4 text-white flex items-center justify-between shadow-xs"
+            className="p-4 flex items-center justify-between shadow-xs"
             style={{
-              background:
-                "linear-gradient(135deg, rgb(139, 92, 246), rgb(124, 58, 237))"
+              background: assistantButtonBg,
+              color: assistantButtonText
             }}
           >
             <div className="flex items-center gap-3">
               <div className="relative">
-                <div className="w-10 h-10 rounded-full bg-white/20 flex items-center justify-center text-white">
+                <div
+                  className="w-10 h-10 rounded-full flex items-center justify-center"
+                  style={{ backgroundColor: "rgba(255, 255, 255, 0.2)" }}
+                >
                   <svg
                     xmlns="http://www.w3.org/2000/svg"
                     className="w-5 h-5"
@@ -49,7 +68,7 @@ export const FloatingActionButtons: React.FC<FloatingActionButtonsProps> = ({
                 <h4 className="font-bold text-sm leading-tight">
                   {siteSettings.brandName || "AKEEZO"} Care Assistant
                 </h4>
-                <p className="text-[11px] text-white/80">
+                <p className="text-[11px] opacity-80">
                   Online | Instant Coordination
                 </p>
               </div>
@@ -57,7 +76,7 @@ export const FloatingActionButtons: React.FC<FloatingActionButtonsProps> = ({
             <button
               type="button"
               onClick={() => setIsChatOpen(false)}
-              className="p-1 rounded-full text-white/80 hover:text-white hover:bg-white/10 transition cursor-pointer"
+              className="p-1 rounded-full opacity-80 hover:opacity-100 hover:bg-white/10 transition cursor-pointer"
               aria-label="Close chat"
             >
               <X className="w-5 h-5" />
@@ -77,25 +96,25 @@ export const FloatingActionButtons: React.FC<FloatingActionButtonsProps> = ({
               </p>
               <a
                 href="/cost-calculator"
-                className="block p-2.5 bg-white hover:bg-purple-50 rounded-xl border border-gray-200 hover:border-purple-300 text-gray-700 font-medium transition text-left"
+                className="block p-2.5 bg-white hover:bg-slate-50 rounded-xl border border-gray-200 hover:border-slate-300 text-gray-700 font-medium transition text-left"
               >
                 💰 Plan My Journey (Calculate Price)
               </a>
               <a
                 href="/hospitals"
-                className="block p-2.5 bg-white hover:bg-purple-50 rounded-xl border border-gray-200 hover:border-purple-300 text-gray-700 font-medium transition text-left"
+                className="block p-2.5 bg-white hover:bg-slate-50 rounded-xl border border-gray-200 hover:border-slate-300 text-gray-700 font-medium transition text-left"
               >
                 🏥 Explore Accredited Hospitals
               </a>
               <a
                 href="/doctors"
-                className="block p-2.5 bg-white hover:bg-purple-50 rounded-xl border border-gray-200 hover:border-purple-300 text-gray-700 font-medium transition text-left"
+                className="block p-2.5 bg-white hover:bg-slate-50 rounded-xl border border-gray-200 hover:border-slate-300 text-gray-700 font-medium transition text-left"
               >
                 👨‍⚕️ Find Specialist Doctors
               </a>
               <a
                 href="/contact"
-                className="block p-2.5 bg-white hover:bg-purple-50 rounded-xl border border-gray-200 hover:border-purple-300 text-gray-700 font-medium transition text-left"
+                className="block p-2.5 bg-white hover:bg-slate-50 rounded-xl border border-gray-200 hover:border-slate-300 text-gray-700 font-medium transition text-left"
               >
                 ✉️ Send Message to Care Desk
               </a>
@@ -135,16 +154,16 @@ export const FloatingActionButtons: React.FC<FloatingActionButtonsProps> = ({
       <button
         type="button"
         onClick={() => setIsChatOpen(!isChatOpen)}
-        className="relative w-14 h-14 rounded-full text-white shadow-2xl transition-all duration-300 hover:scale-110 active:scale-95 flex items-center justify-center cursor-pointer pointer-events-auto"
+        className="relative w-14 h-14 rounded-full shadow-2xl transition-all duration-300 hover:scale-110 active:scale-95 flex items-center justify-center cursor-pointer pointer-events-auto"
         aria-label="Chat with CMA Assistant, 1 unread message"
         style={{
-          background:
-            "linear-gradient(135deg, rgb(139, 92, 246), rgb(124, 58, 237))"
+          background: assistantButtonBg,
+          color: assistantButtonText
         }}
       >
         <span
           className="absolute inset-0 rounded-full animate-ping opacity-20"
-          style={{ backgroundColor: "rgb(139, 92, 246)" }}
+          style={{ backgroundColor: assistantPingColor.includes("gradient") ? "var(--brand-teal, #00C7BE)" : assistantPingColor }}
         />
         <svg
           xmlns="http://www.w3.org/2000/svg"

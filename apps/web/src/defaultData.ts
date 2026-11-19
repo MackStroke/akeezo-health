@@ -38,6 +38,12 @@ export const DEFAULT_SITE_SETTINGS: SiteSettings = {
   secondaryColor: "#FF6B00",
   accentColor: "#FF6D1B",
   actionColor: "#007A6C",
+  socialIconColor: "#007A6C",
+  confidentBannerBgColor: "#007A6C",
+  confidentBannerTextColor: "#FFFFFF",
+  navActiveColor: "#007A6C",
+  floatingButtonBgColor: "#007A6C",
+  floatingButtonTextColor: "#FFFFFF",
   websiteTheme: DEFAULT_WEBSITE_THEME,
   adminTheme: DEFAULT_ADMIN_THEME,
   logoVariants: {

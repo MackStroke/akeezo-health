@@ -575,9 +575,6 @@ export const HomeTemplate: React.FC<HomeTemplateProps> = ({ data }) => {
               </div>
 
               <div className="relative z-10 max-w-[62%] sm:max-w-[58%]">
-                <span className="inline-block rounded-md bg-white px-2 py-0.5 text-[10px] sm:text-[11px] font-bold text-action-accent uppercase tracking-wider mb-1.5 sm:mb-2 border border-border-orange shadow-2xs">
-                  Logistics Support
-                </span>
                 <h3 className="text-base sm:text-lg lg:text-xl font-bold text-ink leading-snug">
                   Free Airport &amp; Hotel Stay
                 </h3>
@@ -588,7 +585,7 @@ export const HomeTemplate: React.FC<HomeTemplateProps> = ({ data }) => {
                   href={`https://wa.me/${phoneClean}?text=Hello%20Akeezo,%20tell%20me%20about%20Free%20Hotel%20and%20Flights%20benefit`}
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="inline-flex items-center gap-1.5 text-[11px] sm:text-xs font-bold text-brand-orange hover:text-brand-orange-alt hover:underline min-h-[32px] sm:min-h-[36px] px-3 py-1 rounded-full bg-white/95 hover:bg-white border border-border-orange/60 shadow-2xs transition-all hover:scale-105"
+                  className="inline-flex items-center gap-1.5 text-[11px] sm:text-xs font-bold text-white min-h-[32px] sm:min-h-[36px] px-3.5 py-1.5 rounded-full bg-brand-orange hover:bg-brand-orange-alt shadow-xs hover:shadow-md transition-all hover:scale-105 active:scale-95"
                 >
                   <span>Claim Now</span>
                   <ChevronRight className="size-3" />
@@ -616,9 +613,6 @@ export const HomeTemplate: React.FC<HomeTemplateProps> = ({ data }) => {
               </div>
 
               <div className="relative z-10 max-w-[62%] sm:max-w-[58%]">
-                <span className="inline-block rounded-md bg-white px-2 py-0.5 text-[10px] sm:text-[11px] font-bold text-action uppercase tracking-wider mb-1.5 sm:mb-2 border border-border-teal shadow-2xs">
-                  Clinical Care
-                </span>
                 <h3 className="text-base sm:text-lg lg:text-xl font-bold text-ink leading-snug">
                   Free Second Opinion in 48h
                 </h3>
@@ -629,7 +623,7 @@ export const HomeTemplate: React.FC<HomeTemplateProps> = ({ data }) => {
                   href={`https://wa.me/${phoneClean}?text=Hello%20Akeezo,%20I%20want%20a%20Free%20Second%20Opinion`}
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="inline-flex items-center gap-1.5 text-[11px] sm:text-xs font-bold text-action hover:text-action-hover hover:underline min-h-[32px] sm:min-h-[36px] px-3 py-1 rounded-full bg-white/95 hover:bg-white border border-border-teal/60 shadow-2xs transition-all hover:scale-105"
+                  className="inline-flex items-center gap-1.5 text-[11px] sm:text-xs font-bold text-white min-h-[32px] sm:min-h-[36px] px-3.5 py-1.5 rounded-full bg-action hover:bg-action-hover shadow-xs hover:shadow-md transition-all hover:scale-105 active:scale-95"
                 >
                   <span>Upload Reports</span>
                   <ChevronRight className="size-3" />
@@ -657,9 +651,6 @@ export const HomeTemplate: React.FC<HomeTemplateProps> = ({ data }) => {
               </div>
 
               <div className="relative z-10 max-w-[62%] sm:max-w-[58%]">
-                <span className="inline-block rounded-md bg-white px-2 py-0.5 text-[10px] sm:text-[11px] font-bold text-ink-muted uppercase tracking-wider mb-1.5 sm:mb-2 border border-border shadow-2xs">
-                  Price Transparency
-                </span>
                 <h3 className="text-base sm:text-lg lg:text-xl font-bold text-ink leading-snug">
                   Direct Hospital Billing
                 </h3>
@@ -669,7 +660,7 @@ export const HomeTemplate: React.FC<HomeTemplateProps> = ({ data }) => {
                 <button
                   type="button"
                   onClick={() => setIsCalculatorOpen(true)}
-                  className="inline-flex items-center gap-1.5 text-[11px] sm:text-xs font-bold text-action hover:text-action-hover hover:underline cursor-pointer min-h-[32px] sm:min-h-[36px] px-3 py-1 rounded-full bg-white/95 hover:bg-white border border-border shadow-2xs transition-all hover:scale-105"
+                  className="inline-flex items-center gap-1.5 text-[11px] sm:text-xs font-bold text-white cursor-pointer min-h-[32px] sm:min-h-[36px] px-3.5 py-1.5 rounded-full bg-action hover:bg-action-hover shadow-xs hover:shadow-md transition-all hover:scale-105 active:scale-95"
                 >
                   <span>Check Pricing</span>
                   <ChevronRight className="size-3" />
@@ -726,10 +717,12 @@ export const HomeTemplate: React.FC<HomeTemplateProps> = ({ data }) => {
                 <div className="h-44 w-full overflow-hidden bg-surface-muted relative">
                   <img
                     alt={dest.country}
-                    src={dest.image || "/uploads/destinations/default.jpg"}
+                    src={dest.image || "/images/destination-placeholder.svg"}
                     className="h-full w-full object-cover group-hover:scale-105 transition-transform duration-500"
                     onError={(e) => {
-                      (e.currentTarget as HTMLImageElement).src = "https://curemeabroad.com/v2/about-us/hero-consult.webp";
+                      const target = e.currentTarget as HTMLImageElement;
+                      target.onerror = null;
+                      target.src = "/images/destination-placeholder.svg";
                     }}
                   />
                   <div className="absolute top-3 right-3 bg-action text-white text-[11px] font-bold px-2.5 py-1 rounded-full shadow-xs">
