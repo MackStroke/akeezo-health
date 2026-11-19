@@ -553,31 +553,49 @@ export const HomeTemplate: React.FC<HomeTemplateProps> = ({ data }) => {
         </div>
       </section>
 
-      {/* 5. Promotional / Service Cards (CureMeAbroad: Three equal cards, 2:1 ratio, 20px corners) */}
+      {/* 5. Promotional / Service Cards (CureMeAbroad: Three equal cards, 2:1 ratio, 20px corners with background illustrations) */}
       <section className="py-6" aria-label="Patient Travel Benefits and Price Guarantees">
         <h2 className="sr-only">Patient Travel Benefits and Price Guarantees</h2>
         <div className="mx-auto max-w-[1280px] px-4 sm:px-8">
           <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
             {/* Promo Card 1: Free Hotel & Logistics */}
-            <div id="concierge" className="rounded-[20px] border border-border-orange bg-gradient-to-b from-surface-orange via-surface-orange/60 to-white p-6 sm:p-7 shadow-xs flex flex-col justify-between">
-              <div>
-                <span className="inline-block rounded-md bg-white px-2.5 py-1 text-[11px] font-bold text-action-accent uppercase tracking-wider mb-3 border border-border-orange">
+            <div
+              id="concierge"
+              className="relative overflow-hidden rounded-[20px] border border-border-orange/80 bg-[#FFF9F5] p-6 sm:p-7 shadow-xs hover:shadow-md transition-all duration-300 group flex flex-col justify-between min-h-[300px] sm:min-h-[320px]"
+            >
+              {/* Background Illustration Anchored to Right */}
+              <div className="absolute inset-0 pointer-events-none select-none z-0 overflow-hidden">
+                <img
+                  src="/uploads/Airport and hotel stay benefit-2.webp"
+                  alt=""
+                  className="absolute inset-0 h-full w-full object-cover object-right transition-transform duration-700 ease-out group-hover:scale-105"
+                  loading="lazy"
+                />
+                {/* Contrast mask: solid light surface on the left 55% for guaranteed sharp typography contrast, seamlessly fading into the right illustration */}
+                <div className="absolute inset-0 bg-gradient-to-r from-[#FFF9F5] via-[#FFF9F5] via-55% to-transparent" />
+              </div>
+
+              <div className="relative z-10 max-w-[65%] sm:max-w-[60%] md:max-w-[62%] lg:max-w-[58%]">
+                <span className="inline-block rounded-md bg-white px-2.5 py-1 text-[11px] font-bold text-action-accent uppercase tracking-wider mb-3 border border-border-orange shadow-2xs">
                   Logistics Support
                 </span>
-                <h3 className="text-xl font-bold text-ink mb-2">
-                  Free Airport & Hotel Stay
+                <h3 className="text-xl sm:text-2xl font-bold text-ink mb-2 leading-snug">
+                  Free Airport &amp; Hotel Stay
                 </h3>
-                <p className="text-xs sm:text-sm text-ink-muted leading-relaxed">
+                <p className="text-xs sm:text-sm text-ink-muted leading-relaxed font-medium">
                   Complimentary airport VIP reception, local 5G SIM card, and companion lodging for qualified surgical procedures.
                 </p>
               </div>
-              <div className="mt-6 pt-4 border-t border-border-orange/60 flex items-center justify-between">
-                <span className="text-xs font-bold text-action-accent">Terms Apply</span>
+
+              <div className="relative z-10 mt-6 pt-4 border-t border-border-orange/40 flex items-center justify-between">
+                <span className="text-xs font-bold text-action-accent bg-white/90 backdrop-blur-xs px-2.5 py-1 rounded-md border border-border-orange/40 shadow-2xs">
+                  Terms Apply
+                </span>
                 <a
                   href={`https://wa.me/${phoneClean}?text=Hello%20Akeezo,%20tell%20me%20about%20Free%20Hotel%20and%20Flights%20benefit`}
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="inline-flex items-center gap-1 text-xs font-bold text-brand-orange hover:text-brand-orange-alt hover:underline min-h-[38px] px-1"
+                  className="inline-flex items-center gap-1.5 text-xs font-bold text-brand-orange hover:text-brand-orange-alt hover:underline min-h-[38px] px-3.5 py-1.5 rounded-full bg-white/95 hover:bg-white border border-border-orange/60 shadow-2xs transition-all hover:scale-105"
                 >
                   <span>Claim Now</span>
                   <ChevronRight className="size-3.5" />
@@ -586,25 +604,43 @@ export const HomeTemplate: React.FC<HomeTemplateProps> = ({ data }) => {
             </div>
 
             {/* Promo Card 2: Free Second Opinion */}
-            <div id="opinion" className="rounded-[20px] border border-border-teal bg-gradient-to-b from-surface-teal via-surface-teal/60 to-white p-6 sm:p-7 shadow-xs flex flex-col justify-between">
-              <div>
-                <span className="inline-block rounded-md bg-white px-2.5 py-1 text-[11px] font-bold text-action uppercase tracking-wider mb-3 border border-border-teal">
+            <div
+              id="opinion"
+              className="relative overflow-hidden rounded-[20px] border border-border-teal/80 bg-[#F4FAF8] p-6 sm:p-7 shadow-xs hover:shadow-md transition-all duration-300 group flex flex-col justify-between min-h-[300px] sm:min-h-[320px]"
+            >
+              {/* Background Illustration Anchored to Right */}
+              <div className="absolute inset-0 pointer-events-none select-none z-0 overflow-hidden">
+                <img
+                  src="/uploads/Second Opinion, Clear Answers-1.webp"
+                  alt=""
+                  className="absolute inset-0 h-full w-full object-cover object-right transition-transform duration-700 ease-out group-hover:scale-105"
+                  loading="lazy"
+                />
+                {/* Contrast mask: solid light surface on the left 55% for guaranteed sharp typography contrast, seamlessly fading into the right illustration */}
+                <div className="absolute inset-0 bg-gradient-to-r from-[#F4FAF8] via-[#F4FAF8] via-55% to-transparent" />
+              </div>
+
+              <div className="relative z-10 max-w-[65%] sm:max-w-[60%] md:max-w-[62%] lg:max-w-[58%]">
+                <span className="inline-block rounded-md bg-white px-2.5 py-1 text-[11px] font-bold text-action uppercase tracking-wider mb-3 border border-border-teal shadow-2xs">
                   Clinical Care
                 </span>
-                <h3 className="text-xl font-bold text-ink mb-2">
+                <h3 className="text-xl sm:text-2xl font-bold text-ink mb-2 leading-snug">
                   Free Second Opinion in 48h
                 </h3>
-                <p className="text-xs sm:text-sm text-ink-muted leading-relaxed">
+                <p className="text-xs sm:text-sm text-ink-muted leading-relaxed font-medium">
                   Upload your MRI/CT scans. Receive comprehensive clinical reviews and treatment plans from senior department chairs at zero cost.
                 </p>
               </div>
-              <div className="mt-6 pt-4 border-t border-border-teal/60 flex items-center justify-between">
-                <span className="text-xs font-bold text-action">Zero Obligation</span>
+
+              <div className="relative z-10 mt-6 pt-4 border-t border-border-teal/40 flex items-center justify-between">
+                <span className="text-xs font-bold text-action bg-white/90 backdrop-blur-xs px-2.5 py-1 rounded-md border border-border-teal/40 shadow-2xs">
+                  Zero Obligation
+                </span>
                 <a
                   href={`https://wa.me/${phoneClean}?text=Hello%20Akeezo,%20I%20want%20a%20Free%20Second%20Opinion`}
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="inline-flex items-center gap-1 text-xs font-bold text-action hover:text-action-hover hover:underline min-h-[38px] px-1"
+                  className="inline-flex items-center gap-1.5 text-xs font-bold text-action hover:text-action-hover hover:underline min-h-[38px] px-3.5 py-1.5 rounded-full bg-white/95 hover:bg-white border border-border-teal/60 shadow-2xs transition-all hover:scale-105"
                 >
                   <span>Upload Reports</span>
                   <ChevronRight className="size-3.5" />
@@ -613,24 +649,42 @@ export const HomeTemplate: React.FC<HomeTemplateProps> = ({ data }) => {
             </div>
 
             {/* Promo Card 3: Best Price Guarantee */}
-            <div className="rounded-[20px] border border-border bg-gradient-to-b from-surface-muted via-surface-muted/60 to-white p-6 sm:p-7 shadow-xs flex flex-col justify-between">
-              <div>
-                <span className="inline-block rounded-md bg-white px-2.5 py-1 text-[11px] font-bold text-ink-muted uppercase tracking-wider mb-3 border border-border">
+            <div
+              id="billing"
+              className="relative overflow-hidden rounded-[20px] border border-border/80 bg-[#F8F9FA] p-6 sm:p-7 shadow-xs hover:shadow-md transition-all duration-300 group flex flex-col justify-between min-h-[300px] sm:min-h-[320px]"
+            >
+              {/* Background Illustration Anchored to Right */}
+              <div className="absolute inset-0 pointer-events-none select-none z-0 overflow-hidden">
+                <img
+                  src="/uploads/Direct hospital billing made simple-3.webp"
+                  alt=""
+                  className="absolute inset-0 h-full w-full object-cover object-right transition-transform duration-700 ease-out group-hover:scale-105"
+                  loading="lazy"
+                />
+                {/* Contrast mask: solid light surface on the left 55% for guaranteed sharp typography contrast, seamlessly fading into the right illustration */}
+                <div className="absolute inset-0 bg-gradient-to-r from-[#F8F9FA] via-[#F8F9FA] via-55% to-transparent" />
+              </div>
+
+              <div className="relative z-10 max-w-[65%] sm:max-w-[60%] md:max-w-[62%] lg:max-w-[58%]">
+                <span className="inline-block rounded-md bg-white px-2.5 py-1 text-[11px] font-bold text-ink-muted uppercase tracking-wider mb-3 border border-border shadow-2xs">
                   Price Transparency
                 </span>
-                <h3 className="text-xl font-bold text-ink mb-2">
+                <h3 className="text-xl sm:text-2xl font-bold text-ink mb-2 leading-snug">
                   Direct Hospital Billing
                 </h3>
-                <p className="text-xs sm:text-sm text-ink-muted leading-relaxed">
+                <p className="text-xs sm:text-sm text-ink-muted leading-relaxed font-medium">
                   Direct hospital billing with no hidden fees or agency commissions. Pay directly at the hospital billing desk upon admission.
                 </p>
               </div>
-              <div className="mt-6 pt-4 border-t border-border flex items-center justify-between">
-                <span className="text-xs font-bold text-action">Transparent Quotes</span>
+
+              <div className="relative z-10 mt-6 pt-4 border-t border-border/40 flex items-center justify-between">
+                <span className="text-xs font-bold text-ink-muted bg-white/90 backdrop-blur-xs px-2.5 py-1 rounded-md border border-border shadow-2xs">
+                  Transparent Quotes
+                </span>
                 <button
                   type="button"
                   onClick={() => setIsCalculatorOpen(true)}
-                  className="inline-flex items-center gap-1 text-xs font-bold text-action hover:text-action-hover hover:underline cursor-pointer min-h-[38px] px-1"
+                  className="inline-flex items-center gap-1.5 text-xs font-bold text-action hover:text-action-hover hover:underline cursor-pointer min-h-[38px] px-3.5 py-1.5 rounded-full bg-white/95 hover:bg-white border border-border shadow-2xs transition-all hover:scale-105"
                 >
                   <span>Check Pricing</span>
                   <ChevronRight className="size-3.5" />

@@ -117,13 +117,17 @@ export function toSafeSiteSettings(doc: any): SiteSettingsDTO {
     confidentBannerBgColor: doc?.websiteTheme?.confidentBannerBgColor || doc?.confidentBannerBgColor || doc?.actionColor || "#007A6C",
     confidentBannerTextColor: doc?.websiteTheme?.confidentBannerTextColor || doc?.confidentBannerTextColor || "#FFFFFF",
     navActiveColor: doc?.websiteTheme?.navActiveColor || doc?.navActiveColor || doc?.actionColor || "#007A6C",
+    floatingButtonBgColor: doc?.websiteTheme?.floatingButtonBgColor || doc?.floatingButtonBgColor || doc?.actionColor || "#007A6C",
+    floatingButtonTextColor: doc?.websiteTheme?.floatingButtonTextColor || doc?.floatingButtonTextColor || "#FFFFFF",
     websiteTheme: doc?.websiteTheme
       ? {
           ...doc.websiteTheme,
           socialIconColor: doc.websiteTheme.socialIconColor || doc.socialIconColor || doc.websiteTheme.actionColor || doc.actionColor || "#007A6C",
           confidentBannerBgColor: doc.websiteTheme.confidentBannerBgColor || doc.confidentBannerBgColor || doc.websiteTheme.actionColor || doc.actionColor || "#007A6C",
           confidentBannerTextColor: doc.websiteTheme.confidentBannerTextColor || doc.confidentBannerTextColor || "#FFFFFF",
-          navActiveColor: doc.websiteTheme.navActiveColor || doc.navActiveColor || doc.websiteTheme.actionColor || doc.actionColor || "#007A6C"
+          navActiveColor: doc.websiteTheme.navActiveColor || doc.navActiveColor || doc.websiteTheme.actionColor || doc.actionColor || "#007A6C",
+          floatingButtonBgColor: doc.websiteTheme.floatingButtonBgColor || doc.floatingButtonBgColor || doc.websiteTheme.actionColor || doc.actionColor || "#007A6C",
+          floatingButtonTextColor: doc.websiteTheme.floatingButtonTextColor || doc.floatingButtonTextColor || "#FFFFFF"
         }
       : {
           primaryColor: doc?.primaryColor || "#00C7BE",
@@ -133,7 +137,9 @@ export function toSafeSiteSettings(doc: any): SiteSettingsDTO {
           socialIconColor: doc?.socialIconColor || doc?.actionColor || "#007A6C",
           confidentBannerBgColor: doc?.confidentBannerBgColor || doc?.actionColor || "#007A6C",
           confidentBannerTextColor: doc?.confidentBannerTextColor || "#FFFFFF",
-          navActiveColor: doc?.navActiveColor || doc?.actionColor || "#007A6C"
+          navActiveColor: doc?.navActiveColor || doc?.actionColor || "#007A6C",
+          floatingButtonBgColor: doc?.floatingButtonBgColor || doc?.actionColor || "#007A6C",
+          floatingButtonTextColor: doc?.floatingButtonTextColor || "#FFFFFF"
         },
     adminTheme: doc?.adminTheme || undefined,
     logoVariants: doc?.logoVariants || {
@@ -1251,7 +1257,9 @@ export async function handleSsr(req: Request, res: Response, next: NextFunction)
       if (!template && fsSync.existsSync(path.join(clientDist, "index.html"))) {
         template = await fs.readFile(path.join(clientDist, "index.html"), "utf-8");
       }
-      const serverEntryUrl = pathToFileURL(path.join(serverDist, "entry-server.js")).href;
+      const serverEntryPath = path.join(serverDist, "entry-server.js");
+      const serverMtime = fsSync.existsSync(serverEntryPath) ? fsSync.statSync(serverEntryPath).mtimeMs : Date.now();
+      const serverEntryUrl = `${pathToFileURL(serverEntryPath).href}?v=${serverMtime}`;
       const mod = await import(serverEntryUrl);
       render = mod.render;
     }
