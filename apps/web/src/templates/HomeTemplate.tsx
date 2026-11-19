@@ -561,7 +561,7 @@ export const HomeTemplate: React.FC<HomeTemplateProps> = ({ data }) => {
             {/* Promo Card 1: Free Hotel & Logistics */}
             <div
               id="concierge"
-              className="relative overflow-hidden rounded-[20px] border border-border-orange/80 bg-[#FFF9F5] p-6 sm:p-7 shadow-xs hover:shadow-md transition-all duration-300 group flex flex-col justify-between min-h-[300px] sm:min-h-[320px]"
+              className="relative overflow-hidden rounded-[20px] border border-border-orange/80 bg-[#FFF9F5] p-6 sm:p-7 shadow-xs hover:shadow-md transition-all duration-300 group flex flex-col justify-between min-h-[230px] sm:min-h-[250px]"
             >
               {/* Background Illustration Anchored to Right */}
               <div className="absolute inset-0 pointer-events-none select-none z-0 overflow-hidden">
@@ -579,12 +579,9 @@ export const HomeTemplate: React.FC<HomeTemplateProps> = ({ data }) => {
                 <span className="inline-block rounded-md bg-white px-2.5 py-1 text-[11px] font-bold text-action-accent uppercase tracking-wider mb-3 border border-border-orange shadow-2xs">
                   Logistics Support
                 </span>
-                <h3 className="text-xl sm:text-2xl font-bold text-ink mb-2 leading-snug">
+                <h3 className="text-xl sm:text-2xl font-bold text-ink leading-snug">
                   Free Airport &amp; Hotel Stay
                 </h3>
-                <p className="text-xs sm:text-sm text-ink-muted leading-relaxed font-medium">
-                  Complimentary airport VIP reception, local 5G SIM card, and companion lodging for qualified surgical procedures.
-                </p>
               </div>
 
               <div className="relative z-10 mt-6 pt-4 border-t border-border-orange/40 flex items-center justify-between">
@@ -606,7 +603,7 @@ export const HomeTemplate: React.FC<HomeTemplateProps> = ({ data }) => {
             {/* Promo Card 2: Free Second Opinion */}
             <div
               id="opinion"
-              className="relative overflow-hidden rounded-[20px] border border-border-teal/80 bg-[#F4FAF8] p-6 sm:p-7 shadow-xs hover:shadow-md transition-all duration-300 group flex flex-col justify-between min-h-[300px] sm:min-h-[320px]"
+              className="relative overflow-hidden rounded-[20px] border border-border-teal/80 bg-[#F4FAF8] p-6 sm:p-7 shadow-xs hover:shadow-md transition-all duration-300 group flex flex-col justify-between min-h-[230px] sm:min-h-[250px]"
             >
               {/* Background Illustration Anchored to Right */}
               <div className="absolute inset-0 pointer-events-none select-none z-0 overflow-hidden">
@@ -624,12 +621,9 @@ export const HomeTemplate: React.FC<HomeTemplateProps> = ({ data }) => {
                 <span className="inline-block rounded-md bg-white px-2.5 py-1 text-[11px] font-bold text-action uppercase tracking-wider mb-3 border border-border-teal shadow-2xs">
                   Clinical Care
                 </span>
-                <h3 className="text-xl sm:text-2xl font-bold text-ink mb-2 leading-snug">
+                <h3 className="text-xl sm:text-2xl font-bold text-ink leading-snug">
                   Free Second Opinion in 48h
                 </h3>
-                <p className="text-xs sm:text-sm text-ink-muted leading-relaxed font-medium">
-                  Upload your MRI/CT scans. Receive comprehensive clinical reviews and treatment plans from senior department chairs at zero cost.
-                </p>
               </div>
 
               <div className="relative z-10 mt-6 pt-4 border-t border-border-teal/40 flex items-center justify-between">
@@ -651,7 +645,7 @@ export const HomeTemplate: React.FC<HomeTemplateProps> = ({ data }) => {
             {/* Promo Card 3: Best Price Guarantee */}
             <div
               id="billing"
-              className="relative overflow-hidden rounded-[20px] border border-border/80 bg-[#F8F9FA] p-6 sm:p-7 shadow-xs hover:shadow-md transition-all duration-300 group flex flex-col justify-between min-h-[300px] sm:min-h-[320px]"
+              className="relative overflow-hidden rounded-[20px] border border-border/80 bg-[#F8F9FA] p-6 sm:p-7 shadow-xs hover:shadow-md transition-all duration-300 group flex flex-col justify-between min-h-[230px] sm:min-h-[250px]"
             >
               {/* Background Illustration Anchored to Right */}
               <div className="absolute inset-0 pointer-events-none select-none z-0 overflow-hidden">
@@ -669,12 +663,9 @@ export const HomeTemplate: React.FC<HomeTemplateProps> = ({ data }) => {
                 <span className="inline-block rounded-md bg-white px-2.5 py-1 text-[11px] font-bold text-ink-muted uppercase tracking-wider mb-3 border border-border shadow-2xs">
                   Price Transparency
                 </span>
-                <h3 className="text-xl sm:text-2xl font-bold text-ink mb-2 leading-snug">
+                <h3 className="text-xl sm:text-2xl font-bold text-ink leading-snug">
                   Direct Hospital Billing
                 </h3>
-                <p className="text-xs sm:text-sm text-ink-muted leading-relaxed font-medium">
-                  Direct hospital billing with no hidden fees or agency commissions. Pay directly at the hospital billing desk upon admission.
-                </p>
               </div>
 
               <div className="relative z-10 mt-6 pt-4 border-t border-border/40 flex items-center justify-between">
